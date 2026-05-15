@@ -63,8 +63,8 @@ export async function POST(request: Request) {
     // Calculate sniper battle
     let finalAmount = Number(amount)
     let finalUserId = session.user.id
-    let finalIsAuto = Boolean(isAuto)
-    let finalAutoMax = finalIsAuto ? Number(autoMax) : null
+    const finalIsAuto = Boolean(isAuto)
+    const finalAutoMax = finalIsAuto ? Number(autoMax) : null
 
     // Find the highest existing auto-bid from a competitor
     const topCompetitor = await prisma.bid.findFirst({

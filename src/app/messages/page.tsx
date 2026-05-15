@@ -37,7 +37,7 @@ function MessagesPageContent() {
       setLoading(false)
 
       if (withUserId) {
-        let existing = convos.find((c: any) => c.partnerId === withUserId)
+        const existing = convos.find((c: any) => c.partnerId === withUserId)
         if (existing) {
           selectConversation(existing)
         } else {

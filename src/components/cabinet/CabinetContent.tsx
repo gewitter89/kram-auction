@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2 } from 'lucide-react'
+import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 interface CabinetContentProps {
