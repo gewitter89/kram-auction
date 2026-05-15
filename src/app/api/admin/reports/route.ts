@@ -11,7 +11,7 @@ async function checkAdmin() {
   return user
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const admin = await checkAdmin()
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

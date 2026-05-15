@@ -27,7 +27,7 @@ export async function PUT(request: Request) {
   return NextResponse.json({ user, message: 'Профіль збережено' })
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth()
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
