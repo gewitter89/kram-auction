@@ -86,7 +86,7 @@ export async function POST(request: Request) {
         description: description || '',
         images: JSON.stringify(images || []),
         categoryId: category!.id,
-        sellerId: session.user.id,
+        sellerId: session.user.id!,
         condition: condition || 'used',
         city: city || '',
         type: buyNowPrice ? 'both' : 'auction',

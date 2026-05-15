@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       await tx.bid.create({
         data: {
           listingId,
-          userId: session.user.id,
+          userId: session.user.id!,
           amount: listing.buyNowPrice!
         }
       })
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       await tx.transaction.create({
         data: {
           listingId,
-          buyerId: session.user.id,
+          buyerId: session.user.id!,
           sellerId: listing.sellerId,
           amount: listing.buyNowPrice!
         }
