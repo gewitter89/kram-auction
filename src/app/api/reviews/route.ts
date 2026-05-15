@@ -5,7 +5,8 @@ import { auth } from '@/lib/auth-config'
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
@@ -15,14 +16,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Вкажіть продавця та оцінку від 1 до 5' }, { status: 400 })
     }
 
-    if (sellerId === session.user.id) {
+    if (sellerId === userId) {
       return NextResponse.json({ error: 'Не можна залишати відгук самому собі' }, { status: 400 })
     }
 
     // Optional: Verify that the user actually bought something from this seller
     // For MVP we allow it, but let's check transactions
     const hasBought = await prisma.transaction.findFirst({
-      where: { sellerId, buyerId: session.user.id }
+      where: { sellerId, buyerId: userId }
     })
 
     if (!hasBought) {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
     // Check if review already exists for this listing (if listingId provided)
     if (listingId) {
       const existing = await prisma.review.findFirst({
-        where: { sellerId, reviewerId: session.user.id, listingId }
+        where: { sellerId, reviewerId: userId, listingId }
       })
       if (existing) {
         return NextResponse.json({ error: 'Ви вже залишали відгук за цей лот' }, { status: 400 })
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     const review = await prisma.review.create({
       data: {
         sellerId,
-        reviewerId: session.user.id,
+        reviewerId: userId,
         listingId: listingId || null,
         rating: Number(rating),
         text: text || ''

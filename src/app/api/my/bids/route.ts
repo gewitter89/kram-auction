@@ -3,11 +3,11 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const userId = session?.user?.id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const bids = await prisma.bid.findMany({
-    where: { userId: session.user.id },
+    where: { userId: userId },
     orderBy: { createdAt: 'desc' },
     include: {
       listing: {

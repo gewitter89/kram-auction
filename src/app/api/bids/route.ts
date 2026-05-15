@@ -110,7 +110,7 @@ export async function POST(request: Request) {
           })
         } else {
           // Current user wins
-          finalUserId = session.user.id
+          finalUserId = userId
           finalAmount = Math.min(finalAutoMax, compMax + minIncrement)
           
           // Competitor exhausted at compMax
@@ -205,7 +205,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const message = finalUserId === session.user.id 
+    const message = finalUserId === userId 
       ? 'Ставку прийнято! Ви лідер.'
       : 'Вашу ставку було миттєво перебито авто-ставкою іншого учасника.'
 

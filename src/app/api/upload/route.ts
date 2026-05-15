@@ -10,7 +10,8 @@ const MAX_FILES = 8
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       }
 
       const ext = file.type.split('/')[1].replace('jpeg', 'jpg')
-      const filename = `${session.user.id}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const filename = `${userId}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
       const filepath = join(uploadDir, filename)
 
       const buffer = Buffer.from(await file.arrayBuffer())

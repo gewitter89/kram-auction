@@ -66,7 +66,7 @@ export function SellerProfileContent({ seller }: Props) {
                 <span>{seller.soldCount} продажів</span>
               </div>
             </div>
-            {session && session.user.id !== seller.id && (
+            {session?.user?.id !== seller.id && (
               <div className="mt-4">
                 <button 
                   onClick={() => setShowReviewModal(true)}

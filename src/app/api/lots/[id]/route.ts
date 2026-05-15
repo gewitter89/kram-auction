@@ -5,7 +5,8 @@ import { auth } from '@/lib/auth-config'
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -16,7 +17,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
     }
 
-    if (lot.sellerId !== session.user.id && session.user.role !== 'admin') {
+    if (lot.sellerId !== userId && session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

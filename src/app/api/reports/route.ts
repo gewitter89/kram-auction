@@ -5,7 +5,8 @@ import { auth } from '@/lib/auth-config'
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 
     const report = await prisma.report.create({
       data: {
-        userId: session.user.id,
+        userId: userId,
         listingId: listingId || '', // Empty string for verification requests
         reason,
         status: 'pending'

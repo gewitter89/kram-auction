@@ -4,8 +4,9 @@ import { auth } from '@/lib/auth-config'
 
 async function checkAdmin() {
   const session = await auth()
-  if (!session?.user?.id) return null
-  const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+  const userId = session?.user?.id
+  if (!userId) return null
+  const user = await prisma.user.findUnique({ where: { id: userId } })
   if (user?.role !== 'admin' && user?.email !== 'admin@lotva.ua' && user?.email !== 'admin@kram.ua') return null
   return user
 }
