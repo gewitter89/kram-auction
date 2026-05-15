@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  avatar       String?
+  city         String?
+  bio          String?
+  rating       Float    @default(0)
+  reviewsCount Int      @default(0)
+  verified     Boolean  @default(false)
+  role         String   @default("user") // user, seller, admin
+  createdAt    DateTime @default(now())
+
+  listings      Listing[]
+  bids          Bid[]
+  favorites     Favorite[]
+  sentMessages  Message[]      @relation("sender")
+  receivedMessages Message[]   @relation("receiver")
+  notifications Notification[]
+  reviewsGiven  Review[]       @relation("reviewer")
+  reviewsReceived Review[]     @relation("seller")
+  reports       Report[]
+  purchases     Transaction[]  @relation("buyer")
+  sales         Transaction[]  @relation("seller")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  icon     String
+  parentId String?
+  listings Listing[]
+}
+
+model Listing {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  images       String   // JSON array of image URLs
+  categoryId   String
+  sellerId     String
+  condition    String   @default("used") // new, like_new, used, for_parts
+  city         String
+  type         String   @default("auction") // auction, buy_now, both
+  startPrice   Float
+  currentPrice Float
+  buyNowPrice  Float?
+  minIncrement Float    @default(10)
+  reservePrice Float?
+  duration     Int      @default(7) // days
+  endsAt       DateTime
+  status       String   @default("active") // active, ended, sold, cancelled
+  views        Int      @default(0)
+  delivery     String   @default("nova_poshta") // nova_poshta, ukrposhta, pickup
+  featured     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  category     Category      @relation(fields: [categoryId], references: [id])
+  seller       User          @relation(fields: [sellerId], references: [id])
+  bids         Bid[]
+  favorites    Favorite[]
+  messages     Message[]
+  reports      Report[]
+  transactions Transaction[]
+}
+
+model Bid {
+  id        String   @id @default(cuid())
+  listingId String
+  userId    String
+  amount    Float
+  isAuto    Boolean  @default(false)
+  autoMax   Float?
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@unique([userId, listingId])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  listingId  String?
+  text       String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender   User     @relation("sender", fields: [senderId], references: [id])
+  receiver User     @relation("receiver", fields: [receiverId], references: [id])
+  listing  Listing? @relation(fields: [listingId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // outbid, won, ending_soon, sold, message, shipped
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  listingId String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  sellerId   String
+  reviewerId String
+  listingId  String?
+  rating     Int
+  text       String?
+  createdAt  DateTime @default(now())
+
+  seller   User @relation("seller", fields: [sellerId], references: [id])
+  reviewer User @relation("reviewer", fields: [reviewerId], references: [id])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  listingId String?
+  userId    String
+  reason    String
+  status    String   @default("pending") // pending, reviewed, resolved
+  createdAt DateTime @default(now())
+
+  listing Listing? @relation(fields: [listingId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  listingId String
+  buyerId   String
+  sellerId  String
+  amount    Float
+  status    String   @default("pending") // pending, paid, shipped, received, disputed
+  createdAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id])
+  buyer   User    @relation("buyer", fields: [buyerId], references: [id])
+  seller  User    @relation("seller", fields: [sellerId], references: [id])
+}
