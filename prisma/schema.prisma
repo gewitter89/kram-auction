@@ -74,6 +74,7 @@ model Listing {
   messages     Message[]
   reports      Report[]
   transactions Transaction[]
+  reviews      Review[]
 }
 
 model Bid {
@@ -139,6 +140,7 @@ model Review {
 
   seller   User @relation("seller", fields: [sellerId], references: [id])
   reviewer User @relation("reviewer", fields: [reviewerId], references: [id])
+  listing  Listing? @relation(fields: [listingId], references: [id])
 }
 
 model Report {

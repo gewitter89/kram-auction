@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
 
 export async function GET(request: Request) {
+  const session = await auth()
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -41,8 +42,8 @@ export async function GET(request: Request) {
     },
     orderBy: { createdAt: 'desc' },
     include: {
-      sender: { select: { id: true, name: true, image: true } },
-      receiver: { select: { id: true, name: true, image: true } },
+      sender: { select: { id: true, name: true, avatar: true } },
+      receiver: { select: { id: true, name: true, avatar: true } },
       listing: { select: { id: true, title: true } }
     }
   })
@@ -70,6 +71,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const session = await auth()
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -90,7 +92,7 @@ export async function POST(request: Request) {
       userId: receiverId,
       type: 'message',
       title: 'Нове повідомлення',
-      message: `${session.user.name}: ${text.slice(0, 60)}`,
+      message: `${session?.user?.name || 'Учасник'}: ${text.slice(0, 60)}`,
     }
   })
 

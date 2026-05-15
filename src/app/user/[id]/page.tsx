@@ -8,7 +8,7 @@ export default async function SellerPage({ params }: { params: Promise<{ id: str
   const seller = await prisma.user.findUnique({
     where: { id },
     select: {
-      id: true, name: true, image: true, createdAt: true,
+      id: true, name: true, avatar: true, createdAt: true,
       rating: true, verified: true,
       reviewsCount: true,
       reviewsReceived: {
@@ -16,7 +16,7 @@ export default async function SellerPage({ params }: { params: Promise<{ id: str
         take: 50,
         select: {
           id: true, rating: true, text: true, createdAt: true,
-          reviewer: { select: { id: true, name: true, image: true } },
+          reviewer: { select: { id: true, name: true, avatar: true } },
           listing: { select: { id: true, title: true } }
         }
       },

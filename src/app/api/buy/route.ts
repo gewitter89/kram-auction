@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       type: 'won',
       name: listing.title,
       amount: `${listing.buyNowPrice.toLocaleString('uk-UA')} ₴`,
-      user: session.user.name?.slice(0, 3) + '***' + userId.slice(-2)
+      user: (session?.user?.name || 'Учасник').slice(0, 3) + '***' + userId.slice(-2)
     })
 
     return NextResponse.json({ message: 'Лот куплено' })

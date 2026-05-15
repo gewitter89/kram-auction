@@ -170,7 +170,7 @@ export async function POST(request: Request) {
         id: newlyCreatedBid.id,
         amount: finalAmount,
         createdAt: new Date().toISOString(),
-        user: { name: finalUserId === userId ? session.user.name : 'Авто-ставка' }
+        user: { name: (finalUserId === userId ? session?.user?.name : 'Авто-ставка') || 'Учасник' }
       } : null
     })
 
@@ -178,7 +178,7 @@ export async function POST(request: Request) {
       type: 'bid',
       name: listing.title,
       amount: `+${(finalAmount - listing.currentPrice).toLocaleString('uk-UA')} ₴`,
-      user: session.user.name?.slice(0, 3) + '***' + userId.slice(-2)
+      user: (session?.user?.name || 'Учасник').slice(0, 3) + '***' + userId.slice(-2)
     })
 
     // Outbid Notification

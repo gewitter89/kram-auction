@@ -11,7 +11,7 @@ interface Props {
   seller: {
     id: string
     name: string | null
-    image: string | null
+    avatar: string | null
     createdAt: Date
     rating: number
     verified: boolean
@@ -36,8 +36,8 @@ export function SellerProfileContent({ seller }: Props) {
       <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
           <div className="w-20 h-20 rounded-2xl overflow-hidden bg-[#EFF6FF] flex items-center justify-center flex-shrink-0">
-            {seller.image
-              ? <img src={seller.image} alt="" className="w-full h-full object-cover" />
+            {seller.avatar
+              ? <img src={seller.avatar} alt="" className="w-full h-full object-cover" />
               : <User className="w-9 h-9 text-[#2563EB]" />
             }
           </div>
@@ -165,8 +165,8 @@ export function SellerProfileContent({ seller }: Props) {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-[#F1F5F9] rounded-full overflow-hidden flex items-center justify-center">
-                      {review.reviewer.image ? (
-                        <img src={review.reviewer.image} alt="" className="w-full h-full object-cover" />
+                      {review.reviewer.avatar ? (
+                        <img src={review.reviewer.avatar} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <User className="w-5 h-5 text-[#94A3B8]" />
                       )}

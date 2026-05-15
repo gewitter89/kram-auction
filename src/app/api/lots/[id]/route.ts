@@ -17,7 +17,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
     }
 
-    if (lot.sellerId !== userId && session.user.role !== 'admin') {
+    if (lot.sellerId !== userId && session?.user?.role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
