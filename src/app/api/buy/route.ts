@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     await prisma.$transaction(async (tx) => {
       await tx.listing.update({
         where: { id: listingId },
-        data: { status: 'sold', currentPrice: listing.buyNowPrice }
+        data: { status: 'sold', currentPrice: listing.buyNowPrice! }
       })
 
       // Add a bid just to show it in history as the final price
