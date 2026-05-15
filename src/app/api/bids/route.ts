@@ -136,7 +136,7 @@ export async function POST(request: Request) {
       }
     }
 
-    let newlyCreatedBid = null
+    let newlyCreatedBid: any = null
 
     // Execute in transaction
     await prisma.$transaction(async (tx) => {
