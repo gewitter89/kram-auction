@@ -4,7 +4,8 @@ import { auth } from '@/lib/auth-config'
 
 export async function PUT(request: Request) {
   const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const userId = session?.user?.id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { name, city, phone, bio } = await request.json()
 
@@ -13,7 +14,7 @@ export async function PUT(request: Request) {
   }
 
   const user = await prisma.user.update({
-    where: { id: session.user.id! },
+    where: { id: userId },
     data: {
       name: name.trim(),
       ...(city !== undefined ? { city: city.trim() } : {}),
@@ -28,10 +29,11 @@ export async function PUT(request: Request) {
 
 export async function GET() {
   const session = await auth()
-  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const userId = session?.user?.id
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id! },
+    where: { id: userId },
     select: { id: true, name: true, email: true, avatar: true, city: true, phone: true, bio: true, createdAt: true }
   })
 

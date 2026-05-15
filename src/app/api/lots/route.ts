@@ -64,7 +64,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
         description: description || '',
         images: JSON.stringify(images || []),
         categoryId: category!.id,
-        sellerId: session.user.id!,
+        sellerId: userId,
         condition: condition || 'used',
         city: city || '',
         type: buyNowPrice ? 'both' : 'auction',

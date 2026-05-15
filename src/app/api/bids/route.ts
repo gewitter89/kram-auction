@@ -10,11 +10,12 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
-    if (isRateLimited(`bid:${session.user.id}`, 10, 60_000)) {
+    if (isRateLimited(`bid:${userId}`, 10, 60_000)) {
       return NextResponse.json({ error: 'Забагато ставок. Зачекайте хвилину.' }, { status: 429 })
     }
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Аукціон завершено' }, { status: 400 })
     }
 
-    if (listing.sellerId === session.user.id) {
+    if (listing.sellerId === userId) {
       return NextResponse.json({ error: 'Не можна робити ставку на свій лот' }, { status: 400 })
     }
 
@@ -55,14 +56,14 @@ export async function POST(request: Request) {
 
     // Get previous top bid to notify them later
     const previousTopBid = await prisma.bid.findFirst({
-      where: { listingId, userId: { not: session.user.id } },
+      where: { listingId, userId: { not: userId } },
       orderBy: { amount: 'desc' },
       include: { user: { select: { name: true, email: true } } }
     })
 
     // Calculate sniper battle
     let finalAmount = Number(amount)
-    let finalUserId = session.user.id
+    let finalUserId = userId
     const finalIsAuto = Boolean(isAuto)
     const finalAutoMax = finalIsAuto ? Number(autoMax) : null
 
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       where: { 
         listingId, 
         isAuto: true, 
-        userId: { not: session.user.id },
+        userId: { not: userId },
         autoMax: { gte: finalAmount } // Only care if they can match or beat the base amount
       },
       orderBy: { autoMax: 'desc' }
@@ -100,7 +101,7 @@ export async function POST(request: Request) {
           
           // Current user bid exhausted at finalAutoMax
           newBidsToCreate.push({
-            listingId, userId: session.user.id, amount: finalAutoMax, isAuto: true, autoMax: finalAutoMax
+            listingId, userId: userId, amount: finalAutoMax, isAuto: true, autoMax: finalAutoMax
           })
           
           // Competitor counter-bid
@@ -169,7 +170,7 @@ export async function POST(request: Request) {
         id: newlyCreatedBid.id,
         amount: finalAmount,
         createdAt: new Date().toISOString(),
-        user: { name: finalUserId === session.user.id ? session.user.name : 'Авто-ставка' }
+        user: { name: finalUserId === userId ? session.user.name : 'Авто-ставка' }
       } : null
     })
 
@@ -177,7 +178,7 @@ export async function POST(request: Request) {
       type: 'bid',
       name: listing.title,
       amount: `+${(finalAmount - listing.currentPrice).toLocaleString('uk-UA')} ₴`,
-      user: session.user.name?.slice(0, 3) + '***' + session.user.id.slice(-2)
+      user: session.user.name?.slice(0, 3) + '***' + userId.slice(-2)
     })
 
     // Outbid Notification

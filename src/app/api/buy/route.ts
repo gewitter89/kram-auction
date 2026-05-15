@@ -6,7 +6,8 @@ import { eventBus } from '@/lib/eventBus'
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.id) {
+    const userId = session?.user?.id
+    if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     const listing = await prisma.listing.findUnique({ where: { id: listingId } })
     if (!listing) return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
 
-    if (listing.sellerId === session.user.id) {
+    if (listing.sellerId === userId) {
       return NextResponse.json({ error: 'Ви не можете купити свій лот' }, { status: 400 })
     }
 
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
       await tx.bid.create({
         data: {
           listingId,
-          userId: session.user.id!,
+          userId: userId,
           amount: listing.buyNowPrice!
         }
       })
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
       await tx.transaction.create({
         data: {
           listingId,
-          buyerId: session.user.id!,
+          buyerId: userId,
           sellerId: listing.sellerId,
           amount: listing.buyNowPrice!
         }
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
       type: 'won',
       name: listing.title,
       amount: `${listing.buyNowPrice.toLocaleString('uk-UA')} ₴`,
-      user: session.user.name?.slice(0, 3) + '***' + session.user.id.slice(-2)
+      user: session.user.name?.slice(0, 3) + '***' + userId.slice(-2)
     })
 
     return NextResponse.json({ message: 'Лот куплено' })
