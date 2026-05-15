@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       orderBy: { autoMax: 'desc' }
     })
 
-    const newBidsToCreate: any[] = []
+    const newBidsToCreate: any[] =  []
 
     // Register the base bid from the current user
     newBidsToCreate.push({
