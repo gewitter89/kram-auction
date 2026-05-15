@@ -10,7 +10,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3002'
 export async function POST(request: Request) {
   try {
     const session = await auth()
-    const userId = session?.user?.id
+    const userId = session?.user?.id as string
     if (!userId) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
