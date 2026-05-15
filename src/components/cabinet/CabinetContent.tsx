@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle } from 'lucide-react'
+import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2 } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 interface CabinetContentProps {
@@ -541,5 +541,13 @@ function SkeletonList() {
         </div>
       ))}
     </div>
+  )
+}
+
+function CheckCircle(props: any) {
+  return (
+    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
   )
 }

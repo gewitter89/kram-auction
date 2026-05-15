@@ -174,7 +174,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
             <h3 className="text-[15px] font-bold text-[#0B1220] mb-4">Ваше замовлення</h3>
             <div className="flex gap-3 mb-4 pb-4 border-b border-[#F1F5F9]">
               <div className="w-16 h-16 bg-[#F8FAFC] rounded-lg overflow-hidden flex-shrink-0">
-                {JSON.parse(lot.images || '[]')[0] && <img src={JSON.parse(lot.images || '[]')[0]} alt={lot.title} className="w-full h-full object-cover" />}
+                {JSON.parse(lot.images || '[]')[0] && <img src={JSON.parse(lot.images || '[]')[0]} alt="" className="w-full h-full object-cover" />}
               </div>
               <div className="min-w-0">
                 <p className="text-[13px] font-semibold text-[#0F172A] line-clamp-2 leading-tight mb-1">{lot.title}</p>

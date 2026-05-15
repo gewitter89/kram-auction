@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, User, Search, MoreVertical, CheckCircle, XCircle } from 'lucide-react'
+import { ShieldCheck, User, Search, MoreVertical, XCircle } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 export default function AdminUsersPage() {
@@ -136,5 +136,13 @@ export default function AdminUsersPage() {
         </table>
       </div>
     </div>
+  )
+}
+
+function CheckCircle(props: any) {
+  return (
+    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
   )
 }

@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       orderBy: { autoMax: 'desc' }
     })
 
-    const newBidsToCreate = []
+    const newBidsToCreate: any[] = []
 
     // Register the base bid from the current user
     newBidsToCreate.push({
@@ -191,6 +191,7 @@ export async function POST(request: Request) {
           listingId
         }
       })
+      const lotUrl = `${APP_URL}/lot/${listingId}`
       if (previousTopBid.user?.email) {
         sendOutbidEmail({
           to: previousTopBid.user.email,
