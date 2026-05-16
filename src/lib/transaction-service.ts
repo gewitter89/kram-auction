@@ -614,7 +614,8 @@ export async function openTransactionDispute(
   }
 
   // Can only dispute from PAID_HELD or SELLER_SHIPPED
-  if (![TransactionStatus.PAID_HELD, TransactionStatus.SELLER_SHIPPED].includes(transaction.status)) {
+  const disputableStatuses = [TransactionStatus.PAID_HELD, TransactionStatus.SELLER_SHIPPED]
+  if (!disputableStatuses.includes(transaction.status as any)) {
     throw new Error('INVALID_STATUS')
   }
 
