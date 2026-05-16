@@ -24,7 +24,10 @@ export async function POST(request: Request) {
     const ip = headers.get('x-forwarded-for') || undefined
     const userAgent = headers.get('user-agent') || undefined
 
-    const transaction = await createTransactionFromBuyNow(listingId, userId, ip, userAgent)
+    // Generate idempotency key for double-submit protection
+    const idempotencyKey = `buy:${listingId}:${userId}:${Math.floor(Date.now() / 1000 / 60)}` // 1-minute window
+
+    const transaction = await createTransactionFromBuyNow(listingId, userId, ip, userAgent, idempotencyKey)
 
     eventBus.emit('global', {
       type: 'won',

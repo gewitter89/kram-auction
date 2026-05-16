@@ -106,9 +106,21 @@ export async function createTransactionFromBuyNow(
   listingId: string,
   buyerId: string,
   ip?: string,
-  userAgent?: string
+  userAgent?: string,
+  idempotencyKey?: string
 ) {
-  // Check for existing active transaction
+  // Check idempotency first
+  if (idempotencyKey) {
+    const existingByKey = await prisma.transaction.findUnique({
+      where: { idempotencyKey },
+    })
+    if (existingByKey) {
+      // Return existing transaction instead of error
+      return existingByKey
+    }
+  }
+
+  // Check for existing active transaction on this listing
   const existing = await prisma.transaction.findFirst({
     where: {
       listingId,
@@ -158,6 +170,7 @@ export async function createTransactionFromBuyNow(
       status: TransactionStatus.PENDING_PAYMENT,
       paymentStatus: PaymentStatus.NOT_PAID,
       deliveryStatus: DeliveryStatus.NOT_SHIPPED,
+      idempotencyKey,
     },
     include: {
       listing: { select: { title: true, id: true } },
@@ -175,53 +188,65 @@ export async function createTransactionFromBuyNow(
     },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transaction.id,
-    TransactionEventType.TRANSACTION_CREATED,
-    buyerId,
-    null,
-    TransactionStatus.PENDING_PAYMENT,
-    'Транзакцію створено через Купити зараз',
-    { source: 'buy_now', amount: listing.buyNowPrice }
-  )
+  // Create event (best-effort)
+  try {
+    await createTransactionEvent(
+      transaction.id,
+      TransactionEventType.TRANSACTION_CREATED,
+      buyerId,
+      null,
+      TransactionStatus.PENDING_PAYMENT,
+      'Транзакцію створено через Купити зараз',
+      { source: 'buy_now', amount: listing.buyNowPrice }
+    )
+  } catch (e) { console.error('Failed to create event:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: buyerId,
-    action: 'transaction_created_buy_now',
-    ip,
-    userAgent,
-    metadata: { transactionId: transaction.id, listingId, amount: listing.buyNowPrice },
-  })
+  // Audit log (best-effort)
+  try {
+    await logAuditEvent({
+      userId: buyerId,
+      action: 'transaction_created_buy_now',
+      ip,
+      userAgent,
+      metadata: { transactionId: transaction.id, listingId, amount: listing.buyNowPrice },
+    })
+  } catch (e) { console.error('Failed to log audit:', e) }
 
-  // Notifications
-  await createNotification(
-    transaction.sellerId,
-    'sold',
-    '💰 Лот куплено!',
-    `Ваш лот "${transaction.listing.title}" куплено за ${transaction.amount} ₴. Очікуйте підтвердження оплати.`,
-    listingId
-  )
+  // Notifications (best-effort)
+  try {
+    await createNotification(
+      transaction.sellerId,
+      'sold',
+      '💰 Лот куплено!',
+      `Ваш лот "${transaction.listing.title}" куплено за ${transaction.amount} ₴. Очікуйте підтвердження оплати.`,
+      listingId
+    )
+  } catch (e) { console.error('Failed to notify seller:', e) }
 
-  await createNotification(
-    buyerId,
-    'purchase',
-    '✅ Покупка успішна',
-    `Ви купили "${transaction.listing.title}" за ${transaction.amount} ₴. Підтвердіть оплату для продовження.`,
-    listingId
-  )
+  try {
+    await createNotification(
+      buyerId,
+      'purchase',
+      '✅ Покупка успішна',
+      `Ви купили "${transaction.listing.title}" за ${transaction.amount} ₴. Підтвердіть оплату для продовження.`,
+      listingId
+    )
+  } catch (e) { console.error('Failed to notify buyer:', e) }
 
-  // Telegram notifications
-  await notifyUserTelegram(
-    transaction.sellerId,
-    `💰 <b>Лот куплено!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n👤 Покупець: ${transaction.buyer.name}\n\n<a href="https://kram-auction.vercel.app/cabinet">Перейти в кабінет →</a>`
-  )
+  // Telegram notifications (best-effort)
+  try {
+    await notifyUserTelegram(
+      transaction.sellerId,
+      `💰 <b>Лот куплено!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n👤 Покупець: ${transaction.buyer.name}\n\n<a href="https://kram-auction.vercel.app/cabinet">Перейти в кабінет →</a>`
+    )
+  } catch (e) { console.error('Failed to send Telegram to seller:', e) }
 
-  await notifyUserTelegram(
-    buyerId,
-    `✅ <b>Покупка успішна!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті, щоб продавець міг відправити товар.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити оплату →</a>`
-  )
+  try {
+    await notifyUserTelegram(
+      buyerId,
+      `✅ <b>Покупка успішна!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті, щоб продавець міг відправити товар.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити оплату →</a>`
+    )
+  } catch (e) { console.error('Failed to send Telegram to buyer:', e) }
 
   return transaction
 }
@@ -231,8 +256,19 @@ export async function createTransactionFromAuctionWin(
   listingId: string,
   buyerId: string,
   finalPrice: number,
-  actorId: string | null = null // null for system/cron
+  actorId: string | null = null, // null for system/cron
+  idempotencyKey?: string
 ) {
+  // Check idempotency first
+  if (idempotencyKey) {
+    const existingByKey = await prisma.transaction.findUnique({
+      where: { idempotencyKey },
+    })
+    if (existingByKey) {
+      return existingByKey
+    }
+  }
+
   // Check for existing active transaction
   const existing = await prisma.transaction.findFirst({
     where: {
@@ -271,6 +307,7 @@ export async function createTransactionFromAuctionWin(
       status: TransactionStatus.PENDING_PAYMENT,
       paymentStatus: PaymentStatus.NOT_PAID,
       deliveryStatus: DeliveryStatus.NOT_SHIPPED,
+      idempotencyKey,
     },
     include: {
       listing: { select: { title: true, id: true } },
@@ -279,51 +316,60 @@ export async function createTransactionFromAuctionWin(
     },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transaction.id,
-    TransactionEventType.TRANSACTION_CREATED,
-    actorId,
-    null,
-    TransactionStatus.PENDING_PAYMENT,
-    'Транзакцію створено після перемоги в аукціоні',
-    { source: 'auction_win', amount: finalPrice }
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transaction.id,
+      TransactionEventType.TRANSACTION_CREATED,
+      actorId,
+      null,
+      TransactionStatus.PENDING_PAYMENT,
+      'Транзакцію створено після перемоги в аукціоні',
+      { source: 'auction_win', amount: finalPrice }
+    )
+  } catch (e) { console.error('Event failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: actorId || undefined,
-    action: 'transaction_created_auction_win',
-    metadata: { transactionId: transaction.id, listingId, amount: finalPrice },
-  })
+  try {
+    await logAuditEvent({
+      userId: actorId || undefined,
+      action: 'transaction_created_auction_win',
+      metadata: { transactionId: transaction.id, listingId, amount: finalPrice },
+    })
+  } catch (e) { console.error('Audit failed:', e) }
 
-  // Notifications
-  await createNotification(
-    transaction.sellerId,
-    'sold',
-    '🎉 Лот продано на аукціоні!',
-    `Ваш лот "${transaction.listing.title}" продано на аукціоні за ${transaction.amount} ₴. Очікуйте підтвердження оплати.`,
-    listingId
-  )
+  try {
+    await createNotification(
+      transaction.sellerId,
+      'sold',
+      '🎉 Лот продано на аукціоні!',
+      `Ваш лот "${transaction.listing.title}" продано на аукціоні за ${transaction.amount} ₴. Очікуйте підтвердження оплати.`,
+      listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await createNotification(
-    buyerId,
-    'won',
-    '🎉 Ви виграли аукціон!',
-    `Вітаємо! Ви виграли "${transaction.listing.title}" за ${transaction.amount} ₴. Підтвердіть оплату для продовження.`,
-    listingId
-  )
+  try {
+    await createNotification(
+      buyerId,
+      'won',
+      '🎉 Ви виграли аукціон!',
+      `Вітаємо! Ви виграли "${transaction.listing.title}" за ${transaction.amount} ₴. Підтвердіть оплату для продовження.`,
+      listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  // Telegram notifications
-  await notifyUserTelegram(
-    transaction.sellerId,
-    `🎉 <b>Лот продано на аукціоні!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\n<a href="https://kram-auction.vercel.app/cabinet">Перейти в кабінет →</a>`
-  )
+  try {
+    await notifyUserTelegram(
+      transaction.sellerId,
+      `🎉 <b>Лот продано на аукціоні!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\n<a href="https://kram-auction.vercel.app/cabinet">Перейти в кабінет →</a>`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
-  await notifyUserTelegram(
-    buyerId,
-    `🎉 <b>Ви виграли аукціон!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити оплату →</a>`
-  )
+  try {
+    await notifyUserTelegram(
+      buyerId,
+      `🎉 <b>Ви виграли аукціон!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити оплату →</a>`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return transaction
 }
@@ -370,39 +416,45 @@ export async function markTransactionPaid(
     },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transactionId,
-    TransactionEventType.TRANSACTION_MARKED_PAID,
-    buyerId,
-    TransactionStatus.PENDING_PAYMENT,
-    TransactionStatus.PAID_HELD,
-    'Покупець підтвердив оплату (MVP)',
-    { note: 'MVP ручне підтвердження, реальний платіж буде інтегровано пізніше' }
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transactionId,
+      TransactionEventType.TRANSACTION_MARKED_PAID,
+      buyerId,
+      TransactionStatus.PENDING_PAYMENT,
+      TransactionStatus.PAID_HELD,
+      'Покупець підтвердив оплату (MVP)',
+      { note: 'MVP ручне підтвердження, реальний платіж буде інтегровано пізніше' }
+    )
+  } catch (e) { console.error('Event creation failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: buyerId,
-    action: 'transaction_marked_paid',
-    ip,
-    userAgent,
-    metadata: { transactionId, fromStatus: TransactionStatus.PENDING_PAYMENT, toStatus: TransactionStatus.PAID_HELD },
-  })
+  try {
+    await logAuditEvent({
+      userId: buyerId,
+      action: 'transaction_marked_paid',
+      ip,
+      userAgent,
+      metadata: { transactionId, fromStatus: TransactionStatus.PENDING_PAYMENT, toStatus: TransactionStatus.PAID_HELD },
+    })
+  } catch (e) { console.error('Audit log failed:', e) }
 
-  // Notify seller
-  await createNotification(
-    transaction.sellerId,
-    'payment_confirmed',
-    '💳 Оплата підтверджена!',
-    `Покупець підтвердив оплату за "${transaction.listing.title}". Відправте товар та вкажіть номер накладної.`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      transaction.sellerId,
+      'payment_confirmed',
+      '💳 Оплата підтверджена!',
+      `Покупець підтвердив оплату за "${transaction.listing.title}". Відправте товар та вкажіть номер накладної.`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await notifyUserTelegram(
-    transaction.sellerId,
-    `💳 <b>Оплата підтверджена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nВідправте товар та вкажіть номер накладної.\n\n<a href="https://kram-auction.vercel.app/cabinet">Вказати відправлення →</a>`
-  )
+  try {
+    await notifyUserTelegram(
+      transaction.sellerId,
+      `💳 <b>Оплата підтверджена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nВідправте товар та вкажіть номер накладної.\n\n<a href="https://kram-auction.vercel.app/cabinet">Вказати відправлення →</a>`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return updated
 }
@@ -457,39 +509,45 @@ export async function shipTransaction(
     },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transactionId,
-    TransactionEventType.TRANSACTION_SHIPPED,
-    sellerId,
-    TransactionStatus.PAID_HELD,
-    TransactionStatus.SELLER_SHIPPED,
-    `Продавець відправив товар через ${deliveryProvider}`,
-    { trackingNumber, deliveryProvider }
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transactionId,
+      TransactionEventType.TRANSACTION_SHIPPED,
+      sellerId,
+      TransactionStatus.PAID_HELD,
+      TransactionStatus.SELLER_SHIPPED,
+      `Продавець відправив товар через ${deliveryProvider}`,
+      { trackingNumber, deliveryProvider }
+    )
+  } catch (e) { console.error('Event failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: sellerId,
-    action: 'transaction_shipped',
-    ip,
-    userAgent,
-    metadata: { transactionId, trackingNumber, deliveryProvider },
-  })
+  try {
+    await logAuditEvent({
+      userId: sellerId,
+      action: 'transaction_shipped',
+      ip,
+      userAgent,
+      metadata: { transactionId, trackingNumber, deliveryProvider },
+    })
+  } catch (e) { console.error('Audit failed:', e) }
 
-  // Notify buyer
-  await createNotification(
-    transaction.buyerId,
-    'shipped',
-    '🚚 Товар відправлено!',
-    `Продавець відправив "${transaction.listing.title}" через ${deliveryProvider}. Номер накладної: ${trackingNumber}. Після отримання підтвердіть угоду.`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      transaction.buyerId,
+      'shipped',
+      '🚚 Товар відправлено!',
+      `Продавець відправив "${transaction.listing.title}" через ${deliveryProvider}. Номер накладної: ${trackingNumber}. Після отримання підтвердіть угоду.`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await notifyUserTelegram(
-    transaction.buyerId,
-    `🚚 <b>Товар відправлено!</b>\n\n📦 "${transaction.listing.title}"\n🚚 ${deliveryProvider}\n📋 Накладна: ${trackingNumber}\n\nПісля отримання підтвердіть угоду в кабінеті.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити отримання →</a>`
-  )
+  try {
+    await notifyUserTelegram(
+      transaction.buyerId,
+      `🚚 <b>Товар відправлено!</b>\n\n📦 "${transaction.listing.title}"\n🚚 ${deliveryProvider}\n📋 Накладна: ${trackingNumber}\n\nПісля отримання підтвердіть угоду в кабінеті.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити отримання →</a>`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return updated
 }
@@ -537,52 +595,61 @@ export async function confirmTransactionReceived(
     },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transactionId,
-    TransactionEventType.TRANSACTION_COMPLETED,
-    buyerId,
-    TransactionStatus.SELLER_SHIPPED,
-    TransactionStatus.COMPLETED,
-    'Покупець підтвердив отримання, угоду завершено'
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transactionId,
+      TransactionEventType.TRANSACTION_COMPLETED,
+      buyerId,
+      TransactionStatus.SELLER_SHIPPED,
+      TransactionStatus.COMPLETED,
+      'Покупець підтвердив отримання, угоду завершено'
+    )
+  } catch (e) { console.error('Event failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: buyerId,
-    action: 'transaction_completed',
-    ip,
-    userAgent,
-    metadata: { transactionId },
-  })
+  try {
+    await logAuditEvent({
+      userId: buyerId,
+      action: 'transaction_completed',
+      ip,
+      userAgent,
+      metadata: { transactionId },
+    })
+  } catch (e) { console.error('Audit failed:', e) }
 
-  // Notifications
-  await createNotification(
-    transaction.sellerId,
-    'completed',
-    '✅ Угода завершена!',
-    `Покупець підтвердив отримання "${transaction.listing.title}". Угоду завершено, кошти будуть перераховані (MVP: реальні виплати інтегруються пізніше).`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      transaction.sellerId,
+      'completed',
+      '✅ Угода завершена!',
+      `Покупець підтвердив отримання "${transaction.listing.title}". Угоду завершено, кошти будуть перераховані (MVP: реальні виплати інтегруються пізніше).`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await createNotification(
-    buyerId,
-    'completed',
-    '✅ Угода завершена!',
-    `Ви підтвердили отримання "${transaction.listing.title}". Дякуємо за покупку!`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      buyerId,
+      'completed',
+      '✅ Угода завершена!',
+      `Ви підтвердили отримання "${transaction.listing.title}". Дякуємо за покупку!`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  // Telegram
-  await notifyUserTelegram(
-    transaction.sellerId,
-    `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПокупець підтвердив отримання. Дякуємо за співпрацю!`
-  )
+  try {
+    await notifyUserTelegram(
+      transaction.sellerId,
+      `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПокупець підтвердив отримання. Дякуємо за співпрацю!`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
-  await notifyUserTelegram(
-    buyerId,
-    `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n\nДякуємо за покупку! Залиште відгук про продавця.\n\n<a href="https://kram-auction.vercel.app/cabinet">Залишити відгук →</a>`
-  )
+  try {
+    await notifyUserTelegram(
+      buyerId,
+      `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n\nДякуємо за покупку! Залиште відгук про продавця.\n\n<a href="https://kram-auction.vercel.app/cabinet">Залишити відгук →</a>`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return updated
 }
@@ -636,39 +703,45 @@ export async function openTransactionDispute(
     },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transactionId,
-    TransactionEventType.TRANSACTION_DISPUTED,
-    actorId,
-    isBuyer ? TransactionStatus.PAID_HELD : TransactionStatus.SELLER_SHIPPED,
-    TransactionStatus.DISPUTED,
-    `${actorType} відкрив спір: ${reason}`,
-    { reason, openedBy: isBuyer ? 'buyer' : 'seller' }
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transactionId,
+      TransactionEventType.TRANSACTION_DISPUTED,
+      actorId,
+      isBuyer ? TransactionStatus.PAID_HELD : TransactionStatus.SELLER_SHIPPED,
+      TransactionStatus.DISPUTED,
+      `${actorType} відкрив спір: ${reason}`,
+      { reason, openedBy: isBuyer ? 'buyer' : 'seller' }
+    )
+  } catch (e) { console.error('Event failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: actorId,
-    action: 'transaction_disputed',
-    ip,
-    userAgent,
-    metadata: { transactionId, reason, openedBy: isBuyer ? 'buyer' : 'seller' },
-  })
+  try {
+    await logAuditEvent({
+      userId: actorId,
+      action: 'transaction_disputed',
+      ip,
+      userAgent,
+      metadata: { transactionId, reason, openedBy: isBuyer ? 'buyer' : 'seller' },
+    })
+  } catch (e) { console.error('Audit failed:', e) }
 
-  // Notify other party
-  await createNotification(
-    otherPartyId,
-    'disputed',
-    '⚠️ Відкрито спір!',
-    `${actorType} відкрив спір за угодою "${transaction.listing.title}". Причина: ${reason}. Команда KRAM розгляне ситуацію.`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      otherPartyId,
+      'disputed',
+      '⚠️ Відкрито спір!',
+      `${actorType} відкрив спір за угодою "${transaction.listing.title}". Причина: ${reason}. Команда KRAM розгляне ситуацію.`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await notifyUserTelegram(
-    otherPartyId,
-    `⚠️ <b>Відкрито спір!</b>\n\n📦 "${transaction.listing.title}"\n👤 ${actorType}\n📝 Причина: ${reason}\n\nКоманда KRAM розгляне ситуацію та зв'яжеться з вами.`
-  )
+  try {
+    await notifyUserTelegram(
+      otherPartyId,
+      `⚠️ <b>Відкрито спір!</b>\n\n📦 "${transaction.listing.title}"\n👤 ${actorType}\n📝 Причина: ${reason}\n\nКоманда KRAM розгляне ситуацію та зв'яжеться з вами.`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return updated
 }
@@ -723,41 +796,48 @@ export async function cancelTransaction(
     data: { status: 'active' },
   })
 
-  // Create event
-  await createTransactionEvent(
-    transactionId,
-    TransactionEventType.TRANSACTION_CANCELLED,
-    actorId,
-    TransactionStatus.PENDING_PAYMENT,
-    TransactionStatus.CANCELLED,
-    `Угоду скасовано ${isAdmin ? 'адміністратором' : isBuyer ? 'покупцем' : 'продавцем'}`
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transactionId,
+      TransactionEventType.TRANSACTION_CANCELLED,
+      actorId,
+      TransactionStatus.PENDING_PAYMENT,
+      TransactionStatus.CANCELLED,
+      `Угоду скасовано ${isAdmin ? 'адміністратором' : isBuyer ? 'покупцем' : 'продавцем'}`
+    )
+  } catch (e) { console.error('Event failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: actorId,
-    action: 'transaction_cancelled',
-    ip,
-    userAgent,
-    metadata: { transactionId, cancelledBy: isAdmin ? 'admin' : isBuyer ? 'buyer' : 'seller' },
-  })
+  try {
+    await logAuditEvent({
+      userId: actorId,
+      action: 'transaction_cancelled',
+      ip,
+      userAgent,
+      metadata: { transactionId, cancelledBy: isAdmin ? 'admin' : isBuyer ? 'buyer' : 'seller' },
+    })
+  } catch (e) { console.error('Audit failed:', e) }
 
   // Notify other party
   const otherPartyId = isBuyer ? transaction.sellerId : transaction.buyerId
   const actorName = isAdmin ? 'Адміністратор' : isBuyer ? 'Покупець' : 'Продавець'
 
-  await createNotification(
-    otherPartyId,
-    'cancelled',
-    '❌ Угоду скасовано',
-    `${actorName} скасував угоду за "${transaction.listing.title}". Лот знову доступний.`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      otherPartyId,
+      'cancelled',
+      '❌ Угоду скасовано',
+      `${actorName} скасував угоду за "${transaction.listing.title}". Лот знову доступний.`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await notifyUserTelegram(
-    otherPartyId,
-    `❌ <b>Угоду скасовано</b>\n\n📦 "${transaction.listing.title}"\n\n${actorName} скасував угоду. Лот знову доступний у каталозі.`
-  )
+  try {
+    await notifyUserTelegram(
+      otherPartyId,
+      `❌ <b>Угоду скасовано</b>\n\n📦 "${transaction.listing.title}"\n\n${actorName} скасував угоду. Лот знову доступний у каталозі.`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return updated
 }
@@ -826,52 +906,62 @@ export async function resolveTransactionDispute(
     resolutionText = 'Спір вирішено: угоду скасовано'
   }
 
-  // Create event
-  await createTransactionEvent(
-    transactionId,
-    eventType,
-    adminId,
-    TransactionStatus.DISPUTED,
-    updated.status,
-    resolutionText,
-    { adminNote, resolution }
-  )
+  // Side-effects: best-effort
+  try {
+    await createTransactionEvent(
+      transactionId,
+      eventType,
+      adminId,
+      TransactionStatus.DISPUTED,
+      updated.status,
+      resolutionText,
+      { adminNote, resolution }
+    )
+  } catch (e) { console.error('Event failed:', e) }
 
-  // Audit log
-  await logAuditEvent({
-    userId: adminId,
-    action: 'transaction_dispute_resolved',
-    ip,
-    userAgent,
-    metadata: { transactionId, resolution, adminNote },
-  })
+  try {
+    await logAuditEvent({
+      userId: adminId,
+      action: 'transaction_dispute_resolved',
+      ip,
+      userAgent,
+      metadata: { transactionId, resolution, adminNote },
+    })
+  } catch (e) { console.error('Audit failed:', e) }
 
-  // Notify both parties
-  await createNotification(
-    transaction.buyerId,
-    'dispute_resolved',
-    '⚖️ Спір вирішено',
-    `Спір за "${transaction.listing.title}" вирішено адміністратором: ${resolutionText}.`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      transaction.buyerId,
+      'dispute_resolved',
+      '⚖️ Спір вирішено',
+      `Спір за "${transaction.listing.title}" вирішено адміністратором: ${resolutionText}.`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await createNotification(
-    transaction.sellerId,
-    'dispute_resolved',
-    '⚖️ Спір вирішено',
-    `Спір за "${transaction.listing.title}" вирішено адміністратором: ${resolutionText}.`,
-    transaction.listingId
-  )
+  try {
+    await createNotification(
+      transaction.sellerId,
+      'dispute_resolved',
+      '⚖️ Спір вирішено',
+      `Спір за "${transaction.listing.title}" вирішено адміністратором: ${resolutionText}.`,
+      transaction.listingId
+    )
+  } catch (e) { console.error('Notification failed:', e) }
 
-  await notifyUserTelegram(
-    transaction.buyerId,
-    `⚖️ <b>Спір вирішено</b>\n\n📦 "${transaction.listing.title}"\n\n${resolutionText}\n\n${adminNote ? `Примітка: ${adminNote}` : ''}`
-  )
+  try {
+    await notifyUserTelegram(
+      transaction.buyerId,
+      `⚖️ <b>Спір вирішено</b>\n\n📦 "${transaction.listing.title}"\n\n${resolutionText}\n\n${adminNote ? `Примітка: ${adminNote}` : ''}`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
-  await notifyUserTelegram(
-    transaction.sellerId,
-    `⚖️ <b>Спір вирішено</b>\n\n📦 "${transaction.listing.title}"\n\n${resolutionText}\n\n${adminNote ? `Примітка: ${adminNote}` : ''}`
-  )
+  try {
+    await notifyUserTelegram(
+      transaction.sellerId,
+      `⚖️ <b>Спір вирішено</b>\n\n📦 "${transaction.listing.title}"\n\n${resolutionText}\n\n${adminNote ? `Примітка: ${adminNote}` : ''}`
+    )
+  } catch (e) { console.error('Telegram failed:', e) }
 
   return updated
 }

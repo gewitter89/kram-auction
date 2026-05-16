@@ -41,12 +41,14 @@ export async function GET(request: NextRequest) {
 
       if (winner) {
         try {
-          // Create transaction using Safe Deal service
+          // Create transaction using Safe Deal service with idempotency
+          const idempotencyKey = `auction:${listing.id}:${winner.userId}:${new Date().toISOString().slice(0, 10)}`
           await createTransactionFromAuctionWin(
             listing.id,
             winner.userId,
             winner.amount,
-            null // system action
+            null, // system action
+            idempotencyKey
           )
 
           // Broadcast won event to global feed

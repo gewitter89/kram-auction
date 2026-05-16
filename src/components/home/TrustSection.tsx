@@ -3,26 +3,26 @@ import { Star, Headphones, Lock, BadgeCheck } from 'lucide-react'
 const features = [
   {
     icon: Lock,
-    title: 'Ескроу-захист',
-    desc: 'Гроші покупця заморожуються на нашому рахунку до підтвердження отримання товару.',
+    title: 'Safe Deal (MVP)',
+    desc: 'Прозора система підтверджень: оплата → відправка → отримання. Кожен етап фіксується.',
     color: 'text-[#10B981]',
   },
   {
     icon: BadgeCheck,
-    title: 'Верифікація продавців',
-    desc: 'Кожен продавець проходить перевірку документів та контактних даних.',
+    title: 'Перевірка учасників',
+    desc: 'Авторизація через Google або email. Видно історію кожного користувача.',
     color: 'text-[#2563EB]',
   },
   {
     icon: Star,
-    title: 'Чесні відгуки',
-    desc: 'Тільки реальні покупці можуть залишати відгуки. Без накруток.',
+    title: 'Відгуки після угод',
+    desc: 'Залишати відгук можна тільки після завершення угоди. Чесна репутація.',
     color: 'text-[#F59E0B]',
   },
   {
     icon: Headphones,
-    title: 'Підтримка 24/7',
-    desc: 'Команда саппорту відповість протягом години у будь-який день.',
+    title: 'Підтримка',
+    desc: 'Допомога в спірних ситуаціях. Система оскарження угод для захисту сторін.',
     color: 'text-[#A855F7]',
   },
 ]
@@ -65,16 +65,16 @@ export function TrustSection() {
         {/* Bottom stats */}
         <div className="mt-12 pt-10 border-t border-white/[0.08] grid grid-cols-3 gap-4 max-w-2xl mx-auto">
           <div className="text-center">
-            <p className="text-[28px] md:text-[32px] font-bold text-white">99.7%</p>
-            <p className="text-[12px] text-[#94A3B8] mt-1">успішних угод</p>
+            <p className="text-[28px] md:text-[32px] font-bold text-white">5 кроків</p>
+            <p className="text-[12px] text-[#94A3B8] mt-1">Safe Deal процес</p>
           </div>
           <div className="text-center border-x border-white/[0.08]">
-            <p className="text-[28px] md:text-[32px] font-bold text-white">24/7</p>
-            <p className="text-[12px] text-[#94A3B8] mt-1">підтримка</p>
+            <p className="text-[28px] md:text-[32px] font-bold text-white">100%</p>
+            <p className="text-[12px] text-[#94A3B8] mt-1">прозорість</p>
           </div>
           <div className="text-center">
-            <p className="text-[28px] md:text-[32px] font-bold text-white">4.8★</p>
-            <p className="text-[12px] text-[#94A3B8] mt-1">оцінка користувачів</p>
+            <p className="text-[28px] md:text-[32px] font-bold text-white">0₴</p>
+            <p className="text-[12px] text-[#94A3B8] mt-1">комісія (beta)</p>
           </div>
         </div>
       </div>
