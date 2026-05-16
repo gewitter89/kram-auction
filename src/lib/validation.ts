@@ -39,15 +39,12 @@ export const messageSchema = z.object({
   listingId: z.string().optional(),
 })
 
-// API response wrapper
+// API response wrapper - simplified for Zod v4 compatibility
 export function validateBody<T>(schema: z.ZodSchema<T>, body: unknown): { data?: T; error?: string } {
   const result = schema.safeParse(body)
   if (!result.success) {
-    const issues = result.error.issues || []
-    const errorMessages = issues
-      .map((issue: { path: (string | number)[]; message: string }) => `${issue.path.join('.')}: ${issue.message}`)
-      .join('; ')
-    return { error: errorMessages || 'Validation failed' }
+    // Use toString() for Zod v4 compatibility
+    return { error: result.error.toString() }
   }
   return { data: result.data }
 }
