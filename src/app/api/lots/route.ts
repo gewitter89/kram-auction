@@ -8,23 +8,22 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1
     const limit = Number(searchParams.get('limit')) || 20
     
-    // Ultra simple query - no includes
-    const lots = await (prisma as any).listing.findMany({
+    // Use prisma directly like stats API does
+    const lots = await prisma.listing.findMany({
       where: { status: 'active' },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,
       take: limit
     })
     
-    const total = await (prisma as any).listing.count({ where: { status: 'active' } })
+    const total = await prisma.listing.count({ where: { status: 'active' } })
 
     return NextResponse.json({ lots, pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
   } catch (error: any) {
     console.error('Get lots error:', error)
     return NextResponse.json({ 
       error: 'Помилка сервера', 
-      message: error?.message || 'Unknown error',
-      code: error?.code || 'NO_CODE'
+      message: error?.message || 'Unknown error'
     }, { status: 500 })
   }
 }
