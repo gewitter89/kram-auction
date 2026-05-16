@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -33,6 +33,7 @@ model User {
   reports       Report[]
   purchases     Transaction[]  @relation("buyer")
   sales         Transaction[]  @relation("seller")
+  auditLogs     AuditLog[]
 }
 
 model Category {
@@ -167,4 +168,16 @@ model Transaction {
   listing Listing @relation(fields: [listingId], references: [id])
   buyer   User    @relation("buyer", fields: [buyerId], references: [id])
   seller  User    @relation("seller", fields: [sellerId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // login_success, login_failed, register, logout
+  ip        String?
+  userAgent String?
+  metadata  String?  // JSON with extra info (reason for failure, etc.)
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
 }

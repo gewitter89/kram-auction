@@ -74,9 +74,9 @@ export default function LoginContent() {
             <KramLogo variant="full" />
           </div>
 
-          <h1 className="text-[24px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб торгувати</h1>
+          <h1 className="text-[24px] font-bold text-[#0B1220] mb-2">Швидкий вхід</h1>
           <p className="text-[14px] text-[#64748B] mb-8">
-            Переглядати лоти можна без акаунта. Вхід потрібен для ставок, продажу та безпечних угод.
+            Реєстрація не потрібна — просто увійдіть через Google або Email. Система автоматично створить акаунт, якщо ви у нас вперше.
           </p>
 
           {error && (
@@ -152,9 +152,8 @@ export default function LoginContent() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-[13px] text-[#64748B]">
-            Немає акаунта?{' '}
-            <Link href="/auth/register" className="text-[#2563EB] font-medium hover:underline">Створити акаунт</Link>
+          <p className="mt-8 text-center text-[13px] text-[#94A3B8]">
+            Продовжуючи, ви погоджуєтесь з <Link href="/terms" className="text-[#2563EB] hover:underline">умовами сервісу</Link>
           </p>
         </div>
       </div>

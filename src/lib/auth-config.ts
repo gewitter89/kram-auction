@@ -4,6 +4,7 @@ import Google from 'next-auth/providers/google'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { isRateLimited } from './rateLimit'
+import { logAuditEvent } from './logger'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -52,6 +53,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
     }),
   ],
+  events: {
+    async signIn({ user, account }) {
+      await logAuditEvent({
+        userId: user.id,
+        action: 'login_success',
+        metadata: { provider: account?.provider }
+      })
+    },
+    async signOut({ session }) {
+      if (session?.user?.id) {
+        await logAuditEvent({
+          userId: session.user.id,
+          action: 'logout'
+        })
+      }
+    },
+    async createUser({ user }) {
+      await logAuditEvent({
+        userId: user.id,
+        action: 'register',
+        metadata: { method: 'oauth' }
+      })
+    }
+  },
   callbacks: {
     async signIn({ user, account }) {
       // For Google OAuth - find or create user in our DB
