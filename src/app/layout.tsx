@@ -6,18 +6,44 @@ import { ClientLayout } from '@/components/layout/ClientLayout'
 const inter = Inter({ subsets: ['latin', 'cyrillic'] })
 
 export const metadata: Metadata = {
-  title: 'KRAM — український маркетплейс чесних торгів',
-  description: 'Купуйте й продавайте товари через живі аукціони з безпечною оплатою, перевіреними продавцями та доставкою Новою Поштою.',
-  keywords: ['аукціон Україна', 'маркетплейс торгів Україна', 'продати техніку онлайн', 'купити техніку аукціон', 'безпечна угода Нова Пошта'],
+  title: 'KRAM — український маркетплейс безпечних угод',
+  description: 'Купуйте, продавайте й торгуйтесь на KRAM: лоти, ставки, доставка, сповіщення та прозорий статус угоди. Чесні торги без зайвого ризику.',
+  keywords: ['аукціон Україна', 'маркетплейс безпечних угод', 'продати товар онлайн', 'купити товар аукціон', 'безпечна угода', 'KRAM аукціон'],
+  authors: [{ name: 'KRAM Team' }],
+  creator: 'KRAM',
+  publisher: 'KRAM',
+  metadataBase: new URL('https://kram-auction.vercel.app'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'KRAM — український маркетплейс чесних торгів',
-    description: 'Купуйте й продавайте товари через живі аукціони з безпечною оплатою та доставкою Новою Поштою.',
+    title: 'KRAM — український маркетплейс безпечних угод',
+    description: 'Купуйте, продавайте й торгуйтесь: лоти, ставки, доставка, сповіщення та прозорий статус угоди.',
     type: 'website',
     locale: 'uk_UA',
+    siteName: 'KRAM',
+    url: 'https://kram-auction.vercel.app',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KRAM — український маркетплейс безпечних угод',
+    description: 'Купуйте, продавайте й торгуйтесь: лоти, ставки, доставка, сповіщення та прозорий статус угоди.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   icons: {
     icon: '/kram-mark.svg',
     shortcut: '/kram-mark.svg',
+    apple: '/kram-mark.svg',
   },
 }
 

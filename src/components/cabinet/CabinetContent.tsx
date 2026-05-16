@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { PurchasesTab } from './PurchasesTab'
 import { SalesTab } from './SalesTab'
 import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2 } from 'lucide-react'
@@ -30,8 +31,27 @@ const menuItems = [
 ]
 
 export function CabinetContent({ user }: CabinetContentProps) {
-  const [activeTab, setActiveTab] = useState('lots')
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [activeTab, setActiveTabState] = useState('lots')
   const [stats, setStats] = useState({ activeLots: 0, sold: 0, bought: 0 })
+
+  // Sync with URL query param
+  const setActiveTab = useCallback((tabId: string) => {
+    setActiveTabState(tabId)
+    // Update URL without page reload
+    const newUrl = new URL(window.location.href)
+    newUrl.searchParams.set('tab', tabId)
+    window.history.replaceState({}, '', newUrl.toString())
+  }, [])
+
+  // Read initial tab from URL
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab')
+    if (tabFromUrl && menuItems.some(item => item.id === tabFromUrl)) {
+      setActiveTabState(tabFromUrl)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     fetch('/api/my/lots').then(r => r.json()).then(({ lots = [] }) => {

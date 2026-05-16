@@ -91,12 +91,12 @@ export function HeroSection() {
             </div>
 
             <h1 className="text-[36px] md:text-[52px] font-bold text-[#0B1220] leading-[1.05] tracking-[-0.03em] mb-5">
-              Торги, де виграє<br/>
-              <span className="gradient-text-premium">чесна ціна</span>
+              KRAM — український<br/>
+              <span className="gradient-text-premium">маркетплейс безпечних угод</span>
             </h1>
 
-            <p className="text-[16px] md:text-[18px] text-[#64748B] leading-relaxed mb-8 max-w-[480px]">
-              Купуйте, продавайте й змагайтесь за найкращу ціну на українському маркетплейсі чесних торгів.
+            <p className="text-[16px] md:text-[18px] text-[#64748B] leading-relaxed mb-8 max-w-[520px]">
+              Купуйте, продавайте й торгуйтесь з підтвердженням оплати, доставкою та статусами угоди.
             </p>
 
             {/* CTAs */}
