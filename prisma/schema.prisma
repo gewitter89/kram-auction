@@ -204,7 +204,8 @@ model Transaction {
   seller   User                @relation("seller", fields: [sellerId], references: [id])
   events   TransactionEvent[]
   payments Payment[]
-  
+  releases PaymentRelease[]
+
   @@index([buyerId, status])
   @@index([sellerId, status])
   @@index([listingId])
