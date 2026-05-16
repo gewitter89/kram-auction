@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, Truck, ShieldCheck, CreditCard, ChevronRight, MapPin, User, Phone } from 'lucide-react'
+import { Package, Truck, ShieldCheck, CreditCard, ChevronRight, MapPin, User, Phone, Search, Loader2 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
 export default function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
@@ -10,14 +10,22 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
   const router = useRouter()
   const [lot, setLot] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [step, setStep] = useState(1) // 1: Delivery, 2: Payment, 3: Success
   
+  // Nova Poshta states
+  const [cities, setCities] = useState<any[]>([])
+  const [warehouses, setWarehouses] = useState<any[]>([])
+  const [citySearch, setCitySearch] = useState('')
+  const [selectedCity, setSelectedCity] = useState<any>(null)
+  const [selectedWarehouse, setSelectedWarehouse] = useState<any>(null)
+  const [loadingCities, setLoadingCities] = useState(false)
+  const [loadingWh, setLoadingWh] = useState(false)
+  const [showCityDropdown, setShowCityDropdown] = useState(false)
+
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
-    city: '',
-    address: '',
-    deliveryMethod: 'nova_poshta'
   })
 
   useEffect(() => {
@@ -27,7 +35,79 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
     })
   }, [id])
 
-  if (loading) return <div className="py-20 text-center">Завантаження...</div>
+  // Search cities
+  useEffect(() => {
+    if (citySearch.length < 2) {
+      setCities([])
+      return
+    }
+    const timer = setTimeout(async () => {
+      setLoadingCities(true)
+      try {
+        const res = await fetch(`/api/delivery/nova-poshta/cities?query=${encodeURIComponent(citySearch)}`)
+        const data = await res.json()
+        setCities(data.cities || [])
+        setShowCityDropdown(true)
+      } finally {
+        setLoadingCities(false)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [citySearch])
+
+  // Fetch warehouses
+  useEffect(() => {
+    if (!selectedCity) return
+    const fetchWh = async () => {
+      setLoadingWh(true)
+      try {
+        const res = await fetch(`/api/delivery/nova-poshta/warehouses?cityRef=${selectedCity.Ref}`)
+        const data = await res.json()
+        setWarehouses(data.warehouses || [])
+      } finally {
+        setLoadingWh(false)
+      }
+    }
+    fetchWh()
+  }, [selectedCity])
+
+  const handleCheckout = async () => {
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lotId: id,
+          deliveryInfo: {
+            fullName: formData.fullName,
+            phone: formData.phone,
+            city: selectedCity.Description,
+            warehouse: selectedWarehouse.Description,
+            address: selectedWarehouse.Description
+          }
+        })
+      })
+      const data = await res.json()
+      if (data.success) {
+        setStep(3)
+      } else {
+        alert(data.error || 'Помилка при оформленні')
+      }
+    } catch (err) {
+      alert('Помилка мережі')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (loading) return (
+    <div className="py-40 flex flex-col items-center gap-4">
+      <Loader2 className="w-10 h-10 text-[#2563EB] animate-spin" />
+      <p className="text-[#64748B] font-medium">Завантаження деталей замовлення...</p>
+    </div>
+  )
+  
   if (!lot) return <div className="py-20 text-center">Лот не знайдено</div>
 
   return (
@@ -87,22 +167,79 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                     </div>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Місто та відділення / адреса</label>
+
+                {/* Nova Poshta City Search */}
+                <div className="relative">
+                  <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Місто</label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-3 w-4 h-4 text-[#94A3B8]" />
-                    <textarea 
-                      value={formData.address}
-                      onChange={e => setFormData({...formData, address: e.target.value})}
-                      rows={3}
-                      className="w-full pl-10 pr-4 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] focus:border-[#2563EB] outline-none resize-none" 
-                      placeholder="м. Київ, відділення №1..."
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
+                    <input 
+                      type="text" 
+                      value={selectedCity ? selectedCity.Description : citySearch}
+                      onChange={e => {
+                        setCitySearch(e.target.value)
+                        setSelectedCity(null)
+                        setSelectedWarehouse(null)
+                      }}
+                      className="w-full h-11 pl-10 pr-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] focus:border-[#2563EB] outline-none" 
+                      placeholder="Почніть вводити назву міста..."
                     />
+                    {loadingCities && <Loader2 className="absolute right-3 top-3 w-4 h-4 animate-spin text-[#2563EB]" />}
                   </div>
+                  
+                  {showCityDropdown && cities.length > 0 && !selectedCity && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-[#E2E8F0] rounded-xl shadow-xl max-h-60 overflow-y-auto">
+                      {cities.map(city => (
+                        <button
+                          key={city.Ref}
+                          onClick={() => {
+                            setSelectedCity(city)
+                            setCitySearch(city.Description)
+                            setShowCityDropdown(false)
+                          }}
+                          className="w-full px-4 py-3 text-left hover:bg-[#F8FAFC] border-b border-[#F1F5F9] last:border-0 transition-colors"
+                        >
+                          <p className="text-[14px] font-medium text-[#0B1220]">{city.Description}</p>
+                          <p className="text-[11px] text-[#94A3B8]">{city.AreaDescription} область</p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+
+                {/* Nova Poshta Warehouse Selection */}
+                {selectedCity && (
+                  <div className="animate-fade-in">
+                    <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Відділення / Поштомат</label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
+                      <select 
+                        value={selectedWarehouse?.Ref || ''}
+                        onChange={e => {
+                          const wh = warehouses.find(w => w.Ref === e.target.value)
+                          setSelectedWarehouse(wh)
+                        }}
+                        className="w-full h-11 pl-10 pr-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] focus:border-[#2563EB] outline-none appearance-none"
+                      >
+                        <option value="">Оберіть відділення...</option>
+                        {loadingWh ? (
+                          <option disabled>Завантаження відділень...</option>
+                        ) : (
+                          warehouses.map(wh => (
+                            <option key={wh.Ref} value={wh.Ref}>
+                              {wh.Description}
+                            </option>
+                          ))
+                        )}
+                      </select>
+                      <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] rotate-90" />
+                    </div>
+                  </div>
+                )}
+
                 <button 
                   onClick={() => setStep(2)}
-                  disabled={!formData.fullName || !formData.phone || !formData.address}
+                  disabled={!formData.fullName || !formData.phone || !selectedCity || !selectedWarehouse}
                   className="w-full h-12 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1D4ED8] transition-all disabled:opacity-50"
                 >
                   Перейти до оплати
@@ -141,10 +278,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                 </div>
 
                 <button 
-                  onClick={() => setStep(3)}
-                  className="w-full h-12 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1D4ED8] transition-all"
+                  onClick={handleCheckout}
+                  disabled={submitting}
+                  className="w-full h-12 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1D4ED8] transition-all flex items-center justify-center gap-2"
                 >
-                  Оплатити {formatPrice(lot.currentPrice)}
+                  {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
+                  {submitting ? 'Оформлення...' : `Оплатити ${formatPrice(lot.currentPrice)}`}
                 </button>
                 <button onClick={() => setStep(1)} className="w-full text-[13px] font-semibold text-[#64748B] hover:text-[#0F172A]">Повернутись до доставки</button>
               </div>
@@ -154,7 +293,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
           {step === 3 && (
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-12 text-center shadow-sm animate-fade-in">
               <div className="w-20 h-20 bg-[#ECFDF5] text-[#10B981] rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="w-10 h-10" />
+                <Package className="w-10 h-10" />
               </div>
               <h2 className="text-[24px] font-bold text-[#0B1220] mb-2">Замовлення оформлено!</h2>
               <p className="text-[14px] text-[#64748B] mb-8 max-w-[360px] mx-auto">
@@ -178,7 +317,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               </div>
               <div className="min-w-0">
                 <p className="text-[13px] font-semibold text-[#0F172A] line-clamp-2 leading-tight mb-1">{lot.title}</p>
-                <p className="text-[11px] text-[#64748B]">Продавець: {lot.seller.name}</p>
+                <p className="text-[11px] text-[#64748B]">Продавець: {lot.seller?.name}</p>
               </div>
             </div>
             
@@ -217,13 +356,5 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
     </div>
-  )
-}
-
-function CheckCircle(props: any) {
-  return (
-    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
   )
 }

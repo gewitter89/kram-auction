@@ -45,7 +45,7 @@ export const TransactionEventType = {
 } as const
 
 // Helper to create transaction event
-async function createTransactionEvent(
+export async function createTransactionEvent(
   transactionId: string,
   type: string,
   actorId: string | null,
@@ -106,6 +106,13 @@ async function notifyUserTelegram(userId: string, message: string) {
 export async function createTransactionFromBuyNow(
   listingId: string,
   buyerId: string,
+  deliveryInfo?: {
+    recipientName: string;
+    recipientPhone: string;
+    deliveryCity: string;
+    deliveryWarehouse: string;
+    deliveryAddress?: string;
+  },
   ip?: string,
   userAgent?: string,
   idempotencyKey?: string
@@ -171,6 +178,11 @@ export async function createTransactionFromBuyNow(
       status: TransactionStatus.PENDING_PAYMENT,
       paymentStatus: PaymentStatus.NOT_PAID,
       deliveryStatus: DeliveryStatus.NOT_SHIPPED,
+      recipientName: deliveryInfo?.recipientName,
+      recipientPhone: deliveryInfo?.recipientPhone,
+      deliveryCity: deliveryInfo?.deliveryCity,
+      deliveryWarehouse: deliveryInfo?.deliveryWarehouse,
+      deliveryAddress: deliveryInfo?.deliveryAddress,
       idempotencyKey,
     },
     include: {
@@ -257,6 +269,13 @@ export async function createTransactionFromAuctionWin(
   listingId: string,
   buyerId: string,
   finalPrice: number,
+  deliveryInfo?: {
+    recipientName: string;
+    recipientPhone: string;
+    deliveryCity: string;
+    deliveryWarehouse: string;
+    deliveryAddress?: string;
+  },
   actorId: string | null = null, // null for system/cron
   idempotencyKey?: string
 ) {
@@ -308,6 +327,11 @@ export async function createTransactionFromAuctionWin(
       status: TransactionStatus.PENDING_PAYMENT,
       paymentStatus: PaymentStatus.NOT_PAID,
       deliveryStatus: DeliveryStatus.NOT_SHIPPED,
+      recipientName: deliveryInfo?.recipientName,
+      recipientPhone: deliveryInfo?.recipientPhone,
+      deliveryCity: deliveryInfo?.deliveryCity,
+      deliveryWarehouse: deliveryInfo?.deliveryWarehouse,
+      deliveryAddress: deliveryInfo?.deliveryAddress,
       idempotencyKey,
     },
     include: {

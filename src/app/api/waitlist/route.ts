@@ -1,93 +1,37 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// POST /api/waitlist - Add email to waitlist
 export async function POST(request: Request) {
   try {
-    const { email, type, source = 'homepage' } = await request.json()
+    const { email, type, source } = await request.json()
 
-    // Validate email
     if (!email || !email.includes('@')) {
-      return NextResponse.json(
-        { error: 'Вкажіть коректний email' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Некоректний email' }, { status: 400 })
     }
 
-    // Validate type
-    if (!type || !['seller', 'buyer'].includes(type)) {
-      return NextResponse.json(
-        { error: 'Вкажіть тип: seller або buyer' },
-        { status: 400 }
-      )
-    }
-
-    // Normalize email
-    const normalizedEmail = email.toLowerCase().trim()
-
-    // Check if already exists
-    const existing = await (prisma as any).waitlistEmail.findFirst({
+    const waitlist = await prisma.waitlistEmail.upsert({
       where: {
-        email: normalizedEmail,
-        type,
+        email_type: {
+          email: email.toLowerCase(),
+          type: type || 'buyer'
+        }
       },
+      update: {
+        source: source || 'homepage'
+      },
+      create: {
+        email: email.toLowerCase(),
+        type: type || 'buyer',
+        source: source || 'homepage'
+      }
     })
 
-    if (existing) {
-      return NextResponse.json({
-        success: true,
-        message: 'Ви вже в списку очікування!',
-        alreadyRegistered: true,
-      })
+    return NextResponse.json({ success: true, id: waitlist.id })
+  } catch (error: any) {
+    console.error('Waitlist API error:', error)
+    if (error.code === 'P2002') {
+      return NextResponse.json({ success: true, message: 'Вже у списку' })
     }
-
-    // Create waitlist entry
-    const entry = await (prisma as any).waitlistEmail.create({
-      data: {
-        email: normalizedEmail,
-        type,
-        source,
-        notified: false,
-      },
-    })
-
-    return NextResponse.json({
-      success: true,
-      message: 'Дякуємо! Ви додані до списку очікування.',
-      id: entry.id,
-    })
-  } catch (error: any) {
-    console.error('Waitlist error:', error)
-    return NextResponse.json(
-      { error: 'Помилка збереження. Спробуйте пізніше.' },
-      { status: 500 }
-    )
-  }
-}
-
-// GET /api/waitlist - Get waitlist stats (admin only)
-export async function GET() {
-  try {
-    // In production, add auth check here
-    const totalSellers = await (prisma as any).waitlistEmail.count({
-      where: { type: 'seller' },
-    })
-    const totalBuyers = await (prisma as any).waitlistEmail.count({
-      where: { type: 'buyer' },
-    })
-
-    return NextResponse.json({
-      stats: {
-        sellers: totalSellers,
-        buyers: totalBuyers,
-        total: totalSellers + totalBuyers,
-      },
-    })
-  } catch (error: any) {
-    console.error('Waitlist stats error:', error)
-    return NextResponse.json(
-      { error: 'Помилка отримання статистики' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
   }
 }

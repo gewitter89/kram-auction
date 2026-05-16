@@ -172,7 +172,7 @@ export function SalesTab() {
           const nextAction = getNextAction(tx)
 
           return (
-            <div key={tx.id} className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden">
+            <Link key={tx.id} href={`/cabinet/transactions/${tx.id}`} className="block bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-[#2563EB]/40 transition-all">
               {/* Header */}
               <div className="p-4 border-b border-[#F1F5F9] flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -310,7 +310,7 @@ export function SalesTab() {
                   </Link>
                 </div>
               </div>
-            </div>
+            </Link>
           )
         })}
       </div>
