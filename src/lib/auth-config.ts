@@ -61,14 +61,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         metadata: { provider: account?.provider }
       })
     },
-    async signOut({ session }) {
-      if (session?.user?.id) {
-        await logAuditEvent({
-          userId: session.user.id,
-          action: 'logout'
-        })
-      }
-    },
     async createUser({ user }) {
       await logAuditEvent({
         userId: user.id,
