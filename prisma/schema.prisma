@@ -36,6 +36,7 @@ model User {
   auditLogs     AuditLog[]
   telegramSubscriptions TelegramSubscription[]
   transactionEvents TransactionEvent[]
+  payments      Payment[]
 }
 
 model Category {
@@ -183,6 +184,7 @@ model Transaction {
   
   // Timeline
   buyerConfirmedAt DateTime?
+  paymentConfirmedAt DateTime?
   sellerShippedAt  DateTime?
   completedAt      DateTime?
   disputedAt       DateTime?
@@ -200,10 +202,45 @@ model Transaction {
   buyer    User                @relation("buyer", fields: [buyerId], references: [id])
   seller   User                @relation("seller", fields: [sellerId], references: [id])
   events   TransactionEvent[]
+  payments Payment[]
   
   @@index([buyerId, status])
   @@index([sellerId, status])
   @@index([listingId])
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  transactionId     String
+  buyerId           String
+  amount            Float
+  currency          String   @default("UAH")
+  
+  // Payment status
+  status            String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
+  
+  // Payment provider
+  provider          String   @default("LIQPAY") // LIQPAY, STRIPE, etc.
+  providerPaymentId String?  // Payment ID from provider
+  
+  // LiqPay specific
+  liqpayData        String?  // Base64 encoded form data
+  liqpaySignature   String?  // LiqPay signature
+  
+  // Callback data
+  callbackData      String?  // JSON from provider callback
+  
+  // Timestamps
+  paidAt            DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  transaction       Transaction @relation(fields: [transactionId], references: [id])
+  buyer             User        @relation(fields: [buyerId], references: [id])
+  
+  @@index([transactionId])
+  @@index([buyerId])
+  @@index([status])
 }
 
 model TransactionEvent {

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ShoppingBag, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
+import { LiqPayButton } from '@/components/payments/LiqPayButton'
+import { useLiqPayStatus } from '@/hooks/useLiqPayStatus'
 
 interface Transaction {
   id: string
@@ -64,6 +66,7 @@ export function PurchasesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const { configured: liqPayConfigured, loading: liqPayLoading } = useLiqPayStatus()
 
   const load = () => {
     fetch('/api/transactions?role=buyer')
@@ -229,13 +232,37 @@ export function PurchasesTab() {
                 {/* Actions */}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {tx.status === 'PENDING_PAYMENT' && (
-                    <button
-                      onClick={() => markPaid(tx.id)}
-                      disabled={processing === tx.id}
-                      className="h-10 px-5 bg-[#10B981] text-white rounded-xl text-[13px] font-semibold hover:bg-[#059669] disabled:opacity-50 transition-all"
-                    >
-                      {processing === tx.id ? 'Обробка...' : '✓ Підтвердити оплату'}
-                    </button>
+                    <>
+                      {liqPayLoading ? (
+                        <div className="w-full sm:w-auto">
+                          <div className="h-10 w-32 bg-gray-200 animate-pulse rounded-xl" />
+                        </div>
+                      ) : liqPayConfigured ? (
+                        <div className="w-full sm:w-auto">
+                          <LiqPayButton 
+                            transactionId={tx.id} 
+                            onSuccess={() => load()}
+                            onError={(err) => alert(err)}
+                          />
+                          <p className="mt-1 text-[11px] text-[#94A3B8]">
+                            Оплата через LiqPay (Visa, Mastercard)
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="w-full sm:w-auto">
+                          <button
+                            onClick={() => markPaid(tx.id)}
+                            disabled={processing === tx.id}
+                            className="h-10 px-5 bg-[#10B981] text-white rounded-xl text-[13px] font-semibold hover:bg-[#059669] disabled:opacity-50 transition-all"
+                          >
+                            {processing === tx.id ? 'Обробка...' : '✓ Підтвердити оплату (тест)'}
+                          </button>
+                          <p className="mt-1 text-[11px] text-amber-600">
+                            ⚠️ Реальні платежі тимчасово недоступні
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                   
                   {tx.status === 'SELLER_SHIPPED' && (
