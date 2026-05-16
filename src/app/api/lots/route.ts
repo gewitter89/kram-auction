@@ -16,31 +16,31 @@ export async function GET(request: Request) {
     const condition = searchParams.get('condition')
     const type = searchParams.get('type')
 
-    const where: any = { status: 'active' }
+    const where: Record<string, unknown> = { status: 'active' }
     if (category) where.category = { slug: category }
-    if (search) where.title = { contains: search }
+    if (search) where.title = { contains: search, mode: 'insensitive' }
     if (city) where.city = city
     if (condition) where.condition = condition
     if (type) where.type = type
     if (minPrice || maxPrice) {
       where.currentPrice = {}
-      if (minPrice) where.currentPrice.gte = Number(minPrice)
-      if (maxPrice) where.currentPrice.lte = Number(maxPrice)
+      if (minPrice) (where.currentPrice as Record<string, number>).gte = Number(minPrice)
+      if (maxPrice) (where.currentPrice as Record<string, number>).lte = Number(maxPrice)
     }
 
-    let baseOrderBy: any = { endsAt: 'asc' }
-    if (sort === 'price-asc') baseOrderBy = { currentPrice: 'asc' }
-    if (sort === 'price-desc') baseOrderBy = { currentPrice: 'desc' }
-    if (sort === 'new') baseOrderBy = { createdAt: 'desc' }
-    if (sort === 'bids') baseOrderBy = { bids: { _count: 'desc' } }
+    const baseOrderBy: Record<string, string | Record<string, string>> = { endsAt: 'asc' }
+    if (sort === 'price-asc') baseOrderBy.currentPrice = 'asc'
+    if (sort === 'price-desc') baseOrderBy.currentPrice = 'desc'
+    if (sort === 'new') baseOrderBy.createdAt = 'desc'
+    if (sort === 'bids') baseOrderBy.bids = { _count: 'desc' }
 
     const orderBy = [
-      { featured: 'desc' },
+      { featured: 'desc' as const },
       baseOrderBy
     ]
 
     const [lots, total] = await Promise.all([
-      prisma.listing.findMany({
+      (prisma.listing as any).findMany({
         where,
         orderBy,
         skip: (page - 1) * limit,
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
           _count: { select: { bids: true } }
         }
       }),
-      prisma.listing.count({ where })
+      (prisma.listing as any).count({ where })
     ])
 
     return NextResponse.json({ lots, pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
