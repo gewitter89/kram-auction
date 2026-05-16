@@ -8,25 +8,24 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1
     const limit = Number(searchParams.get('limit')) || 20
     
-    // Simple query without complex filters
+    // Ultra simple query - no includes
     const lots = await (prisma as any).listing.findMany({
       where: { status: 'active' },
-      orderBy: { endsAt: 'asc' },
+      orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,
-      take: limit,
-      include: {
-        seller: { select: { id: true, name: true, rating: true, verified: true } },
-        category: { select: { name: true, slug: true } },
-        _count: { select: { bids: true } }
-      }
+      take: limit
     })
     
     const total = await (prisma as any).listing.count({ where: { status: 'active' } })
 
     return NextResponse.json({ lots, pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Get lots error:', error)
-    return NextResponse.json({ error: 'Помилка сервера', details: String(error) }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Помилка сервера', 
+      message: error?.message || 'Unknown error',
+      code: error?.code || 'NO_CODE'
+    }, { status: 500 })
   }
 }
 
