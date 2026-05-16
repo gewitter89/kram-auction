@@ -24,3 +24,14 @@ vercel --prod
 - `AUTH_GOOGLE_SECRET`: Client Secret от Google.
 - `DATABASE_URL`: Строка подключения к базе Neon.
 - `NEXT_PUBLIC_TELEGRAM_URL`: Ссылка на канал.
+- `TELEGRAM_BOT_TOKEN`: Токен бота @kram_auction_bot.
+
+## 🤖 Telegram Бот:
+- **Бот**: [@kram_auction_bot](https://t.me/kram_auction_bot)
+- **Webhook**: Настроен на `https://kram-auction.vercel.app/api/telegram/webhook`
+- **Команды**:
+  - `/start` — Приветствие и кнопки
+  - `/help` — Справка
+  - `/catalog` — Ссылка на каталог
+  - `/sell` — Ссылка на создание лота
+- **Уведомления**: Новые лоты, перебитие ставки, окончание аукциона, победа
