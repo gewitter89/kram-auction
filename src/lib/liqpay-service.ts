@@ -118,6 +118,10 @@ export function isLiqPayConfigured(): boolean {
   return !!LIQPAY_PUBLIC_KEY && !!LIQPAY_PRIVATE_KEY
 }
 
+export function isLiqPaySandbox(): boolean {
+  return LIQPAY_SANDBOX
+}
+
 // LiqPay payment status types
 export type LiqPayStatus = 
   | 'success'      // Payment successful
