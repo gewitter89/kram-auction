@@ -16,11 +16,16 @@ import {
   MobileAppsTeaser,
   FAQSection,
   FinalCTA,
+  BetaBanner,
+  EmailCollectionSection,
 } from '@/components/home/TelegramSection'
 
 export default function HomePage() {
   return (
     <div>
+      {/* Beta banner - at the top */}
+      <BetaBanner />
+
       {/* Hero with live auction mockup */}
       <HeroSection />
 
@@ -53,6 +58,9 @@ export default function HomePage() {
 
       {/* FAQ */}
       <FAQSection />
+
+      {/* Email collection - waitlist */}
+      <EmailCollectionSection />
 
       {/* Final CTA */}
       <FinalCTA />

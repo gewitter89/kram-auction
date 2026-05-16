@@ -705,3 +705,129 @@ export function FinalCTA() {
     </section>
   )
 }
+
+// Beta banner at the top of the page
+export function BetaBanner() {
+  return (
+    <div className="bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#F59E0B] text-white">
+      <div className="max-w-[1320px] mx-auto px-4 py-2.5">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-center">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🚧</span>
+            <span className="font-bold text-[14px]">Beta-версія</span>
+          </div>
+          <p className="text-[13px] text-white/90">
+            Реальні платежі будуть підключені у вересні 2025. Зараз — тестування процесу.
+          </p>
+          <a 
+            href="#email-collection" 
+            className="text-[13px] font-semibold underline hover:no-underline"
+          >
+            Повідомити про запуск →
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Email collection section
+export function EmailCollectionSection() {
+  const [email, setEmail] = useState('')
+  const [type, setType] = useState<'seller' | 'buyer'>('seller')
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email || !email.includes('@')) return
+    
+    setLoading(true)
+    // Simulate API call - in production this would save to DB
+    await new Promise(r => setTimeout(r, 1000))
+    setLoading(false)
+    setSubmitted(true)
+    setEmail('')
+  }
+
+  return (
+    <section id="email-collection" className="py-16 bg-gradient-to-br from-[#0B1220] to-[#1e293b]">
+      <div className="max-w-[1320px] mx-auto px-4">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB]/20 rounded-full mb-6">
+            <span className="text-xl">📬</span>
+            <span className="text-sm font-medium text-[#60A5FA]">Список очікування</span>
+          </div>
+          
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Станьте першим на KRAM
+          </h2>
+          <p className="text-[#94A3B8] mb-8">
+            Залиште email, і ми повідомимо, коли запустимо реальні платежі та відкриємо платформу для всіх.
+          </p>
+
+          {submitted ? (
+            <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-2xl p-6">
+              <div className="text-4xl mb-3">✅</div>
+              <h3 className="text-xl font-bold text-[#10B981] mb-2">Готово!</h3>
+              <p className="text-[#94A3B8]">
+                Ви в списку очікування. Ми напишемо, коли KRAM буде готовий до продажів.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setType('seller')}
+                  className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
+                    type === 'seller' 
+                      ? 'bg-[#2563EB] text-white' 
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="text-xl mr-2">🏪</span>
+                  Хочу продавати
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setType('buyer')}
+                  className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
+                    type === 'buyer' 
+                      ? 'bg-[#2563EB] text-white' 
+                      : 'bg-white/10 text-white/70 hover:bg-white/20'
+                  }`}
+                >
+                  <span className="text-xl mr-2">🛒</span>
+                  Хочу купувати
+                </button>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="flex-1 h-12 px-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-[#2563EB]"
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !email.includes('@')}
+                  className="h-12 px-8 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1d4ed8] transition-all disabled:opacity-50"
+                >
+                  {loading ? 'Збереження...' : 'Повідомити мене'}
+                </button>
+              </div>
+
+              <p className="mt-4 text-[12px] text-white/50">
+                Без спаму. Тільки запуск платформи та важливі оновлення.
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}

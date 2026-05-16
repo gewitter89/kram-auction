@@ -152,7 +152,39 @@ export default function LoginContent() {
             </button>
           </form>
 
-          <p className="mt-8 text-center text-[13px] text-[#94A3B8]">
+          {/* Demo Accounts for Testing */}
+          <div className="mt-8 p-4 bg-[#F0F9FF] border border-[#0EA5E9]/20 rounded-xl">
+            <p className="text-[12px] font-bold text-[#0EA5E9] mb-3 flex items-center gap-2">
+              <span>🧪</span> Тестові акаунти для демо
+            </p>
+            <div className="space-y-2 text-[12px]">
+              <div 
+                className="flex items-center justify-between p-2 bg-white rounded-lg cursor-pointer hover:shadow-sm transition-all"
+                onClick={() => { setEmail('demo-seller@kram.ua'); setPassword('demo123'); }}
+              >
+                <div>
+                  <span className="font-medium text-[#0F172A]">Продавець:</span>
+                  <span className="text-[#64748B] ml-1">demo-seller@kram.ua</span>
+                </div>
+                <span className="text-[10px] bg-[#10B981]/10 text-[#10B981] px-2 py-0.5 rounded">клікніть</span>
+              </div>
+              <div 
+                className="flex items-center justify-between p-2 bg-white rounded-lg cursor-pointer hover:shadow-sm transition-all"
+                onClick={() => { setEmail('demo-buyer@kram.ua'); setPassword('demo123'); }}
+              >
+                <div>
+                  <span className="font-medium text-[#0F172A]">Покупець:</span>
+                  <span className="text-[#64748B] ml-1">demo-buyer@kram.ua</span>
+                </div>
+                <span className="text-[10px] bg-[#2563EB]/10 text-[#2563EB] px-2 py-0.5 rounded">клікніть</span>
+              </div>
+            </div>
+            <p className="mt-2 text-[11px] text-[#94A3B8]">
+              Пароль для всіх тестових акаунтів: <span className="font-mono text-[#0F172A]">demo123</span>
+            </p>
+          </div>
+
+          <p className="mt-6 text-center text-[13px] text-[#94A3B8]">
             Продовжуючи, ви погоджуєтесь з <Link href="/terms" className="text-[#2563EB] hover:underline">умовами сервісу</Link>
           </p>
         </div>
