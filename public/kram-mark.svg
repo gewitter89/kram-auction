@@ -1,0 +1,32 @@
+<svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="kg" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#0f172a"/>
+      <stop offset="52%"  stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Badge background -->
+  <rect x="0" y="0" width="44" height="44" rx="11" fill="url(#kg)"/>
+
+  <!-- Inner border -->
+  <rect x="0.5" y="0.5" width="43" height="43" rx="10.5"
+        fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+
+  <!-- K: left vertical stem -->
+  <rect x="10" y="10" width="5" height="24" rx="2.5" fill="white"/>
+
+  <!-- K: upper arm -->
+  <path d="M14.5 22 L31 10 L31 15 L17 22.5 Z" fill="white"/>
+
+  <!-- K: lower arm -->
+  <path d="M14.5 22.5 L31 34 L26 34 L14.5 24.5 Z" fill="white"/>
+
+  <!-- Lime accent dot: glow ring -->
+  <circle cx="34.5" cy="9.5" r="5"   fill="rgba(132,204,22,0.22)"/>
+  <!-- Main dot -->
+  <circle cx="34.5" cy="9.5" r="3.5" fill="#84cc16"/>
+  <!-- Specular highlight -->
+  <circle cx="33.3" cy="8.3" r="1.2" fill="rgba(255,255,255,0.55)"/>
+</svg>
