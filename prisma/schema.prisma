@@ -34,6 +34,7 @@ model User {
   purchases     Transaction[]  @relation("buyer")
   sales         Transaction[]  @relation("seller")
   auditLogs     AuditLog[]
+  telegramSubscriptions TelegramSubscription[]
 }
 
 model Category {
