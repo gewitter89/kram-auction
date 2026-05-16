@@ -192,7 +192,9 @@ model Transaction {
   updatedAt        DateTime @updatedAt
   
   // Idempotency - prevents double-submit
-  idempotencyKey   String?  @unique
+  idempotencyKey   String?
+  
+  @@index([idempotencyKey])
 
   listing  Listing             @relation(fields: [listingId], references: [id])
   buyer    User                @relation("buyer", fields: [buyerId], references: [id])
