@@ -1,10 +1,23 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { isRateLimited } from '@/lib/rateLimit'
+import { registerSchema, validateBody } from '@/lib/validation'
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password, phone } = await request.json()
+    // Rate limit by IP
+    const ip = request.headers.get('x-forwarded-for') || 'unknown'
+    if (isRateLimited(`register:${ip}`, 5, 60_000)) {
+      return NextResponse.json({ error: 'Забагато спроб. Спробуйте пізніше.' }, { status: 429 })
+    }
+
+    const body = await request.json()
+    const validation = validateBody(registerSchema, body)
+    if (validation.error) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
+    }
+    const { name, email, password, phone } = validation.data!
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Імʼя, email та пароль обовʼязкові" }, { status: 400 })

@@ -8,12 +8,12 @@ export async function GET(request: NextRequest) {
   const token = request.headers.get('x-cron-secret') || request.nextUrl.searchParams.get('secret')
 
   // Allow local calls or valid token
-  const cronSecret = process.env.CRON_SECRET || 'kram-cron-secret-2026'
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
+  }
   if (token !== cronSecret) {
-    // Still allow in development
-    if (process.env.NODE_ENV === 'production') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {

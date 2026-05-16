@@ -3,6 +3,7 @@ import Credentials from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { isRateLimited } from './rateLimit'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -22,8 +23,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null
+
+        // Rate limiting by IP
+        const ip = request?.headers?.get('x-forwarded-for') || 'unknown'
+        if (isRateLimited(`login:${ip}`, 5, 60_000)) {
+          throw new Error('Забагато спроб входу. Спробуйте через хвилину.')
+        }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string }
@@ -31,7 +38,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!user) return null
         const valid = bcrypt.compareSync(credentials.password as string, user.passwordHash)
-        if (!valid) return null
+        if (!valid) {
+          isRateLimited(`login:${credentials.email}`, 1, 300_000) // Track failed attempts per email
+          return null
+        }
 
         return {
           id: user.id,

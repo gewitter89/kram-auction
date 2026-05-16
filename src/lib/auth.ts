@@ -2,7 +2,13 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { cookies } from 'next/headers'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'lotva-secret-key-2026-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV === 'production' 
+  ? 'kram-fallback-secret-please-change-in-production-immediately' 
+  : 'kram-dev-secret-key-2026')
+
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  console.warn('WARNING: JWT_SECRET not set! Using fallback - please set JWT_SECRET in Vercel env vars!')
+}
 
 export interface JWTPayload {
   id: string

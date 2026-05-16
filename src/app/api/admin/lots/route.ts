@@ -1,41 +1,44 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { auth } from '@/lib/auth-config'
-
-async function checkAdmin() {
-  const session = await auth()
-  const userId = session?.user?.id
-  if (!userId) return null
-  const user = await prisma.user.findUnique({ where: { id: userId } })
-  if (user?.role !== 'admin' && user?.email !== 'admin@lotva.ua' && user?.email !== 'admin@kram.ua') return null
-  return user
-}
+import { requireAdmin } from '@/lib/getCurrentUser'
 
 export async function GET(request: Request) {
-  const admin = await checkAdmin()
-  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  try {
+    await requireAdmin()
 
-  const lots = await prisma.listing.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: {
-      seller: { select: { name: true, email: true } },
-      _count: { select: { bids: true } }
+    const lots = await prisma.listing.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        seller: { select: { name: true, email: true } },
+        _count: { select: { bids: true } }
+      }
+    })
+
+    return NextResponse.json(lots)
+  } catch (error) {
+    if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
+      return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
     }
-  })
-
-  return NextResponse.json(lots)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
 }
 
 export async function DELETE(request: Request) {
-  const admin = await checkAdmin()
-  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  try {
+    await requireAdmin()
 
-  const { lotId } = await request.json()
+    const { lotId } = await request.json()
 
-  // We should probably mark as deleted instead of actual delete, but for now...
-  await prisma.listing.delete({
-    where: { id: lotId }
-  })
+    // We should probably mark as deleted instead of actual delete, but for now...
+    await prisma.listing.delete({
+      where: { id: lotId }
+    })
 
-  return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
+      return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
+    }
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
 }

@@ -1,4 +1,4 @@
-# ⚡ LOTVA — Український маркетплейс аукціонів
+# ⚡ KRTMA — Український маркетплейс аукціонів
 
 > Купуй вигідно. Продавай швидко. Торгуй чесно.
 
@@ -26,7 +26,7 @@ npm run dev
 
 | Роль | Email | Пароль |
 |------|-------|--------|
-| Admin | admin@lotva.ua | password123 |
+| Admin | admin@kram.ua | password123 |
 | Seller | tech@test.com | password123 |
 | Buyer | ivan@test.com | password123 |
 
@@ -74,35 +74,34 @@ Apple Sign In вимагає Apple Developer Account ($99/рік).
 - ✅ Головна сторінка (hero, категорії, гарячі лоти, як це працює, безпека)
 - ✅ Картки лотів з таймером зворотного відліку
 - ✅ Категорії з іконками
-- ✅ API: реєстрація, вхід, JWT авторизація
+- ✅ API: реєстрація, вхід, NextAuth авторизація (Google OAuth + Credentials)
 - ✅ API: створення лотів, список з фільтрами
 - ✅ API: ставки з антиснайпінгом (+2 хв)
 - ✅ API: сповіщення при перебитті ставки
+- ✅ API: повідомлення, избранное, уведомления
+- ✅ SSE real-time события для ставок
 - ✅ Seed: 12 категорій, 10 юзерів, 30 лотів, 92 ставки
 - ✅ Mobile-first responsive дизайн
 - ✅ Bottom navigation для мобільних
 - ✅ PWA-ready структура
 - ✅ Prisma ORM з повною схемою (User, Listing, Bid, Favorite, Message, Notification, Review, Report, Transaction)
+- ✅ Сторінка лота (gallery, bid form, seller card)
+- ✅ Каталог з фільтрами
+- ✅ Кабінет користувача (/cabinet)
+- ✅ Admin panel (/admin)
+- ✅ Сторінка створення лота (/sell)
 
 ### Roadmap:
-- 🔲 Сторінка лота (gallery, bid form, seller card)
-- 🔲 Каталог з фільтрами
-- 🔲 Профіль користувача
-- 🔲 Кабінет продавця
-- 🔲 Чат між покупцем і продавцем
-- 🔲 Admin panel (/admin)
 - 🔲 Сторінка оплати (LiqPay/Monobank)
-- 🔲 Сторінка створення лота (wizard)
 - 🔲 Пошук з автокомплітом
 - 🔲 i18n (UA/RU/EN)
-- 🔲 WebSocket для real-time ставок
 - 🔲 Email сповіщення
 - 🔲 Pricing page
 
 ## 📁 Структура проекту
 
 ```
-lotva/
+kram/
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx              # Головна
