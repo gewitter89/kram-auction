@@ -82,11 +82,21 @@ export function PurchasesTab() {
     try {
       const res = await fetch(`/api/transactions/${id}/mark-paid`, { method: 'POST' })
       if (res.ok) {
-        load()
+        const data = await res.json()
+        // Optimistic update: immediately update the transaction in state
+        if (data.transaction) {
+          setTransactions(prev => prev.map(tx => tx.id === id ? { ...tx, ...data.transaction, listing: tx.listing, seller: tx.seller } : tx))
+        }
+        // Then reload to ensure sync with server
+        setTimeout(() => load(), 100)
       } else {
         const data = await res.json()
         alert(data.error || 'Помилка')
+        load()
       }
+    } catch (err) {
+      alert('Помилка мережі')
+      load()
     } finally {
       setProcessing(null)
     }
@@ -98,11 +108,21 @@ export function PurchasesTab() {
     try {
       const res = await fetch(`/api/transactions/${id}/confirm-received`, { method: 'POST' })
       if (res.ok) {
-        load()
+        const data = await res.json()
+        // Optimistic update: immediately update the transaction in state
+        if (data.transaction) {
+          setTransactions(prev => prev.map(tx => tx.id === id ? { ...tx, ...data.transaction, listing: tx.listing, seller: tx.seller } : tx))
+        }
+        // Then reload to ensure sync with server
+        setTimeout(() => load(), 100)
       } else {
         const data = await res.json()
         alert(data.error || 'Помилка')
+        load() // Refresh on error to get correct state
       }
+    } catch (err) {
+      alert('Помилка мережі')
+      load()
     } finally {
       setProcessing(null)
     }

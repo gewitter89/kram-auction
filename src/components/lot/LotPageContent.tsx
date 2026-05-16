@@ -93,9 +93,9 @@ export function LotPageContent({ lot }: LotPageContentProps) {
         return
       }
 
-      setToast('✅ Лот успішно куплено! Переходимо до оформлення...')
+      setToast('✅ Лот успішно куплено! Переходимо в кабінет...')
       setTimeout(() => {
-        router.push(`/checkout/${lot.id}`)
+        router.push('/cabinet?tab=purchases')
       }, 1500)
     } catch (err) {
       setToast('Помилка сервера')

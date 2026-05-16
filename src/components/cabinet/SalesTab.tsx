@@ -94,12 +94,29 @@ export function SalesTab() {
         })
       })
       if (res.ok) {
+        const data = await res.json()
+        // Optimistic update: immediately update the transaction in state
+        if (data.transaction) {
+          setTransactions(prev => prev.map(tx => tx.id === shippingForm.txId ? { 
+            ...tx, 
+            ...data.transaction, 
+            listing: tx.listing, 
+            buyer: tx.buyer,
+            trackingNumber: data.transaction.trackingNumber || shippingForm.tracking,
+            deliveryProvider: data.transaction.deliveryProvider || shippingForm.provider
+          } : tx))
+        }
         setShippingForm(null)
-        load()
+        // Then reload to ensure sync with server
+        setTimeout(() => load(), 100)
       } else {
         const data = await res.json()
         alert(data.error || 'Помилка')
+        load()
       }
+    } catch (err) {
+      alert('Помилка мережі')
+      load()
     } finally {
       setProcessing(null)
     }

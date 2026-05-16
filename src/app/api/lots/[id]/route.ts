@@ -2,6 +2,54 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
 
+// GET /api/lots/[id] - Get single listing by ID
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    
+    const listing = await prisma.listing.findUnique({
+      where: { id },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+            email: true,
+          },
+        },
+        bids: {
+          orderBy: { amount: 'desc' },
+          take: 1,
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            bids: true,
+            favorites: true,
+          },
+        },
+      },
+    })
+
+    if (!listing) {
+      return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
+    }
+
+    return NextResponse.json(listing)
+  } catch (error) {
+    console.error('Get lot error:', error)
+    return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth()
