@@ -141,7 +141,7 @@ export async function createTransactionFromBuyNow(
     throw new Error('LISTING_NOT_ACTIVE')
   }
 
-  const transaction = await prisma.$transaction(async (tx: typeof prisma) => {
+  const result = await prisma.$transaction(async (tx: typeof prisma) => {
     // Update listing
     await tx.listing.update({
       where: { id: listingId },
@@ -178,6 +178,8 @@ export async function createTransactionFromBuyNow(
 
     return trans
   })
+  
+  const transaction = Array.isArray(result) ? result[0] : result
 
   // Create event
   await createTransactionEvent(
@@ -258,7 +260,7 @@ export async function createTransactionFromAuctionWin(
     throw new Error('LISTING_NOT_FOUND')
   }
 
-  const transaction = await prisma.$transaction(async (tx: typeof prisma) => {
+  const result = await prisma.$transaction(async (tx: typeof prisma) => {
     // Update listing
     await tx.listing.update({
       where: { id: listingId },
@@ -286,6 +288,8 @@ export async function createTransactionFromAuctionWin(
 
     return trans
   })
+  
+  const transaction = Array.isArray(result) ? result[0] : result
 
   // Create event
   await createTransactionEvent(
@@ -715,7 +719,7 @@ export async function cancelTransaction(
     throw new Error('INVALID_STATUS')
   }
 
-  const updated = await prisma.$transaction(async (tx: typeof prisma) => {
+  const result = await prisma.$transaction(async (tx: typeof prisma) => {
     // Update transaction
     const trans = await tx.transaction.update({
       where: { id: transactionId },
@@ -733,6 +737,8 @@ export async function cancelTransaction(
 
     return trans
   })
+  
+  const updated = Array.isArray(result) ? result[0] : result
 
   // Create event
   await createTransactionEvent(
