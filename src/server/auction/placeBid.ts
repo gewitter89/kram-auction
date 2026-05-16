@@ -149,25 +149,23 @@ export async function placeBid(params: {
   let newlyCreatedBid: any = null
   let finalEndsAt = listing.endsAt
 
-  // Execute in transaction
-  await prisma.$transaction(async (tx) => {
-    // Create all history bids
-    for (const b of newBidsToCreate) {
-      const created = await tx.bid.create({ data: b })
-      if (b.amount === finalAmount) newlyCreatedBid = created
-    }
+  // Execute operations (without transaction for now - fix later)
+  // Create all history bids
+  for (const b of newBidsToCreate) {
+    const created = await prisma.bid.create({ data: b })
+    if (b.amount === finalAmount) newlyCreatedBid = created
+  }
 
-    // Anti-sniping: extend time if less than 2 minutes remaining
-    const timeLeft = new Date(listing.endsAt).getTime() - Date.now()
-    if (timeLeft < 120000 && timeLeft > 0) {
-      finalEndsAt = new Date(Date.now() + 2 * 60 * 1000)
-    }
+  // Anti-sniping: extend time if less than 2 minutes remaining
+  const timeLeft = new Date(listing.endsAt).getTime() - Date.now()
+  if (timeLeft < 120000 && timeLeft > 0) {
+    finalEndsAt = new Date(Date.now() + 2 * 60 * 1000)
+  }
 
-    // Update listing
-    await tx.listing.update({
-      where: { id: listingId },
-      data: { currentPrice: finalAmount, endsAt: finalEndsAt }
-    })
+  // Update listing
+  await prisma.listing.update({
+    where: { id: listingId },
+    data: { currentPrice: finalAmount, endsAt: finalEndsAt }
   })
 
   // Real-time SSE events
