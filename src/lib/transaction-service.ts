@@ -1,6 +1,7 @@
 import { prisma } from './prisma'
 import { logAuditEvent } from './logger'
 import { sendTelegramMessage } from './telegram'
+import { makeFundsAvailable, createPendingRelease } from './payment-release-service'
 
 // Transaction Status Types
 export const TransactionStatus = {
@@ -596,6 +597,14 @@ export async function confirmTransactionReceived(
   })
 
   // Side-effects: best-effort
+  // Make funds available to seller
+  try {
+    await makeFundsAvailable(transactionId)
+  } catch (e) {
+    console.error('Failed to make funds available:', e)
+    // Don't fail the transaction if release creation fails
+  }
+
   try {
     await createTransactionEvent(
       transactionId,
@@ -603,7 +612,7 @@ export async function confirmTransactionReceived(
       buyerId,
       TransactionStatus.SELLER_SHIPPED,
       TransactionStatus.COMPLETED,
-      'Покупець підтвердив отримання, угоду завершено'
+      'Покупець підтвердив отримання, угоду завершено. Кошти доступні для виплати продавцю.'
     )
   } catch (e) { console.error('Event failed:', e) }
 

@@ -37,6 +37,7 @@ model User {
   telegramSubscriptions TelegramSubscription[]
   transactionEvents TransactionEvent[]
   payments      Payment[]
+  releases      PaymentRelease[]
 }
 
 model Category {
@@ -215,31 +216,68 @@ model Payment {
   buyerId           String
   amount            Float
   currency          String   @default("UAH")
-  
+
   // Payment status
   status            String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
-  
+
   // Payment provider
   provider          String   @default("LIQPAY") // LIQPAY, STRIPE, etc.
   providerPaymentId String?  // Payment ID from provider
-  
+
   // LiqPay specific
   liqpayData        String?  // Base64 encoded form data
   liqpaySignature   String?  // LiqPay signature
-  
+
   // Callback data
   callbackData      String?  // JSON from provider callback
-  
+
   // Timestamps
   paidAt            DateTime?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  
+
   transaction       Transaction @relation(fields: [transactionId], references: [id])
   buyer             User        @relation(fields: [buyerId], references: [id])
-  
+  releases          PaymentRelease[]
+
   @@index([transactionId])
   @@index([buyerId])
+  @@index([status])
+}
+
+model PaymentRelease {
+  id                String   @id @default(cuid())
+  paymentId         String
+  transactionId     String
+  sellerId          String
+  amount            Float
+  currency          String   @default("UAH")
+
+  // Release status
+  status            String   @default("PENDING") // PENDING, APPROVED, PROCESSING, PAID, FAILED, CANCELLED
+
+  // Provider info
+  provider          String   @default("MANUAL") // MANUAL, LIQPAY_PAYOUT, BANK_TRANSFER, etc.
+  providerReference String?  // Reference from payout provider
+
+  // When release is available (after buyer confirms receipt)
+  availableAt       DateTime?
+  // When actually paid to seller
+  paidAt            DateTime?
+
+  // Audit
+  approvedBy        String?  // Admin user ID who approved
+  notes             String?  // Internal notes
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  payment           Payment     @relation(fields: [paymentId], references: [id])
+  transaction       Transaction @relation(fields: [transactionId], references: [id])
+  seller            User        @relation(fields: [sellerId], references: [id])
+
+  @@index([transactionId])
+  @@index([sellerId])
   @@index([status])
 }
 

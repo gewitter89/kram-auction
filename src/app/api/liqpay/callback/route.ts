@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { parseCallback } from '@/lib/liqpay-service'
 import { eventBus } from '@/lib/eventBus'
+import { createPendingRelease } from '@/lib/payment-release-service'
 
 // POST /api/liqpay/callback - Handle LiqPay payment callback
 export async function POST(request: Request) {
@@ -55,8 +56,22 @@ export async function POST(request: Request) {
           status: 'PAID_HELD',
           paymentStatus: 'PAID',
           paymentConfirmedAt: new Date(),
-        } as any,
+        },
       })
+
+      // Create pending release for seller (funds available after buyer confirms receipt)
+      try {
+        await createPendingRelease(
+          paymentRecord.transactionId,
+          paymentRecord.id,
+          paymentRecord.transaction.sellerId,
+          payment.amount,
+          payment.currency
+        )
+      } catch (e) {
+        console.error('Failed to create pending release:', e)
+        // Don't fail the callback if release creation fails
+      }
 
       // Create event
       await prisma.transactionEvent.create({
@@ -66,7 +81,7 @@ export async function POST(request: Request) {
           actorId: paymentRecord.buyerId,
           fromStatus: 'PENDING_PAYMENT',
           toStatus: 'PAID_HELD',
-          message: `Оплата отримана через LiqPay (ID: ${payment.paymentId})`,
+          message: `Оплата отримана через LiqPay (ID: ${payment.paymentId}). Кошти будуть доступні продавцю після підтвердження отримання.`,
           metadata: JSON.stringify({
             paymentId: payment.paymentId,
             amount: payment.amount,

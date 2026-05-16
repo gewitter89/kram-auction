@@ -1,6 +1,6 @@
 'use client'
 
-import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight } from 'lucide-react'
+import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, CreditCard, Lock, Package, Truck, Wallet, MapPin, AlertCircle, UserCheck } from 'lucide-react'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { useState, useEffect } from 'react'
@@ -493,85 +493,141 @@ export function LiveAuctionsNow() {
 }
 
 export function TrustSectionUpdated() {
-  const features = [
-    {
-      icon: '✓',
-      title: 'Перевірені продавці',
-      desc: 'Кожен продавець проходить верифікацію перед публікацією лотів',
-      color: 'bg-[#2563EB]/10 text-[#2563EB]',
-    },
-    {
-      icon: '📋',
-      title: 'Статуси угоди в кабінеті',
-      desc: 'Відстежуйте кожен крок: оплата → відправка → отримання → завершення',
-      color: 'bg-[#10B981]/10 text-[#10B981]',
-    },
-    {
-      icon: '🔔',
-      title: 'Сповіщення в Telegram',
-      desc: 'Отримуйте миттєві повідомлення про ставки, перемоги та статус угоди',
-      color: 'bg-[#229ED9]/10 text-[#229ED9]',
-    },
-    {
-      icon: '🚚',
-      title: 'Доставка Nova Poshta',
-      desc: 'Надійна доставка по всій Україні з трекінгом посилок',
-      color: 'bg-[#F59E0B]/10 text-[#F59E0B]',
-    },
-    {
-      icon: '�️',
-      title: 'MVP без реальних платежів',
-      desc: 'Прозоре підтвердження оплати вручну. Реальні платежі — наступний етап.',
-      color: 'bg-[#8B5CF6]/10 text-[#8B5CF6]',
-    },
-    {
-      icon: '�',
-      title: 'Пряме спілкування',
-      desc: 'Чат між покупцем і продавцем для узгодження деталей угоди',
-      color: 'bg-[#EC4899]/10 text-[#EC4899]',
-    },
-  ]
-
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-[#F8FAFC]">
+    <section className="py-20 bg-gradient-to-b from-white to-[#F8FAFC]">
       <div className="max-w-[1320px] mx-auto px-4">
-        <div className="text-center mb-12">
+        {/* Header */}
+        <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB]/10 rounded-full mb-4">
-            <span className="text-xl">🛡️</span>
-            <span className="text-sm font-semibold text-[#2563EB]">Trust Layer</span>
+            <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
+            <span className="text-sm font-semibold text-[#2563EB]">Безпечна угода KRAM</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-[#0B1220] mb-4">
-            Чому продавати та купувати на KRAM безпечно
+          <h2 className="text-3xl md:text-4xl font-bold text-[#0B1220] mb-4">
+            Продавець отримує кошти<br />після підтвердження отримання
           </h2>
-          <p className="text-[#64748B] max-w-2xl mx-auto">
-            Будуємо модель прозорої угоди: перевірка продавців, статуси в кабінеті, 
-            сповіщення та контроль на кожному кроці.
+          <p className="text-[#64748B] max-w-2xl mx-auto text-lg">
+            Покупець оплачує замовлення, продавець відправляє товар, 
+            а KRAM показує статус угоди на кожному кроці.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {features.map((f, i) => (
-            <div key={i} className="group bg-white rounded-2xl p-6 border border-[#E2E8F0] hover:border-[#2563EB]/30 hover:shadow-card transition-all hover:-translate-y-0.5">
-              <div className={`w-12 h-12 ${f.color} rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}>
-                {f.icon}
+        {/* Visual Flow Timeline */}
+        <div className="relative mb-16">
+          <div className="grid md:grid-cols-5 gap-4">
+            {[
+              {
+                icon: CreditCard,
+                step: '1',
+                title: 'Покупець оплачує',
+                desc: 'Оплата фіксується в системі',
+                color: 'bg-[#2563EB]',
+                lightColor: 'bg-[#2563EB]/10',
+              },
+              {
+                icon: Lock,
+                step: '2',
+                title: 'KRAM фіксує оплату',
+                desc: 'Кошти не йдуть одразу продавцю',
+                color: 'bg-[#8B5CF6]',
+                lightColor: 'bg-[#8B5CF6]/10',
+              },
+              {
+                icon: Package,
+                step: '3',
+                title: 'Продавець відправляє',
+                desc: 'Додається номер ТТН Нової пошти',
+                color: 'bg-[#F59E0B]',
+                lightColor: 'bg-[#F59E0B]/10',
+              },
+              {
+                icon: Truck,
+                step: '4',
+                title: 'Покупець отримує',
+                desc: 'Перевіряє товар на відділенні',
+                color: 'bg-[#10B981]',
+                lightColor: 'bg-[#10B981]/10',
+              },
+              {
+                icon: Wallet,
+                step: '5',
+                title: 'Кошти продавцю',
+                desc: 'Виплата після підтвердження',
+                color: 'bg-[#059669]',
+                lightColor: 'bg-[#059669]/10',
+              },
+            ].map((item, i) => (
+              <div key={i} className="relative">
+                <div className="bg-white rounded-2xl p-6 border border-[#E2E8F0] hover:shadow-card transition-all h-full">
+                  <div className={`w-12 h-12 ${item.lightColor} ${item.color.replace('bg-', 'text-')} rounded-xl flex items-center justify-center mb-4`}>
+                    <item.icon className="w-6 h-6" />
+                  </div>
+                  <div className={`w-6 h-6 ${item.color} text-white rounded-full flex items-center justify-center text-xs font-bold mb-3`}>
+                    {item.step}
+                  </div>
+                  <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">{item.title}</h3>
+                  <p className="text-[13px] text-[#64748B] leading-relaxed">{item.desc}</p>
+                </div>
+                {i < 4 && (
+                  <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
+                    <ArrowRight className="w-5 h-5 text-[#CBD5E1]" />
+                  </div>
+                )}
               </div>
-              <h3 className="font-bold text-[#0B1220] mb-2">{f.title}</h3>
-              <p className="text-[13px] text-[#64748B] leading-relaxed">{f.desc}</p>
+            ))}
+          </div>
+        </div>
+
+        {/* Trust Cards */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {[
+            {
+              icon: ShieldCheck,
+              title: 'Кошти не йдуть одразу продавцю',
+              desc: 'Виплата доступна після підтвердження отримання або завершення без спору.',
+              color: 'text-[#2563EB]',
+              bgColor: 'bg-[#2563EB]/10',
+            },
+            {
+              icon: MapPin,
+              title: 'Доставка з трекінгом',
+              desc: 'Номер відправлення та статус доставки видно в угоді.',
+              color: 'text-[#F59E0B]',
+              bgColor: 'bg-[#F59E0B]/10',
+            },
+            {
+              icon: AlertCircle,
+              title: 'Спір до завершення',
+              desc: 'Якщо товар не прийшов або не відповідає опису — відкрийте спір.',
+              color: 'text-[#EF4444]',
+              bgColor: 'bg-[#EF4444]/10',
+            },
+            {
+              icon: UserCheck,
+              title: 'Перевірка продавців',
+              desc: 'Профіль, історія угод і верифікація допомагають обирати надійних.',
+              color: 'text-[#10B981]',
+              bgColor: 'bg-[#10B981]/10',
+            },
+          ].map((card, i) => (
+            <div key={i} className="bg-white rounded-2xl p-6 border border-[#E2E8F0] hover:border-[#2563EB]/20 hover:shadow-card transition-all">
+              <div className={`w-11 h-11 ${card.bgColor} ${card.color} rounded-xl flex items-center justify-center mb-4`}>
+                <card.icon className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">{card.title}</h3>
+              <p className="text-[13px] text-[#64748B] leading-relaxed">{card.desc}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 px-6 py-4 bg-white border border-[#E2E8F0] rounded-2xl">
-            <div className="flex items-center gap-2 text-[#0B1220] font-semibold">
-              <span className="text-2xl">🇺🇦</span>
-              Український маркетплейс
-            </div>
-            <div className="hidden sm:block w-px h-6 bg-[#E2E8F0]" />
-            <div className="text-[13px] text-[#64748B]">
-              Розроблено для українських продавців та покупців
-            </div>
-          </div>
+        {/* Beta Note */}
+        <div className="text-center">
+          <p className="text-[13px] text-[#94A3B8] max-w-2xl mx-auto">
+            Платіжна модель запускається поетапно: спочатку beta-підтвердження, 
+            далі — автоматизовані платежі через провайдера.{' '}
+            <Link href="/safety" className="text-[#2563EB] hover:underline">
+              Детальніше про безпечні угоди →
+            </Link>
+          </p>
         </div>
       </div>
     </section>
