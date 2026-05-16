@@ -150,7 +150,7 @@ export async function placeBid(params: {
   let finalEndsAt = listing.endsAt
 
   // Execute in transaction
-  await prisma.$transaction(async (tx: any) => {
+  await prisma.$transaction(async (tx) => {
     // Create all history bids
     for (const b of newBidsToCreate) {
       const created = await tx.bid.create({ data: b })
