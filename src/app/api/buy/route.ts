@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
+import { prisma } from '@/lib/prisma'
 import { createTransactionFromBuyNow } from '@/lib/transaction-service'
 import { eventBus } from '@/lib/eventBus'
 
@@ -14,6 +15,10 @@ export async function POST(request: Request) {
     const { listingId } = await request.json()
     if (!listingId) return NextResponse.json({ error: 'Вкажіть лот' }, { status: 400 })
 
+    // Get listing for event
+    const listing = await prisma.listing.findUnique({ where: { id: listingId } })
+    if (!listing) return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
+
     // Get IP and user agent for audit log
     const headers = request.headers
     const ip = headers.get('x-forwarded-for') || undefined
@@ -23,7 +28,7 @@ export async function POST(request: Request) {
 
     eventBus.emit('global', {
       type: 'won',
-      name: transaction.listing.title,
+      name: listing.title,
       amount: `${transaction.amount.toLocaleString('uk-UA')} ₴`,
       user: (session?.user?.name || 'Учасник').slice(0, 3) + '***' + userId.slice(-2)
     })
@@ -38,9 +43,6 @@ export async function POST(request: Request) {
     
     if (error.message === 'TRANSACTION_EXISTS') {
       return NextResponse.json({ error: 'Угода за цим лотом вже існує' }, { status: 409 })
-    }
-    if (error.message === 'LISTING_NOT_FOUND') {
-      return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
     }
     if (error.message === 'CANNOT_BUY_OWN') {
       return NextResponse.json({ error: 'Ви не можете купити свій лот' }, { status: 400 })
