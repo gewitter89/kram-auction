@@ -163,7 +163,7 @@ export async function placeBid(params: {
   }
 
   // Update listing
-  await prisma.listing.update({
+  await (prisma.listing as any).update({
     where: { id: listingId },
     data: { currentPrice: finalAmount, endsAt: finalEndsAt }
   })
