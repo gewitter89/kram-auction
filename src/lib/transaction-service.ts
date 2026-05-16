@@ -2,6 +2,7 @@ import { prisma } from './prisma'
 import { logAuditEvent } from './logger'
 import { sendTelegramMessage } from './telegram'
 import { makeFundsAvailable, createPendingRelease } from './payment-release-service'
+import { absoluteUrl } from './site-url'
 
 // Transaction Status Types
 export const TransactionStatus = {
@@ -42,6 +43,7 @@ export const TransactionEventType = {
   TRANSACTION_REFUNDED: 'TRANSACTION_REFUNDED',
   TRANSACTION_DISPUTE_RESOLVED_RELEASE: 'TRANSACTION_DISPUTE_RESOLVED_RELEASE',
   TRANSACTION_DISPUTE_RESOLVED_REFUND: 'TRANSACTION_DISPUTE_RESOLVED_REFUND',
+  DELIVERY_UPDATE: 'DELIVERY_UPDATE',
 } as const
 
 // Helper to create transaction event
@@ -52,7 +54,7 @@ export async function createTransactionEvent(
   fromStatus: string | null,
   toStatus: string | null,
   message?: string,
-  metadata?: any
+  metadata?: unknown
 ) {
   try {
     await prisma.transactionEvent.create({
@@ -250,14 +252,14 @@ export async function createTransactionFromBuyNow(
   try {
     await notifyUserTelegram(
       transaction.sellerId,
-      `💰 <b>Лот куплено!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n👤 Покупець: ${transaction.buyer.name}\n\n<a href="https://kram-auction.vercel.app/cabinet">Перейти в кабінет →</a>`
+      `💰 <b>Лот куплено!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n👤 Покупець: ${transaction.buyer.name}\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Перейти в кабінет →</a>`
     )
   } catch (e) { console.error('Failed to send Telegram to seller:', e) }
 
   try {
     await notifyUserTelegram(
       buyerId,
-      `✅ <b>Покупка успішна!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті, щоб продавець міг відправити товар.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити оплату →</a>`
+      `✅ <b>Покупка успішна!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті, щоб продавець міг відправити товар.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Підтвердити оплату →</a>`
     )
   } catch (e) { console.error('Failed to send Telegram to buyer:', e) }
 
@@ -385,14 +387,14 @@ export async function createTransactionFromAuctionWin(
   try {
     await notifyUserTelegram(
       transaction.sellerId,
-      `🎉 <b>Лот продано на аукціоні!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\n<a href="https://kram-auction.vercel.app/cabinet">Перейти в кабінет →</a>`
+      `🎉 <b>Лот продано на аукціоні!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Перейти в кабінет →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
   try {
     await notifyUserTelegram(
       buyerId,
-      `🎉 <b>Ви виграли аукціон!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити оплату →</a>`
+      `🎉 <b>Ви виграли аукціон!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Підтвердити оплату →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
@@ -477,7 +479,7 @@ export async function markTransactionPaid(
   try {
     await notifyUserTelegram(
       transaction.sellerId,
-      `💳 <b>Оплата підтверджена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nВідправте товар та вкажіть номер накладної.\n\n<a href="https://kram-auction.vercel.app/cabinet">Вказати відправлення →</a>`
+      `💳 <b>Оплата підтверджена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nВідправте товар та вкажіть номер накладної.\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Вказати відправлення →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
@@ -570,7 +572,7 @@ export async function shipTransaction(
   try {
     await notifyUserTelegram(
       transaction.buyerId,
-      `🚚 <b>Товар відправлено!</b>\n\n📦 "${transaction.listing.title}"\n🚚 ${deliveryProvider}\n📋 Накладна: ${trackingNumber}\n\nПісля отримання підтвердіть угоду в кабінеті.\n\n<a href="https://kram-auction.vercel.app/cabinet">Підтвердити отримання →</a>`
+      `🚚 <b>Товар відправлено!</b>\n\n📦 "${transaction.listing.title}"\n🚚 ${deliveryProvider}\n📋 Накладна: ${trackingNumber}\n\nПісля отримання підтвердіть угоду в кабінеті.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Підтвердити отримання →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
@@ -680,7 +682,7 @@ export async function confirmTransactionReceived(
   try {
     await notifyUserTelegram(
       buyerId,
-      `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n\nДякуємо за покупку! Залиште відгук про продавця.\n\n<a href="https://kram-auction.vercel.app/cabinet">Залишити відгук →</a>`
+      `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n\nДякуємо за покупку! Залиште відгук про продавця.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Залишити відгук →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
@@ -714,8 +716,8 @@ export async function openTransactionDispute(
   }
 
   // Can only dispute from PAID_HELD or SELLER_SHIPPED
-  const disputableStatuses = [TransactionStatus.PAID_HELD, TransactionStatus.SELLER_SHIPPED]
-  if (!disputableStatuses.includes(transaction.status as any)) {
+  const disputableStatuses: string[] = [TransactionStatus.PAID_HELD, TransactionStatus.SELLER_SHIPPED]
+  if (!disputableStatuses.includes(transaction.status)) {
     throw new Error('INVALID_STATUS')
   }
 

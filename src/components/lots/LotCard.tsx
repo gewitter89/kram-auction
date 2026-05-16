@@ -31,6 +31,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const [timeLeft, setTimeLeft] = useState('')
+  const [remainingMs, setRemainingMs] = useState<number | null>(null)
   const [isFavorite, setIsFavorite] = useState(initialFavorite)
   const [favLoading, setFavLoading] = useState(false)
   const [hovering, setHovering] = useState(false)
@@ -39,6 +40,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
     const update = () => {
       const end = new Date(lot.endsAt).getTime()
       const diff = end - Date.now()
+      setRemainingMs(Math.max(0, diff))
       if (diff <= 0) { setTimeLeft('Завершено'); return }
       const h = Math.floor(diff / 3600000)
       const m = Math.floor((diff % 3600000) / 60000)
@@ -55,11 +57,9 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
     return () => clearInterval(i)
   }, [lot.endsAt])
 
-  const endTime = new Date(lot.endsAt).getTime()
-  // Computed from timeLeft string so no Date.now() in render
   const isEnded = timeLeft === 'Завершено'
-  const isEndingSoon = !isEnded && endTime - new Date(lot.endsAt).getTime() < 2 * 3600000
-  const isUrgent = !isEnded && endTime - new Date(lot.endsAt).getTime() < 30 * 60000
+  const isEndingSoon = !isEnded && remainingMs !== null && remainingMs < 2 * 3600000
+  const isUrgent = !isEnded && remainingMs !== null && remainingMs < 30 * 60000
 
   async function toggleFavorite(e: React.MouseEvent) {
     e.preventDefault()
@@ -107,12 +107,21 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
 
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]">
-        <img
-          src={lot.image}
-          alt={lot.title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          loading="lazy"
-        />
+        {lot.image ? (
+          <img
+            src={lot.image}
+            alt={lot.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EFF6FF] via-white to-[#ECFDF5]">
+            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 text-center shadow-card backdrop-blur">
+              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#2563EB]">KRAM</p>
+              <p className="text-[13px] font-semibold text-[#0B1220]">Лот без фото</p>
+            </div>
+          </div>
+        )}
 
         {/* Gradient overlay on bottom */}
         <div className="absolute inset-x-0 bottom-0 h-24 gradient-card-bottom opacity-60" />

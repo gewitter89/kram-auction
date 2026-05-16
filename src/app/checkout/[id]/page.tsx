@@ -259,7 +259,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                     <ShieldCheck className="w-4 h-4" /> Безпечна угода активована
                   </div>
                   <p className="text-[12px] text-[#047857]">
-                    Кошти будуть зарезервовані на транзитному рахунку KRAM і передані продавцю тільки після того, як ви отримаєте товар.
+                    KRAM фіксує статус оплати та показує наступні кроки угоди. У beta-режимі підтвердження може бути ручним до production-підключення LiqPay.
                   </p>
                 </div>
 
@@ -348,7 +348,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               <div>
                 <p className="text-[12px] font-bold text-[#0F172A] mb-0.5">KRAM Protection</p>
                 <p className="text-[11px] text-[#64748B] leading-normal">
-                  Ваші покупки захищені. Ми гарантуємо повернення коштів, якщо товар не відповідає опису.
+                  Статус угоди прозорий: оплата, доставка, отримання та спір відображаються в кабінеті.
                 </p>
               </div>
             </div>

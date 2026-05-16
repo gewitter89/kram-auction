@@ -47,7 +47,8 @@ export async function GET(request: NextRequest) {
             listing.id,
             winner.userId,
             winner.amount,
-            null, // system action
+            undefined,
+            null,
             idempotencyKey
           )
 
@@ -58,8 +59,9 @@ export async function GET(request: NextRequest) {
             amount: `${winner.amount} ₴`,
             user: `${winner.user.name.slice(0, 4)}***`
           })
-        } catch (error: any) {
-          if (error.message === 'TRANSACTION_EXISTS') {
+        } catch (error) {
+          const message = error instanceof Error ? error.message : ''
+          if (message === 'TRANSACTION_EXISTS') {
             console.log(`Transaction already exists for listing ${listing.id}, skipping`)
           } else {
             console.error(`Failed to create transaction for listing ${listing.id}:`, error)

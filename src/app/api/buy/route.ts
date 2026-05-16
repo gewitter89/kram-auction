@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     // Generate idempotency key for double-submit protection
     const idempotencyKey = `buy:${listingId}:${userId}:${Math.floor(Date.now() / 1000 / 60)}` // 1-minute window
 
-    const transaction = await createTransactionFromBuyNow(listingId, userId, ip, userAgent, idempotencyKey)
+    const transaction = await createTransactionFromBuyNow(listingId, userId, undefined, ip, userAgent, idempotencyKey)
 
     eventBus.emit('global', {
       type: 'won',
@@ -41,19 +41,20 @@ export async function POST(request: Request) {
       message: 'Лот куплено! Перейдіть у кабінет для підтвердження оплати.',
       transactionId: transaction.id
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Buy Now error:', error)
+    const message = error instanceof Error ? error.message : ''
     
-    if (error.message === 'TRANSACTION_EXISTS') {
+    if (message === 'TRANSACTION_EXISTS') {
       return NextResponse.json({ error: 'Угода за цим лотом вже існує' }, { status: 409 })
     }
-    if (error.message === 'CANNOT_BUY_OWN') {
+    if (message === 'CANNOT_BUY_OWN') {
       return NextResponse.json({ error: 'Ви не можете купити свій лот' }, { status: 400 })
     }
-    if (error.message === 'LISTING_NOT_ACTIVE') {
+    if (message === 'LISTING_NOT_ACTIVE') {
       return NextResponse.json({ error: 'Лот вже продано або неактивний' }, { status: 400 })
     }
-    if (error.message === 'NO_BUY_NOW_PRICE') {
+    if (message === 'NO_BUY_NOW_PRICE') {
       return NextResponse.json({ error: 'Цей лот не можна купити відразу' }, { status: 400 })
     }
     

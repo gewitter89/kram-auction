@@ -22,8 +22,8 @@ const steps = [
   {
     icon: ShieldCheck,
     step: '03',
-    title: 'Безпечна оплата',
-    desc: 'Гроші заморожуються до отримання товару покупцем',
+    title: 'Контрольована оплата',
+    desc: 'Статус оплати видно в угоді; у beta можливе ручне підтвердження',
     color: 'from-emerald-500 to-green-600',
     iconBg: 'bg-emerald-100',
     iconColor: 'text-emerald-600'

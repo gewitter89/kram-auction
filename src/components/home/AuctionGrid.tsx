@@ -79,7 +79,7 @@ function transformLot(lot: any) {
     city: lot.city || 'Україна',
     seller: lot.seller?.name || 'Продавець',
     sellerRating: lot.seller?.rating || 0,
-    image: images[0] || `https://placehold.co/400x300/F1F5F9/334155?text=${encodeURIComponent(lot.title.slice(0, 20))}`,
+    image: images[0] || '',
     condition: lot.condition,
     type: lot.type,
     delivery: lot.delivery === 'nova_poshta',

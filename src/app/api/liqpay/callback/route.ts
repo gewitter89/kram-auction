@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const orderId = payment.orderId.replace('kram-', '')
 
     // Find payment record
-    const paymentRecord = await (prisma as any).payment.findFirst({
+    const paymentRecord = await prisma.payment.findFirst({
       where: { transactionId: orderId },
       include: { transaction: true },
     })
@@ -37,19 +37,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Payment not found' }, { status: 404 })
     }
 
-    // Update payment status
-    const updatedPayment = await (prisma as any).payment.update({
+    const isSuccess = payment.status === 'success' || payment.status === 'sandbox'
+    const isProcessing = payment.status === 'processing' || payment.status === 'wait_accept' || payment.status === 'wait_secure'
+    const nextPaymentStatus = isSuccess ? 'COMPLETED' : isProcessing ? 'PROCESSING' : 'FAILED'
+
+    if (paymentRecord.status === nextPaymentStatus && paymentRecord.providerPaymentId === payment.paymentId) {
+      return NextResponse.json({ success: true, alreadyProcessed: true })
+    }
+
+    await prisma.payment.update({
       where: { id: paymentRecord.id },
       data: {
-        status: payment.status === 'success' ? 'COMPLETED' : 'FAILED',
+        status: nextPaymentStatus,
         providerPaymentId: payment.paymentId,
-        paidAt: payment.status === 'success' ? new Date() : null,
+        paidAt: isSuccess ? new Date() : null,
         callbackData: JSON.stringify(payment),
       },
     })
 
-    // If payment successful, update transaction
-    if (payment.status === 'success') {
+    if (isSuccess && paymentRecord.transaction.status === 'PENDING_PAYMENT') {
       await prisma.transaction.update({
         where: { id: paymentRecord.transactionId },
         data: {
@@ -81,7 +87,7 @@ export async function POST(request: Request) {
           actorId: paymentRecord.buyerId,
           fromStatus: 'PENDING_PAYMENT',
           toStatus: 'PAID_HELD',
-          message: `Оплата отримана через LiqPay (ID: ${payment.paymentId}). Кошти будуть доступні продавцю після підтвердження отримання.`,
+          message: `Оплата підтверджена через LiqPay (ID: ${payment.paymentId}). Виплата продавцю виконується після підтвердження отримання та фінальної перевірки.`,
           metadata: JSON.stringify({
             paymentId: payment.paymentId,
             amount: payment.amount,
@@ -98,6 +104,13 @@ export async function POST(request: Request) {
       })
     }
 
+    if (isProcessing) {
+      await prisma.transaction.update({
+        where: { id: paymentRecord.transactionId },
+        data: { paymentStatus: 'PENDING' },
+      })
+    }
+
     console.log('LiqPay callback processed:', {
       orderId,
       paymentId: payment.paymentId,
@@ -105,7 +118,7 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json({ success: true })
-  } catch (error: any) {
+  } catch (error) {
     console.error('LiqPay callback error:', error)
     return NextResponse.json(
       { error: 'Callback processing failed' },

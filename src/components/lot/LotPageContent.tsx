@@ -263,11 +263,11 @@ export function LotPageContent({ lot }: LotPageContentProps) {
               <div>
                 <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Безпечна угода KRAM</h3>
                 <p className="text-[13px] text-[#475569] leading-relaxed mb-3">
-                  Ваші гроші заморожуються на рахунку KRAM до підтвердження отримання товару. Якщо щось піде не так — ми повернемо кошти.
+                  KRAM показує статус оплати, доставки й підтвердження отримання. У beta-режимі підтвердження може бути ручним до production-підключення LiqPay.
                 </p>
                 <div className="flex items-center gap-4 text-[12px] text-[#64748B]">
-                  <div className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-[#10B981]" />Захист коштів</div>
-                  <div className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-[#2563EB]" />Гарантія повернення</div>
+                  <div className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-[#10B981]" />Контроль статусів</div>
+                  <div className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-[#2563EB]" />Спір до завершення</div>
                 </div>
               </div>
             </div>

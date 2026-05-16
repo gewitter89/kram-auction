@@ -5,7 +5,7 @@ import crypto from 'crypto'
 
 const LIQPAY_PUBLIC_KEY = process.env.LIQPAY_PUBLIC_KEY || ''
 const LIQPAY_PRIVATE_KEY = process.env.LIQPAY_PRIVATE_KEY || ''
-const LIQPAY_SANDBOX = process.env.LIQPAY_SANDBOX === 'true' || true // Default to sandbox
+const LIQPAY_SANDBOX = process.env.LIQPAY_SANDBOX !== 'false' // Default to sandbox
 
 export interface LiqPayPaymentData {
   version: number
@@ -91,9 +91,21 @@ export function verifyCallback(data: string, signature: string): boolean {
 /**
  * Decode callback data from LiqPay
  */
-export function decodeCallback(data: string): any {
+type LiqPayCallbackPayload = {
+  order_id?: string
+  payment_id?: string
+  status?: LiqPayStatus
+  amount?: number
+  currency?: string
+  transaction_id?: string
+  sender_card_mask?: string
+}
+
+export function decodeCallback(data: string): LiqPayCallbackPayload | null {
   try {
-    return JSON.parse(Buffer.from(data, 'base64').toString('utf-8'))
+    const decoded = JSON.parse(Buffer.from(data, 'base64').toString('utf-8')) as unknown
+    if (!decoded || typeof decoded !== 'object') return null
+    return decoded as LiqPayCallbackPayload
   } catch {
     return null
   }
@@ -136,7 +148,7 @@ export function parseCallback(data: string, signature: string): {
   }
 
   const decoded = decodeCallback(data)
-  if (!decoded) {
+  if (!decoded?.order_id || !decoded.payment_id || !decoded.status || typeof decoded.amount !== 'number' || !decoded.currency) {
     return { valid: false }
   }
 

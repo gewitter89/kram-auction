@@ -1,9 +1,10 @@
 import { prisma } from './prisma'
+import { absoluteUrl } from './site-url'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`
 
-export async function sendTelegramMessage(chatId: string, text: string, options?: any) {
+export async function sendTelegramMessage(chatId: string, text: string, options?: Record<string, unknown>) {
   if (!BOT_TOKEN) {
     console.warn('TELEGRAM_BOT_TOKEN not set')
     return
@@ -36,7 +37,7 @@ export async function notifyNewLot(listing: { title: string; startingPrice: numb
 📦 <b>${listing.title}</b>
 💰 Стартова ціна: ${listing.startingPrice} грн
 
-<a href="https://kram-auction.vercel.app/lot/${listing.id}">Переглянути лот →</a>
+<a href="${absoluteUrl(`/lot/${listing.id}`)}">Переглянути лот →</a>
   `.trim()
 
   for (const sub of subscribers) {
@@ -57,7 +58,7 @@ export async function notifyBidOutbid(bid: { userId: string; listingTitle: strin
 📦 ${bid.listingTitle}
 💰 Нова ціна: ${bid.newAmount} грн
 
-<a href="https://kram-auction.vercel.app/lot/${bid.listingId}">Підняти ставку →</a>
+<a href="${absoluteUrl(`/lot/${bid.listingId}`)}">Підняти ставку →</a>
   `.trim()
 
   await sendTelegramMessage(userSub.chatId, message)
@@ -70,7 +71,7 @@ export async function notifyAuctionEnding(listing: { title: string; id: string; 
 📦 ${listing.title}
 💰 Поточна ціна: ${listing.currentPrice} грн
 
-<a href="https://kram-auction.vercel.app/lot/${listing.id}">Зробити ставку →</a>
+<a href="${absoluteUrl(`/lot/${listing.id}`)}">Зробити ставку →</a>
   `.trim()
 
   const subscribers = await prisma.telegramSubscription.findMany({
@@ -95,7 +96,7 @@ export async function notifyWinner(winner: { userId: string; listingTitle: strin
 📦 ${winner.listingTitle}
 💰 Фінальна ціна: ${winner.finalPrice} грн
 
-<a href="https://kram-auction.vercel.app/lot/${winner.listingId}">Перейти до оплати →</a>
+<a href="${absoluteUrl(`/lot/${winner.listingId}`)}">Перейти до оплати →</a>
   `.trim()
 
   await sendTelegramMessage(userSub.chatId, message)
@@ -107,7 +108,7 @@ export async function setWebhook() {
     return null
   }
 
-  const webhookUrl = `https://kram-auction.vercel.app/api/telegram/webhook`
+  const webhookUrl = absoluteUrl('/api/telegram/webhook')
 
   try {
     const response = await fetch(`${TELEGRAM_API}/setWebhook?url=${encodeURIComponent(webhookUrl)}`)

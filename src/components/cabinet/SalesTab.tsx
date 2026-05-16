@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { DollarSign, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare, Send } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 interface Transaction {
@@ -29,15 +30,15 @@ interface Transaction {
   completedAt: string | null
 }
 
-const statusLabels: Record<string, { label: string; color: string; icon: any }> = {
-  PENDING_PAYMENT: { label: 'Очікує оплати від покупця', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  PAID_HELD: { label: 'Оплачено — потрібно відправити', color: 'bg-blue-100 text-blue-700', icon: Package },
-  SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
+const statusLabels: Record<string, { label: string; color: string; icon: LucideIcon }> = {
+  PENDING_PAYMENT: { label: 'Очікує підтвердження оплати', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  PAID_HELD: { label: 'Оплату підтверджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
+  SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження покупця', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
   BUYER_RECEIVED: { label: 'Отримано покупцем', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   COMPLETED: { label: 'Угоду завершено', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   DISPUTED: { label: 'Відкрито спір', color: 'bg-red-100 text-red-700', icon: AlertCircle },
-  CANCELLED: { label: 'Скасовано', color: 'bg-gray-100 text-gray-700', icon: AlertCircle },
-  REFUNDED: { label: 'Повернено кошти', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
+  CANCELLED: { label: 'Угоду скасовано', color: 'bg-gray-100 text-gray-700', icon: AlertCircle },
+  REFUNDED: { label: 'Кошти повернено', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
 }
 
 function getNextAction(transaction: Transaction): { text: string; action?: string } {
@@ -172,7 +173,7 @@ export function SalesTab() {
           const nextAction = getNextAction(tx)
 
           return (
-            <Link key={tx.id} href={`/cabinet/transactions/${tx.id}`} className="block bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-[#2563EB]/40 transition-all">
+            <article key={tx.id} className="group bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-card transition-all">
               {/* Header */}
               <div className="p-4 border-b border-[#F1F5F9] flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -295,6 +296,13 @@ export function SalesTab() {
                   )}
                   
                   <Link
+                    href={`/cabinet/transactions/${tx.id}`}
+                    className="h-10 px-5 bg-[#0B1220] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1E293B] transition-all flex items-center"
+                  >
+                    Деталі угоди
+                  </Link>
+
+                  <Link
                     href={`/lot/${tx.listing.id}`}
                     className="h-10 px-5 bg-[#F8FAFC] text-[#64748B] rounded-xl text-[13px] font-medium hover:bg-[#F1F5F9] transition-all flex items-center"
                   >
@@ -310,7 +318,7 @@ export function SalesTab() {
                   </Link>
                 </div>
               </div>
-            </Link>
+            </article>
           )
         })}
       </div>
@@ -336,7 +344,7 @@ function SkeletonList() {
   )
 }
 
-function EmptyState({ icon: Icon, title, text, cta }: { icon: any; title: string; text: string; cta?: { href: string; label: string } }) {
+function EmptyState({ icon: Icon, title, text, cta }: { icon: LucideIcon; title: string; text: string; cta?: { href: string; label: string } }) {
   return (
     <div className="py-12 text-center">
       <div className="w-14 h-14 mx-auto mb-4 bg-[#F8FAFC] rounded-2xl flex items-center justify-center">

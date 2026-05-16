@@ -2,8 +2,9 @@ import { prisma } from '@/lib/prisma'
 import { eventBus } from '@/lib/eventBus'
 import { isRateLimited } from '@/lib/rateLimit'
 import { sendOutbidEmail } from '@/lib/email'
+import type { Bid, Prisma } from '@prisma/client'
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const APP_URL = (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')
 
 interface PlaceBidResult {
   success: boolean
@@ -91,7 +92,7 @@ export async function placeBid(params: {
     orderBy: { autoMax: 'desc' }
   })
 
-  const newBidsToCreate: any[] = []
+  const newBidsToCreate: Prisma.BidUncheckedCreateInput[] = []
 
   // Register the base bid from current user
   newBidsToCreate.push({
@@ -146,7 +147,7 @@ export async function placeBid(params: {
     }
   }
 
-  let newlyCreatedBid: any = null
+  let newlyCreatedBid: Bid | null = null
   let finalEndsAt = listing.endsAt
 
   // Execute operations (without transaction for now - fix later)
@@ -163,13 +164,13 @@ export async function placeBid(params: {
   }
 
   // Update listing
-  await (prisma.listing as any).update({
+  await prisma.listing.update({
     where: { id: listingId },
     data: { currentPrice: finalAmount, endsAt: finalEndsAt }
   })
 
   // Real-time SSE events
-  (eventBus as any).emit(`lot_${listingId}`, {
+  eventBus.emit(`lot_${listingId}`, {
     type: 'new_bid',
     amount: finalAmount,
     endsAt: finalEndsAt.toISOString(),
@@ -181,7 +182,7 @@ export async function placeBid(params: {
     } : null
   })
 
-  (eventBus as any).emit('global', {
+  eventBus.emit('global', {
     type: 'bid',
     name: listing.title,
     amount: `+${(finalAmount - listing.currentPrice).toLocaleString('uk-UA')} ₴`,

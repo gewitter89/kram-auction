@@ -197,9 +197,7 @@ export default function SellPage() {
     setLoading(true)
 
     try {
-      const finalImages = images.length > 0
-        ? images
-        : [`https://placehold.co/600x400/F8FAFC/2563EB?text=${encodeURIComponent(form.title.split(' ').slice(0, 2).join('+'))}`]
+      const finalImages = images
 
       const res = await fetch('/api/lots', {
         method: 'POST',

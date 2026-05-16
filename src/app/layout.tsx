@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ClientLayout } from '@/components/layout/ClientLayout'
+import { siteUrl } from '@/lib/site-url'
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] })
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'KRAM Team' }],
   creator: 'KRAM',
   publisher: 'KRAM',
-  metadataBase: new URL('https://kram-auction.vercel.app'),
+  metadataBase: new URL(siteUrl),
   alternates: {
     canonical: '/',
   },
@@ -22,12 +23,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'uk_UA',
     siteName: 'KRAM',
-    url: 'https://kram-auction.vercel.app',
+    url: siteUrl,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'KRAM — український маркетплейс безпечних угод',
     description: 'Купуйте, продавайте й торгуйтесь: лоти, ставки, доставка, сповіщення та прозорий статус угоди.',
+    images: ['/og-image.jpg'],
   },
   robots: {
     index: true,

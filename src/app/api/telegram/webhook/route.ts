@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { absoluteUrl } from '@/lib/site-url'
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`
 
-async function sendMessage(chatId: number, text: string, options?: any) {
+async function sendMessage(chatId: number, text: string, options?: Record<string, unknown>) {
   await fetch(`${TELEGRAM_API}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -28,8 +29,8 @@ async function sendWelcomeMessage(chatId: number) {
 • 🏆 Переможців аукціонів
 
 <b>🔗 Швидкі дії:</b>
-<a href="https://kram-auction.vercel.app/catalog">Переглянути лоти</a>
-<a href="https://kram-auction.vercel.app/sell">Продати товар</a>
+<a href="${absoluteUrl('/catalog')}">Переглянути лоти</a>
+<a href="${absoluteUrl('/sell')}">Продати товар</a>
 
 <b>💡 Підказка:</b> Авторизуйтесь на сайті, щоб отримувати персоналізовані сповіщення про ваші лоти та ставки.
   `.trim()
@@ -37,9 +38,9 @@ async function sendWelcomeMessage(chatId: number) {
   await sendMessage(chatId, welcomeText, {
     reply_markup: {
       inline_keyboard: [
-        [{ text: '🌐 Відкрити KRAM', url: 'https://kram-auction.vercel.app' }],
-        [{ text: '📋 Каталог лотів', url: 'https://kram-auction.vercel.app/catalog' }],
-        [{ text: '➕ Продати товар', url: 'https://kram-auction.vercel.app/sell' }]
+        [{ text: '🌐 Відкрити KRAM', url: absoluteUrl('/') }],
+        [{ text: '📋 Каталог лотів', url: absoluteUrl('/catalog') }],
+        [{ text: '➕ Продати товар', url: absoluteUrl('/sell') }]
       ]
     }
   })
@@ -102,10 +103,10 @@ export async function POST(request: Request) {
           await sendHelpMessage(chatId)
           break
         case '/catalog':
-          await sendMessage(chatId, '📋 <a href="https://kram-auction.vercel.app/catalog">Перейти до каталогу лотів</a>', { disable_web_page_preview: true })
+          await sendMessage(chatId, `📋 <a href="${absoluteUrl('/catalog')}">Перейти до каталогу лотів</a>`, { disable_web_page_preview: true })
           break
         case '/sell':
-          await sendMessage(chatId, '➕ <a href="https://kram-auction.vercel.app/sell">Створити лот на продаж</a>', { disable_web_page_preview: true })
+          await sendMessage(chatId, `➕ <a href="${absoluteUrl('/sell')}">Створити лот на продаж</a>`, { disable_web_page_preview: true })
           break
         default:
           // Echo for unrecognized messages
@@ -118,7 +119,7 @@ export async function POST(request: Request) {
       const chatId = message?.chat?.id
 
       if (data === 'open_catalog') {
-        await sendMessage(chatId, '🔗 <a href="https://kram-auction.vercel.app/catalog">Відкрити каталог</a>', { disable_web_page_preview: true })
+        await sendMessage(chatId, `🔗 <a href="${absoluteUrl('/catalog')}">Відкрити каталог</a>`, { disable_web_page_preview: true })
       }
     }
 
@@ -135,7 +136,7 @@ export async function GET(request: Request) {
   const action = searchParams.get('action')
 
   if (action === 'setWebhook') {
-    const webhookUrl = `https://kram-auction.vercel.app/api/telegram/webhook`
+    const webhookUrl = absoluteUrl('/api/telegram/webhook')
     const response = await fetch(`${TELEGRAM_API}/setWebhook?url=${encodeURIComponent(webhookUrl)}`)
     const result = await response.json()
     return NextResponse.json(result)

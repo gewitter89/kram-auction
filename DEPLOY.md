@@ -1,6 +1,6 @@
 # 🚀 ДЕПЛОЙ KRAM AUCTION
 
-Сайт успешно настроен и задеплоен на Vercel.
+Сайт налаштовується для Vercel production launch. Canonical URL задається через `NEXT_PUBLIC_SITE_URL`.
 
 ## ✅ Что сделано:
 1. **Google OAuth**: Настроен (Client ID и Secret добавлены в Vercel).
@@ -9,7 +9,7 @@
 4. **SEO & UI**: Полностью обновлены согласно ТЗ 2026.
 
 ## 🔗 Ссылки:
-- **Production**: [https://kram-auction.vercel.app](https://kram-auction.vercel.app)
+- **Production**: задайте через `NEXT_PUBLIC_SITE_URL` після підключення домену
 - **Vercel Dashboard**: [https://vercel.com/torupa2010-7458s-projects/kram-auction](https://vercel.com/torupa2010-7458s-projects/kram-auction)
 
 ## 🛠 Обновление сайта:
@@ -23,12 +23,13 @@ vercel --prod
 - `AUTH_GOOGLE_ID`: Client ID от Google.
 - `AUTH_GOOGLE_SECRET`: Client Secret от Google.
 - `DATABASE_URL`: Строка подключения к базе Neon.
+- `NEXT_PUBLIC_SITE_URL`: Canonical домен для metadata, callback/result URLs та Telegram links.
 - `NEXT_PUBLIC_TELEGRAM_URL`: Ссылка на канал.
 - `TELEGRAM_BOT_TOKEN`: Токен бота @kram_auction_bot.
 
 ## 🤖 Telegram Бот:
 - **Бот**: [@kram_auction_bot](https://t.me/kram_auction_bot)
-- **Webhook**: Настроен на `https://kram-auction.vercel.app/api/telegram/webhook`
+- **Webhook**: Налаштуйте на `${NEXT_PUBLIC_SITE_URL}/api/telegram/webhook`
 - **Команды**:
   - `/start` — Приветствие и кнопки
   - `/help` — Справка

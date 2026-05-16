@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
 import { trackDocument } from '@/lib/nova-poshta-service'
-import { createTransactionEvent } from '@/lib/transaction-service'
-import { TransactionStatus, TransactionEventType } from '@prisma/client'
+import { createTransactionEvent, TransactionEventType } from '@/lib/transaction-service'
 
 export async function POST(
   request: Request,
@@ -54,15 +53,15 @@ export async function POST(
     await createTransactionEvent(
       id,
       TransactionEventType.DELIVERY_UPDATE,
-      'SYSTEM',
+      null,
       transaction.status,
       transaction.status,
       message,
-      JSON.stringify({ 
+      {
         statusCode: trackingInfo.StatusCode,
         statusText: trackingInfo.Status,
         scheduledDelivery: trackingInfo.ScheduledDeliveryDate
-      })
+      }
     )
 
     return NextResponse.json({ 
@@ -70,7 +69,7 @@ export async function POST(
       trackingStatus: trackingInfo.Status,
       statusCode: trackingInfo.StatusCode
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Sync tracking error:', error)
     return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
   }

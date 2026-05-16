@@ -141,7 +141,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                   {tx.status === 'DISPUTED' ? 'Відкрито спір' : 'Поточний статус'}
                 </h4>
                 <p className="text-[13px] text-[#64748B] mt-1">
-                  {tx.status === 'PENDING_PAYMENT' && 'Очікуємо оплату від покупця. Кошти будуть зарезервовані KRAM.'}
+                  {tx.status === 'PENDING_PAYMENT' && 'Очікуємо оплату від покупця. Статус буде оновлено після підтвердження.'}
                   {tx.status === 'PAID_HELD' && 'Оплата отримана! Продавець має відправити товар та вказати ТТН.'}
                   {tx.status === 'SELLER_SHIPPED' && 'Товар у дорозі. Підтвердіть отримання після перевірки на пошті.'}
                   {tx.status === 'COMPLETED' && 'Угоду успішно завершено. Дякуємо, що користуєтесь KRAM!'}
@@ -378,7 +378,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
             <ShieldCheck className="w-8 h-8 mb-4 opacity-80" />
             <h4 className="text-[16px] font-bold mb-2">KRAM Safe</h4>
             <p className="text-[12px] text-white/80 leading-relaxed">
-              Ваша безпека — наш пріоритет. Кошти надійно зарезервовані та будуть передані продавцю тільки після вашого підтвердження.
+              Ваша безпека — наш пріоритет. KRAM показує статус оплати, доставки, отримання та спору на кожному кроці.
             </p>
           </div>
         </div>

@@ -1,8 +1,8 @@
-# ⚡ KRTMA — Український маркетплейс аукціонів
+# ⚡ KRAM — український маркетплейс безпечних угод
 
-> Купуй вигідно. Продавай швидко. Торгуй чесно.
+> Чесні торги без зайвого ризику.
 
-Сучасний аукціонний маркетплейс рівня OLX + eBay + Allegro з UX якістю Monobank.
+KRAM — український marketplace для лотів, ставок, доставки, сповіщень і прозорого статусу угоди. Проєкт працює в beta/MVP-режимі: реальні LiqPay-платежі активуються після фінального sandbox/prod тестування.
 
 ## 🚀 Запуск
 
@@ -23,6 +23,8 @@ npm run dev
 ```
 
 ## 🔑 Тестові акаунти
+
+Demo accounts призначені лише для локального тестування/стейджингу. У production UI вони мають показуватись тільки з `NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS=true`.
 
 | Роль | Email | Пароль |
 |------|-------|--------|
@@ -62,9 +64,9 @@ Apple Sign In вимагає Apple Developer Account ($99/рік).
 
 ## 🛠 Tech Stack
 
-- **Frontend:** Next.js 16, TypeScript, Tailwind CSS 4, Lucide Icons
+- **Frontend:** Next.js 15.4, TypeScript, Tailwind CSS 4, Lucide Icons
 - **Backend:** Next.js API Routes
-- **Database:** SQLite (Prisma ORM) — легко мігрувати на PostgreSQL
+- **Database:** PostgreSQL/Prisma ORM
 - **Auth:** Custom JWT + bcrypt
 - **Icons:** Lucide React
 
@@ -92,7 +94,7 @@ Apple Sign In вимагає Apple Developer Account ($99/рік).
 - ✅ Сторінка створення лота (/sell)
 
 ### Roadmap:
-- 🔲 Сторінка оплати (LiqPay/Monobank)
+- 🔲 Production-активація LiqPay після sandbox/prod перевірок
 - 🔲 Пошук з автокомплітом
 - 🔲 i18n (UA/RU/EN)
 - 🔲 Email сповіщення
@@ -149,6 +151,15 @@ kram/
 | Text | #0F172A | Primary text |
 | Text Secondary | #64748B | Secondary text |
 | Border | #E2E8F0 | Borders |
+
+## 🌐 Домен і URLs
+
+Для production використовуйте `NEXT_PUBLIC_SITE_URL` як canonical base URL. Рекомендовані домени:
+
+- `kram.ua`
+- `kram.com.ua`
+- `kram.market`
+- `kram.auction`
 
 ## 📄 Ліцензія
 

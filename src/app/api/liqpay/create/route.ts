@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
 import { createPaymentForm, isLiqPayConfigured } from '@/lib/liqpay-service'
+import { absoluteUrl } from '@/lib/site-url'
 
 // POST /api/liqpay/create - Create LiqPay payment form
 export async function POST(request: Request) {
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     }
 
     // Check if already has payment attempt
-    const existingPayment = await (prisma as any).payment.findFirst({
+    const existingPayment = await prisma.payment.findFirst({
       where: { transactionId, status: { in: ['PENDING', 'PROCESSING'] } },
     })
 
@@ -69,9 +70,8 @@ export async function POST(request: Request) {
     }
 
     // Create LiqPay payment form
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://kram-auction.vercel.app'
-    const serverUrl = `${baseUrl}/api/liqpay/callback`
-    const resultUrl = `${baseUrl}/cabinet?tab=purchases&payment=success`
+    const serverUrl = absoluteUrl('/api/liqpay/callback')
+    const resultUrl = absoluteUrl(`/payment/pending?transactionId=${transaction.id}`)
 
     const formData = createPaymentForm(
       transaction.amount,
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     )
 
     // Save payment record
-    const payment = await (prisma as any).payment.create({
+    const payment = await prisma.payment.create({
       data: {
         transactionId: transaction.id,
         buyerId: session.user.id,
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       paymentId: payment.id,
       isSandbox: true,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('LiqPay create payment error:', error)
     return NextResponse.json(
       { error: 'Помилка створення платежу' },

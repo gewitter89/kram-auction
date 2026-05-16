@@ -15,7 +15,7 @@ export async function createPendingRelease(
   currency: string = 'UAH'
 ) {
   // Check if release already exists
-  const existing = await (prisma as any).paymentRelease.findFirst({
+  const existing = await prisma.paymentRelease.findFirst({
     where: { transactionId },
   })
 
@@ -23,7 +23,7 @@ export async function createPendingRelease(
     return existing
   }
 
-  const release = await (prisma as any).paymentRelease.create({
+  const release = await prisma.paymentRelease.create({
     data: {
       transactionId,
       paymentId,
@@ -42,7 +42,7 @@ export async function createPendingRelease(
  * Make funds available to seller after buyer confirms receipt
  */
 export async function makeFundsAvailable(transactionId: string) {
-  const release = await (prisma as any).paymentRelease.findFirst({
+  const release = await prisma.paymentRelease.findFirst({
     where: { transactionId, status: 'PENDING' },
     include: { transaction: true },
   })
@@ -56,7 +56,7 @@ export async function makeFundsAvailable(transactionId: string) {
     throw new Error('TRANSACTION_NOT_COMPLETED')
   }
 
-  const updated = await (prisma as any).paymentRelease.update({
+  const updated = await prisma.paymentRelease.update({
     where: { id: release.id },
     data: {
       status: 'APPROVED',
@@ -76,7 +76,7 @@ export async function markReleasePaid(
   providerReference?: string,
   approvedBy?: string
 ) {
-  const updated = await (prisma as any).paymentRelease.update({
+  const updated = await prisma.paymentRelease.update({
     where: { id: releaseId },
     data: {
       status: 'PAID',
@@ -93,7 +93,7 @@ export async function markReleasePaid(
  * Cancel release (e.g., if transaction refunded)
  */
 export async function cancelRelease(transactionId: string, reason?: string) {
-  const release = await (prisma as any).paymentRelease.findFirst({
+  const release = await prisma.paymentRelease.findFirst({
     where: { transactionId, status: { in: ['PENDING', 'APPROVED'] } },
   })
 
@@ -101,7 +101,7 @@ export async function cancelRelease(transactionId: string, reason?: string) {
     return null
   }
 
-  const updated = await (prisma as any).paymentRelease.update({
+  const updated = await prisma.paymentRelease.update({
     where: { id: release.id },
     data: {
       status: 'CANCELLED',
@@ -116,7 +116,7 @@ export async function cancelRelease(transactionId: string, reason?: string) {
  * Get release status for a transaction
  */
 export async function getReleaseStatus(transactionId: string) {
-  const release = await (prisma as any).paymentRelease.findFirst({
+  const release = await prisma.paymentRelease.findFirst({
     where: { transactionId },
   })
 
@@ -138,7 +138,7 @@ export async function getReleaseStatus(transactionId: string) {
  * List pending releases for admin payout
  */
 export async function listPendingReleases() {
-  const releases = await (prisma as any).paymentRelease.findMany({
+  const releases = await prisma.paymentRelease.findMany({
     where: { status: 'APPROVED', paidAt: null },
     include: {
       transaction: {

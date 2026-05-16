@@ -59,7 +59,7 @@ export function LiqPayButton({ transactionId, onSuccess, onError }: LiqPayButton
       document.body.removeChild(form)
 
       onSuccess?.()
-    } catch (err: any) {
+    } catch {
       const errorMsg = 'Помилка мережі. Спробуйте ще раз.'
       setError(errorMsg)
       onError?.(errorMsg)

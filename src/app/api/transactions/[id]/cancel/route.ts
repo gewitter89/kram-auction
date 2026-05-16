@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { cancelTransaction } from '@/lib/transaction-service'
 
+type SessionUserWithRole = {
+  role?: string
+}
+
 // POST /api/transactions/[id]/cancel - Cancel transaction (only from PENDING_PAYMENT)
 export async function POST(
   request: Request,
@@ -19,7 +23,7 @@ export async function POST(
     const ip = headers.get('x-forwarded-for') || undefined
     const userAgent = headers.get('user-agent') || undefined
 
-    const userRole = (session.user as any).role || 'user'
+    const userRole = (session.user as SessionUserWithRole).role || 'user'
 
     const transaction = await cancelTransaction(
       id,
@@ -34,21 +38,22 @@ export async function POST(
       message: 'Угоду скасовано. Лот знову доступний у каталозі.',
       transaction 
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Cancel error:', error)
+    const message = error instanceof Error ? error.message : 'Помилка сервера'
     
-    if (error.message === 'TRANSACTION_NOT_FOUND') {
+    if (message === 'TRANSACTION_NOT_FOUND') {
       return NextResponse.json({ error: 'Угоду не знайдено' }, { status: 404 })
     }
-    if (error.message === 'FORBIDDEN') {
+    if (message === 'FORBIDDEN') {
       return NextResponse.json({ error: 'Немає доступу' }, { status: 403 })
     }
-    if (error.message === 'INVALID_STATUS') {
+    if (message === 'INVALID_STATUS') {
       return NextResponse.json({ error: 'Скасувати можна тільки угоду, що очікує оплати' }, { status: 409 })
     }
     
     return NextResponse.json(
-      { error: error.message || 'Помилка сервера' },
+      { error: message },
       { status: 500 }
     )
   }

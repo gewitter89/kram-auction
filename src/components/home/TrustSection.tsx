@@ -1,16 +1,17 @@
 import { Star, Headphones, ShieldCheck, Truck, Lock, CreditCard, ArrowRight } from 'lucide-react'
+import type { SVGProps } from 'react'
 
 const features = [
   {
     icon: Lock,
-    title: 'KRAM Escrow',
-    desc: 'Кошти резервуються на транзитному рахунку KRAM і передаються продавцю тільки після отримання товару.',
+    title: 'Контрольована угода',
+    desc: 'KRAM показує статус покупки, оплати, доставки й підтвердження без обіцянок реального escrow до активації LiqPay.',
     color: 'text-[#10B981]',
   },
   {
     icon: Truck,
     title: 'Інтеграція Нової Пошти',
-    desc: 'Автоматичне відстеження статусу посилки. Система знає, коли ви отримали товар, і завершує угоду.',
+    desc: 'Продавець додає ТТН, покупець бачить номер відправлення та підтверджує отримання в кабінеті.',
     color: 'text-[#2563EB]',
   },
   {
@@ -28,14 +29,14 @@ const features = [
 ]
 
 const steps = [
-  { icon: CreditCard, label: 'Оплата' },
-  { icon: Clock, label: 'Хелд' },
-  { icon: Truck, label: 'Доставка' },
-  { icon: ShieldCheck, label: 'Перевірка' },
-  { icon: CheckCircle, label: 'Виплата' },
+  { icon: CreditCard, label: 'Покупка' },
+  { icon: Clock, label: 'Підтвердження' },
+  { icon: Truck, label: 'Відправлення' },
+  { icon: ShieldCheck, label: 'Отримання' },
+  { icon: CheckCircle, label: 'Завершення' },
 ]
 
-function CheckCircle(props: any) {
+function CheckCircle(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -43,7 +44,7 @@ function CheckCircle(props: any) {
   )
 }
 
-function Clock(props: any) {
+function Clock(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -73,7 +74,7 @@ export function TrustSection() {
             Ваша безпека — наш <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563EB] to-[#10B981]">головний пріоритет</span>
           </h2>
           <p className="text-[16px] text-[#94A3B8] max-w-2xl mx-auto leading-relaxed">
-            Ми створили інфраструктуру, яка гарантує чесність кожної угоди. Гроші зарезервовані, товар під контролем, учасники перевірені.
+            Ми показуємо статус угоди на кожному кроці: покупка, підтвердження оплати, відправлення, отримання та завершення.
           </p>
         </div>
 
@@ -115,16 +116,16 @@ export function TrustSection() {
         {/* Bottom stats */}
         <div className="mt-20 pt-12 border-t border-white/[0.08] flex flex-wrap justify-center gap-12 md:gap-24">
           <div className="text-center">
-            <p className="text-[40px] font-black text-white">100%</p>
-            <p className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-widest mt-2">Захист коштів</p>
+            <p className="text-[40px] font-black text-white">5</p>
+            <p className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-widest mt-2">Статусів угоди</p>
           </div>
           <div className="text-center">
             <p className="text-[40px] font-black text-white">0₴</p>
             <p className="text-[13px] font-bold text-[#10B981] uppercase tracking-widest mt-2">Комісія (BETA)</p>
           </div>
           <div className="text-center">
-            <p className="text-[40px] font-black text-white">24/7</p>
-            <p className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-widest mt-2">Підтримка</p>
+            <p className="text-[40px] font-black text-white">MVP</p>
+            <p className="text-[13px] font-bold text-[#94A3B8] uppercase tracking-widest mt-2">Ручне підтвердження</p>
           </div>
         </div>
       </div>
