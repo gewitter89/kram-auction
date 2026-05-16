@@ -52,10 +52,10 @@ export default function LoginContent() {
           </div>
           <h2 className="text-[28px] font-bold text-white leading-tight mb-4">Чесні торги України</h2>
           <p className="text-[16px] text-[#94A3B8] leading-relaxed mb-12">
-            Купуйте, продавайте та вигравайте безпечно. Тисячі лотів щодня від перевірених продавців.
+            Купуйте, продавайте та вигравайте з прозорими статусами угоди, доставкою й сповіщеннями.
           </p>
           <div className="space-y-4">
-            {['Безпечна угода з гарантією', 'Перевірені продавці з рейтингом', 'Доставка Новою Поштою по всій Україні'].map((text, i) => (
+            {['Контрольована угода KRAM', 'Профіль продавця з рейтингом', 'Доставка Новою Поштою по всій Україні'].map((text, i) => (
               <div key={i} className="flex items-center gap-3 text-[14px] text-[#94A3B8]">
                 <div className="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center">
                   <span className="text-[#10B981] text-xs font-bold">{i + 1}</span>

@@ -24,12 +24,13 @@ export const metadata: Metadata = {
     locale: 'uk_UA',
     siteName: 'KRAM',
     url: siteUrl,
+    images: ['/kram-mark.svg'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'KRAM — український маркетплейс безпечних угод',
     description: 'Купуйте, продавайте й торгуйтесь: лоти, ставки, доставка, сповіщення та прозорий статус угоди.',
-    images: ['/og-image.jpg'],
+    images: ['/kram-mark.svg'],
   },
   robots: {
     index: true,
