@@ -111,7 +111,7 @@ export async function createTransactionFromBuyNow(
 ) {
   // Check idempotency first
   if (idempotencyKey) {
-    const existingByKey = await prisma.transaction.findUnique({
+    const existingByKey = await prisma.transaction.findFirst({
       where: { idempotencyKey },
     })
     if (existingByKey) {
@@ -261,7 +261,7 @@ export async function createTransactionFromAuctionWin(
 ) {
   // Check idempotency first
   if (idempotencyKey) {
-    const existingByKey = await prisma.transaction.findUnique({
+    const existingByKey = await prisma.transaction.findFirst({
       where: { idempotencyKey },
     })
     if (existingByKey) {
