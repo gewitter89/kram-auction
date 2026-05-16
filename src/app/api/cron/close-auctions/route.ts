@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { eventBus } from '@/lib/eventBus'
+import { createTransactionFromAuctionWin } from '@/lib/transaction-service'
 
 // This route is called by a cron job or manually to close expired auctions
 // Protect with a secret token
@@ -39,52 +40,29 @@ export async function GET(request: NextRequest) {
       const winner = listing.bids[0]
 
       if (winner) {
-        // Close as SOLD
-        await prisma.listing.update({
-          where: { id: listing.id },
-          data: { status: 'sold' }
-        })
+        try {
+          // Create transaction using Safe Deal service
+          await createTransactionFromAuctionWin(
+            listing.id,
+            winner.userId,
+            winner.amount,
+            null // system action
+          )
 
-        // Create transaction
-        await prisma.transaction.create({
-          data: {
-            listingId: listing.id,
-            buyerId: winner.userId,
-            sellerId: listing.sellerId,
-            amount: winner.amount,
-            status: 'pending'
-          }
-        })
-
-        // Notify winner
-        await prisma.notification.create({
-          data: {
-            userId: winner.userId,
+          // Broadcast won event to global feed
+          eventBus.emit('global', {
             type: 'won',
-            title: '🎉 Ви виграли аукціон!',
-            message: `Вітаємо! Ви виграли "${listing.title}" за ${winner.amount} ₴. Очікуйте контакту від продавця.`,
-            listingId: listing.id
+            name: listing.title,
+            amount: `${winner.amount} ₴`,
+            user: `${winner.user.name.slice(0, 4)}***`
+          })
+        } catch (error: any) {
+          if (error.message === 'TRANSACTION_EXISTS') {
+            console.log(`Transaction already exists for listing ${listing.id}, skipping`)
+          } else {
+            console.error(`Failed to create transaction for listing ${listing.id}:`, error)
           }
-        })
-
-        // Notify seller
-        await prisma.notification.create({
-          data: {
-            userId: listing.sellerId,
-            type: 'sold',
-            title: '💰 Ваш лот продано!',
-            message: `"${listing.title}" продано за ${winner.amount} ₴. Покупець: ${winner.user.name}`,
-            listingId: listing.id
-          }
-        })
-
-        // Broadcast won event to global feed
-        eventBus.emit('global', {
-          type: 'won',
-          name: listing.title,
-          amount: `${winner.amount} ₴`,
-          user: `${winner.user.name.slice(0, 4)}***`
-        })
+        }
       } else {
         // No bids — close as ended (unsold)
         await prisma.listing.update({

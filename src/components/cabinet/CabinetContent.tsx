@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { PurchasesTab } from './PurchasesTab'
+import { SalesTab } from './SalesTab'
 import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2 } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
@@ -113,8 +115,8 @@ export function CabinetContent({ user }: CabinetContentProps) {
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
             {activeTab === 'lots' && <MyLotsTab />}
             {activeTab === 'bids' && <MyBidsTab />}
-            {activeTab === 'purchases' && <EmptyState icon={ShoppingBag} title="Покупки" text="У вас ще немає покупок. Знайдіть щось цікаве в каталозі." cta={{ href: '/catalog', label: 'Переглянути каталог' }} />}
-            {activeTab === 'sales' && <EmptyState icon={DollarSign} title="Продажі" text="У вас ще немає продажів. Створіть свій перший лот." cta={{ href: '/sell', label: 'Створити лот' }} />}
+            {activeTab === 'purchases' && <PurchasesTab />}
+            {activeTab === 'sales' && <SalesTab />}
             {activeTab === 'favorites' && <FavoritesTab />}
             {activeTab === 'messages' && <MessagesTab />}
             {activeTab === 'notifications' && <NotificationsTab />}

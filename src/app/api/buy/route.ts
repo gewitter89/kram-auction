@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
+import { createTransactionFromBuyNow } from '@/lib/transaction-service'
 import { eventBus } from '@/lib/eventBus'
 
 export async function POST(request: Request) {
@@ -14,74 +14,44 @@ export async function POST(request: Request) {
     const { listingId } = await request.json()
     if (!listingId) return NextResponse.json({ error: 'Вкажіть лот' }, { status: 400 })
 
-    const listing = await prisma.listing.findUnique({ where: { id: listingId } })
-    if (!listing) return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
+    // Get IP and user agent for audit log
+    const headers = request.headers
+    const ip = headers.get('x-forwarded-for') || undefined
+    const userAgent = headers.get('user-agent') || undefined
 
-    if (listing.sellerId === userId) {
-      return NextResponse.json({ error: 'Ви не можете купити свій лот' }, { status: 400 })
-    }
-
-    if (listing.status !== 'active') {
-      return NextResponse.json({ error: 'Лот вже продано або неактивний' }, { status: 400 })
-    }
-
-    if (!listing.buyNowPrice) {
-      return NextResponse.json({ error: 'Цей лот не можна купити відразу' }, { status: 400 })
-    }
-
-    // Process buy now
-    // 1. Update listing status
-    // 2. Create a transaction
-    // 3. Create a winning bid (optional, for consistency in history)
-    // 4. Send notifications
-
-    await prisma.$transaction(async (tx) => {
-      await tx.listing.update({
-        where: { id: listingId },
-        data: { status: 'sold', currentPrice: listing.buyNowPrice! }
-      })
-
-      // Add a bid just to show it in history as the final price
-      await tx.bid.create({
-        data: {
-          listingId,
-          userId: userId,
-          amount: listing.buyNowPrice!
-        }
-      })
-
-      // Create transaction
-      await tx.transaction.create({
-        data: {
-          listingId,
-          buyerId: userId,
-          sellerId: listing.sellerId,
-          amount: listing.buyNowPrice!
-        }
-      })
-
-      // Notify seller
-      await tx.notification.create({
-        data: {
-          userId: listing.sellerId,
-          type: 'sold',
-          title: 'Ваш лот куплено!',
-          message: `Лот "${listing.title}" купили за бліц-ціною ${listing.buyNowPrice} ₴. Зв'яжіться з покупцем!`,
-          listingId
-        }
-      })
-    })
+    const transaction = await createTransactionFromBuyNow(listingId, userId, ip, userAgent)
 
     eventBus.emit('global', {
       type: 'won',
-      name: listing.title,
-      amount: `${listing.buyNowPrice.toLocaleString('uk-UA')} ₴`,
+      name: transaction.listing.title,
+      amount: `${transaction.amount.toLocaleString('uk-UA')} ₴`,
       user: (session?.user?.name || 'Учасник').slice(0, 3) + '***' + userId.slice(-2)
     })
 
-    return NextResponse.json({ message: 'Лот куплено' })
-  } catch (error) {
+    return NextResponse.json({ 
+      success: true,
+      message: 'Лот куплено! Перейдіть у кабінет для підтвердження оплати.',
+      transactionId: transaction.id
+    })
+  } catch (error: any) {
     console.error('Buy Now error:', error)
+    
+    if (error.message === 'TRANSACTION_EXISTS') {
+      return NextResponse.json({ error: 'Угода за цим лотом вже існує' }, { status: 409 })
+    }
+    if (error.message === 'LISTING_NOT_FOUND') {
+      return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
+    }
+    if (error.message === 'CANNOT_BUY_OWN') {
+      return NextResponse.json({ error: 'Ви не можете купити свій лот' }, { status: 400 })
+    }
+    if (error.message === 'LISTING_NOT_ACTIVE') {
+      return NextResponse.json({ error: 'Лот вже продано або неактивний' }, { status: 400 })
+    }
+    if (error.message === 'NO_BUY_NOW_PRICE') {
+      return NextResponse.json({ error: 'Цей лот не можна купити відразу' }, { status: 400 })
+    }
+    
     return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
   }
 }

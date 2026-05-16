@@ -1,0 +1,337 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { DollarSign, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare, Send } from 'lucide-react'
+import { formatPrice, timeAgo } from '@/lib/utils'
+
+interface Transaction {
+  id: string
+  listing: {
+    id: string
+    title: string
+    images: string
+  }
+  buyer: {
+    id: string
+    name: string
+    avatar: string | null
+  }
+  amount: number
+  status: string
+  paymentStatus: string
+  deliveryStatus: string
+  trackingNumber: string | null
+  deliveryProvider: string | null
+  createdAt: string
+  buyerConfirmedAt: string | null
+  sellerShippedAt: string | null
+  completedAt: string | null
+}
+
+const statusLabels: Record<string, { label: string; color: string; icon: any }> = {
+  PENDING_PAYMENT: { label: 'Очікує оплати від покупця', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  PAID_HELD: { label: 'Оплачено — потрібно відправити', color: 'bg-blue-100 text-blue-700', icon: Package },
+  SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
+  BUYER_RECEIVED: { label: 'Отримано покупцем', color: 'bg-green-100 text-green-700', icon: CheckCircle },
+  COMPLETED: { label: 'Угоду завершено', color: 'bg-green-100 text-green-700', icon: CheckCircle },
+  DISPUTED: { label: 'Відкрито спір', color: 'bg-red-100 text-red-700', icon: AlertCircle },
+  CANCELLED: { label: 'Скасовано', color: 'bg-gray-100 text-gray-700', icon: AlertCircle },
+  REFUNDED: { label: 'Повернено кошти', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
+}
+
+function getNextAction(transaction: Transaction): { text: string; action?: string } {
+  switch (transaction.status) {
+    case 'PENDING_PAYMENT':
+      return { text: 'Очікуємо підтвердження оплати від покупця' }
+    case 'PAID_HELD':
+      return { text: 'Відправте товар та вкажіть номер накладної', action: 'ship' }
+    case 'SELLER_SHIPPED':
+      return { text: 'Очікуємо підтвердження отримання від покупця' }
+    case 'DISPUTED':
+      return { text: 'Спір розглядається командою KRAM' }
+    case 'COMPLETED':
+      return { text: 'Угоду завершено — кошти будуть перераховані (MVP)' }
+    case 'CANCELLED':
+      return { text: 'Угоду скасовано — лот знову в каталозі' }
+    case 'REFUNDED':
+      return { text: 'Кошти повернуто покупцю' }
+    default:
+      return { text: '' }
+  }
+}
+
+export function SalesTab() {
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(true)
+  const [processing, setProcessing] = useState<string | null>(null)
+  const [shippingForm, setShippingForm] = useState<{ txId: string; tracking: string; provider: string } | null>(null)
+
+  const load = () => {
+    fetch('/api/transactions?role=seller')
+      .then(r => r.json())
+      .then(d => {
+        setTransactions(d.transactions || [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }
+
+  useEffect(() => { load() }, [])
+
+  async function submitShipping(e: React.FormEvent) {
+    e.preventDefault()
+    if (!shippingForm) return
+    
+    setProcessing(shippingForm.txId)
+    try {
+      const res = await fetch(`/api/transactions/${shippingForm.txId}/ship`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trackingNumber: shippingForm.tracking,
+          deliveryProvider: shippingForm.provider
+        })
+      })
+      if (res.ok) {
+        setShippingForm(null)
+        load()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Помилка')
+      }
+    } finally {
+      setProcessing(null)
+    }
+  }
+
+  async function openDispute(id: string) {
+    const reason = prompt('Вкажіть причину спору:')
+    if (!reason || reason.length < 5) {
+      alert('Причина має бути не менше 5 символів')
+      return
+    }
+    setProcessing(id)
+    try {
+      const res = await fetch(`/api/transactions/${id}/dispute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      })
+      if (res.ok) {
+        load()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Помилка')
+      }
+    } finally {
+      setProcessing(null)
+    }
+  }
+
+  if (loading) return <SkeletonList />
+
+  if (transactions.length === 0) {
+    return (
+      <EmptyState 
+        icon={DollarSign} 
+        title="Продажі" 
+        text="У вас ще немає продажів. Створіть свій перший лот." 
+        cta={{ href: '/sell', label: 'Створити лот' }} 
+      />
+    )
+  }
+
+  return (
+    <>
+      <h2 className="text-[18px] font-bold text-[#0B1220] mb-5">Мої продажі</h2>
+      <div className="space-y-4">
+        {transactions.map(tx => {
+          let images: string[] = []
+          try { images = JSON.parse(tx.listing.images || '[]') } catch {}
+          
+          const statusInfo = statusLabels[tx.status] || { label: tx.status, color: 'bg-gray-100', icon: Package }
+          const StatusIcon = statusInfo.icon
+          const nextAction = getNextAction(tx)
+
+          return (
+            <div key={tx.id} className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden">
+              {/* Header */}
+              <div className="p-4 border-b border-[#F1F5F9] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold ${statusInfo.color}`}>
+                    <StatusIcon className="w-3.5 h-3.5" />
+                    {statusInfo.label}
+                  </span>
+                  <span className="text-[12px] text-[#94A3B8]">{timeAgo(tx.createdAt)}</span>
+                </div>
+                <p className="text-[16px] font-bold text-[#0B1220]">{formatPrice(tx.amount)}</p>
+              </div>
+
+              {/* Content */}
+              <div className="p-4">
+                <div className="flex items-start gap-4">
+                  <Link href={`/lot/${tx.listing.id}`} className="w-20 h-20 bg-[#F1F5F9] rounded-xl overflow-hidden flex-shrink-0">
+                    {images[0] && <img src={images[0]} alt="" className="w-full h-full object-cover" />}
+                  </Link>
+                  <div className="flex-1 min-w-0">
+                    <Link href={`/lot/${tx.listing.id}`} className="text-[15px] font-semibold text-[#0F172A] hover:text-[#2563EB] line-clamp-2">
+                      {tx.listing.title}
+                    </Link>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-[13px] text-[#64748B]">Покупець:</span>
+                      <Link href={`/user/${tx.buyer.id}`} className="text-[13px] font-medium text-[#2563EB] hover:underline">
+                        {tx.buyer.name}
+                      </Link>
+                    </div>
+                    
+                    {/* Tracking info */}
+                    {tx.trackingNumber && (
+                      <div className="mt-3 p-3 bg-[#F8FAFC] rounded-xl">
+                        <p className="text-[12px] text-[#64748B] mb-1">Номер накладної:</p>
+                        <p className="text-[14px] font-semibold text-[#0F172A]">{tx.trackingNumber}</p>
+                        <p className="text-[12px] text-[#94A3B8]">{tx.deliveryProvider}</p>
+                      </div>
+                    )}
+
+                    {/* Next action hint */}
+                    {nextAction.text && (
+                      <p className="mt-3 text-[13px] text-[#64748B]">
+                        <span className="font-medium">Що далі:</span> {nextAction.text}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Shipping Form */}
+                {shippingForm?.txId === tx.id && (
+                  <form onSubmit={submitShipping} className="mt-4 p-4 bg-[#F8FAFC] rounded-xl">
+                    <h4 className="text-[14px] font-semibold text-[#0F172A] mb-3">Вказати відправлення</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-[12px] font-medium text-[#64748B] mb-1">Перевізник</label>
+                        <select
+                          value={shippingForm.provider}
+                          onChange={e => setShippingForm({ ...shippingForm, provider: e.target.value })}
+                          className="w-full h-10 px-3 bg-white border border-[#E2E8F0] rounded-lg text-[13px] focus:outline-none focus:border-[#2563EB]"
+                          required
+                        >
+                          <option value="">Оберіть перевізника</option>
+                          <option value="Nova Poshta">Нова Пошта</option>
+                          <option value="Ukrposhta">Укрпошта</option>
+                          <option value="Meest">Meest</option>
+                          <option value="Delivery">Delivery</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[12px] font-medium text-[#64748B] mb-1">Номер накладної</label>
+                        <input
+                          type="text"
+                          value={shippingForm.tracking}
+                          onChange={e => setShippingForm({ ...shippingForm, tracking: e.target.value })}
+                          placeholder="20450012345678"
+                          className="w-full h-10 px-3 bg-white border border-[#E2E8F0] rounded-lg text-[13px] focus:outline-none focus:border-[#2563EB]"
+                          required
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          disabled={processing === tx.id}
+                          className="h-10 px-5 bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1D4ED8] disabled:opacity-50 transition-all flex items-center gap-2"
+                        >
+                          <Send className="w-4 h-4" />
+                          {processing === tx.id ? 'Обробка...' : 'Підтвердити відправлення'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShippingForm(null)}
+                          className="h-10 px-5 bg-white border border-[#E2E8F0] text-[#64748B] rounded-xl text-[13px] font-medium hover:bg-[#F8FAFC] transition-all"
+                        >
+                          Скасувати
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+
+                {/* Actions */}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {tx.status === 'PAID_HELD' && !shippingForm && (
+                    <button
+                      onClick={() => setShippingForm({ txId: tx.id, tracking: '', provider: '' })}
+                      className="h-10 px-5 bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1D4ED8] transition-all flex items-center gap-2"
+                    >
+                      <Truck className="w-4 h-4" />
+                      Вказати відправлення
+                    </button>
+                  )}
+                  
+                  {(tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
+                    <button
+                      onClick={() => openDispute(tx.id)}
+                      disabled={processing === tx.id}
+                      className="h-10 px-5 bg-white border border-[#EF4444] text-[#EF4444] rounded-xl text-[13px] font-semibold hover:bg-[#FEF2F2] disabled:opacity-50 transition-all"
+                    >
+                      Відкрити спір
+                    </button>
+                  )}
+                  
+                  <Link
+                    href={`/lot/${tx.listing.id}`}
+                    className="h-10 px-5 bg-[#F8FAFC] text-[#64748B] rounded-xl text-[13px] font-medium hover:bg-[#F1F5F9] transition-all flex items-center"
+                  >
+                    Переглянути лот
+                  </Link>
+                  
+                  <Link
+                    href={`/messages?user=${tx.buyer.id}&listing=${tx.listing.id}`}
+                    className="h-10 px-5 bg-[#F8FAFC] text-[#64748B] rounded-xl text-[13px] font-medium hover:bg-[#F1F5F9] transition-all flex items-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Написати покупцю
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </>
+  )
+}
+
+function SkeletonList() {
+  return (
+    <div className="space-y-4">
+      {[1, 2].map(i => (
+        <div key={i} className="bg-white border border-[#E2E8F0] rounded-2xl p-4">
+          <div className="flex items-start gap-4">
+            <div className="w-20 h-20 bg-[#F1F5F9] rounded-xl animate-pulse" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-[#F1F5F9] rounded w-3/4 animate-pulse" />
+              <div className="h-3 bg-[#F1F5F9] rounded w-1/2 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EmptyState({ icon: Icon, title, text, cta }: { icon: any; title: string; text: string; cta?: { href: string; label: string } }) {
+  return (
+    <div className="py-12 text-center">
+      <div className="w-14 h-14 mx-auto mb-4 bg-[#F8FAFC] rounded-2xl flex items-center justify-center">
+        <Icon className="w-6 h-6 text-[#94A3B8]" />
+      </div>
+      <p className="text-[16px] font-semibold text-[#0F172A] mb-2">{title}</p>
+      <p className="text-[13px] text-[#64748B] mb-5 max-w-[320px] mx-auto">{text}</p>
+      {cta && (
+        <Link href={cta.href} className="inline-flex h-10 px-5 items-center bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1D4ED8]">
+          {cta.label}
+        </Link>
+      )}
+    </div>
+  )
+}
