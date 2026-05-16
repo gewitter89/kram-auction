@@ -21,9 +21,9 @@ export function Footer() {
             <h4 className="text-[13px] font-semibold text-[#0F172A] mb-3">Покупцям</h4>
             <ul className="space-y-2">
               <li><Link href="/catalog" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Каталог</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Як купувати</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Безпечна угода</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Доставка</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Як купувати</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Безпечна угода</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Доставка</Link></li>
             </ul>
           </div>
 
@@ -31,29 +31,29 @@ export function Footer() {
             <h4 className="text-[13px] font-semibold text-[#0F172A] mb-3">Продавцям</h4>
             <ul className="space-y-2">
               <li><Link href="/sell" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Створити лот</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Як продавати</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Тарифи</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Верифікація</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Як продавати</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Тарифи</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Верифікація</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-[13px] font-semibold text-[#0F172A] mb-3">Компанія</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Про нас</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Контакти</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Правила</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Конфіденційність</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Про нас</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Контакти</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Правила</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Конфіденційність</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-[13px] font-semibold text-[#0F172A] mb-3">Допомога</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">FAQ</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Підтримка</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Спори</Link></li>
-              <li><Link href="#" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Безпека</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">FAQ</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Підтримка</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Спори</Link></li>
+              <li><Link href="/terms" className="text-[13px] text-[#64748B] hover:text-[#2563EB]">Безпека</Link></li>
             </ul>
           </div>
         </div>

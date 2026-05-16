@@ -403,10 +403,10 @@ export function LiveAuctionsNow() {
                   className="group bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-card transition-all"
                 >
                   <div className="aspect-[16/10] bg-[#F1F5F9] relative overflow-hidden">
-                    {images[0] ? (
+                    {images?.[0] ? (
                       <img 
                         src={images[0]} 
-                        alt={lot.title}
+                        alt={lot.title || 'Лот'}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
@@ -420,7 +420,7 @@ export function LiveAuctionsNow() {
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75"></span>
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EF4444]"></span>
                       </span>
-                      <span className="text-[10px] font-bold text-[#EF4444] uppercase">LIVE</span>
+                      <span className="text-[10px] font-bold text-[#EF4444] uppercase tracking-wide">LIVE</span>
                     </div>
                     {/* Time left */}
                     <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-md ${isUrgent ? 'bg-[#FEF2F2] text-[#EF4444]' : 'bg-white/95 text-[#64748B]'}`}>
@@ -432,7 +432,7 @@ export function LiveAuctionsNow() {
                   </div>
                   <div className="p-4">
                     <h3 className="text-[14px] font-semibold text-[#0F172A] mb-2 line-clamp-2 group-hover:text-[#2563EB] transition-colors">
-                      {lot.title}
+                      {lot.title || 'Без назви'}
                     </h3>
                     <div className="flex items-end justify-between">
                       <div>
@@ -717,7 +717,7 @@ export function BetaBanner() {
             <span className="font-bold text-[14px]">Beta-версія</span>
           </div>
           <p className="text-[13px] text-white/90">
-            Реальні платежі будуть підключені у вересні 2025. Зараз — тестування процесу.
+            KRAM працює в beta-режимі: ми тестуємо безпечні угоди, сповіщення та доставку. Реальні платежі LiqPay будуть активовані після фінального sandbox тестування.
           </p>
           <a 
             href="#email-collection" 
@@ -743,11 +743,25 @@ export function EmailCollectionSection() {
     if (!email || !email.includes('@')) return
     
     setLoading(true)
-    // Simulate API call - in production this would save to DB
-    await new Promise(r => setTimeout(r, 1000))
-    setLoading(false)
-    setSubmitted(true)
-    setEmail('')
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type, source: 'homepage' }),
+      })
+      const data = await res.json()
+      
+      if (data.success) {
+        setSubmitted(true)
+        setEmail('')
+      } else {
+        alert(data.error || 'Помилка. Спробуйте пізніше.')
+      }
+    } catch (err) {
+      alert('Помилка мережі. Спробуйте пізніше.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

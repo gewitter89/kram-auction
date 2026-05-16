@@ -11,6 +11,19 @@ export async function GET(request: Request) {
     // Use prisma directly like stats API does
     const lots = await prisma.listing.findMany({
       where: { status: 'active' },
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            verified: true,
+            avatar: true
+          }
+        },
+        _count: {
+          select: { bids: true }
+        }
+      },
       orderBy: { createdAt: 'desc' },
       skip: (page - 1) * limit,
       take: limit

@@ -284,3 +284,16 @@ model TelegramSubscription {
 
   user User? @relation(fields: [userId], references: [id])
 }
+
+model WaitlistEmail {
+  id        String   @id @default(cuid())
+  email     String
+  type      String   // 'seller' | 'buyer'
+  source    String   @default("homepage") // where the email was collected
+  notified  Boolean  @default(false) // whether we sent launch notification
+  createdAt DateTime @default(now())
+  
+  @@unique([email, type])
+  @@index([type])
+  @@index([notified])
+}
