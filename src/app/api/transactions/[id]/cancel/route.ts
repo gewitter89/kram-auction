@@ -5,8 +5,9 @@ import { cancelTransaction } from '@/lib/transaction-service'
 // POST /api/transactions/[id]/cancel - Cancel transaction (only from PENDING_PAYMENT)
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -21,7 +22,7 @@ export async function POST(
     const userRole = (session.user as any).role || 'user'
 
     const transaction = await cancelTransaction(
-      params.id,
+      id,
       session.user.id,
       userRole,
       ip,

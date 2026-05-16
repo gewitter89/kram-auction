@@ -5,8 +5,9 @@ import { confirmTransactionReceived } from '@/lib/transaction-service'
 // POST /api/transactions/[id]/confirm-received - Buyer confirms receipt
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -19,7 +20,7 @@ export async function POST(
     const userAgent = headers.get('user-agent') || undefined
 
     const transaction = await confirmTransactionReceived(
-      params.id,
+      id,
       session.user.id,
       ip,
       userAgent

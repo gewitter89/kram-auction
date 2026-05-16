@@ -10,8 +10,9 @@ const disputeSchema = z.object({
 // POST /api/transactions/[id]/dispute - Open dispute
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -36,7 +37,7 @@ export async function POST(
     const userAgent = headers.get('user-agent') || undefined
 
     const transaction = await openTransactionDispute(
-      params.id,
+      id,
       session.user.id,
       reason,
       ip,
