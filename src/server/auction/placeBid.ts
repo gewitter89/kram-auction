@@ -171,7 +171,7 @@ export async function placeBid(params: {
   })
 
   // Real-time SSE events
-  eventBus.emit(`lot_${listingId}`, {
+  (eventBus as any).emit(`lot_${listingId}`, {
     type: 'new_bid',
     amount: finalAmount,
     endsAt: finalEndsAt.toISOString(),
