@@ -141,45 +141,39 @@ export async function createTransactionFromBuyNow(
     throw new Error('LISTING_NOT_ACTIVE')
   }
 
-  const result = await prisma.$transaction(async (tx: typeof prisma) => {
-    // Update listing
-    await tx.listing.update({
-      where: { id: listingId },
-      data: { status: 'sold', currentPrice: listing.buyNowPrice },
-    })
-
-    // Create transaction with new status
-    const trans = await tx.transaction.create({
-      data: {
-        listingId,
-        buyerId,
-        sellerId: listing.sellerId,
-        amount: listing.buyNowPrice,
-        currency: 'UAH',
-        status: TransactionStatus.PENDING_PAYMENT,
-        paymentStatus: PaymentStatus.NOT_PAID,
-        deliveryStatus: DeliveryStatus.NOT_SHIPPED,
-      },
-      include: {
-        listing: { select: { title: true, id: true } },
-        buyer: { select: { name: true, id: true } },
-        seller: { select: { name: true, id: true } },
-      },
-    })
-
-    // Create bid for history
-    await tx.bid.create({
-      data: {
-        listingId,
-        userId: buyerId,
-        amount: listing.buyNowPrice,
-      },
-    })
-
-    return trans
+  // Update listing
+  await prisma.listing.update({
+    where: { id: listingId },
+    data: { status: 'sold', currentPrice: listing.buyNowPrice },
   })
-  
-  const transaction = Array.isArray(result) ? result[0] : result
+
+  // Create transaction with new status
+  const transaction = await prisma.transaction.create({
+    data: {
+      listingId,
+      buyerId,
+      sellerId: listing.sellerId,
+      amount: listing.buyNowPrice,
+      currency: 'UAH',
+      status: TransactionStatus.PENDING_PAYMENT,
+      paymentStatus: PaymentStatus.NOT_PAID,
+      deliveryStatus: DeliveryStatus.NOT_SHIPPED,
+    },
+    include: {
+      listing: { select: { title: true, id: true } },
+      buyer: { select: { name: true, id: true } },
+      seller: { select: { name: true, id: true } },
+    },
+  })
+
+  // Create bid for history
+  await prisma.bid.create({
+    data: {
+      listingId,
+      userId: buyerId,
+      amount: listing.buyNowPrice,
+    },
+  })
 
   // Create event
   await createTransactionEvent(
@@ -260,36 +254,30 @@ export async function createTransactionFromAuctionWin(
     throw new Error('LISTING_NOT_FOUND')
   }
 
-  const result = await prisma.$transaction(async (tx: typeof prisma) => {
-    // Update listing
-    await tx.listing.update({
-      where: { id: listingId },
-      data: { status: 'sold', currentPrice: finalPrice },
-    })
-
-    // Create transaction
-    const trans = await tx.transaction.create({
-      data: {
-        listingId,
-        buyerId,
-        sellerId: listing.sellerId,
-        amount: finalPrice,
-        currency: 'UAH',
-        status: TransactionStatus.PENDING_PAYMENT,
-        paymentStatus: PaymentStatus.NOT_PAID,
-        deliveryStatus: DeliveryStatus.NOT_SHIPPED,
-      },
-      include: {
-        listing: { select: { title: true, id: true } },
-        buyer: { select: { name: true, id: true } },
-        seller: { select: { name: true, id: true } },
-      },
-    })
-
-    return trans
+  // Update listing
+  await prisma.listing.update({
+    where: { id: listingId },
+    data: { status: 'sold', currentPrice: finalPrice },
   })
-  
-  const transaction = Array.isArray(result) ? result[0] : result
+
+  // Create transaction
+  const transaction = await prisma.transaction.create({
+    data: {
+      listingId,
+      buyerId,
+      sellerId: listing.sellerId,
+      amount: finalPrice,
+      currency: 'UAH',
+      status: TransactionStatus.PENDING_PAYMENT,
+      paymentStatus: PaymentStatus.NOT_PAID,
+      deliveryStatus: DeliveryStatus.NOT_SHIPPED,
+    },
+    include: {
+      listing: { select: { title: true, id: true } },
+      buyer: { select: { name: true, id: true } },
+      seller: { select: { name: true, id: true } },
+    },
+  })
 
   // Create event
   await createTransactionEvent(
@@ -719,26 +707,20 @@ export async function cancelTransaction(
     throw new Error('INVALID_STATUS')
   }
 
-  const result = await prisma.$transaction(async (tx: typeof prisma) => {
-    // Update transaction
-    const trans = await tx.transaction.update({
-      where: { id: transactionId },
-      data: {
-        status: TransactionStatus.CANCELLED,
-        cancelledAt: new Date(),
-      },
-    })
-
-    // Optionally reactivate listing
-    await tx.listing.update({
-      where: { id: transaction.listingId },
-      data: { status: 'active' },
-    })
-
-    return trans
+  // Update transaction
+  const updated = await prisma.transaction.update({
+    where: { id: transactionId },
+    data: {
+      status: TransactionStatus.CANCELLED,
+      cancelledAt: new Date(),
+    },
   })
-  
-  const updated = Array.isArray(result) ? result[0] : result
+
+  // Optionally reactivate listing
+  await prisma.listing.update({
+    where: { id: transaction.listingId },
+    data: { status: 'active' },
+  })
 
   // Create event
   await createTransactionEvent(
