@@ -7,57 +7,26 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const page = Number(searchParams.get('page')) || 1
     const limit = Number(searchParams.get('limit')) || 20
-    const category = searchParams.get('category')
-    const search = searchParams.get('search')
-    const sort = searchParams.get('sort') || 'ending'
-    const minPrice = searchParams.get('minPrice')
-    const maxPrice = searchParams.get('maxPrice')
-    const city = searchParams.get('city')
-    const condition = searchParams.get('condition')
-    const type = searchParams.get('type')
-
-    const where: Record<string, unknown> = { status: 'active' }
-    if (category) where.category = { slug: category }
-    if (search) where.title = { contains: search, mode: 'insensitive' }
-    if (city) where.city = city
-    if (condition) where.condition = condition
-    if (type) where.type = type
-    if (minPrice || maxPrice) {
-      where.currentPrice = {}
-      if (minPrice) (where.currentPrice as Record<string, number>).gte = Number(minPrice)
-      if (maxPrice) (where.currentPrice as Record<string, number>).lte = Number(maxPrice)
-    }
-
-    const baseOrderBy: Record<string, string | Record<string, string>> = { endsAt: 'asc' }
-    if (sort === 'price-asc') baseOrderBy.currentPrice = 'asc'
-    if (sort === 'price-desc') baseOrderBy.currentPrice = 'desc'
-    if (sort === 'new') baseOrderBy.createdAt = 'desc'
-    if (sort === 'bids') baseOrderBy.bids = { _count: 'desc' }
-
-    const orderBy = [
-      { featured: 'desc' as const },
-      baseOrderBy
-    ]
-
-    const [lots, total] = await Promise.all([
-      (prisma.listing as any).findMany({
-        where,
-        orderBy,
-        skip: (page - 1) * limit,
-        take: limit,
-        include: {
-          seller: { select: { id: true, name: true, rating: true, verified: true } },
-          category: { select: { name: true, slug: true } },
-          _count: { select: { bids: true } }
-        }
-      }),
-      (prisma.listing as any).count({ where })
-    ])
+    
+    // Simple query without complex filters
+    const lots = await (prisma as any).listing.findMany({
+      where: { status: 'active' },
+      orderBy: { endsAt: 'asc' },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        seller: { select: { id: true, name: true, rating: true, verified: true } },
+        category: { select: { name: true, slug: true } },
+        _count: { select: { bids: true } }
+      }
+    })
+    
+    const total = await (prisma as any).listing.count({ where: { status: 'active' } })
 
     return NextResponse.json({ lots, pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
   } catch (error) {
     console.error('Get lots error:', error)
-    return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
+    return NextResponse.json({ error: 'Помилка сервера', details: String(error) }, { status: 500 })
   }
 }
 
