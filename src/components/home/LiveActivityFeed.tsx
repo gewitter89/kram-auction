@@ -3,47 +3,112 @@
 import { useEffect, useState } from 'react'
 import { Gavel, Trophy, Heart } from 'lucide-react'
 
-const events = [
+const initialMockEvents = [
   { type: 'bid', icon: Gavel, color: 'text-[#2563EB]', bg: 'bg-[#EFF6FF]', text: 'нова ставка', name: 'iPhone 14 Pro', amount: '+500₴', user: 'user***73' },
   { type: 'won', icon: Trophy, color: 'text-[#10B981]', bg: 'bg-[#ECFDF5]', text: 'виграно лот', name: 'MacBook Air M2', amount: '32 000₴', user: 'tech***02' },
   { type: 'fav', icon: Heart, color: 'text-[#EF4444]', bg: 'bg-[#FEF2F2]', text: 'додано в обране', name: 'PlayStation 5', amount: '', user: 'buyer***45' },
   { type: 'bid', icon: Gavel, color: 'text-[#2563EB]', bg: 'bg-[#EFF6FF]', text: 'нова ставка', name: 'Dyson V15', amount: '+250₴', user: 'pro***88' },
-  { type: 'bid', icon: Gavel, color: 'text-[#2563EB]', bg: 'bg-[#EFF6FF]', text: 'нова ставка', name: 'Samsung S24 Ultra', amount: '+1000₴', user: 'user***19' },
-  { type: 'won', icon: Trophy, color: 'text-[#10B981]', bg: 'bg-[#ECFDF5]', text: 'виграно лот', name: 'AirPods Pro 2', amount: '5 800₴', user: 'mac***fan' },
 ]
 
 export function LiveActivityFeed() {
-  const [feed, setFeed] = useState(events.slice(0, 4))
+  const [feed, setFeed] = useState<any[]>(initialMockEvents)
 
   useEffect(() => {
-    const sse = new EventSource('/api/events?channel=global')
+    let pollingInterval: NodeJS.Timeout | null = null
+    let sse: EventSource | null = null
 
-    sse.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data)
-        if (data.type === 'bid' || data.type === 'won' || data.type === 'fav') {
-          const iconMap: Record<string, any> = { bid: Gavel, won: Trophy, fav: Heart }
-          const colorMap: Record<string, string> = { bid: 'text-[#2563EB]', won: 'text-[#10B981]', fav: 'text-[#EF4444]' }
-          const bgMap: Record<string, string> = { bid: 'bg-[#EFF6FF]', won: 'bg-[#ECFDF5]', fav: 'bg-[#FEF2F2]' }
-          const textMap: Record<string, string> = { bid: 'нова ставка', won: 'виграно лот', fav: 'додано в обране' }
+    const iconMap: Record<string, any> = { bid: Gavel, won: Trophy, fav: Heart }
+    const colorMap: Record<string, string> = { bid: 'text-[#2563EB]', won: 'text-[#10B981]', fav: 'text-[#EF4444]' }
+    const bgMap: Record<string, string> = { bid: 'bg-[#EFF6FF]', won: 'bg-[#ECFDF5]', fav: 'bg-[#FEF2F2]' }
+    const textMap: Record<string, string> = { bid: 'нова ставка', won: 'виграно лот', fav: 'додано в обране' }
 
-          const newEvent = {
-            type: data.type,
-            icon: iconMap[data.type],
-            color: colorMap[data.type],
-            bg: bgMap[data.type],
-            text: textMap[data.type],
-            name: data.name,
-            amount: data.amount || '',
-            user: data.user
-          }
-
-          setFeed(prev => [newEvent, ...prev].slice(0, 4))
-        }
-      } catch (err) {}
+    function mapRawEvent(data: any) {
+      return {
+        type: data.type,
+        icon: iconMap[data.type] || Gavel,
+        color: colorMap[data.type] || 'text-[#2563EB]',
+        bg: bgMap[data.type] || 'bg-[#EFF6FF]',
+        text: textMap[data.type] || 'активність',
+        name: data.name,
+        amount: data.amount || '',
+        user: data.user
+      }
     }
 
-    return () => sse.close()
+    // 1. Fetch initial real data from database
+    async function fetchInitialFeed() {
+      try {
+        const res = await fetch('/api/events/recent')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.events && data.events.length > 0) {
+            const mapped = data.events.map((e: any) => mapRawEvent(e))
+            setFeed(mapped)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch initial feed:', err)
+      }
+    }
+
+    // 2. Set up short-polling fallback
+    function startPollingFallback() {
+      if (pollingInterval) return
+      pollingInterval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/events/recent')
+          if (res.ok) {
+            const data = await res.json()
+            if (data.events && data.events.length > 0) {
+              const mapped = data.events.map((e: any) => mapRawEvent(e))
+              setFeed(mapped)
+            }
+          }
+        } catch (err) {}
+      }, 5000)
+    }
+
+    fetchInitialFeed()
+
+    // 3. Try to establish SSE connection
+    try {
+      sse = new EventSource('/api/events?channel=global')
+
+      sse.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data)
+          if (data.type === 'bid' || data.type === 'won' || data.type === 'fav') {
+            const newEvent = mapRawEvent(data)
+            setFeed(prev => {
+              // Deduplicate events by user & name if already exists in top 4
+              const exists = prev.slice(0, 4).some(item => 
+                item.user === newEvent.user && 
+                item.name === newEvent.name && 
+                item.amount === newEvent.amount
+              )
+              if (exists) return prev
+              return [newEvent, ...prev].slice(0, 4)
+            })
+          }
+        } catch (err) {}
+      }
+
+      sse.onerror = () => {
+        // SSE connection failed or dropped (expected on serverless closeout)
+        if (sse) {
+          sse.close()
+          sse = null
+        }
+        startPollingFallback()
+      }
+    } catch (e) {
+      startPollingFallback()
+    }
+
+    return () => {
+      if (sse) sse.close()
+      if (pollingInterval) clearInterval(pollingInterval)
+    }
   }, [])
 
   return (
@@ -58,7 +123,7 @@ export function LiveActivityFeed() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {feed.map((event, i) => {
+        {feed.slice(0, 4).map((event, i) => {
           const Icon = event.icon
           return (
             <div
@@ -67,10 +132,10 @@ export function LiveActivityFeed() {
               style={{ animationDelay: `${i * 80}ms` }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className={`w-7 h-7 ${event.bg} rounded-lg flex items-center justify-center`}>
+                <div className={`w-7 h-7 ${event.bg} rounded-lg flex items-center justify-center flex-shrink-0`}>
                   <Icon className={`w-3.5 h-3.5 ${event.color}`} />
                 </div>
-                <span className="text-[11px] text-[#64748B]">{event.text}</span>
+                <span className="text-[11px] text-[#64748B] truncate">{event.text}</span>
                 <span className="text-[10px] text-[#94A3B8] ml-auto">щойно</span>
               </div>
               <p className="text-[13px] font-semibold text-[#0F172A] truncate">{event.name}</p>

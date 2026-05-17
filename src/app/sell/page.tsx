@@ -123,22 +123,42 @@ export default function SellPage() {
     setUploadingPhotos(true)
     setError('')
 
+    const uploadedUrls: string[] = []
+    let hasFailed = false
+
     try {
-      const fd = new FormData()
-      files.forEach(f => fd.append('files', f))
+      // Upload files individually to prevent body limit errors (e.g. 413 Payload Too Large)
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fd = new FormData()
+        fd.append('files', file)
 
-      const res = await fetch('/api/upload', { method: 'POST', body: fd })
-      const data = await res.json()
+        const res = await fetch('/api/upload', { method: 'POST', body: fd })
+        const data = await res.json()
 
-      if (!res.ok) {
-        setError(data.error || 'Помилка завантаження фото')
-        setImagePreviews(prev => prev.slice(0, prev.length - files.length))
-        return
+        if (!res.ok) {
+          setError(data.error || `Помилка завантаження фото: ${file.name}`)
+          hasFailed = true
+          break
+        }
+
+        if (data.urls && data.urls.length > 0) {
+          uploadedUrls.push(data.urls[0])
+          // Incrementally add successfully uploaded image url to trigger reactive updates
+          setImages(prev => [...prev, data.urls[0]])
+        } else {
+          setError(`Помилка завантаження фото: ${file.name}`)
+          hasFailed = true
+          break
+        }
       }
 
-      setImages(prev => [...prev, ...data.urls])
+      if (hasFailed) {
+        // Remove the newly added previews that failed to upload
+        setImagePreviews(prev => prev.slice(0, prev.length - (files.length - uploadedUrls.length)))
+      }
     } catch {
-      setError('Помилка завантаження фото')
+      setError('Помилка з\'єднання при завантаженні фото')
       setImagePreviews(prev => prev.slice(0, prev.length - files.length))
     } finally {
       setUploadingPhotos(false)

@@ -1,5 +1,6 @@
 // Simple in-memory rate limiter (works for single-node, replace with Redis for multi-node)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+let lastCleanupTime = Date.now()
 
 /**
  * Returns true if the request should be blocked (rate limit exceeded)
@@ -9,6 +10,18 @@ const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
  */
 export function isRateLimited(key: string, limit = 10, windowMs = 60_000): boolean {
   const now = Date.now()
+
+  // Passive self-cleaning: clean up expired entries at most once every minute
+  // This is highly optimal for Serverless environments where setInterval gets suspended.
+  if (now - lastCleanupTime > 60_000) {
+    for (const [k, val] of rateLimitMap.entries()) {
+      if (now > val.resetAt) {
+        rateLimitMap.delete(k)
+      }
+    }
+    lastCleanupTime = now
+  }
+
   const entry = rateLimitMap.get(key)
 
   if (!entry || now > entry.resetAt) {
@@ -23,11 +36,3 @@ export function isRateLimited(key: string, limit = 10, windowMs = 60_000): boole
   entry.count++
   return false
 }
-
-// Cleanup old entries every 5 minutes to prevent memory leak
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, val] of rateLimitMap.entries()) {
-    if (now > val.resetAt) rateLimitMap.delete(key)
-  }
-}, 5 * 60_000)

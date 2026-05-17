@@ -48,21 +48,62 @@ export function LotPageContent({ lot }: LotPageContentProps) {
   }, [endsAt])
 
   useEffect(() => {
-    const sse = new EventSource(`/api/events?channel=lot_${lot.id}`)
-    sse.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data)
-        if (data.type === 'new_bid') {
-          setCurrentPrice(data.amount)
-          setBidCount((prev: number) => prev + 1)
-          if (data.endsAt) setEndsAt(data.endsAt)
-          if (data.bid) {
-            setBidsHistory((prev: any) => [data.bid, ...prev])
+    let pollingInterval: NodeJS.Timeout | null = null
+    let sse: EventSource | null = null
+
+    function startPollingFallback() {
+      if (pollingInterval) return
+      pollingInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/listings/${lot.id}/price`)
+          if (res.ok) {
+            const data = await res.json()
+            setCurrentPrice(data.currentPrice)
+            setBidCount(data.bidCount)
+            if (data.endsAt) setEndsAt(data.endsAt)
+            if (data.bids) {
+              setBidsHistory(data.bids)
+            }
           }
-        }
-      } catch (err) {}
+        } catch (err) {}
+      }, 4000)
     }
-    return () => sse.close()
+
+    try {
+      sse = new EventSource(`/api/events?channel=lot_${lot.id}`)
+      sse.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data)
+          if (data.type === 'new_bid') {
+            setCurrentPrice(data.amount)
+            setBidCount((prev: number) => prev + 1)
+            if (data.endsAt) setEndsAt(data.endsAt)
+            if (data.bid) {
+              setBidsHistory((prev: any) => {
+                const exists = prev.some((b: any) => b.id === data.bid.id)
+                if (exists) return prev
+                return [data.bid, ...prev]
+              })
+            }
+          }
+        } catch (err) {}
+      }
+
+      sse.onerror = () => {
+        if (sse) {
+          sse.close()
+          sse = null
+        }
+        startPollingFallback()
+      }
+    } catch (e) {
+      startPollingFallback()
+    }
+
+    return () => {
+      if (sse) sse.close()
+      if (pollingInterval) clearInterval(pollingInterval)
+    }
   }, [lot.id])
 
   const isEnded = new Date(endsAt).getTime() <= Date.now()
