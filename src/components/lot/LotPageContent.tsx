@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { BidModal } from '@/components/lot/BidModal'
 import Link from 'next/link'
@@ -27,6 +27,9 @@ export function LotPageContent({ lot }: LotPageContentProps) {
   const [zoomActive, setZoomActive] = useState(false)
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 })
   const [isFavorite, setIsFavorite] = useState(lot.isFavorite || false)
+  const [showBuyModal, setShowBuyModal] = useState(false)
+  const [buying, setBuying] = useState(false)
+  const [outbidAlert, setOutbidAlert] = useState<{ amount: number; lotTitle: string } | null>(null)
 
   const images: string[] = (() => { try { return JSON.parse(lot.images || '[]') } catch { return [] } })()
   const [activeImage, setActiveImage] = useState(0)
@@ -85,6 +88,23 @@ export function LotPageContent({ lot }: LotPageContentProps) {
                 return [data.bid, ...prev]
               })
             }
+            // Trigger visual live outbid alert if bid is from another user!
+            if (session?.user && data.userId !== session.user.id) {
+              setOutbidAlert({ amount: data.amount, lotTitle: lot.title })
+              try {
+                const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+                const osc = ctx.createOscillator()
+                const gain = ctx.createGain()
+                osc.type = 'sine'
+                osc.frequency.setValueAtTime(550, ctx.currentTime)
+                gain.gain.setValueAtTime(0.06, ctx.currentTime)
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25)
+                osc.connect(gain)
+                gain.connect(ctx.destination)
+                osc.start()
+                osc.stop(ctx.currentTime + 0.25)
+              } catch (e) {}
+            }
           }
         } catch (err) {}
       }
@@ -104,7 +124,7 @@ export function LotPageContent({ lot }: LotPageContentProps) {
       if (sse) sse.close()
       if (pollingInterval) clearInterval(pollingInterval)
     }
-  }, [lot.id])
+  }, [lot.id, session])
 
   const isEnded = new Date(endsAt).getTime() <= Date.now()
   const isUrgent = !isEnded && new Date(endsAt).getTime() - Date.now() < 30 * 60000
@@ -117,31 +137,7 @@ export function LotPageContent({ lot }: LotPageContentProps) {
 
   async function handleBuyNow() {
     if (!session) { router.push(`/auth/login?callbackUrl=/lot/${lot.id}&action=buy`); return }
-    
-    if (!confirm(`Підтверджуєте покупку за ${formatPrice(lot.buyNowPrice)}?`)) return
-    
-    try {
-      const res = await fetch('/api/buy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId: lot.id })
-      })
-      const data = await res.json()
-      
-      if (!res.ok) {
-        setToast(data.error || 'Помилка при покупці')
-        setTimeout(() => setToast(''), 3000)
-        return
-      }
-
-      setToast('✅ Лот успішно куплено! Переходимо в кабінет...')
-      setTimeout(() => {
-        router.push('/cabinet?tab=purchases')
-      }, 1500)
-    } catch (err) {
-      setToast('Помилка сервера')
-      setTimeout(() => setToast(''), 3000)
-    }
+    setShowBuyModal(true)
   }
 
   function onBidSuccess(newPrice: number) {
@@ -170,6 +166,32 @@ export function LotPageContent({ lot }: LotPageContentProps) {
       y: ((e.clientY - rect.top) / rect.height) * 100,
     })
   }
+
+  // Generate SVG path coordinates for bidding trend visualization
+  const getTrendChartPath = () => {
+    if (bidsHistory.length < 2) return null
+    // Chronological: oldest first
+    const sortedBids = [...bidsHistory].reverse()
+    const minVal = lot.startingPrice || sortedBids[0].amount * 0.9
+    const maxVal = currentPrice
+    const valRange = maxVal - minVal || 1
+
+    const width = 500
+    const height = 120
+    const padding = 15
+
+    const points = sortedBids.map((bid: any, i: number) => {
+      const x = padding + (i / (sortedBids.length - 1)) * (width - padding * 2)
+      const y = height - padding - ((bid.amount - minVal) / valRange) * (height - padding * 2)
+      return { x, y, amount: bid.amount }
+    })
+
+    const pathD = `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(' ')
+    const areaD = `${pathD} L ${points[points.length - 1].x} ${height} L ${points[0].x} ${height} Z`
+
+    return { pathD, areaD, points }
+  }
+  const trend = getTrendChartPath()
 
   return (
     <div className="max-w-[1320px] mx-auto px-4 py-6">
@@ -270,6 +292,43 @@ export function LotPageContent({ lot }: LotPageContentProps) {
               <h2 className="text-[18px] font-bold text-[#0F172A] tracking-tight">Історія ставок</h2>
               <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#2563EB] text-[12px] font-bold rounded-full">{bidCount}</span>
             </div>
+
+            {trend && (
+              <div className="mb-6 p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl overflow-hidden">
+                <div className="flex items-center justify-between text-[11px] text-[#64748B] mb-3">
+                  <span className="font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2563EB] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#2563EB]"></span>
+                    </span>
+                    Графік росту ціни
+                  </span>
+                  <span>Початкова: {formatPrice(lot.startingPrice || trend.points[0].amount)}</span>
+                </div>
+                <div className="relative w-full h-[120px]">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 500 120" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#2563EB" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#2563EB" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1="15" x2="500" y2="15" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="4 4" />
+                    <line x1="0" y1="60" x2="500" y2="60" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="4 4" />
+                    <line x1="0" y1="105" x2="500" y2="105" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="4 4" />
+                    <path d={trend.areaD} fill="url(#chartGrad)" />
+                    <path d={trend.pathD} fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    {trend.points.map((p, idx) => (
+                      <g key={idx} className="group/node cursor-pointer">
+                        <circle cx={p.x} cy={p.y} r="4.5" className="fill-white stroke-[#2563EB] stroke-2 hover:r-6 hover:fill-[#2563EB] transition-all" />
+                        <title>{formatPrice(p.amount)}</title>
+                      </g>
+                    ))}
+                  </svg>
+                </div>
+              </div>
+            )}
+
             {bidsHistory.length > 0 ? (
               <div className="space-y-1">
                 {bidsHistory.slice(0, 8).map((bid: any, i: number) => (
@@ -496,6 +555,140 @@ export function LotPageContent({ lot }: LotPageContentProps) {
           onClose={() => setShowBidModal(false)}
           onSuccess={onBidSuccess}
         />
+      )}
+
+      {/* OUTBID WARNING RETALIATION MODAL */}
+      {outbidAlert && (
+        <div className="fixed top-20 right-4 z-50 max-w-[360px] bg-[#0F172A] border border-rose-500/30 rounded-2xl p-4 shadow-2xl text-white animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center text-rose-500 flex-shrink-0 animate-pulse text-[18px]">
+              ⚔️
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-[13px] text-rose-400">Вашу ставку перебито!</p>
+              <p className="text-[11px] text-white/70 truncate mb-2">{outbidAlert.lotTitle}</p>
+              <p className="text-[14px] font-bold mb-3">Нова ціна: {formatPrice(outbidAlert.amount)}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    const nextBid = outbidAlert.amount + lot.minIncrement
+                    try {
+                      const res = await fetch('/api/bids', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ listingId: lot.id, amount: nextBid })
+                      })
+                      if (res.ok) {
+                        setOutbidAlert(null)
+                        onBidSuccess(nextBid)
+                      }
+                    } catch(e){}
+                  }}
+                  className="flex-1 h-9 bg-rose-500 hover:bg-rose-600 rounded-lg text-[12px] font-bold text-white transition-colors"
+                >
+                  Реванш (+{lot.minIncrement} ₴)
+                </button>
+                <button
+                  onClick={() => setOutbidAlert(null)}
+                  className="h-9 px-3 bg-white/10 hover:bg-white/20 rounded-lg text-[12px] font-medium"
+                >
+                  Закрити
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM BANK SLIP BUY NOW MODAL */}
+      {showBuyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowBuyModal(false)}></div>
+          
+          <div className="relative bg-white rounded-2xl w-full max-w-[420px] p-6 shadow-2xl animate-fade-in border border-[#E2E8F0] z-50">
+            <button onClick={() => setShowBuyModal(false)} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F8FAFC]">
+              <X className="w-5 h-5 text-[#64748B]" />
+            </button>
+
+            <div className="w-12 h-12 bg-[#10B981]/15 border border-[#10B981]/30 rounded-2xl flex items-center justify-center text-[#10B981] mb-4">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+
+            <h2 className="text-[20px] font-bold text-[#0B1220] mb-1">Підтвердження покупки</h2>
+            <p className="text-[13px] text-[#64748B] mb-6">Ви купуєте цей лот в один клік за фіксованою ціною.</p>
+
+            <div className="border border-[#E2E8F0] rounded-xl p-4 bg-[#F8FAFC] space-y-3 mb-6">
+              <div className="flex justify-between items-start">
+                <span className="text-[12px] text-[#64748B] font-medium">Товар:</span>
+                <span className="text-[13px] font-bold text-[#0F172A] text-right line-clamp-1 max-w-[200px]">{lot.title}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[12px] text-[#64748B] font-medium">Вартість лота:</span>
+                <span className="text-[14px] font-bold text-[#0F172A]">{formatPrice(lot.buyNowPrice)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[12px] text-[#64748B] font-medium">Сервісний збір KRAM:</span>
+                <span className="text-[12px] font-semibold text-[#10B981]">0 ₴ (Beta 0%)</span>
+              </div>
+              <div className="flex justify-between items-center pt-2.5 border-t border-[#E2E8F0]">
+                <span className="text-[13px] font-bold text-[#0B1220]">Разом до сплати:</span>
+                <span className="text-[18px] font-extrabold text-[#2563EB]">{formatPrice(lot.buyNowPrice)}</span>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-2.5 p-3 bg-[#EFF6FF] border border-[#2563EB]/15 rounded-xl mb-6">
+              <Lock className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
+              <p className="text-[11px] text-[#475569] leading-relaxed">
+                <strong>KRAM Secure Escrow:</strong> Кошти будуть зафіксовані в системі та виплачені продавцю тільки після того, як ви заберете та підтвердите посилку на Новій Пошті.
+              </p>
+            </div>
+
+            <button
+              onClick={async () => {
+                setBuying(true)
+                try {
+                  const res = await fetch('/api/buy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ listingId: lot.id })
+                  })
+                  const data = await res.json()
+                  
+                  if (!res.ok) {
+                    setToast(data.error || 'Помилка при покупці')
+                    setShowBuyModal(false)
+                    setBuying(false)
+                    setTimeout(() => setToast(''), 3000)
+                    return
+                  }
+
+                  setToast('✅ Лот успішно куплено! Переходимо в кабінет...')
+                  setShowBuyModal(false)
+                  setTimeout(() => {
+                    router.push('/cabinet?tab=purchases')
+                  }, 1500)
+                } catch (err) {
+                  setToast('Помилка сервера')
+                  setShowBuyModal(false)
+                  setBuying(false)
+                  setTimeout(() => setToast(''), 3000)
+                }
+              }}
+              disabled={buying}
+              className="w-full h-12 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl text-[15px] font-bold transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
+            >
+              {buying ? 'Оформлення...' : `Оплатити та отримати`}
+            </button>
+
+            <button
+              onClick={() => setShowBuyModal(false)}
+              disabled={buying}
+              className="w-full h-10 bg-transparent text-[#64748B] hover:text-[#0F172A] rounded-xl text-[13px] font-semibold mt-2 transition-colors"
+            >
+              Скасувати
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
