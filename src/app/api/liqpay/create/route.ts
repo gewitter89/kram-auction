@@ -65,7 +65,7 @@ export async function POST(request: Request) {
           signature: existingPayment.liqpaySignature,
         },
         paymentId: existingPayment.id,
-        isSandbox: true,
+        isSandbox: process.env.LIQPAY_SANDBOX !== 'false',
       })
     }
 
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       success: true,
       formData,
       paymentId: payment.id,
-      isSandbox: true,
+      isSandbox: process.env.LIQPAY_SANDBOX !== 'false',
     })
   } catch (error) {
     console.error('LiqPay create payment error:', error)

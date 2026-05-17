@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2 } from 'lucide-react'
+import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
 
 const CATEGORIES = [
@@ -240,6 +240,21 @@ export default function SellPage() {
         <p className="text-[14px] text-[#64748B] mb-6">Щоб створити лот, потрібен акаунт KRAM</p>
         <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center h-12 px-8 bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors">
           Увійти
+        </Link>
+      </div>
+    )
+  }
+
+  if (session?.user && !session.user.verified) {
+    return (
+      <div className="max-w-[480px] mx-auto px-4 py-20 text-center">
+        <div className="w-16 h-16 bg-[#FFFBEB] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#FDE68A]">
+          <ShieldCheck className="w-8 h-8 text-[#F59E0B]" />
+        </div>
+        <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Верифікація продавця</h1>
+        <p className="text-[14px] text-[#64748B] mb-6">З метою безпеки платформи KRAM, нові продавці повинні пройти швидку верифікацію номера телефону.</p>
+        <Link href="/cabinet/verify?redirect=/sell" className="inline-flex items-center h-12 px-8 bg-[#F59E0B] text-white rounded-xl text-[15px] font-semibold hover:bg-[#D97706] transition-colors">
+          Пройти верифікацію
         </Link>
       </div>
     )

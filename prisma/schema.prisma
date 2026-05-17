@@ -19,6 +19,10 @@ model User {
   rating       Float    @default(0)
   reviewsCount Int      @default(0)
   verified     Boolean  @default(false)
+  phoneVerificationCode   String?
+  phoneVerificationExpiry DateTime?
+  phoneVerificationAttempts Int @default(0)
+  phoneVerificationLastSent DateTime?
   role         String   @default("user") // user, seller, admin
   createdAt    DateTime @default(now())
 

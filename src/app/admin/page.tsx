@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Users, Package, Gavel, AlertCircle, TrendingUp, ShieldCheck } from 'lucide-react'
+import { Users, Package, Gavel, AlertCircle, TrendingUp, ShieldCheck, HandCoins, Scale } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminPage() {
@@ -87,6 +87,16 @@ export default function AdminPage() {
           <AlertCircle className="w-7 h-7 text-[#EF4444] mb-3" />
           <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Скарги</h3>
           <p className="text-[13px] text-[#64748B]">{data.pendingReports} нових скарг</p>
+        </Link>
+        <Link href="/admin/payouts" className="bg-white border border-[#E2E8F0] rounded-2xl p-6 hover:border-[#2563EB]/40 transition-colors">
+          <HandCoins className="w-7 h-7 text-[#F59E0B] mb-3" />
+          <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Виплати (Payouts)</h3>
+          <p className="text-[13px] text-[#64748B]">Управління виплатами продавцям</p>
+        </Link>
+        <Link href="/admin/disputes" className="bg-white border border-[#E2E8F0] rounded-2xl p-6 hover:border-[#2563EB]/40 transition-colors">
+          <Scale className="w-7 h-7 text-[#8B5CF6] mb-3" />
+          <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Арбітраж (Disputes)</h3>
+          <p className="text-[13px] text-[#64748B]">Вирішення суперечок по угодах</p>
         </Link>
       </div>
 
