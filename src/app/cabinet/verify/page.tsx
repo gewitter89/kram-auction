@@ -43,11 +43,27 @@ function VerifyPageContent() {
     setError('')
     setLoading(true)
     
-    // Simulate API delay for sending SMS
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/user/verify/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) {
+        setError(data.error || 'Помилка відправки SMS')
+        setLoading(false)
+        return
+      }
+      
       setLoading(false)
       setStep(2)
-    }, 800)
+    } catch (e) {
+      setError('Помилка сервера. Спробуйте пізніше.')
+      setLoading(false)
+    }
   }
 
   async function handleVerify() {

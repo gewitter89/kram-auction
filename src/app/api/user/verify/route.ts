@@ -11,12 +11,36 @@ export async function POST(req: Request) {
 
     const { phone, code } = await req.json()
 
-    if (!phone || phone.length < 10) {
-      return NextResponse.json({ error: 'Некоректний номер телефону' }, { status: 400 })
+    const cleanPhone = phone.replace(/\D/g, '')
+    if (cleanPhone.length !== 12 || !cleanPhone.startsWith('380')) {
+      return NextResponse.json({ error: 'Некоректний номер телефону (формат 380XXXXXXXXX)' }, { status: 400 })
     }
 
-    // In a real app, you would verify the OTP code here via Twilio / TurboSMS
-    if (code !== '0000' && code !== '1234') {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { phoneVerificationCode: true, phoneVerificationExpiry: true }
+    })
+
+    if (!user) {
+      return NextResponse.json({ error: 'Користувача не знайдено' }, { status: 404 })
+    }
+
+    if (!user.phoneVerificationCode || !user.phoneVerificationExpiry) {
+      return NextResponse.json({ error: 'Код не був відправлений' }, { status: 400 })
+    }
+
+    if (user.phoneVerificationExpiry < new Date()) {
+      return NextResponse.json({ error: 'Час дії коду минув. Надішліть новий код.' }, { status: 400 })
+    }
+
+    // Verify code
+    const isDemo = process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === 'true'
+    if (!isDemo && code !== user.phoneVerificationCode) {
+      return NextResponse.json({ error: 'Невірний код' }, { status: 400 })
+    }
+    
+    // In demo mode, allow 0000/1234 or the generated code
+    if (isDemo && code !== '0000' && code !== '1234' && code !== user.phoneVerificationCode) {
       return NextResponse.json({ error: 'Невірний код. Для тесту використовуйте 0000 або 1234' }, { status: 400 })
     }
 
@@ -24,8 +48,11 @@ export async function POST(req: Request) {
     await prisma.user.update({
       where: { id: session.user.id },
       data: { 
-        phone: phone,
-        verified: true 
+        phone: cleanPhone,
+        verified: true,
+        phoneVerificationCode: null,
+        phoneVerificationExpiry: null,
+        phoneVerificationAttempts: 0
       }
     })
 
