@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { SessionProvider } from '@/components/providers/SessionProvider'
 import { Header } from '@/components/layout/Header'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { GlobalNotifier } from '@/components/layout/GlobalNotifier'
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -21,6 +22,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <MobileNav />
+      <GlobalNotifier />
     </SessionProvider>
   )
 }

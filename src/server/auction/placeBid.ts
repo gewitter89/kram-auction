@@ -212,6 +212,15 @@ export async function placeBid(params: {
 
     // Outbid notification
     if (previousTopBid?.userId && previousTopBid.userId !== finalUserId) {
+      // Real-time user alert
+      eventBus.emit(`user_${previousTopBid.userId}`, {
+        type: 'outbid',
+        listingId,
+        lotTitle: listing.title,
+        amount: finalAmount,
+        minIncrement: listing.minIncrement,
+      })
+
       prisma.notification.create({
         data: {
           userId: previousTopBid.userId,
