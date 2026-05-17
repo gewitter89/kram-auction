@@ -13,6 +13,7 @@ function VerifyPageContent() {
   const searchParams = useSearchParams()
   const { data: session, update } = useSession()
   const redirectUrl = searchParams?.get('redirect') || '/cabinet'
+  const isDemoVerification = process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === 'true'
 
   const [step, setStep] = useState(1)
   const [phone, setPhone] = useState('+380')
@@ -158,9 +159,11 @@ function VerifyPageContent() {
               <button onClick={() => setStep(1)} className="text-[#2563EB] hover:underline">Змінити</button>
             </p>
 
-            <div className="p-3 mb-6 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl text-[12px] text-[#1E3A8A]">
-              💡 <b>Режим тестування:</b> введіть код <b>0000</b> для успішної перевірки.
-            </div>
+            {isDemoVerification && (
+              <div className="p-3 mb-6 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl text-[12px] text-[#1E3A8A]">
+                <b>Режим тестування:</b> введіть код <b>0000</b> для успішної перевірки.
+              </div>
+            )}
             
             {error && (
               <div className="mb-4 p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-[13px] text-[#EF4444] flex items-center gap-2">

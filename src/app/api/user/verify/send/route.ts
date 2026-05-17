@@ -12,6 +12,10 @@ export async function POST(req: Request) {
 
     const { phone } = await req.json()
 
+    if (typeof phone !== 'string') {
+      return NextResponse.json({ error: 'Некоректний номер телефону' }, { status: 400 })
+    }
+
     const cleanPhone = phone.replace(/\D/g, '')
     if (cleanPhone.length !== 12 || !cleanPhone.startsWith('380')) {
       return NextResponse.json({ error: 'Некоректний номер телефону (формат 380XXXXXXXXX)' }, { status: 400 })

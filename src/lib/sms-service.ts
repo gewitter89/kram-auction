@@ -3,10 +3,10 @@
 
 export async function sendVerificationSms(phone: string, code: string): Promise<boolean> {
   const token = process.env.TURBOSMS_TOKEN
-  const isDemo = process.env.NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === 'true'
+  const isDemo = process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === 'true'
   
   if (isDemo && !token) {
-    console.log(`[Mock SMS] Sending code ${code} to ${phone} (Demo Mode)`)
+    console.log('[Mock SMS] Verification SMS skipped in demo mode')
     return true
   }
   

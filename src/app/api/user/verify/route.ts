@@ -11,6 +11,10 @@ export async function POST(req: Request) {
 
     const { phone, code } = await req.json()
 
+    if (typeof phone !== 'string' || typeof code !== 'string') {
+      return NextResponse.json({ error: 'Некоректні дані для верифікації' }, { status: 400 })
+    }
+
     const cleanPhone = phone.replace(/\D/g, '')
     if (cleanPhone.length !== 12 || !cleanPhone.startsWith('380')) {
       return NextResponse.json({ error: 'Некоректний номер телефону (формат 380XXXXXXXXX)' }, { status: 400 })
@@ -18,7 +22,11 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { phoneVerificationCode: true, phoneVerificationExpiry: true }
+      select: {
+        phoneVerificationCode: true,
+        phoneVerificationExpiry: true,
+        phoneVerificationAttempts: true
+      }
     })
 
     if (!user) {
@@ -29,19 +37,23 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Код не був відправлений' }, { status: 400 })
     }
 
+    if (user.phoneVerificationAttempts >= 5) {
+      return NextResponse.json({ error: 'Перевищено ліміт спроб. Надішліть новий код пізніше.' }, { status: 429 })
+    }
+
     if (user.phoneVerificationExpiry < new Date()) {
       return NextResponse.json({ error: 'Час дії коду минув. Надішліть новий код.' }, { status: 400 })
     }
 
-    // Verify code
     const isDemo = process.env.NODE_ENV !== 'production' && process.env.NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS === 'true'
-    if (!isDemo && code !== user.phoneVerificationCode) {
+    const validCodes = isDemo ? ['0000', '1234', user.phoneVerificationCode] : [user.phoneVerificationCode]
+
+    if (!validCodes.includes(code)) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { phoneVerificationAttempts: { increment: 1 } }
+      })
       return NextResponse.json({ error: 'Невірний код' }, { status: 400 })
-    }
-    
-    // In demo mode, allow 0000/1234 or the generated code
-    if (isDemo && code !== '0000' && code !== '1234' && code !== user.phoneVerificationCode) {
-      return NextResponse.json({ error: 'Невірний код. Для тесту використовуйте 0000 або 1234' }, { status: 400 })
     }
 
     // Update user
