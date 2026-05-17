@@ -92,7 +92,7 @@ export function HeroSection() {
 
             <h1 className="text-[36px] md:text-[52px] font-bold text-[#0B1220] leading-[1.05] tracking-[-0.03em] mb-5">
               KRAM — український<br/>
-              <span className="gradient-text-premium">маркетплейс безпечних угод</span>
+              <span className="gradient-text-animated">маркетплейс безпечних угод</span>
             </h1>
 
             <p className="text-[16px] md:text-[18px] text-[#64748B] leading-relaxed mb-8 max-w-[520px]">
@@ -130,6 +130,9 @@ export function HeroSection() {
 
           {/* RIGHT - Live Auction Cards */}
           <div className="hidden lg:block relative h-[480px]">
+            {/* Cyber Glow Backdrop Element */}
+            <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] h-[360px] bg-gradient-to-tr from-[#2563EB]/15 via-[#10B981]/10 to-[#0ea5e9]/15 rounded-full blur-[70px] animate-pulse pointer-events-none z-0" />
+
             {liveCards.map((card, i) => {
               const isActive = activeCard === i
               const isPulsing = bidPulse === i
@@ -249,7 +252,7 @@ function ActivityTicker() {
     return () => clearInterval(t)
   }, [])
   return (
-    <div className="bg-white border border-[#E2E8F0] rounded-full pl-2 pr-4 py-1.5 shadow-card flex items-center gap-2 max-w-[280px]">
+    <div className="bg-white border border-[#E2E8F0] rounded-full pl-2 pr-4 py-1.5 shadow-premium flex items-center gap-2 max-w-[280px] animate-float">
       <span className="flex-shrink-0 w-6 h-6 bg-[#10B981] rounded-full flex items-center justify-center">
         <TrendingUp className="w-3 h-3 text-white" />
       </span>

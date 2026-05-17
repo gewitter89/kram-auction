@@ -34,7 +34,8 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
     <span
       role="img"
       aria-label={ariaLabel ?? 'KRAM'}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: `${Math.round(size * 0.27)}px` }}
+      className="group/logo inline-flex items-center transition-all duration-300 hover:scale-[1.02]"
+      style={{ gap: `${Math.round(size * 0.27)}px` }}
     >
       {/* ── Brand mark: rounded-square badge with K letterform ── */}
       <svg
@@ -44,7 +45,7 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
-        style={{ flexShrink: 0 }}
+        className="flex-shrink-0 transition-all duration-300 group-hover/logo:shadow-[0_8px_24px_rgba(37,99,235,0.25)] group-hover/logo:scale-[1.05]"
       >
         <defs>
           {/* Deep navy → electric blue gradient — premium fintech look */}
@@ -56,7 +57,11 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
         </defs>
 
         {/* Badge background */}
-        <rect x="0" y="0" width="44" height="44" rx="11" fill={`url(#${gradId})`} />
+        <rect
+          x="0" y="0" width="44" height="44" rx="11"
+          fill={`url(#${gradId})`}
+          className="transition-all duration-300 group-hover/logo:brightness-110"
+        />
 
         {/* Inner border — subtle premium depth */}
         <rect
@@ -68,17 +73,37 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
 
         {/* K letterform — white, geometric, filled paths */}
         {/* Left vertical stem */}
-        <rect x="10" y="10" width="5" height="24" rx="2.5" fill="white" />
+        <rect
+          x="10" y="10" width="5" height="24" rx="2.5"
+          fill="white"
+          className="transition-transform duration-300 group-hover/logo:translate-x-[0.5px]"
+        />
 
         {/* Upper arm: mid-stem → top-right */}
-        <path d="M14.5 22 L31 10 L31 15 L17 22.5 Z" fill="white" />
+        <path
+          d="M14.5 22 L31 10 L31 15 L17 22.5 Z"
+          fill="white"
+          className="transition-transform duration-300 group-hover/logo:translate-y-[-0.5px] group-hover/logo:translate-x-[0.5px]"
+        />
 
         {/* Lower arm: mid-stem → bottom-right */}
-        <path d="M14.5 22.5 L31 34 L26 34 L14.5 24.5 Z" fill="white" />
+        <path
+          d="M14.5 22.5 L31 34 L26 34 L14.5 24.5 Z"
+          fill="white"
+          className="transition-transform duration-300 group-hover/logo:translate-y-[0.5px] group-hover/logo:translate-x-[0.5px]"
+        />
 
         {/* Live/bid accent dot — lime green, top-right corner */}
-        {/* Soft glow ring */}
-        <circle cx="34.5" cy="9.5" r="5"   fill="rgba(132,204,22,0.22)" />
+        {/* Soft glow ring with active ping */}
+        <circle
+          cx="34.5" cy="9.5" r="6.5"
+          fill="rgba(132,204,22,0.35)"
+          className="origin-[34.5px_9.5px] animate-ping"
+        />
+        <circle
+          cx="34.5" cy="9.5" r="5"
+          fill="rgba(132,204,22,0.22)"
+        />
         {/* Main dot */}
         <circle cx="34.5" cy="9.5" r="3.5" fill="#84cc16" />
         {/* Specular highlight */}
@@ -87,12 +112,11 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
 
       {/* ── Wordmark ── */}
       {variant !== 'icon' && (
-        <span style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', lineHeight: 1 }}>
+        <span className="flex flex-col justify-center leading-none">
           <span
+            className="font-extrabold tracking-[-0.03em] transition-all duration-300 group-hover/logo:text-[#2563EB] group-hover/logo:translate-x-[1px]"
             style={{
-              fontWeight: 800,
               fontSize: `${wordmarkSize}px`,
-              letterSpacing: '-0.03em',
               color: wordmarkColor,
               lineHeight: 1,
             }}
@@ -101,14 +125,11 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
           </span>
           {showSub && (
             <span
+              className="font-medium tracking-[0.1em] uppercase mt-[3px] transition-all duration-300 group-hover/logo:text-[#3B82F6] group-hover/logo:translate-x-[1.5px]"
               style={{
-                fontWeight: 500,
                 fontSize: `${subSize}px`,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
                 color: subColor,
                 lineHeight: 1,
-                marginTop: '3px',
               }}
             >
               auction
@@ -119,3 +140,4 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
     </span>
   )
 }
+

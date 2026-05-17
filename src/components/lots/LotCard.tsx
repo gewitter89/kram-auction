@@ -98,7 +98,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
       href={`/lot/${lot.id}`}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
-      className="group block bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover hover:-translate-y-1 hover:border-[#2563EB]/20 transition-all duration-300"
+      className="group block bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-card hover:shadow-[0_12px_40px_rgba(37,99,235,0.12),_0_4px_12px_rgba(15,23,42,0.04)] hover:-translate-y-1.5 hover:border-[#2563EB]/40 transition-all duration-300 ease-out"
     >
       {/* Featured Border Gradient */}
       {lot.featured && (
@@ -129,7 +129,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
         {/* Top badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
           {lot.featured && (
-            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md w-fit">
+            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md w-fit animate-pulse">
               🔥 VIP
             </span>
           )}
