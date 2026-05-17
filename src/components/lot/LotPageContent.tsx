@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { BidModal } from '@/components/lot/BidModal'
+import { LotCard } from '@/components/lots/LotCard'
 import Link from 'next/link'
 
 interface LotPageContentProps {
@@ -13,7 +14,7 @@ interface LotPageContentProps {
   similar: any[]
 }
 
-export function LotPageContent({ lot }: LotPageContentProps) {
+export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
   const { data: session } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -687,6 +688,46 @@ export function LotPageContent({ lot }: LotPageContentProps) {
             >
               Скасувати
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* SIMILAR AND TRENDING LISTINGS - Retains and loops users inside the bidding funnel */}
+      {similar && similar.length > 0 && (
+        <div className="mt-12 pt-10 border-t border-[#E2E8F0] mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-[20px] font-bold text-[#0B1220] tracking-tight">Схожі активні аукціони</h2>
+              <p className="text-[12px] text-[#64748B] mt-0.5">Інші учасники також торгуються за ці гарячі лоти</p>
+            </div>
+            <Link href="/catalog" className="text-[13px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 group">
+              Переглянути весь каталог
+              <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {similar.map((s: any) => {
+              let images: string[] = []
+              try { images = JSON.parse(s.images || '[]') } catch {}
+              const transformed = {
+                id: s.id,
+                title: s.title,
+                currentPrice: s.currentPrice,
+                bids: s._count?.bids || 0,
+                endsAt: s.endsAt,
+                city: s.city || 'Україна',
+                seller: s.seller?.name || 'Продавець',
+                sellerRating: s.seller?.rating || 0,
+                image: images[0] || '',
+                condition: s.condition,
+                type: s.type,
+                delivery: s.delivery === 'nova_poshta',
+                verified: s.seller?.verified || false,
+                featured: s.featured || false,
+              }
+              return <LotCard key={s.id} lot={transformed} />
+            })}
           </div>
         </div>
       )}

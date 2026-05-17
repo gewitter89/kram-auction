@@ -60,6 +60,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
   const isEnded = timeLeft === 'Завершено'
   const isEndingSoon = !isEnded && remainingMs !== null && remainingMs < 2 * 3600000
   const isUrgent = !isEnded && remainingMs !== null && remainingMs < 30 * 60000
+  const isHot = lot.bids >= 8 && !isEnded
 
   async function toggleFavorite(e: React.MouseEvent) {
     e.preventDefault()
@@ -131,6 +132,11 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
           {lot.featured && (
             <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md w-fit animate-pulse">
               🔥 VIP
+            </span>
+          )}
+          {isHot && (
+            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-[#EF4444] via-[#F97316] to-[#F59E0B] text-white shadow-md w-fit animate-pulse">
+              🔥 ГАРЯЧИЙ ({lot.bids})
             </span>
           )}
           <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wide backdrop-blur-md shadow-sm ${

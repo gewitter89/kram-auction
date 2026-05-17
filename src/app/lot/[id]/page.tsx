@@ -27,7 +27,10 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
   const similar = await prisma.listing.findMany({
     where: { categoryId: lot.categoryId, id: { not: lot.id }, status: 'active' },
     take: 4,
-    include: { seller: { select: { name: true, rating: true } } }
+    include: { 
+      seller: { select: { name: true, rating: true, verified: true } },
+      _count: { select: { bids: true } }
+    }
   })
 
   return <LotPageContent lot={lot} similar={similar} />
