@@ -1,6 +1,5 @@
 import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
-import { headers } from 'next/headers'
 
 /**
  * Unified helper to get current authenticated user
@@ -8,19 +7,7 @@ import { headers } from 'next/headers'
  */
 export async function getCurrentUser() {
   const session = await auth()
-  let userId = session?.user?.id
-  
-  if (!userId) {
-    try {
-      const headersList = await headers()
-      const bypassId = headersList.get('x-test-stress-bypass')
-      if (bypassId && process.env.NODE_ENV !== 'production') {
-        userId = bypassId
-      }
-    } catch (e) {
-      // Ignore if headers() is called outside request context
-    }
-  }
+  const userId = session?.user?.id
 
   if (!userId) {
     return null
