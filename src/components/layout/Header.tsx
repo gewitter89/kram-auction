@@ -53,14 +53,14 @@ export function Header() {
 
         <form onSubmit={handleSearch} className="flex-1 max-w-[560px] hidden md:block">
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#94A3B8]" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Пошук лотів, брендів, категорій..."
-              className="w-full pl-10 pr-4 h-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/20 focus:bg-white transition-all"
+              className="peer w-full pl-10 pr-4 h-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 focus:bg-white transition-all duration-300"
             />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#94A3B8] peer-focus:text-[#2563EB] peer-focus:scale-110 peer-focus:rotate-12 transition-all duration-300 pointer-events-none" />
             {search && (
               <kbd className="hidden md:inline-flex absolute right-3 top-1/2 -translate-y-1/2 h-6 px-1.5 items-center bg-white border border-[#E2E8F0] rounded text-[10px] font-mono text-[#94A3B8]">↵</kbd>
             )}
@@ -69,20 +69,20 @@ export function Header() {
 
         <Link
           href={session ? '/sell' : '/auth/login?callbackUrl=/sell'}
-          className="hidden md:flex items-center gap-1.5 h-10 px-5 bg-[#2563EB] text-white rounded-xl text-[14px] font-semibold hover:bg-[#1D4ED8] transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#2563EB]/30"
+          className="group hidden md:flex items-center gap-1.5 h-10 px-5 bg-[#2563EB] text-white rounded-xl text-[14px] font-semibold hover:bg-[#1D4ED8] transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#2563EB]/30"
         >
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircle className="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" />
           <span>Продати</span>
         </Link>
 
         {session ? (
           <nav className="hidden md:flex items-center gap-0.5">
-            <Link href="/favorites" className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8FAFC] transition-colors" title="Обране">
-              <Heart className="w-[20px] h-[20px] text-[#64748B]" />
+            <Link href="/favorites" className="group w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8FAFC] transition-colors" title="Обране">
+              <Heart className="w-[20px] h-[20px] text-[#64748B] transition-all duration-300 group-hover:scale-115 group-hover:text-[#EF4444] group-hover:fill-[#EF4444]/15" />
             </Link>
 
-            <Link href="/messages" className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8FAFC] transition-colors" title="Повідомлення">
-              <MessageCircle className="w-[20px] h-[20px] text-[#64748B]" />
+            <Link href="/messages" className="group relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8FAFC] transition-colors" title="Повідомлення">
+              <MessageCircle className="w-[20px] h-[20px] text-[#64748B] transition-all duration-300 group-hover:animate-[messageBounce_0.5s_ease-in-out] group-hover:text-[#2563EB]" />
               {unreadMessages > 0 && (
                 <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-[#2563EB] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
@@ -90,8 +90,8 @@ export function Header() {
               )}
             </Link>
 
-            <Link href="/notifications" className="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8FAFC] transition-colors" title="Сповіщення">
-              <Bell className="w-[20px] h-[20px] text-[#64748B]" />
+            <Link href="/notifications" className="group relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8FAFC] transition-colors" title="Сповіщення">
+              <Bell className="w-[20px] h-[20px] text-[#64748B] origin-top transition-all duration-300 group-hover:animate-[bellWiggle_0.6s_ease-in-out] group-hover:text-[#EF4444]" />
               {unreadNotifs > 0 && (
                 <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-[#EF4444] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-1">
                   {unreadNotifs > 9 ? '9+' : unreadNotifs}
@@ -110,9 +110,9 @@ export function Header() {
         ) : (
           <Link
             href="/auth/login"
-            className="hidden md:flex items-center gap-1.5 h-10 px-4 border border-[#E2E8F0] rounded-xl text-[14px] font-medium text-[#0F172A] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] transition-colors"
+            className="group hidden md:flex items-center gap-1.5 h-10 px-4 border border-[#E2E8F0] rounded-xl text-[14px] font-medium text-[#0F172A] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] transition-colors"
           >
-            <LogIn className="w-4 h-4 text-[#64748B]" />
+            <LogIn className="w-4 h-4 text-[#64748B] transition-transform duration-300 group-hover:translate-x-1" />
             <span>Увійти</span>
           </Link>
         )}
