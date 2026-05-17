@@ -30,94 +30,183 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
   const subSize = Math.max(9, Math.round(size * 0.28))
   const showSub = size >= 34
 
+  const shimmerCss = `
+    @keyframes kramDrawStem {
+      0% {
+        transform: scaleY(0);
+        opacity: 0;
+      }
+      100% {
+        transform: scaleY(1);
+        opacity: 1;
+      }
+    }
+    @keyframes kramDrawArm1 {
+      0% {
+        transform: translate(-10px, -10px) scale(0);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+    }
+    @keyframes kramDrawArm2 {
+      0% {
+        transform: translate(-10px, 10px) scale(0);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+    }
+    @keyframes kramShimmer {
+      0% {
+        background-position: -200% center;
+      }
+      100% {
+        background-position: 200% center;
+      }
+    }
+    @keyframes kramMetallicSweep {
+      0% {
+        transform: translateX(-150%) skewX(-25deg);
+      }
+      100% {
+        transform: translateX(150%) skewX(-25deg);
+      }
+    }
+    .kram-draw-stem {
+      transform-origin: bottom center;
+      animation: kramDrawStem 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .kram-draw-arm1 {
+      transform-origin: 14.5px 22px;
+      animation: kramDrawArm1 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+    }
+    .kram-draw-arm2 {
+      transform-origin: 14.5px 22.5px;
+      animation: kramDrawArm2 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
+    }
+    .kram-shimmer-word {
+      background: linear-gradient(90deg, ${wordmarkColor} 0%, ${wordmarkColor} 30%, #3B82F6 50%, ${wordmarkColor} 70%, ${wordmarkColor} 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.3s ease;
+    }
+    .group\\/logo:hover .kram-shimmer-word {
+      animation: kramShimmer 1.5s linear infinite;
+    }
+    .kram-metallic-sheen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: translateX(-150%) skewX(-25deg);
+    }
+    .group\\/logo:hover .kram-metallic-sheen {
+      animation: kramMetallicSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  `
+
   return (
     <span
       role="img"
       aria-label={ariaLabel ?? 'KRAM'}
-      className="group/logo inline-flex items-center transition-all duration-300 hover:scale-[1.02]"
+      className="group/logo inline-flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer"
       style={{ gap: `${Math.round(size * 0.27)}px` }}
     >
+      <style dangerouslySetInnerHTML={{ __html: shimmerCss }} />
+      
       {/* ── Brand mark: rounded-square badge with K letterform ── */}
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 44 44"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        className="flex-shrink-0 transition-all duration-300 group-hover/logo:shadow-[0_8px_24px_rgba(37,99,235,0.25)] group-hover/logo:scale-[1.05]"
-      >
-        <defs>
-          {/* Deep navy → electric blue gradient — premium fintech look */}
-          <linearGradient id={gradId} x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stopColor="#0f172a" />
-            <stop offset="52%"  stopColor="#1d4ed8" />
-            <stop offset="100%" stopColor="#0ea5e9" />
-          </linearGradient>
-        </defs>
-
-        {/* Badge background */}
-        <rect
-          x="0" y="0" width="44" height="44" rx="11"
-          fill={`url(#${gradId})`}
-          className="transition-all duration-300 group-hover/logo:brightness-110"
-        />
-
-        {/* Inner border — subtle premium depth */}
-        <rect
-          x="0.5" y="0.5" width="43" height="43" rx="10.5"
+      <div className="relative overflow-hidden rounded-[11px] flex-shrink-0" style={{ width: size, height: size }}>
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 44 44"
           fill="none"
-          stroke="rgba(255,255,255,0.1)"
-          strokeWidth="1"
-        />
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          className="transition-all duration-300 group-hover/logo:shadow-[0_8px_24px_rgba(37,99,235,0.25)] group-hover/logo:scale-[1.05]"
+        >
+          <defs>
+            {/* Deep navy → electric blue gradient — premium fintech look */}
+            <linearGradient id={gradId} x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stopColor="#0f172a" />
+              <stop offset="52%"  stopColor="#1d4ed8" />
+              <stop offset="100%" stopColor="#0ea5e9" />
+            </linearGradient>
+          </defs>
 
-        {/* K letterform — white, geometric, filled paths */}
-        {/* Left vertical stem */}
-        <rect
-          x="10" y="10" width="5" height="24" rx="2.5"
-          fill="white"
-          className="transition-transform duration-300 group-hover/logo:translate-x-[0.5px]"
-        />
+          {/* Badge background */}
+          <rect
+            x="0" y="0" width="44" height="44" rx="11"
+            fill={`url(#${gradId})`}
+            className="transition-all duration-300 group-hover/logo:brightness-110"
+          />
 
-        {/* Upper arm: mid-stem → top-right */}
-        <path
-          d="M14.5 22 L31 10 L31 15 L17 22.5 Z"
-          fill="white"
-          className="transition-transform duration-300 group-hover/logo:translate-y-[-0.5px] group-hover/logo:translate-x-[0.5px]"
-        />
+          {/* Inner border — subtle premium depth */}
+          <rect
+            x="0.5" y="0.5" width="43" height="43" rx="10.5"
+            fill="none"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth="1"
+          />
 
-        {/* Lower arm: mid-stem → bottom-right */}
-        <path
-          d="M14.5 22.5 L31 34 L26 34 L14.5 24.5 Z"
-          fill="white"
-          className="transition-transform duration-300 group-hover/logo:translate-y-[0.5px] group-hover/logo:translate-x-[0.5px]"
-        />
+          {/* K letterform — white, geometric, filled paths */}
+          {/* Left vertical stem */}
+          <rect
+            x="10" y="10" width="5" height="24" rx="2.5"
+            fill="white"
+            className="kram-draw-stem transition-transform duration-300 group-hover/logo:translate-x-[0.5px]"
+          />
 
-        {/* Live/bid accent dot — lime green, top-right corner */}
-        {/* Soft glow ring with active ping */}
-        <circle
-          cx="34.5" cy="9.5" r="6.5"
-          fill="rgba(132,204,22,0.35)"
-          className="origin-[34.5px_9.5px] animate-ping"
-        />
-        <circle
-          cx="34.5" cy="9.5" r="5"
-          fill="rgba(132,204,22,0.22)"
-        />
-        {/* Main dot */}
-        <circle cx="34.5" cy="9.5" r="3.5" fill="#84cc16" />
-        {/* Specular highlight */}
-        <circle cx="33.3" cy="8.3" r="1.2" fill="rgba(255,255,255,0.55)" />
-      </svg>
+          {/* Upper arm: mid-stem → top-right */}
+          <path
+            d="M14.5 22 L31 10 L31 15 L17 22.5 Z"
+            fill="white"
+            className="kram-draw-arm1 transition-transform duration-300 group-hover/logo:translate-y-[-0.5px] group-hover/logo:translate-x-[0.5px]"
+          />
+
+          {/* Lower arm: mid-stem → bottom-right */}
+          <path
+            d="M14.5 22.5 L31 34 L26 34 L14.5 24.5 Z"
+            fill="white"
+            className="kram-draw-arm2 transition-transform duration-300 group-hover/logo:translate-y-[0.5px] group-hover/logo:translate-x-[0.5px]"
+          />
+
+          {/* Live/bid accent dot — lime green, top-right corner */}
+          {/* Soft glow ring with active ping */}
+          <circle
+            cx="34.5" cy="9.5" r="6.5"
+            fill="rgba(132,204,22,0.35)"
+            className="origin-[34.5px_9.5px] animate-ping"
+          />
+          <circle
+            cx="34.5" cy="9.5" r="5"
+            fill="rgba(132,204,22,0.22)"
+          />
+          {/* Main dot */}
+          <circle cx="34.5" cy="9.5" r="3.5" fill="#84cc16" />
+          {/* Specular highlight */}
+          <circle cx="33.3" cy="8.3" r="1.2" fill="rgba(255,255,255,0.55)" />
+        </svg>
+        
+        {/* Metallic glossy sheen sweeper reflection overlay */}
+        <div className="kram-metallic-sheen pointer-events-none" />
+      </div>
 
       {/* ── Wordmark ── */}
       {variant !== 'icon' && (
         <span className="flex flex-col justify-center leading-none">
           <span
-            className="font-extrabold tracking-[-0.03em] transition-all duration-300 group-hover/logo:text-[#2563EB] group-hover/logo:translate-x-[1px]"
+            className="kram-shimmer-word font-extrabold tracking-[-0.03em] transition-all duration-300 group-hover/logo:translate-x-[1px]"
             style={{
               fontSize: `${wordmarkSize}px`,
-              color: wordmarkColor,
               lineHeight: 1,
             }}
           >

@@ -22,50 +22,35 @@ import {
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="bg-[#FAFBFD]">
       {/* Beta banner - at the top */}
       <BetaBanner />
 
       {/* Hero with live auction mockup */}
       <HeroSection />
 
-      {/* Launch cards - early access benefits */}
-      <EarlyAccessBanner />
-
-      {/* Live auctions section with empty state */}
+      {/* Live auctions section with active lists */}
       <LiveAuctionsNow />
 
-      {/* How it works - 4 steps */}
+      {/* How it works - simple steps */}
       <HowItWorksSimple />
 
-      {/* Trust and safety */}
+      {/* Trust and safety badges */}
       <TrustSectionUpdated />
 
-      {/* For sellers and buyers */}
-      <ForSellersSection />
-
-      {/* Categories */}
+      {/* Categories grid */}
       <CategoriesSection />
 
-      {/* Telegram CTA */}
-      <TelegramSection />
-
-      {/* AI Assistant teaser */}
-      <AIAssistantTeaser />
-
-      {/* Mobile apps teaser */}
+      {/* PWA 3D smartphone installation section */}
       <MobileAppsTeaser />
 
       {/* FAQ */}
       <FAQSection />
 
-      {/* Email collection - waitlist */}
+      {/* Waitlist and early-access email collection */}
       <EmailCollectionSection />
 
-      {/* Final CTA */}
-      <FinalCTA />
-
-      {/* Footer */}
+      {/* Beautiful dark corporate footer */}
       <Footer />
     </div>
   )

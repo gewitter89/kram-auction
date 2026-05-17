@@ -195,6 +195,7 @@ export async function placeBid(params: {
       type: 'new_bid',
       amount: finalAmount,
       endsAt: finalEndsAt.toISOString(),
+      userId: finalUserId,
       bid: newlyCreatedBid ? {
         id: newlyCreatedBid.id,
         amount: finalAmount,

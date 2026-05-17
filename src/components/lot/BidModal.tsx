@@ -22,10 +22,10 @@ export function BidModal({ lotId, currentPrice, minIncrement, lotTitle, onClose,
   const [error, setError] = useState('')
 
   const quickBids = [
-    { label: `+${minIncrement}`, value: minBid },
-    { label: '+100', value: currentPrice + 100 },
-    { label: '+250', value: currentPrice + 250 },
-    { label: '+500', value: currentPrice + 500 },
+    { label: `+${minIncrement}`, value: currentPrice + minIncrement },
+    { label: `+${minIncrement * 2}`, value: currentPrice + minIncrement * 2 },
+    { label: `+${minIncrement * 5}`, value: currentPrice + minIncrement * 5 },
+    { label: `+${minIncrement * 10}`, value: currentPrice + minIncrement * 10 },
   ]
 
   async function handleSubmit() {
