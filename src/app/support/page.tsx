@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { AlertTriangle, ArrowRight, HelpCircle, LifeBuoy, MessageCircle, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, ArrowRight, HelpCircle, LifeBuoy, MessageCircle, ShieldCheck, Send, Mail, CheckCircle } from 'lucide-react'
+import { SupportForm } from '@/components/support/SupportForm'
 
 export const metadata: Metadata = {
   title: 'Підтримка | KRAM',
@@ -43,29 +44,52 @@ export default function SupportPage() {
             Якщо у вас питання щодо покупки, продажу, доставки, оплати або спору — пишіть у підтримку й додавайте номер угоди/лота, щоб ми швидше перевірили історію подій.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="mailto:support@kram.auction" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[14px] font-bold text-[#0B1220] transition hover:-translate-y-0.5 hover:shadow-premium">
-              support@kram.auction <ArrowRight className="h-4 w-4" />
+            <a 
+              href="https://t.me/kram_support" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-flex items-center gap-2 rounded-full bg-[#229ED9] px-6 py-3 text-[14px] font-bold text-white transition hover:-translate-y-0.5 hover:shadow-premium hover:bg-[#1a8ac7]"
+            >
+              <Send className="h-4 w-4" /> Написати в Telegram (@kram_support)
             </a>
-            <Link href="/cabinet" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-3 text-[14px] font-bold text-white transition hover:bg-white/10">
-              Мій кабінет
-            </Link>
+            <a href="mailto:support@kram.auction" className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-[14px] font-bold text-[#0B1220] transition hover:-translate-y-0.5 hover:shadow-premium">
+              <Mail className="h-4 w-4 text-[#64748B]" /> support@kram.auction
+            </a>
           </div>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {topics.map((topic) => {
-            const Icon = topic.icon
-            return (
-              <Link key={topic.title} href={topic.href} className="group rounded-[1.75rem] border border-[#E2E8F0] bg-white p-6 shadow-card transition hover:-translate-y-0.5 hover:border-[#BFDBFE] hover:shadow-premium">
-                <Icon className="h-7 w-7 text-[#2563EB]" />
-                <h2 className="mt-4 text-[18px] font-black text-[#0B1220]">{topic.title}</h2>
-                <p className="mt-3 text-[14px] leading-relaxed text-[#64748B]">{topic.text}</p>
-                <span className="mt-5 inline-flex items-center gap-2 text-[13px] font-bold text-[#2563EB]">
-                  Детальніше <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-                </span>
-              </Link>
-            )
-          })}
+        {/* Contact/Ticket Form and Topics Grid */}
+        <div className="mt-12 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+          <div className="space-y-6">
+            <div className="rounded-[2rem] border border-[#E2E8F0] bg-white p-8 shadow-card">
+              <h2 className="text-[22px] font-black text-[#0B1220] mb-2">Надіслати запит до підтримки</h2>
+              <p className="text-[14px] text-[#64748B] mb-6">Заповніть форму, і наші менеджери зв'яжуться з вами протягом 15 хвилин.</p>
+              
+              <SupportForm />
+            </div>
+          </div>
+          
+          <div className="space-y-6">
+            <h3 className="text-[14px] font-bold text-[#94A3B8] uppercase tracking-wider">Популярні теми</h3>
+            <div className="grid gap-4">
+              {topics.map((topic) => {
+                const Icon = topic.icon
+                return (
+                  <Link key={topic.title} href={topic.href} className="group rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:border-[#BFDBFE] hover:shadow-sm">
+                    <div className="flex gap-4">
+                      <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-5 w-5 text-[#2563EB]" />
+                      </div>
+                      <div>
+                        <h4 className="text-[15px] font-bold text-[#0B1220] group-hover:text-[#2563EB] transition-colors">{topic.title}</h4>
+                        <p className="mt-1 text-[13px] leading-relaxed text-[#64748B]">{topic.text}</p>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
         </div>
 
         <aside className="mt-10 rounded-[1.75rem] border border-[#FDE68A] bg-[#FFFBEB] p-7">

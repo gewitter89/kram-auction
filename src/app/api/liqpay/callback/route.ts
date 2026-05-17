@@ -41,6 +41,11 @@ export async function POST(request: Request) {
     const isProcessing = payment.status === 'processing' || payment.status === 'wait_accept' || payment.status === 'wait_secure'
     const nextPaymentStatus = isSuccess ? 'COMPLETED' : isProcessing ? 'PROCESSING' : 'FAILED'
 
+    // Double-spend & duplicate callback protection
+    if (paymentRecord.status === 'COMPLETED') {
+      return NextResponse.json({ success: true, alreadyProcessed: true })
+    }
+
     if (paymentRecord.status === nextPaymentStatus && paymentRecord.providerPaymentId === payment.paymentId) {
       return NextResponse.json({ success: true, alreadyProcessed: true })
     }

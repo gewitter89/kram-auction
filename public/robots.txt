@@ -1,0 +1,20 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /catalog
+Allow: /lot/
+Allow: /safety
+Allow: /support
+Allow: /terms
+Allow: /privacy
+
+# Disallow indexing of secure/private dashboards
+Disallow: /cabinet/
+Disallow: /admin/
+Disallow: /checkout/
+Disallow: /api/
+Disallow: /auth/
+
+# Sitemap location
+Sitemap: http://localhost:3002/sitemap.xml
+Sitemap: https://kram-auction.vercel.app/sitemap.xml

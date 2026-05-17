@@ -427,14 +427,21 @@ export function LotPageContent({ lot }: LotPageContentProps) {
       {/* Mobile sticky bottom bar */}
       {!isEnded && !isOwner && (
         <div className="lg:hidden fixed bottom-16 left-0 right-0 z-40 bg-white border-t border-[#E2E8F0] p-3 shadow-premium">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-[#94A3B8]">Ставка</p>
-              <p className="text-[16px] font-bold text-[#0B1220]">{formatPrice(currentPrice)}</p>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-shrink-0 min-w-[90px]">
+              <p className="text-[9px] text-[#94A3B8] leading-none mb-0.5">Поточна ставка</p>
+              <p className="text-[15px] font-bold text-[#0B1220] leading-none">{formatPrice(currentPrice)}</p>
             </div>
-            <button onClick={handleBid} className="flex-1 h-11 bg-[#2563EB] text-white rounded-xl text-[14px] font-bold">
-              Зробити ставку
-            </button>
+            <div className="flex-1 flex gap-2">
+              <button onClick={handleBid} className="flex-1 h-11 bg-[#2563EB] text-white rounded-xl text-[13px] font-bold hover:bg-[#1D4ED8] transition-colors">
+                Ставка
+              </button>
+              {lot.buyNowPrice && (
+                <button onClick={handleBuyNow} className="flex-1 h-11 bg-[#10B981] text-white rounded-xl text-[13px] font-bold hover:bg-[#059669] transition-colors truncate">
+                  Купити
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

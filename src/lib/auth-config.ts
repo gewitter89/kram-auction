@@ -119,7 +119,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token.email) {
         const dbUser = await prisma.user.findUnique({ 
           where: { email: token.email as string },
-          select: { id: true, name: true, email: true, avatar: true, role: true }
+          select: { id: true, name: true, email: true, avatar: true, role: true, verified: true }
         })
         if (dbUser) {
           token.id = dbUser.id
@@ -127,6 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.email = dbUser.email
           token.picture = dbUser.avatar
           token.role = dbUser.role
+          token.verified = dbUser.verified
         }
       }
 
@@ -140,6 +141,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.email = token.email as string
         session.user.image = token.picture as string
         ;(session.user as { role?: string }).role = token.role as string | undefined
+        ;(session.user as { verified?: boolean }).verified = token.verified as boolean | undefined
       }
       return session
     },

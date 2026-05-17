@@ -258,8 +258,8 @@ export function PurchasesTab() {
                           >
                             {processing === tx.id ? 'Обробка...' : '✓ Підтвердити оплату (тест)'}
                           </button>
-                          <p className="mt-1 text-[11px] text-amber-600">
-                            ⚠️ Реальні платежі тимчасово недоступні
+                          <p className="mt-1 text-[11px] text-amber-600 font-medium">
+                            ⚠️ Beta-режим: ручне підтвердження оплати
                           </p>
                         </div>
                       )}
