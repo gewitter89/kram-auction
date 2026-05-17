@@ -1,10 +1,19 @@
 'use client'
 
+import { useEffect } from 'react'
 import { SessionProvider } from '@/components/providers/SessionProvider'
 import { Header } from '@/components/layout/Header'
 import { MobileNav } from '@/components/layout/MobileNav'
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('PWA Service Worker registered:', reg.scope))
+        .catch(err => console.error('PWA Service Worker registration failed:', err))
+    }
+  }, [])
+
   return (
     <SessionProvider>
       <Header />

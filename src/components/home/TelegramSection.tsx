@@ -1,6 +1,6 @@
 'use client'
 
-import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, CreditCard, Lock, Package, Truck, Wallet, MapPin, AlertCircle, UserCheck } from 'lucide-react'
+import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, CreditCard, Lock, Package, Truck, Wallet, MapPin, AlertCircle, UserCheck, Download, Smartphone } from 'lucide-react'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/utils'
 import { useState, useEffect } from 'react'
@@ -635,40 +635,209 @@ export function TrustSectionUpdated() {
 }
 
 export function MobileAppsTeaser() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [isInstallable, setIsInstallable] = useState(false)
+  const [isInstalled, setIsInstalled] = useState(false)
+  const [showIosTip, setShowIosTip] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone) {
+        setIsInstalled(true)
+      }
+
+      const handleBeforeInstall = (e: Event) => {
+        e.preventDefault()
+        setDeferredPrompt(e)
+        setIsInstallable(true)
+      }
+
+      window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+      return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+    }
+  }, [])
+
+  const handleInstallClick = async () => {
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
+    if (isIos) {
+      setShowIosTip(true)
+      setTimeout(() => setShowIosTip(false), 8000)
+      return
+    }
+
+    if (!deferredPrompt) {
+      alert('Будь ласка, натисніть три крапки (меню) у браузері та виберіть "Встановити додаток" або "Додати на домашній екран".')
+      return
+    }
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === 'accepted') {
+      setIsInstalled(true)
+      setIsInstallable(false)
+    }
+    setDeferredPrompt(null)
+  }
+
   return (
-    <section className="py-16 bg-[#0B1220]">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="py-20 bg-[#0B1220] relative overflow-hidden border-t border-white/5">
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{
+        backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`,
+        backgroundSize: '50px 50px'
+      }} />
+
+      <div className="max-w-[1320px] mx-auto px-4 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#2563EB]/15 border border-[#2563EB]/30 rounded-full mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2563EB] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2563EB]"></span>
+              </span>
+              <span className="text-[12px] font-semibold text-[#60a5fa] uppercase tracking-wider">Швидке встановлення</span>
+            </div>
+
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-5 tracking-tight">
               KRAM у вашому смартфоні
             </h2>
-            <p className="text-[#94A3B8] mb-8">
-              Мобільний додаток для iOS та Android дозволить відстежувати лоти,
-              робити ставки та отримувати сповіщення будь-де.
+            <p className="text-[#94A3B8] text-base md:text-lg mb-8 leading-relaxed max-w-lg">
+              Встановіть KRAM як прогресивний застосунок (PWA) безпосередньо з вашого браузера. Це займає менше секунди, не витрачає пам'ять пристрою та дозволяє миттєво відстежувати ставки й отримувати сповіщення.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="h-12 px-6 bg-white/10 rounded-xl flex items-center gap-3 text-white opacity-60">
-                <span className="text-2xl">🍎</span>
-                <span className="font-medium">App Store</span>
-                <span className="text-xs text-white/50">скоро</span>
-              </div>
-              <div className="h-12 px-6 bg-white/10 rounded-xl flex items-center gap-3 text-white opacity-60">
-                <span className="text-2xl">🤖</span>
-                <span className="font-medium">Google Play</span>
-                <span className="text-xs text-white/50">скоро</span>
+
+            <div className="flex flex-col gap-4 max-w-md">
+              {isInstalled ? (
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center gap-3.5 text-emerald-400">
+                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[15px]">Застосунок встановлено!</p>
+                    <p className="text-[12px] text-emerald-400/80">Шукайте іконку KRAM на домашньому екрані смартфона.</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={handleInstallClick}
+                    className="w-full h-14 bg-gradient-to-r from-[#2563EB] to-[#1d4ed8] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white rounded-2xl font-bold text-[15px] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#2563EB]/25"
+                  >
+                    <Download className="w-5 h-5 animate-bounce" />
+                    <span>Встановити додаток KRAM (PWA)</span>
+                  </button>
+
+                  {showIosTip && (
+                    <div className="p-4 bg-[#2563EB]/10 border border-[#2563EB]/20 rounded-xl text-[13px] text-[#60a5fa] leading-relaxed animate-fade-in">
+                      ℹ️ <strong>Для встановлення на iPhone/iPad:</strong> Натисніть кнопку <strong>«Поділитися» (Share)</strong> 📤 внизу екрана Safari, а потім виберіть <strong>«Додати на початковий екран» (Add to Home Screen)</strong> 📱.
+                    </div>
+                  )}
+                </>
+              )}
+
+              <div className="flex flex-wrap items-center gap-3 mt-4 pt-6 border-t border-white/5">
+                <div className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-2.5 text-white/50 text-xs">
+                  <span>🍎</span>
+                  <span className="font-medium">App Store</span>
+                  <span className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/40 uppercase">скоро</span>
+                </div>
+                <div className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-2.5 text-white/50 text-xs">
+                  <span>🤖</span>
+                  <span className="font-medium">Google Play</span>
+                  <span className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/40 uppercase">скоро</span>
+                </div>
               </div>
             </div>
           </div>
-          <div className="relative">
-            <div className="aspect-square bg-gradient-to-br from-[#2563EB]/20 to-[#1d4ed8]/20 rounded-2xl flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-[#2563EB] to-[#1d4ed8] rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <span className="text-4xl">📱</span>
-                </div>
-                <p className="text-white/60 text-sm">Мобільний додаток</p>
-                <p className="text-white font-semibold">У розробці</p>
+
+          <div className="relative flex justify-center items-center">
+            <div className="absolute w-[350px] h-[350px] bg-gradient-to-tr from-[#2563EB]/20 to-[#10B981]/20 rounded-full blur-[80px] pointer-events-none" />
+
+            <div className="relative w-[270px] h-[550px] bg-[#020617] border-[6px] border-[#334155] rounded-[42px] shadow-2xl overflow-hidden ring-8 ring-[#1e293b]/50 select-none transform hover:rotate-2 hover:scale-[1.03] transition-all duration-500">
+              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-4.5 bg-[#090d16] rounded-full z-30 flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-[#020617] border border-white/5 rounded-full ml-auto mr-1.5" />
               </div>
+
+              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-[#1e293b] rounded-full z-30" />
+
+              <div className="w-full h-full p-3 pt-9 pb-4 flex flex-col justify-between bg-gradient-to-b from-[#0F172A] to-[#020617] text-white">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 bg-[#2563EB] rounded-lg flex items-center justify-center font-bold text-[10px] text-white shadow-sm shadow-[#2563EB]/40">K</div>
+                    <span className="text-[10px] font-bold tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">KRAM</span>
+                  </div>
+                  <div className="w-4.5 h-4.5 bg-white/10 rounded-full flex items-center justify-center text-[7px] border border-white/10">
+                    👤
+                  </div>
+                </div>
+
+                <div className="flex-1 py-4 flex flex-col justify-start gap-3 overflow-hidden">
+                  <div className="flex items-center justify-between text-[8px] text-white/40 uppercase tracking-widest font-bold mb-1">
+                    <span>Активні торги</span>
+                    <span className="flex items-center gap-0.5 text-[#EF4444] animate-pulse">
+                      <span className="w-1 h-1 bg-[#EF4444] rounded-full" />
+                      LIVE
+                    </span>
+                  </div>
+
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2.5 transform hover:scale-[1.02] transition-all">
+                    <div className="w-10 h-10 bg-[#1e293b] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-xl shadow-inner">
+                      💻
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[9px] font-bold truncate text-white/90">MacBook Air M2</h4>
+                      <p className="text-[8px] text-white/50">32 200 ₴</p>
+                      <div className="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
+                        <div className="bg-[#10B981] w-[75%] h-full rounded-full animate-pulse" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 border border-white/5 rounded-xl p-2.5 flex items-center gap-2.5 opacity-90">
+                    <div className="w-10 h-10 bg-[#1e293b] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-xl">
+                      📱
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[9px] font-bold truncate text-white/90">iPhone 14 Pro</h4>
+                      <p className="text-[8px] text-white/50">18 500 ₴</p>
+                      <div className="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
+                        <div className="bg-[#2563EB] w-[45%] h-full rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 border border-white/5 rounded-xl p-2.5 flex items-center gap-2.5 opacity-70">
+                    <div className="w-10 h-10 bg-[#1e293b] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-xl">
+                      🎮
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[9px] font-bold truncate text-white/90">PlayStation 5 Slim</h4>
+                      <p className="text-[8px] text-white/50">12 800 ₴</p>
+                      <div className="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
+                        <div className="bg-[#8B5CF6] w-[60%] h-full rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-around border-t border-white/5 pt-2.5 text-[8px] text-white/40">
+                  <div className="flex flex-col items-center gap-0.5 text-[#2563EB]">
+                    <span>🏠</span>
+                    <span className="font-bold">Лоти</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span>❤️</span>
+                    <span>Обране</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span>💬</span>
+                    <span>Чати</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span>💼</span>
+                    <span>Кабінет</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none z-20" />
             </div>
           </div>
         </div>
