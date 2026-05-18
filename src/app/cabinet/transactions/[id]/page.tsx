@@ -185,7 +185,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     )}
                     {tx.status === 'COMPLETED' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#10B981]">
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/15 text-[11px] font-bold flex items-center justify-center">✓</span>
+                        <CheckCircle className="w-5 h-5 text-[#10B981] shrink-0" aria-hidden="true" />
                         <p><strong>Дякуємо за покупку!</strong> Ваша угода захищена KRAM Safe Deal. Ви можете залишити відгук про продавця.</p>
                       </div>
                     )}
@@ -218,7 +218,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     )}
                     {tx.status === 'COMPLETED' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#10B981]">
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/15 text-[11px] font-bold flex items-center justify-center">✓</span>
+                        <CheckCircle className="w-5 h-5 text-[#10B981] shrink-0" aria-hidden="true" />
                         <p><strong>Угоду завершено!</strong> Кошти відправлено на виплату за вашими реквізитами. Дякуємо за продаж!</p>
                       </div>
                     )}

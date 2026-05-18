@@ -283,7 +283,8 @@ export function HowItWorksSimple() {
         {/* Header */}
         <div className="text-center mb-12 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 h-6 px-3 bg-[#E8F5E9] border border-[#10B981]/10 rounded-full text-[10.5px] font-bold text-[#10B981] uppercase tracking-wide mb-3">
-            <ShieldCheck className="w-3.5 h-3.5" /> Безпечний Beta-Процес
+            <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Безпечний Beta-Процес</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-3">
             Як безпечно купувати та продавати
@@ -368,8 +369,9 @@ export function MobileAppsTeaser() {
 
             <div className="space-y-4">
               {isInstalled ? (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-semibold">
-                  ✓ Додаток успішно встановлено на домашній екран!
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-semibold flex items-center gap-2">
+                  <Check className="w-4 h-4" aria-hidden="true" />
+                  Додаток успішно встановлено на домашній екран!
                 </div>
               ) : (
                 <div className="p-4 bg-white/5 border border-white/10 rounded-2xl max-w-md">
@@ -564,7 +566,7 @@ export function EmailCollectionSection() {
 
         {submitted ? (
           <div className="bg-emerald-500/10 border border-emerald-500/25 p-6 rounded-2xl text-center">
-            <span className="text-2xl block mb-2">✓</span>
+            <Check className="w-8 h-8 mx-auto mb-2 text-emerald-400" aria-hidden="true" />
             <h4 className="font-bold text-emerald-400 mb-1">Ви успішно підписались!</h4>
             <p className="text-slate-400 text-xs">Дякуємо за довіру. Ми надішлемо листа лише за важливої нагоди.</p>
           </div>

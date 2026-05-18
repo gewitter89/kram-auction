@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PurchasesTab } from './PurchasesTab'
 import { SalesTab } from './SalesTab'
-import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2 } from 'lucide-react'
+import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle, XCircle } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 interface CabinetContentProps {
@@ -271,7 +271,17 @@ function MyBidsTab() {
                   <h4 className="text-[14px] font-semibold text-[#0F172A] truncate">{bid.listing.title}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={`text-[11px] font-semibold ${bid.isWinning ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
-                      {bid.isWinning ? '✓ Ви лідируєте' : '✗ Ставку перебито'}
+                      {bid.isWinning ? (
+                          <>
+                            <CheckCircle className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                            Ви лідируєте
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
+                            Ставку перебито
+                          </>
+                        )}
                     </span>
                   </div>
                 </div>
@@ -454,7 +464,12 @@ function SettingsTab({ user }: { user: any }) {
         {error && <p className="text-[13px] text-[#EF4444]">{error}</p>}
         <button type="submit" disabled={saving}
           className="h-11 px-6 bg-[#2563EB] text-white rounded-xl text-[14px] font-semibold hover:bg-[#1D4ED8] disabled:opacity-60 transition-all">
-          {saving ? 'Збереження...' : saved ? '✓ Збережено!' : 'Зберегти'}
+          {saving ? 'Збереження...' : saved ? (
+                          <>
+                            <CheckCircle className="w-4 h-4 inline mr-1" aria-hidden="true" />
+                            Збережено!
+                          </>
+                        ) : 'Зберегти'}
         </button>
       </form>
     </>
@@ -579,13 +594,5 @@ function SkeletonList() {
         </div>
       ))}
     </div>
-  )
-}
-
-function CheckCircle(props: any) {
-  return (
-    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
   )
 }

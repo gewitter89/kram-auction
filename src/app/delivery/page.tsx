@@ -66,7 +66,7 @@ export default function DeliveryPage() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EFF6FF] text-[#2563EB]">
                     <Icon className="h-6 w-6" />
                   </div>
-                  <span className="text-[11px] font-black tracking-[0.18em] text-[#CBD5E1]">0{index + 1}</span>
+                  <span className="text-[11px] font-black tracking-[0.18em] text-[#CBD5E1]">{index + 1}</span>
                 </div>
                 <h2 className="text-[17px] font-bold tracking-tight text-[#0B1220]">{step.title}</h2>
                 <p className="mt-3 text-[14px] leading-relaxed text-[#64748B]">{step.text}</p>

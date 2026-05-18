@@ -241,7 +241,12 @@ export function PurchasesTab() {
                         disabled={processing === tx.id}
                         className="h-10 px-5 bg-[#10B981] text-white rounded-xl text-[13px] font-semibold hover:bg-[#059669] disabled:opacity-50 transition-all"
                       >
-                        {processing === tx.id ? 'Надсилання...' : '✓ Підтвердити домовленість'}
+                        {processing === tx.id ? 'Надсилання...' : (
+                          <>
+                            <CheckCircle className="w-4 h-4 inline mr-1" aria-hidden="true" />
+                            Підтвердити домовленість
+                          </>
+                        )}
                       </button>
                       <p className="mt-1 text-[11px] text-[#64748B]">
                         Натисніть після того, як узгодили з продавцем спосіб оплати та доставки.
@@ -255,7 +260,12 @@ export function PurchasesTab() {
                       disabled={processing === tx.id}
                       className="h-10 px-5 bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1D4ED8] disabled:opacity-50 transition-all"
                     >
-                      {processing === tx.id ? 'Обробка...' : '✓ Підтвердити отримання'}
+                      {processing === tx.id ? 'Обробка...' : (
+                          <>
+                            <CheckCircle className="w-4 h-4 inline mr-1" aria-hidden="true" />
+                            Підтвердити отримання
+                          </>
+                        )}
                     </button>
                   )}
                   
