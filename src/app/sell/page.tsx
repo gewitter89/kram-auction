@@ -281,7 +281,18 @@ export default function SellPage() {
   }
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" /></div>
+    return (
+      <div className="max-w-[480px] mx-auto px-4 py-20 text-center">
+        <div className="w-16 h-16 bg-[#EFF6FF] rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <Camera className="w-8 h-8 text-[#2563EB]" />
+        </div>
+        <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
+        <p className="text-[14px] text-[#64748B] mb-6">Завантаження кабінету KRAM... Щоб створити лот, потрібен акаунт.</p>
+        <div className="w-32 h-11 bg-slate-100 rounded-xl mx-auto animate-pulse flex items-center justify-center text-xs font-bold text-slate-400">
+          Завантаження...
+        </div>
+      </div>
+    )
   }
 
   const stepTitles = ['Основна інформація', 'Ціна та умови', 'Перевірка та публікація']

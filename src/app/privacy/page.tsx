@@ -3,7 +3,7 @@ import { Shield, Lock, Eye, Database, Cookie } from 'lucide-react'
 
 export const metadata = {
   title: 'Політика конфіденційності | KRAM',
-  description: 'Політика конфіденційності та обробки даних українського маркетплейсу KRAM',
+  description: 'Політика конфіденційності та обробки даних української beta-платформи KRAM',
 }
 
 export default function PrivacyPage() {
@@ -16,9 +16,9 @@ export default function PrivacyPage() {
             <Shield className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[12px] font-medium text-[#2563EB]">Ваші дані під захистом</span>
           </div>
-          <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Політика конфіденційності</h1>
-          <p className="text-[#64748B]">
-            Останнє оновлення: {new Date().toLocaleDateString('uk-UA')}
+          <h1 className="text-[32px] font-bold text-[#0B1220] mb-2">Політика конфіденційності</h1>
+          <p className="text-[#64748B] text-[13px]">
+            Останнє оновлення: {new Date().toLocaleDateString('uk-UA')} (Beta-режим)
           </p>
         </div>
 
@@ -28,15 +28,15 @@ export default function PrivacyPage() {
               <Lock className="w-5 h-5 text-[#2563EB]" />
               <h2 className="text-[20px] font-bold text-[#0B1220]">1. Які дані ми збираємо</h2>
             </div>
-            <div className="text-[#475569] leading-relaxed space-y-4">
-              <p>Для роботи платформи KRAM ми збираємо наступні дані:</p>
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
+              <p>Для роботи інформаційної платформи KRAM ми збираємо наступні дані:</p>
               <ul className="list-disc pl-5 space-y-2">
-                <li><strong>Облікові дані:</strong> ім'я, email, телефон (при реєстрації)</li>
-                <li><strong>Профіль:</strong> аватар, місто, біографія (за бажанням)</li>
-                <li><strong>Дані угод:</strong> історія покупок, продажів, ставки</li>
-                <li><strong>Доставка:</strong> адреси доставки, номери відділень Нової Пошти</li>
-                <li><strong>Технічні дані:</strong> IP-адреса, User-Agent, cookies</li>
-                <li><strong>Telegram:</strong> chat ID (якщо підключено сповіщення)</li>
+                <li><strong>Облікові дані:</strong> ім'я, email, номер телефону (при реєстрації)</li>
+                <li><strong>Профіль:</strong> аватар, місто, короткий опис (за бажанням)</li>
+                <li><strong>Дані угод:</strong> історія ставок, додані лоти, вибране</li>
+                <li><strong>Доставка:</strong> адреса проживання чи номери відділень поштових операторів</li>
+                <li><strong>Технічні дані:</strong> IP-адреса, тип браузера, cookies сесії</li>
+                <li><strong>Telegram:</strong> chat ID (виключно для сповіщень про ставки за вашою згодою)</li>
               </ul>
             </div>
           </section>
@@ -46,13 +46,12 @@ export default function PrivacyPage() {
               <Eye className="w-5 h-5 text-[#2563EB]" />
               <h2 className="text-[20px] font-bold text-[#0B1220]">2. Як ми використовуємо дані</h2>
             </div>
-            <div className="text-[#475569] leading-relaxed space-y-4">
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
               <ul className="list-disc pl-5 space-y-2">
-                <li>Для створення та управління вашим акаунтом</li>
-                <li>Для обробки угод, платежів та доставки</li>
-                <li>Для надсилання сповіщень про ставки, перемоги, статуси угод</li>
-                <li>Для покращення роботи платформи та аналітики</li>
-                <li>Для запобігання шахрайству та забезпечення безпеки</li>
+                <li>Для створення облікового запису та координації прямого зв'язку</li>
+                <li>Для фіксації ставок та відображення переможця аукціону</li>
+                <li>Для надсилання сповіщень про перебиті ставки або завершення торгів</li>
+                <li>Для безпеки користувачів та оперативного розгляду скарг модераторами</li>
               </ul>
             </div>
           </section>
@@ -62,20 +61,24 @@ export default function PrivacyPage() {
               <Database className="w-5 h-5 text-[#2563EB]" />
               <h2 className="text-[20px] font-bold text-[#0B1220]">3. Зберігання та захист даних</h2>
             </div>
-            <div className="text-[#475569] leading-relaxed space-y-4">
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
               <p>
-                Ваші дані зберігаються на захищених серверах. Ми використовуємо:
+                Ваші реєстраційні дані зберігаються на захищених хмарних серверах. Ми використовуємо:
               </p>
               <ul className="list-disc pl-5 space-y-2">
-                <li>Шифрування паролів (bcrypt)</li>
-                <li>HTTPS для всіх з'єднань</li>
-                <li>Безпечні сесії з обмеженим терміном дії</li>
-                <li>Регулярні резервні копії</li>
+                <li>Сучасне одностороннє шифрування паролів</li>
+                <li>HTTPS протокол шифрування трафіку</li>
+                <li>Регулярне оновлення безпекових сесій</li>
               </ul>
-              <p className="bg-green-50 border-l-4 border-green-400 p-4 mt-4">
-                <strong>Важливо:</strong> Ми не зберігаємо дані платіжних карт. 
-                Всі платежі обробляються через LiqPay безпосередньо на їхньому захищеному сервері.
-              </p>
+              
+              <div className="bg-[#EFF6FF] border-l-4 border-[#2563EB] p-4 rounded-r-xl mt-4">
+                <p className="text-[13px] text-[#1E40AF] leading-relaxed">
+                  <strong>Платіжна безпека:</strong> KRAM не збирає та не зберігає дані платіжних карт. 
+                  У beta-режимі KRAM взагалі не приймає платежі на платформі. Усі угоди оплачуються безпосередньо продавцю 
+                  поза межами сайту (наприклад, післяплата Новою Поштою). Якщо платіжний провайдер буде підключено в майбутньому, 
+                  платіжні дані оброблятимуться виключно на захищеній стороні цього сертифікованого провайдера.
+                </p>
+              </div>
             </div>
           </section>
 
@@ -84,81 +87,26 @@ export default function PrivacyPage() {
               <Cookie className="w-5 h-5 text-[#2563EB]" />
               <h2 className="text-[20px] font-bold text-[#0B1220]">4. Cookies та трекінг</h2>
             </div>
-            <div className="text-[#475569] leading-relaxed space-y-4">
-              <p>Ми використовуємо cookies для:</p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Автентифікації та підтримки сесії</li>
-                <li>Збереження налаштувань користувача</li>
-                <li>Аналітики використання платформи</li>
-              </ul>
-              <p>
-                Ви можете вимкнути cookies в налаштуваннях браузера, але це може обмежити 
-                функціональність платформи.
-              </p>
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
+              <p>Ми використовуємо cookies для збереження сеансу входу та налаштувань інтерфейсу.</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">5. Передача даних третім особам</h2>
-            <div className="text-[#475569] leading-relaxed space-y-4">
-              <p>Ми не продаємо ваші дані. Передача можлива лише:</p>
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
+              <p>Ми не продаємо та не передаємо ваші дані рекламним мережам. Передача можлива лише:</p>
               <ul className="list-disc pl-5 space-y-2">
-                <li><strong>Продавцю/покупцю:</strong> необхідні дані для угоди (контакти, адреса доставки)</li>
-                <li><strong>LiqPay:</strong> для обробки платежів</li>
-                <li><strong>Nova Poshta:</strong> для оформлення доставки</li>
-                <li><strong>За вимогою закону:</strong> при отриманні офіційного запиту</li>
+                <li><strong>Контрагенту:</strong> контакти продавця або покупця стають доступними лише переможцю торгів для прямого узгодження відправки.</li>
+                <li><strong>Вимога закону:</strong> при отриманні офіційного правового запиту відповідно до законодавства України.</li>
               </ul>
             </div>
           </section>
 
           <section>
             <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">6. Ваші права</h2>
-            <div className="text-[#475569] leading-relaxed space-y-4">
-              <p>Ви маєте право:</p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Отримати копію ваших даних</li>
-                <li>Виправити неточності в даних</li>
-                <li>Видалити акаунт та пов'язані дані</li>
-                <li>Відмовитись від маркетингових сповіщень</li>
-                <li>Обмежити обробку даних</li>
-              </ul>
-              <p className="mt-4">
-                Для реалізації прав звертайтесь:{' '}
-                <a href="mailto:privacy@kram.ua" className="text-[#2563EB] hover:underline">
-                  privacy@kram.ua
-                </a>
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">7. Термін зберігання</h2>
-            <div className="text-[#475569] leading-relaxed">
-              <p>
-                Дані зберігаються протягом дії вашого акаунту та 2 роки після його видалення 
-                (для виконання податкових та правових зобов'язань). Деталі угод зберігаються 
-                для захисту прав користувачів при спорах.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">8. Зміни до політики</h2>
-            <div className="text-[#475569] leading-relaxed">
-              <p>
-                Ми можемо оновлювати цю політику. Про значні зміни ми повідомимо через email 
-                або сповіщення на платформі за 30 днів до набуття чинності.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">9. Контакти</h2>
-            <div className="text-[#475569] leading-relaxed">
-              <p>З питань конфіденційності:</p>
-              <p className="mt-2">
-                Email: <a href="mailto:privacy@kram.ua" className="text-[#2563EB] hover:underline">privacy@kram.ua</a>
-              </p>
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
+              <p>Ви маєте повне право переглядати, оновлювати або видаляти свій обліковий запис у будь-який момент через налаштування кабінету або звернувшись до нашої підтримки: <a href="mailto:support@kram.ua" className="text-[#2563EB] hover:underline">support@kram.ua</a>.</p>
             </div>
           </section>
         </div>
