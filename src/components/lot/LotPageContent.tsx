@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X } from 'lucide-react'
+import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X, Info } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { BidModal } from '@/components/lot/BidModal'
 import { LotCard } from '@/components/lots/LotCard'
@@ -362,13 +362,13 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Безпечна угода KRAM</h3>
+                <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Домовленість та безпека</h3>
                 <p className="text-[13px] text-[#475569] leading-relaxed mb-3">
-                  KRAM показує статус оплати, доставки й підтвердження отримання. У beta-режимі підтвердження може бути ручним до production-підключення LiqPay.
+                  KRAM допомагає координувати етапи прямої домовленості (підтвердження, відправлення ТТН та отримання). Платформа не є фінансовим чи логістичним посередником.
                 </p>
                 <div className="flex items-center gap-4 text-[12px] text-[#64748B]">
-                  <div className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-[#10B981]" />Контроль статусів</div>
-                  <div className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-[#2563EB]" />Спір до завершення</div>
+                  <div className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-[#10B981]" />Прозорі статуси</div>
+                  <div className="flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-[#2563EB]" />Післяплата (рекомендовано)</div>
                 </div>
               </div>
             </div>
@@ -638,9 +638,9 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
             </div>
 
             <div className="flex items-start gap-2.5 p-3 bg-[#EFF6FF] border border-[#2563EB]/15 rounded-xl mb-6">
-              <Lock className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
+              <Info className="w-4 h-4 text-[#2563EB] mt-0.5 flex-shrink-0" />
               <p className="text-[11px] text-[#475569] leading-relaxed">
-                <strong>KRAM Secure Escrow:</strong> Кошти будуть зафіксовані в системі та виплачені продавцю тільки після того, як ви заберете та підтвердите посилку на Новій Пошті.
+                <strong>Пряма домовленість:</strong> Після підтвердження лот буде зарезервовано за вами. Оплата та доставка обговорюються з продавцем напряму (рекомендуємо накладений платіж при отриманні).
               </p>
             </div>
 
@@ -663,7 +663,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                     return
                   }
 
-                  setToast('✅ Лот успішно куплено! Переходимо в кабінет...')
+                  setToast('✅ Лот успішно зарезервовано! Переходимо в кабінет...')
                   setShowBuyModal(false)
                   setTimeout(() => {
                     router.push('/cabinet?tab=purchases')
@@ -678,7 +678,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               disabled={buying}
               className="w-full h-12 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl text-[15px] font-bold transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
             >
-              {buying ? 'Оформлення...' : `Оплатити та отримати`}
+              {buying ? 'Оформлення...' : `Підтвердити покупку`}
             </button>
 
             <button

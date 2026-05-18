@@ -37,11 +37,34 @@ export default function AdminLotsPage() {
     setProcessing(null)
   }
 
+  async function handlePurgeFake() {
+    if (!confirm('Ви впевнені, що хочете видалити всі фейкові/тестові лоти? Ця дія є незворотною.')) return
+    setLoading(true)
+    const res = await fetch('/api/admin/lots', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deleteAllFake: true })
+    })
+    if (res.ok) {
+      loadLots()
+    } else {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="max-w-[1320px] mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-[24px] font-bold text-[#0B1220]">Модерація лотів</h1>
-        <p className="text-[14px] text-[#64748B]">Контроль за контентом та видалення порушень</p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-[24px] font-bold text-[#0B1220]">Модерація лотів</h1>
+          <p className="text-[14px] text-[#64748B]">Контроль за контентом та видалення порушень</p>
+        </div>
+        <button
+          onClick={handlePurgeFake}
+          className="h-10 px-5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[13px] font-bold transition-all shadow-md shadow-amber-500/20 hover:scale-[1.02] flex items-center justify-center gap-1.5"
+        >
+          🧹 Видалити всі тестові лоти
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

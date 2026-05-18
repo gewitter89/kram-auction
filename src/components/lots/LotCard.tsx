@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Heart, Clock, MapPin, Star, Truck, ShieldCheck, TrendingUp } from 'lucide-react'
+import { Heart, Clock, MapPin, Star, Truck, ShieldCheck, Gavel } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 
@@ -34,7 +34,6 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
   const [remainingMs, setRemainingMs] = useState<number | null>(null)
   const [isFavorite, setIsFavorite] = useState(initialFavorite)
   const [favLoading, setFavLoading] = useState(false)
-  const [hovering, setHovering] = useState(false)
 
   useEffect(() => {
     const update = () => {
@@ -58,9 +57,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
   }, [lot.endsAt])
 
   const isEnded = timeLeft === 'Завершено'
-  const isEndingSoon = !isEnded && remainingMs !== null && remainingMs < 2 * 3600000
-  const isUrgent = !isEnded && remainingMs !== null && remainingMs < 30 * 60000
-  const isHot = lot.bids >= 8 && !isEnded
+  const isUrgent = !isEnded && remainingMs !== null && remainingMs < 2 * 3600000
 
   async function toggleFavorite(e: React.MouseEvent) {
     e.preventDefault()
@@ -97,137 +94,110 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
   return (
     <Link
       href={`/lot/${lot.id}`}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      className="group block bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-card hover:shadow-[0_12px_40px_rgba(37,99,235,0.12),_0_4px_12px_rgba(15,23,42,0.04)] hover:-translate-y-1.5 hover:border-[#2563EB]/40 transition-all duration-300 ease-out"
+      className="group bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-card hover:border-[#2563EB]/25 hover:shadow-premium transition-all duration-300 flex flex-col h-full relative"
     >
-      {/* Featured Border Gradient */}
-      {lot.featured && (
-        <div className="absolute inset-0 border-[3px] border-[#F59E0B]/50 rounded-2xl pointer-events-none z-10" />
-      )}
-
-      {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9]">
+      {/* Photo Area */}
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 shrink-0 border-b border-slate-100">
         {lot.image ? (
           <img
             src={lot.image}
             alt={lot.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
             loading="lazy"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EFF6FF] via-white to-[#ECFDF5]">
-            <div className="rounded-2xl border border-white/70 bg-white/80 px-4 py-3 text-center shadow-card backdrop-blur">
-              <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#2563EB]">KRAM</p>
-              <p className="text-[13px] font-semibold text-[#0B1220]">Лот без фото</p>
-            </div>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-white p-6">
+            <span className="text-[12px] font-black text-[#2563EB] tracking-widest uppercase">KRAM</span>
+            <span className="text-[11px] text-[#475569] mt-0.5">Демо-лот</span>
           </div>
         )}
 
-        {/* Gradient overlay on bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-24 gradient-card-bottom opacity-60" />
+        {/* Gradient shadow on image */}
+        <div className="absolute inset-x-0 bottom-0 h-16 gradient-card-bottom opacity-40 pointer-events-none" />
 
-        {/* Top badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-20">
-          {lot.featured && (
-            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wide bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-white shadow-md w-fit animate-pulse">
-              🔥 VIP
-            </span>
-          )}
-          {isHot && (
-            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-[#EF4444] via-[#F97316] to-[#F59E0B] text-white shadow-md w-fit animate-pulse">
-              🔥 ГАРЯЧИЙ ({lot.bids})
-            </span>
-          )}
-          <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-[10px] font-bold uppercase tracking-wide backdrop-blur-md shadow-sm ${
-            lot.type === 'auction' ? 'bg-[#0B1220]/85 text-white' :
-            lot.type === 'buy_now' ? 'bg-[#10B981] text-white' :
-            'bg-[#2563EB] text-white'
+        {/* Top Floating Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1 z-20">
+          <span className={`inline-flex items-center h-5 px-2 rounded-md text-[9.5px] font-bold uppercase tracking-wide backdrop-blur-sm ${
+            lot.type === 'auction' ? 'bg-[#0B1220]/90 text-white' : 'bg-[#10B981]/90 text-white'
           }`}>
-            {lot.type === 'auction' ? 'Аукціон' : lot.type === 'buy_now' ? 'Купити' : 'Аукціон+'}
+            {lot.type === 'auction' ? 'Аукціон' : 'Купити'}
           </span>
+          
           {conditionLabel && (
-            <span className="inline-flex items-center h-5 px-2 rounded-full text-[10px] font-semibold bg-white/95 backdrop-blur-md text-[#64748B] shadow-sm w-fit">
+            <span className="inline-flex items-center h-5 px-2 rounded-md text-[9.5px] font-semibold bg-white/95 text-[#475569] shadow-sm w-fit">
               {conditionLabel}
             </span>
           )}
         </div>
 
-        {/* Favorite button */}
+        {/* Favorite Button */}
         <button
           onClick={toggleFavorite}
           disabled={favLoading}
-          className={`absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur-md rounded-full flex items-center justify-center shadow-card transition-all hover:scale-110 ${isFavorite ? 'shadow-glow-green' : ''}`}
+          className="absolute top-3 right-3 w-8 h-8 bg-white/95 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-sm transition-transform hover:scale-105"
           aria-label="Додати в обране"
         >
-          <Heart className={`w-4 h-4 transition-all ${isFavorite ? 'fill-[#EF4444] text-[#EF4444]' : 'text-[#64748B]'}`} />
+          <Heart className={`w-3.5 h-3.5 transition-all ${isFavorite ? 'fill-[#EF4444] text-[#EF4444]' : 'text-[#475569]'}`} />
         </button>
 
-        {/* Bottom badges */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
-          {lot.delivery && (
-            <div className="inline-flex items-center gap-1 h-6 px-2 bg-white/95 backdrop-blur-md rounded-md shadow-sm">
-              <Truck className="w-3 h-3 text-[#10B981]" />
-              <span className="text-[10px] font-semibold text-[#10B981]">Нова Пошта</span>
-            </div>
-          )}
-          {/* Live activity pulse on hover */}
-          {hovering && lot.bids > 0 && !isEnded && (
-            <div className="inline-flex items-center gap-1 h-6 px-2 bg-[#EF4444]/95 text-white rounded-md shadow-sm animate-fade-in">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
-              </span>
-              <span className="text-[10px] font-bold">{lot.bids}</span>
-            </div>
-          )}
-        </div>
+        {/* Delivery indicator */}
+        {lot.delivery && (
+          <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 h-5 px-2 bg-white/95 backdrop-blur-sm rounded-md shadow-sm">
+            <Truck className="w-3 h-3 text-[#10B981]" />
+            <span className="text-[9.5px] font-bold text-[#10B981] uppercase tracking-wide">Нова Пошта</span>
+          </div>
+        )}
       </div>
 
-      {/* Body */}
-      <div className="p-4">
-        <h3 className="text-[14px] font-semibold text-[#0F172A] leading-snug line-clamp-2 mb-3 group-hover:text-[#2563EB] transition-colors min-h-[40px]">
+      {/* Body Content */}
+      <div className="p-4.5 flex flex-col flex-grow">
+        <h3 className="text-[13.5px] font-bold text-[#0B1220] leading-snug line-clamp-2 mb-3.5 group-hover:text-[#2563EB] transition-colors min-h-[38px]">
           {lot.title}
         </h3>
 
-        <div className="flex items-end justify-between mb-3">
+        {/* Price & Bids Row */}
+        <div className="mt-auto pt-3 border-t border-slate-100 flex items-end justify-between mb-3.5">
           <div>
-            <p className="text-[10px] text-[#94A3B8] uppercase tracking-wider font-semibold mb-0.5">
-              Поточна ставка
-            </p>
-            <p className="text-[20px] font-bold text-[#0F172A] tracking-tight">{formatPrice(lot.currentPrice)}</p>
+            <span className="text-[9.5px] text-[#94A3B8] uppercase tracking-wide block mb-0.5">Поточна ставка</span>
+            <span className="text-[18px] font-extrabold text-[#0B1220] tracking-tight">{formatPrice(lot.currentPrice)}</span>
           </div>
-          {!isEnded ? (
-            <div className={`flex items-center gap-1 h-7 px-2.5 rounded-lg font-mono ${
-              isUrgent ? 'bg-[#FEF2F2] text-[#EF4444] animate-urgent' :
-              isEndingSoon ? 'bg-[#FEF2F2] text-[#EF4444]' :
-              'bg-[#F8FAFC] text-[#64748B]'
-            }`}>
-              <Clock className="w-3 h-3" />
-              <span className="text-[12px] font-bold">{timeLeft}</span>
-            </div>
-          ) : (
-            <span className="text-[12px] text-[#94A3B8] font-medium">Завершено</span>
-          )}
+
+          <div>
+            {!isEnded ? (
+              <div className={`flex items-center gap-1 h-6 px-2 rounded-md font-mono text-[11px] font-bold ${
+                isUrgent ? 'bg-[#FEF2F2] text-[#EF4444]' : 'bg-[#FAFBFD] border border-slate-100 text-[#475569]'
+              }`}>
+                <Clock className="w-3 h-3" />
+                <span>{timeLeft}</span>
+              </div>
+            ) : (
+              <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wide">Завершено</span>
+            )}
+          </div>
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-[#F1F5F9]">
-          <div className="flex items-center gap-3 text-[12px] text-[#64748B]">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3 h-3" />{lot.city}
+        {/* Footer Details */}
+        <div className="flex items-center justify-between pt-3 border-t border-slate-50 text-[11.5px] text-[#475569]">
+          <div className="flex items-center gap-2.5">
+            <span className="flex items-center gap-1 shrink-0">
+              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+              {lot.city}
             </span>
-            <span className="flex items-center gap-1">
-              <TrendingUp className="w-3 h-3" />{lot.bids}
+            <span className="flex items-center gap-1 shrink-0">
+              <Gavel className="w-3.5 h-3.5 text-slate-400" />
+              {lot.bids}
             </span>
           </div>
-          <div className="flex items-center gap-1 text-[12px]">
+
+          <div className="flex items-center gap-1" title={lot.verified ? "Верифікований користувач" : undefined}>
             {lot.verified && (
-              <ShieldCheck className="w-3 h-3 text-[#2563EB]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" />
             )}
             <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
-            <span className="text-[#64748B] font-medium">{lot.sellerRating}</span>
+            <span className="font-bold">{lot.sellerRating.toFixed(1)}</span>
           </div>
         </div>
+
       </div>
     </Link>
   )

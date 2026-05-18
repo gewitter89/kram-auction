@@ -8,9 +8,73 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1
     const limit = Number(searchParams.get('limit')) || 20
     
-    // Use prisma directly like stats API does
+    const where: any = { status: 'active' }
+
+    // Text search
+    const search = searchParams.get('search')
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    // Category filter
+    const categorySlug = searchParams.get('category')
+    if (categorySlug && categorySlug !== 'all') {
+      where.category = { slug: categorySlug }
+    }
+
+    // Price range filters
+    const minPrice = searchParams.get('minPrice')
+    const maxPrice = searchParams.get('maxPrice')
+    if (minPrice || maxPrice) {
+      where.currentPrice = {}
+      if (minPrice) where.currentPrice.gte = parseFloat(minPrice)
+      if (maxPrice) where.currentPrice.lte = parseFloat(maxPrice)
+    }
+
+    // City filter
+    const city = searchParams.get('city')
+    if (city) {
+      where.city = { equals: city, mode: 'insensitive' }
+    }
+
+    // Condition filter
+    const condition = searchParams.get('condition')
+    if (condition) {
+      where.condition = condition
+    }
+
+    // Sale type filter
+    const type = searchParams.get('type')
+    if (type) {
+      if (type === 'auction') {
+        where.type = { in: ['auction', 'both'] }
+      } else if (type === 'buy_now') {
+        where.type = { in: ['buy_now', 'both'] }
+      } else if (type === 'both') {
+        where.type = 'both'
+      }
+    }
+
+    // Sorting
+    const sort = searchParams.get('sort') || 'ending'
+    let orderBy: any = { endsAt: 'asc' } // default "ending" (soonest first)
+
+    if (sort === 'new') {
+      orderBy = { createdAt: 'desc' }
+    } else if (sort === 'price-asc') {
+      orderBy = { currentPrice: 'asc' }
+    } else if (sort === 'price-desc') {
+      orderBy = { currentPrice: 'desc' }
+    } else if (sort === 'bids') {
+      orderBy = { bids: { _count: 'desc' } }
+    }
+
+    // Fetch listings
     const lots = await prisma.listing.findMany({
-      where: { status: 'active' },
+      where,
       include: {
         seller: {
           select: {
@@ -24,12 +88,12 @@ export async function GET(request: Request) {
           select: { bids: true }
         }
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       skip: (page - 1) * limit,
       take: limit
     })
     
-    const total = await prisma.listing.count({ where: { status: 'active' } })
+    const total = await prisma.listing.count({ where })
 
     return NextResponse.json({ lots, pagination: { page, limit, total, pages: Math.ceil(total / limit) } })
   } catch (error: any) {

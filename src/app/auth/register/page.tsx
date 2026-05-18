@@ -70,7 +70,7 @@ export default function RegisterPage() {
           Приєднуйтесь до KRAM
         </h2>
         <p className="text-[16px] text-[#94A3B8] leading-relaxed">
-          Створіть акаунт та отримайте доступ до тисяч вигідних пропозицій від перевірених продавців.
+          Створіть акаунт та станьте першим серед продавців чи покупців на чесних торгах в Україні.
         </p>
       </div>
 
@@ -160,7 +160,7 @@ export default function RegisterPage() {
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 w-4 h-4 rounded border-[#E2E8F0] text-[#2563EB] focus:ring-[#2563EB]/20" />
               <span className="text-[13px] text-[#64748B]">
                 Я погоджуюсь з{' '}
-                <Link href="#" className="text-[#2563EB] hover:underline">правилами KRAM</Link>
+                <Link href="/terms" className="text-[#2563EB] hover:underline">правилами KRAM</Link>
               </span>
             </label>
 

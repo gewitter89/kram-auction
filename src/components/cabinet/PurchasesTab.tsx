@@ -7,6 +7,7 @@ import type { LucideIcon } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { LiqPayButton } from '@/components/payments/LiqPayButton'
 import { useLiqPayStatus } from '@/hooks/useLiqPayStatus'
+import { MockPaymentModal } from '@/components/payments/MockPaymentModal'
 
 interface Transaction {
   id: string
@@ -32,32 +33,32 @@ interface Transaction {
 }
 
 const statusLabels: Record<string, { label: string; color: string; icon: LucideIcon }> = {
-  PENDING_PAYMENT: { label: 'Очікує підтвердження оплати', color: 'bg-amber-100 text-amber-700', icon: CreditCard },
-  PAID_HELD: { label: 'Оплату підтверджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
-  SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження покупця', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
+  PENDING_PAYMENT: { label: 'Очікує узгодження умов', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  PAID_HELD: { label: 'Узгоджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
+  SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження отримання', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
   BUYER_RECEIVED: { label: 'Отримано покупцем', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   COMPLETED: { label: 'Угоду завершено', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   DISPUTED: { label: 'Відкрито спір', color: 'bg-red-100 text-red-700', icon: AlertCircle },
   CANCELLED: { label: 'Угоду скасовано', color: 'bg-gray-100 text-gray-700', icon: AlertCircle },
-  REFUNDED: { label: 'Кошти повернено', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
+  REFUNDED: { label: 'Угоду скасовано продавцем', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
 }
 
 function getNextAction(transaction: Transaction): { text: string; action?: string } {
   switch (transaction.status) {
     case 'PENDING_PAYMENT':
-      return { text: 'Підтвердіть оплату, щоб продавець міг відправити товар', action: 'pay' }
+      return { text: 'Узгодьте спосіб оплати та доставки з продавцем у чаті' }
     case 'PAID_HELD':
-      return { text: 'Очікуємо відправлення від продавця' }
+      return { text: 'Очікуємо відправлення лота від продавця' }
     case 'SELLER_SHIPPED':
-      return { text: 'Перевірте посилку та підтвердіть отримання', action: 'receive' }
+      return { text: 'Отримайте та перевірте посилку, після чого підтвердіть отримання' }
     case 'DISPUTED':
-      return { text: 'Спір розглядається командою KRAM' }
+      return { text: 'Виникли розбіжності. Будь ласка, вирішуйте їх у чаті або зверніться до модератора.' }
     case 'COMPLETED':
-      return { text: 'Угоду завершено — дякуємо за покупку!' }
+      return { text: 'Угоду успішно завершено!' }
     case 'CANCELLED':
       return { text: 'Угоду скасовано' }
     case 'REFUNDED':
-      return { text: 'Кошти повернуто' }
+      return { text: 'Угоду скасовано / відхилено продавцем' }
     default:
       return { text: '' }
   }
@@ -67,6 +68,7 @@ export function PurchasesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [activePaymentTx, setActivePaymentTx] = useState<{ id: string; amount: number; title: string } | null>(null)
   const { configured: liqPayConfigured, loading: liqPayLoading } = useLiqPayStatus()
 
   const load = () => {
@@ -233,37 +235,18 @@ export function PurchasesTab() {
                 {/* Actions */}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {tx.status === 'PENDING_PAYMENT' && (
-                    <>
-                      {liqPayLoading ? (
-                        <div className="w-full sm:w-auto">
-                          <div className="h-10 w-32 bg-gray-200 animate-pulse rounded-xl" />
-                        </div>
-                      ) : liqPayConfigured ? (
-                        <div className="w-full sm:w-auto">
-                          <LiqPayButton 
-                            transactionId={tx.id} 
-                            onSuccess={() => load()}
-                            onError={(err) => alert(err)}
-                          />
-                          <p className="mt-1 text-[11px] text-[#94A3B8]">
-                            Оплата через LiqPay (Visa, Mastercard)
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="w-full sm:w-auto">
-                          <button
-                            onClick={() => markPaid(tx.id)}
-                            disabled={processing === tx.id}
-                            className="h-10 px-5 bg-[#10B981] text-white rounded-xl text-[13px] font-semibold hover:bg-[#059669] disabled:opacity-50 transition-all"
-                          >
-                            {processing === tx.id ? 'Обробка...' : '✓ Підтвердити оплату (тест)'}
-                          </button>
-                          <p className="mt-1 text-[11px] text-amber-600 font-medium">
-                            ⚠️ Beta-режим: ручне підтвердження оплати
-                          </p>
-                        </div>
-                      )}
-                    </>
+                    <div className="w-full sm:w-auto">
+                      <button
+                        onClick={() => markPaid(tx.id)}
+                        disabled={processing === tx.id}
+                        className="h-10 px-5 bg-[#10B981] text-white rounded-xl text-[13px] font-semibold hover:bg-[#059669] disabled:opacity-50 transition-all"
+                      >
+                        {processing === tx.id ? 'Надсилання...' : '✓ Підтвердити домовленість'}
+                      </button>
+                      <p className="mt-1 text-[11px] text-[#64748B]">
+                        Натисніть після того, як узгодили з продавцем спосіб оплати та доставки.
+                      </p>
+                    </div>
                   )}
                   
                   {tx.status === 'SELLER_SHIPPED' && (
@@ -313,6 +296,20 @@ export function PurchasesTab() {
           )
         })}
       </div>
+
+      {activePaymentTx && (
+        <MockPaymentModal
+          isOpen={!!activePaymentTx}
+          onClose={() => setActivePaymentTx(null)}
+          onSuccess={() => {
+            const txId = activePaymentTx.id
+            setActivePaymentTx(null)
+            markPaid(txId)
+          }}
+          amount={activePaymentTx.amount}
+          listingTitle={activePaymentTx.title}
+        />
+      )}
     </>
   )
 }

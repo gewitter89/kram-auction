@@ -9,17 +9,10 @@ interface KramLogoProps {
 }
 
 /**
- * KramLogo — K-Badge brand mark + wordmark.
- *
- * variant="full"  → mark + KRAM wordmark, for light backgrounds (#F8FAFC / white)
- * variant="dark"  → mark + KRAM wordmark, for dark backgrounds (#0B1220)
- * variant="icon"  → mark only (standalone badge)
- *
- * size controls the mark width/height in px (default 36).
- * Wordmark scales proportionally.
+ * KramLogo — Signature brand mark + wordmark.
+ * Clean, premium, smooth transitions with zero aggressive loops.
  */
 export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoProps) {
-  // useId ensures unique SVG gradient IDs when multiple logos are on the same page
   const uid = useId().replace(/:/g, '')
   const gradId = `kg-${uid}`
 
@@ -31,45 +24,7 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
   const showSub = size >= 34
 
   const shimmerCss = `
-    @keyframes kramDrawStem {
-      0% {
-        transform: scaleY(0);
-        opacity: 0;
-      }
-      100% {
-        transform: scaleY(1);
-        opacity: 1;
-      }
-    }
-    @keyframes kramDrawArm1 {
-      0% {
-        transform: translate(-10px, -10px) scale(0);
-        opacity: 0;
-      }
-      100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-      }
-    }
-    @keyframes kramDrawArm2 {
-      0% {
-        transform: translate(-10px, 10px) scale(0);
-        opacity: 0;
-      }
-      100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-      }
-    }
-    @keyframes kramShimmer {
-      0% {
-        background-position: -200% center;
-      }
-      100% {
-        background-position: 200% center;
-      }
-    }
-    @keyframes kramMetallicSweep {
+    @keyframes kramHoverSheen {
       0% {
         transform: translateX(-150%) skewX(-25deg);
       }
@@ -77,27 +32,15 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
         transform: translateX(150%) skewX(-25deg);
       }
     }
-    .kram-draw-stem {
-      transform-origin: bottom center;
-      animation: kramDrawStem 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    .kram-draw-arm1 {
-      transform-origin: 14.5px 22px;
-      animation: kramDrawArm1 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-    }
-    .kram-draw-arm2 {
-      transform-origin: 14.5px 22.5px;
-      animation: kramDrawArm2 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards;
-    }
-    .kram-shimmer-word {
-      background: linear-gradient(90deg, ${wordmarkColor} 0%, ${wordmarkColor} 30%, #3B82F6 50%, ${wordmarkColor} 70%, ${wordmarkColor} 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: all 0.3s ease;
-    }
-    .group\\/logo:hover .kram-shimmer-word {
-      animation: kramShimmer 1.5s linear infinite;
+    @keyframes kramPulseLime {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.4;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+      }
     }
     .kram-metallic-sheen {
       position: absolute;
@@ -105,11 +48,15 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
       transform: translateX(-150%) skewX(-25deg);
     }
     .group\\/logo:hover .kram-metallic-sheen {
-      animation: kramMetallicSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: kramHoverSheen 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kram-pulse-ring {
+      transform-origin: 34.5px 9.5px;
+      animation: kramPulseLime 2s ease-in-out infinite;
     }
   `
 
@@ -117,7 +64,7 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
     <span
       role="img"
       aria-label={ariaLabel ?? 'KRAM'}
-      className="group/logo inline-flex items-center transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+      className="group/logo inline-flex items-center transition-all duration-300 hover:scale-[1.015] cursor-pointer"
       style={{ gap: `${Math.round(size * 0.27)}px` }}
     >
       <style dangerouslySetInnerHTML={{ __html: shimmerCss }} />
@@ -131,10 +78,10 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
-          className="transition-all duration-300 group-hover/logo:shadow-[0_8px_24px_rgba(37,99,235,0.25)] group-hover/logo:scale-[1.05]"
+          className="transition-all duration-300 group-hover/logo:shadow-[0_8px_24px_rgba(37,99,235,0.2)] group-hover/logo:scale-[1.03]"
         >
           <defs>
-            {/* Deep navy → electric blue gradient — premium fintech look */}
+            {/* Deep navy → royal blue → electric sky blue gradient */}
             <linearGradient id={gradId} x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
               <stop offset="0%"   stopColor="#0f172a" />
               <stop offset="52%"  stopColor="#1d4ed8" />
@@ -146,14 +93,14 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
           <rect
             x="0" y="0" width="44" height="44" rx="11"
             fill={`url(#${gradId})`}
-            className="transition-all duration-300 group-hover/logo:brightness-110"
+            className="transition-all duration-300 group-hover/logo:brightness-105"
           />
 
           {/* Inner border — subtle premium depth */}
           <rect
             x="0.5" y="0.5" width="43" height="43" rx="10.5"
             fill="none"
-            stroke="rgba(255,255,255,0.1)"
+            stroke="rgba(255,255,255,0.12)"
             strokeWidth="1"
           />
 
@@ -162,38 +109,37 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
           <rect
             x="10" y="10" width="5" height="24" rx="2.5"
             fill="white"
-            className="kram-draw-stem transition-transform duration-300 group-hover/logo:translate-x-[0.5px]"
+            className="transition-transform duration-500 group-hover/logo:translate-x-[0.5px]"
           />
 
           {/* Upper arm: mid-stem → top-right */}
           <path
             d="M14.5 22 L31 10 L31 15 L17 22.5 Z"
             fill="white"
-            className="kram-draw-arm1 transition-transform duration-300 group-hover/logo:translate-y-[-0.5px] group-hover/logo:translate-x-[0.5px]"
+            className="transition-transform duration-500 group-hover/logo:translate-y-[-0.2px] group-hover/logo:translate-x-[0.3px]"
           />
 
           {/* Lower arm: mid-stem → bottom-right */}
           <path
             d="M14.5 22.5 L31 34 L26 34 L14.5 24.5 Z"
             fill="white"
-            className="kram-draw-arm2 transition-transform duration-300 group-hover/logo:translate-y-[0.5px] group-hover/logo:translate-x-[0.5px]"
+            className="transition-transform duration-500 group-hover/logo:translate-y-[0.2px] group-hover/logo:translate-x-[0.3px]"
           />
 
           {/* Live/bid accent dot — lime green, top-right corner */}
-          {/* Soft glow ring with active ping */}
           <circle
             cx="34.5" cy="9.5" r="6.5"
             fill="rgba(132,204,22,0.35)"
-            className="origin-[34.5px_9.5px] animate-ping"
+            className="kram-pulse-ring"
           />
           <circle
             cx="34.5" cy="9.5" r="5"
-            fill="rgba(132,204,22,0.22)"
+            fill="rgba(132,204,22,0.2)"
           />
           {/* Main dot */}
           <circle cx="34.5" cy="9.5" r="3.5" fill="#84cc16" />
           {/* Specular highlight */}
-          <circle cx="33.3" cy="8.3" r="1.2" fill="rgba(255,255,255,0.55)" />
+          <circle cx="33.3" cy="8.3" r="1.2" fill="rgba(255,255,255,0.6)" />
         </svg>
         
         {/* Metallic glossy sheen sweeper reflection overlay */}
@@ -202,31 +148,17 @@ export function KramLogo({ variant = 'full', size = 36, ariaLabel }: KramLogoPro
 
       {/* ── Wordmark ── */}
       {variant !== 'icon' && (
-        <span className="flex flex-col justify-center leading-none">
-          <span
-            className="kram-shimmer-word font-extrabold tracking-[-0.03em] transition-all duration-300 group-hover/logo:translate-x-[1px]"
-            style={{
-              fontSize: `${wordmarkSize}px`,
-              lineHeight: 1,
-            }}
-          >
-            KRAM
-          </span>
-          {showSub && (
-            <span
-              className="font-medium tracking-[0.1em] uppercase mt-[3px] transition-all duration-300 group-hover/logo:text-[#3B82F6] group-hover/logo:translate-x-[1.5px]"
-              style={{
-                fontSize: `${subSize}px`,
-                color: subColor,
-                lineHeight: 1,
-              }}
-            >
-              auction
-            </span>
-          )}
+        <span
+          className="font-extrabold tracking-[-0.03em] transition-all duration-300 group-hover/logo:text-[#2563EB]"
+          style={{
+            fontSize: `${wordmarkSize}px`,
+            color: wordmarkColor,
+            lineHeight: 1,
+          }}
+        >
+          KRAM
         </span>
       )}
     </span>
   )
 }
-

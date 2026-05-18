@@ -1,9 +1,9 @@
 import { Footer } from '@/components/layout/Footer'
-import { ShieldCheck, AlertTriangle, Phone, MessageCircle, CheckCircle, XCircle, Truck, CreditCard } from 'lucide-react'
+import { ShieldCheck, AlertTriangle, MessageCircle, XCircle, Truck, Info, Phone } from 'lucide-react'
 
 export const metadata = {
   title: 'Безпека на KRAM | KRAM',
-  description: 'Правила безпечних угод на українському маркетплейсі KRAM',
+  description: 'Поради та правила безпечних прямих угод на українській beta-платформі KRAM',
 }
 
 export default function SafetyPage() {
@@ -12,43 +12,43 @@ export default function SafetyPage() {
       <div className="max-w-[800px] mx-auto px-6 py-16">
         {/* Header */}
         <div className="mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#DCFCE7] border border-[#10B981]/20 rounded-full mb-4">
-            <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-            <span className="text-[12px] font-medium text-[#10B981]">Ваша безпека — наш пріоритет</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full mb-4">
+            <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
+            <span className="text-[12px] font-medium text-[#2563EB]">Ваша безпека — наш пріоритет</span>
           </div>
-          <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Безпечні угоди на KRAM</h1>
-          <p className="text-[#64748B]">
-            Як захистити себе при купівлі та продажу онлайн
+          <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Посібник з безпечних угод KRAM</h1>
+          <p className="text-[#64748B] text-lg">
+            Як захистити себе та здійснити успішну домовленість напряму
           </p>
         </div>
 
         {/* Safety Principles */}
         <div className="grid md:grid-cols-3 gap-4 mb-12">
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
-            <div className="w-12 h-12 bg-[#DBEAFE] rounded-xl flex items-center justify-center mb-4">
-              <CreditCard className="w-6 h-6 text-[#2563EB]" />
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 hover:shadow-card transition-all">
+            <div className="w-12 h-12 bg-[#EFF6FF] rounded-xl flex items-center justify-center mb-4">
+              <Info className="w-6 h-6 text-[#2563EB]" />
             </div>
-            <h3 className="font-bold text-[#0B1220] mb-2">Оплата через платформу</h3>
-            <p className="text-[14px] text-[#64748B]">
-              Ніколи не переводьте гроші "напряму" продавцю. Використовуйте систему KRAM.
+            <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">Прямі розрахунки</h3>
+            <p className="text-[13px] text-[#64748B] leading-relaxed">
+              KRAM не приймає оплату та не зберігає кошти. Розрахунки здійснюються безпосередньо між сторонами.
             </p>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
-            <div className="w-12 h-12 bg-[#DCFCE7] rounded-xl flex items-center justify-center mb-4">
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 hover:shadow-card transition-all">
+            <div className="w-12 h-12 bg-[#ECFDF5] rounded-xl flex items-center justify-center mb-4">
               <Truck className="w-6 h-6 text-[#10B981]" />
             </div>
-            <h3 className="font-bold text-[#0B1220] mb-2">Перевіряйте трекінг</h3>
-            <p className="text-[14px] text-[#64748B]">
-              Відстежуйте посилку на сайті Нової Пошти за номером ТТН.
+            <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">Тільки післяплата</h3>
+            <p className="text-[13px] text-[#64748B] leading-relaxed">
+              Наполегливо рекомендуємо оплату при отриманні на пошті (після огляду лота у відділенні).
             </p>
           </div>
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
-            <div className="w-12 h-12 bg-[#FEF3C7] rounded-xl flex items-center justify-center mb-4">
-              <MessageCircle className="w-6 h-6 text-[#D97706]" />
+          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 hover:shadow-card transition-all">
+            <div className="w-12 h-12 bg-[#FFF7ED] rounded-xl flex items-center justify-center mb-4">
+              <MessageCircle className="w-6 h-6 text-[#F97316]" />
             </div>
-            <h3 className="font-bold text-[#0B1220] mb-2">Спілкуйтесь на платформі</h3>
-            <p className="text-[14px] text-[#64748B]">
-              Не переходьте в Telegram/Viber для обговорення угоди.
+            <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">Чат на платформі</h3>
+            <p className="text-[13px] text-[#64748B] leading-relaxed">
+              Спілкуйтесь та узгоджуйте деталі у чаті KRAM для збереження історії переписки.
             </p>
           </div>
         </div>
@@ -60,27 +60,23 @@ export default function SafetyPage() {
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h3 className="font-bold text-red-900 mb-3">Ознаки шахрайства — бути обережним!</h3>
-              <ul className="space-y-2 text-red-800 text-[15px]">
+              <h3 className="font-bold text-red-900 mb-3 text-[15px]">Ознаки підозрілих пропозицій — будьте обережні!</h3>
+              <ul className="space-y-2 text-red-800 text-[14px]">
                 <li className="flex items-start gap-2">
-                  <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>Продавець просить оплату "на картку", "на телефон", "через друга"</span>
+                  <XCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
+                  <span>Вимагання повної передоплати на картку до відправлення товару.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>Ціна значно нижча за ринкову (підозріло дешевий iPhone, MacBook)</span>
+                  <XCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
+                  <span>Продавець наполегливо просить перейти у Telegram або Viber для обговорення.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>Продавець поспішає, тисне "тільки сьогодні", "останній товар"</span>
+                  <XCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
+                  <span>Відмова надіслати посилку Новою Поштою з післяплатою (накладеним платежем).</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>Просить перейти в Telegram/Viber "для зручності"</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <XCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                  <span>Відмовляється від доставки Новою Поштою з післяплатою</span>
+                  <XCircle className="w-4 h-4 mt-0.5 shrink-0 text-red-600" />
+                  <span>Покупець пропонує сплатити за лот через сумнівні посилання або сторонні платіжні форми.</span>
                 </li>
               </ul>
             </div>
@@ -89,54 +85,51 @@ export default function SafetyPage() {
 
         <div className="space-y-10">
           <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Як працює безпечна угода</h2>
+            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Як правильно здійснити пряму угоду</h2>
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
               <ol className="space-y-6">
                 <li className="flex gap-4">
-                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0">1</div>
+                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">1</div>
                   <div>
-                    <h4 className="font-bold text-[#0B1220] mb-1">Покупець оплачує або підтверджує оплату</h4>
-                    <p className="text-[#64748B] text-[14px]">
-                      Покупець натискає "Купити" або "Підтвердити оплату" в кабінеті. 
-                      У разі LiqPay — оплачує через платіжну систему.
+                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Оформлення запиту</h4>
+                    <p className="text-[#64748B] text-[13px] leading-relaxed">
+                      Вигравши аукціон, покупець створює запит на домовленість і вказує реквізити Нової Пошти для доставки.
                     </p>
                   </div>
                 </li>
                 <li className="flex gap-4">
-                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0">2</div>
+                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">2</div>
                   <div>
-                    <h4 className="font-bold text-[#0B1220] mb-1">Статус змінюється на "Оплачено"</h4>
-                    <p className="text-[#64748B] text-[14px]">
-                      Продавець бачить, що оплату підтверджено, і готує товар до відправлення.
+                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Зв’язок та узгодження в чаті</h4>
+                    <p className="text-[#64748B] text-[13px] leading-relaxed">
+                      Сторони списуються у безпечному чаті KRAM, підтверджують параметри лота й погоджують відправку післяплатою.
                     </p>
                   </div>
                 </li>
                 <li className="flex gap-4">
-                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0">3</div>
+                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">3</div>
                   <div>
-                    <h4 className="font-bold text-[#0B1220] mb-1">Продавець додає ТТН Нової Пошти</h4>
-                    <p className="text-[#64748B] text-[14px]">
-                      Продавець відправляє товар та додає номер накладної в систему KRAM.
+                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Відправка продавцем</h4>
+                    <p className="text-[#64748B] text-[13px] leading-relaxed">
+                      Продавець надсилає лот обраним перевізником і додає номер ТТН у чаті або у деталях угоди.
                     </p>
                   </div>
                 </li>
                 <li className="flex gap-4">
-                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0">4</div>
+                  <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">4</div>
                   <div>
-                    <h4 className="font-bold text-[#0B1220] mb-1">Покупець отримує та перевіряє</h4>
-                    <p className="text-[#64748B] text-[14px]">
-                      На відділенні Нової Пошти покупець перевіряє товар перед оплатою 
-                      (післяплата) або при отриманні (предоплата).
+                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Огляд посилки та оплата</h4>
+                    <p className="text-[#64748B] text-[13px] leading-relaxed">
+                      Покупець оглядає товар у відділенні пошти, переконується у відповідності опису та оплачує накладений платіж.
                     </p>
                   </div>
                 </li>
                 <li className="flex gap-4">
-                  <div className="w-8 h-8 bg-[#10B981] text-white rounded-full flex items-center justify-center font-bold shrink-0">5</div>
+                  <div className="w-8 h-8 bg-[#10B981] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">5</div>
                   <div>
-                    <h4 className="font-bold text-[#0B1220] mb-1">Підтвердження отримання</h4>
-                    <p className="text-[#64748B] text-[14px]">
-                      Якщо все гаразд — покупець натискає "Підтвердити отримання". 
-                      Угода завершена!
+                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Угода виконана</h4>
+                    <p className="text-[#64748B] text-[13px] leading-relaxed">
+                      Покупець позначає угоду як завершену у своєму кабінеті, підтверджуючи успішне отримання товару.
                     </p>
                   </div>
                 </li>
@@ -145,56 +138,33 @@ export default function SafetyPage() {
           </section>
 
           <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Що робити, якщо щось пішло не так</h2>
-            <div className="text-[#475569] leading-relaxed space-y-4">
-              <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
-                <h4 className="font-bold text-amber-900 mb-2">Товар не відповідає опису</h4>
-                <p className="text-amber-800">
-                  Не підтверджуйте отримання! Відкрийте спір у кабінеті, опишіть проблему, 
-                  додайте фото. Адміністрація розгляне спір та прийме рішення.
+            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Що робити, якщо виникли проблеми</h2>
+            <div className="text-[#475569] leading-relaxed space-y-4 text-[14px]">
+              <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl">
+                <h4 className="font-bold text-amber-900 mb-1">Товар не відповідає опису або пошкоджений</h4>
+                <p className="text-amber-800 leading-relaxed">
+                  Не забирайте посилку та відмовтесь від отримання безпосередньо у відділенні перевізника. Повідомте продавця про проблему у чаті KRAM.
                 </p>
               </div>
-              <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
-                <h4 className="font-bold text-amber-900 mb-2">Продавець не відправляє товар</h4>
-                <p className="text-amber-800">
-                  Якщо продавець не додав ТТН протягом 3 днів після оплати — відкривайте спір. 
-                  Для угод з післяплатою це не актуально (товар уже на відділенні).
-                </p>
-              </div>
-              <div className="bg-amber-50 border-l-4 border-amber-400 p-4">
-                <h4 className="font-bold text-amber-900 mb-2">Покупець не забирає товар</h4>
-                <p className="text-amber-800">
-                  Новая Пошта зберігає посилку 5 днів безкоштовно, потім — платно. 
-                  Якщо покупець не забирає 14 днів — товар повертається продавцю.
+              <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl">
+                <h4 className="font-bold text-amber-900 mb-1">Користувач не виходить на зв'язок або порушує правила</h4>
+                <p className="text-amber-800 leading-relaxed">
+                  Будь ласка, зверніться до нашої служби модерації. Надішліть скаргу на лот або напишіть нашому модератору з додаванням доказів недобросовісної поведінки.
                 </p>
               </div>
             </div>
           </section>
 
           <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Перевірка продавця</h2>
-            <div className="text-[#475569] leading-relaxed space-y-4">
-              <p>Перед покупкою перевірте профіль продавця:</p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li><strong>Verified бейдж</strong> — продавець пройшов верифікацію</li>
-                <li><strong>Рейтинг</strong> — середня оцінка від покупців</li>
-                <li><strong>Кількість продажів</strong> — скільки успішних угод</li>
-                <li><strong>Відгуки</strong> — читайте детальні відгуки інших покупців</li>
-                <li><strong>Дата реєстрації</strong> — нові акаунти ризикованіші</li>
-              </ul>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Контакти підтримки</h2>
+            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Контакти модератора</h2>
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#DBEAFE] rounded-xl flex items-center justify-center">
-                  <Phone className="w-6 h-6 text-[#2563EB]" />
+                <div className="w-12 h-12 bg-[#EFF6FF] rounded-xl flex items-center justify-center text-[#2563EB]">
+                  <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <p className="text-[#64748B] text-[14px]">Щоденна підтримка</p>
-                  <a href="mailto:support@kram.ua" className="text-[#2563EB] font-bold hover:underline">
+                  <p className="text-[#64748B] text-[13px]">Служба модерації KRAM</p>
+                  <a href="mailto:support@kram.ua" className="text-[#2563EB] font-bold hover:underline text-[15px]">
                     support@kram.ua
                   </a>
                 </div>

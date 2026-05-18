@@ -43,6 +43,7 @@ export default function FavoritesPage() {
       type: lot.type,
       delivery: lot.delivery === 'nova_poshta',
       verified: lot.seller?.verified || false,
+      featured: lot.featured || false,
     }
   }
 

@@ -2,264 +2,198 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShieldCheck, TrendingUp, Users, Truck } from 'lucide-react'
+import { ShieldCheck, TrendingUp, Truck, Clock, Info, CheckCircle } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
 
-const liveCards = [
+const demoLots = [
   {
-    title: 'MacBook Air M2 256GB',
-    price: 32000,
-    image: 'https://placehold.co/400x300/F1F5F9/2563EB?text=MacBook+M2',
-    bidders: 45,
-    seller: 'MacTrader',
-    verified: true,
-    timeLeft: 8639, // seconds
-    recentBid: '+200₴',
-    rotate: -3,
-    offset: 0,
-    z: 30,
+    title: 'Apple MacBook Air M2 8/256GB Space Gray',
+    currentPrice: 32500,
+    bidsCount: 14,
+    timeLeft: '02:45:10',
+    category: 'Електроніка',
+    image: 'https://placehold.co/400x300/EFF6FF/2563EB?text=MacBook+Air',
+    seller: 'Олександр К. (м. Київ)',
   },
   {
-    title: 'iPhone 14 Pro Deep Purple',
-    price: 18500,
-    image: 'https://placehold.co/400x300/F1F5F9/0B1220?text=iPhone+14',
-    bidders: 32,
-    seller: 'AppleZone',
-    verified: true,
-    timeLeft: 18000,
-    recentBid: '+500₴',
-    rotate: 2,
-    offset: 24,
-    z: 20,
-  },
-  {
-    title: 'PlayStation 5',
-    price: 12800,
-    image: 'https://placehold.co/400x300/F1F5F9/10B981?text=PS5',
-    bidders: 24,
-    seller: 'GameHub',
-    verified: false,
-    timeLeft: 3600,
-    recentBid: '+100₴',
-    rotate: -2,
-    offset: 48,
-    z: 10,
-  },
+    title: 'Sony PlayStation 5 Slim 1TB White',
+    currentPrice: 16800,
+    bidsCount: 9,
+    timeLeft: '06:12:45',
+    category: 'Ігрові консолі',
+    image: 'https://placehold.co/400x300/F0FDF4/10B981?text=PlayStation+5',
+    seller: 'Дмитро В. (м. Львів)',
+  }
 ]
 
 export function HeroSection() {
-  const [activeCard, setActiveCard] = useState(0)
-  const [bidPulse, setBidPulse] = useState<number | null>(null)
   const [activeLots, setActiveLots] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/stats').then(r => r.json()).then(d => setActiveLots(d.activeLots ?? 0))
-  }, [])
-
-  useEffect(() => {
-    const i = setInterval(() => {
-      setActiveCard(prev => (prev + 1) % 3)
-      setBidPulse(Math.floor(Math.random() * 3))
-      setTimeout(() => setBidPulse(null), 1200)
-    }, 3500)
-    return () => clearInterval(i)
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(d => setActiveLots(d.activeLots ?? 0))
+      .catch(() => {})
   }, [])
 
   return (
-    <section className="relative bg-white overflow-hidden border-b border-[#E2E8F0]">
-      {/* Background mesh */}
-      <div className="absolute inset-0 gradient-mesh pointer-events-none" />
+    <section className="relative bg-[#FAFBFD] overflow-hidden border-b border-[#E2E8F0] py-16 lg:py-24">
+      {/* Background Mesh */}
+      <div className="absolute inset-0 gradient-mesh pointer-events-none opacity-60" />
 
-      {/* Subtle grid */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
-        backgroundImage: `linear-gradient(#0B1220 1px, transparent 1px), linear-gradient(90deg, #0B1220 1px, transparent 1px)`,
-        backgroundSize: '60px 60px'
-      }} />
-
-      <div className="relative max-w-[1320px] mx-auto px-4 py-16 md:py-24">
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
-          {/* LEFT */}
-          <div>
-            {/* Live badge */}
-            <div className="inline-flex items-center gap-2 h-8 px-3 bg-[#ECFDF5] border border-[#10B981]/20 rounded-full mb-6">
+      <div className="relative max-w-[1320px] mx-auto px-4">
+        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-16 items-center">
+          
+          {/* LEFT: Core pitch */}
+          <div className="flex flex-col text-center lg:text-left">
+            {/* Live Indicator */}
+            <div className="inline-flex items-center gap-2 h-8 px-3.5 bg-white border border-[#E2E8F0] rounded-full w-fit mx-auto lg:mx-0 mb-6 shadow-sm">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
               </span>
-              <span className="text-[12px] font-semibold text-[#047857]">
-                {activeLots === null ? '...' : activeLots > 0 ? `${activeLots.toLocaleString('uk-UA')} активних лотів` : 'Перший запуск — будьте першим!'}
+              <span className="text-[12px] font-bold text-[#475569]">
+                {activeLots === null ? 'Завантаження...' : activeLots > 0 ? `${activeLots} активних лотів` : 'Beta-режим активовано'}
               </span>
             </div>
 
-            <h1 className="text-[36px] md:text-[52px] font-bold text-[#0B1220] leading-[1.05] tracking-[-0.03em] mb-5">
-              KRAM — український<br/>
-              <span className="gradient-text-animated">маркетплейс безпечних угод</span>
+            {/* Title */}
+            <h1 className="text-[34px] sm:text-[44px] lg:text-[52px] font-extrabold text-[#0B1220] leading-[1.1] tracking-[-0.03em] mb-6">
+              KRAM — чесні онлайн-торги для товарів в Україні
             </h1>
 
-            <p className="text-[16px] md:text-[18px] text-[#64748B] leading-relaxed mb-8 max-w-[520px]">
-              Купуйте, продавайте й торгуйтесь з підтвердженням оплати, доставкою та статусами угоди.
+            {/* Subheadline */}
+            <p className="text-[15.5px] sm:text-[16.5px] text-[#475569] leading-relaxed mb-8 max-w-[560px] mx-auto lg:mx-0">
+              Створюйте лоти, робіть ставки та знаходьте покупців у beta-режимі. KRAM не приймає оплату через платформу — сторони домовляються напряму.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-wrap gap-3 mb-10">
-              <Link href="/catalog"
-                className="h-12 px-7 inline-flex items-center bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#2563EB]/30">
-                Переглянути лоти
+            {/* Actions */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start mb-8">
+              <Link
+                href="/catalog"
+                className="h-12 px-7 bg-[#2563EB] text-white rounded-xl text-[14.5px] font-bold hover:bg-[#1D4ED8] transition-all flex items-center justify-center gap-2 shadow-md shadow-[#2563EB]/15 hover:shadow-lg hover:shadow-[#2563EB]/25"
+              >
+                Переглянути каталог
               </Link>
-              <Link href="/sell"
-                className="h-12 px-7 inline-flex items-center bg-white text-[#0B1220] border border-[#E2E8F0] rounded-xl text-[15px] font-semibold hover:bg-[#F8FAFC] hover:border-[#CBD5E1] transition-all">
+              <Link
+                href="/sell"
+                className="h-12 px-7 bg-white text-[#0B1220] border border-[#E2E8F0] rounded-xl text-[14.5px] font-bold hover:bg-[#F8FAFC] hover:border-[#CBD5E1] transition-all flex items-center justify-center gap-2"
+              >
                 Створити лот
               </Link>
+              <a
+                href={process.env.NEXT_PUBLIC_TELEGRAM_URL || 'https://t.me/kram_auction'}
+                target="_blank"
+                rel="noreferrer"
+                className="h-12 px-7 bg-[#EFF6FF] text-[#2563EB] rounded-xl text-[14.5px] font-bold hover:bg-[#DBEAFE] transition-all flex items-center justify-center gap-2"
+              >
+                Наш Telegram
+              </a>
             </div>
 
-            {/* Trust badges */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-[#64748B]">
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-                <span>Безпечна угода</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-[#2563EB]" />
-                <span>Перевірені продавці</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-[#F59E0B]" />
-                <span>Нова Пошта</span>
-              </div>
+            {/* Trust Chips Grid */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 max-w-[560px]">
+              <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-white border border-[#E2E8F0] rounded-full text-[11px] font-semibold text-[#475569] shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                Beta-запуск
+              </span>
+              <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[11px] font-semibold text-[#2563EB]">
+                <CheckCircle className="w-3.5 h-3.5" />
+                0% комісії
+              </span>
+              <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#E8F5E9] border border-[#10B981]/10 rounded-full text-[11px] font-semibold text-[#10B981]">
+                <TrendingUp className="w-3.5 h-3.5" />
+                Telegram-сповіщення
+              </span>
+              <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-white border border-[#E2E8F0] rounded-full text-[11px] font-semibold text-[#475569] shadow-sm">
+                <Truck className="w-3.5 h-3.5 text-[#94A3B8]" />
+                Доставка за домовленістю
+              </span>
+              <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#FEF2F2] border border-[#EF4444]/10 rounded-full text-[11px] font-semibold text-[#EF4444]">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Без прийому оплат через KRAM
+              </span>
             </div>
           </div>
 
-          {/* RIGHT - Live Auction Cards */}
-          <div className="hidden lg:block relative h-[480px]">
-            {/* Cyber Glow Backdrop Element */}
-            <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] h-[360px] bg-gradient-to-tr from-[#2563EB]/15 via-[#10B981]/10 to-[#0ea5e9]/15 rounded-full blur-[70px] animate-pulse pointer-events-none z-0" />
+          {/* RIGHT: Stacked Preview Mockups */}
+          <div className="relative flex flex-col gap-5 justify-center">
+            {/* Visual Header */}
+            <div className="flex items-center justify-between px-2">
+              <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider flex items-center gap-1">
+                <Info className="w-3 h-3" /> Приклад торгів
+              </span>
+              <span className="text-[10px] text-[#94A3B8]">
+                Так виглядатимуть лоти після запуску
+              </span>
+            </div>
 
-            {liveCards.map((card, i) => {
-              const isActive = activeCard === i
-              const isPulsing = bidPulse === i
-              return (
+            {/* Stacked cards grid */}
+            <div className="space-y-4">
+              {demoLots.map((lot, idx) => (
                 <div
-                  key={i}
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-[340px] transition-all duration-700"
-                  style={{
-                    transform: `translate(-50%, ${card.offset + (isActive ? -8 : 0)}px) rotate(${isActive ? 0 : card.rotate}deg) scale(${isActive ? 1 : 0.94})`,
-                    zIndex: isActive ? 40 : card.z,
-                    opacity: isActive ? 1 : 0.85,
-                  }}
+                  key={idx}
+                  className="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-card hover:border-[#2563EB]/25 hover:shadow-premium transition-all duration-300 relative overflow-hidden"
                 >
-                  <div className={`bg-white border border-[#E2E8F0] rounded-2xl p-4 ${isActive ? 'shadow-premium' : 'shadow-card'} transition-shadow`}>
-                    {/* Live indicator */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EF4444]"></span>
+                  {/* Left Sheen */}
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#2563EB]/40" />
+
+                  <div className="flex gap-4">
+                    {/* Thumbnail */}
+                    <div className="w-[100px] h-[75px] rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100">
+                      <img src={lot.image} alt="" className="w-full h-full object-cover" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wide bg-[#F1F5F9] text-[#64748B] px-2 py-0.5 rounded-full shrink-0">
+                          {lot.category}
                         </span>
-                        <span className="text-[10px] font-bold text-[#EF4444] uppercase tracking-wide">LIVE</span>
-                      </div>
-                      {card.verified && (
-                        <div className="flex items-center gap-1 px-1.5 py-0.5 bg-[#EFF6FF] rounded-full">
-                          <ShieldCheck className="w-2.5 h-2.5 text-[#2563EB]" />
-                          <span className="text-[10px] font-semibold text-[#2563EB]">Перевірений</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Image */}
-                    <div className="aspect-[16/10] bg-[#F1F5F9] rounded-xl overflow-hidden mb-3 relative">
-                      <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-x-0 bottom-0 h-16 gradient-card-bottom" />
-                      <div className="absolute bottom-2 left-2 inline-flex items-center gap-1 h-5 px-2 bg-white/95 backdrop-blur-sm rounded-md">
-                        <Truck className="w-2.5 h-2.5 text-[#10B981]" />
-                        <span className="text-[10px] font-medium text-[#10B981]">Нова Пошта</span>
-                      </div>
-                      {/* Bid pulse */}
-                      {isPulsing && (
-                        <div className="absolute top-2 right-2 px-2 py-1 bg-[#10B981] text-white rounded-md text-[10px] font-bold animate-fade-in">
-                          {card.recentBid}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-[14px] font-semibold text-[#0F172A] mb-2 truncate">{card.title}</h3>
-
-                    {/* Price + Timer */}
-                    <div className="flex items-end justify-between mb-3">
-                      <div>
-                        <p className="text-[10px] text-[#94A3B8] mb-0.5">Поточна ставка</p>
-                        <p className="text-[20px] font-bold text-[#0F172A]">
-                          {card.price.toLocaleString('uk-UA')} ₴
-                        </p>
-                      </div>
-                      <CountdownDisplay seconds={card.timeLeft} />
-                    </div>
-
-                    {/* Bottom info */}
-                    <div className="flex items-center justify-between pt-2 border-t border-[#F1F5F9]">
-                      <div className="flex items-center gap-1.5 text-[11px] text-[#64748B]">
-                        <span className="flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" /> {card.bidders} ставок
+                        <span className="text-[10px] font-bold text-[#EF4444] bg-[#FEF2F2] px-2 py-0.5 rounded-full uppercase tracking-wide">
+                          Демо-лот
                         </span>
                       </div>
-                      <span className="text-[11px] text-[#64748B]">@{card.seller}</span>
+                      
+                      <h4 className="text-[13.5px] font-bold text-[#0B1220] truncate mb-2">
+                        {lot.title}
+                      </h4>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <div>
+                          <span className="text-[9px] text-[#94A3B8] block uppercase tracking-wide">Поточна ціна</span>
+                          <span className="text-[15px] font-extrabold text-[#0B1220]">{formatPrice(lot.currentPrice)}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-right">
+                          <div className="bg-[#FAFBFD] border border-slate-100 px-2 py-0.5 rounded-lg">
+                            <span className="text-[9px] text-[#94A3B8] block uppercase tracking-wide text-center">Ставки</span>
+                            <span className="text-[11px] font-bold text-[#2563EB] block text-center">{lot.bidsCount}</span>
+                          </div>
+                          <div className="bg-[#FEF2F2] border border-[#EF4444]/10 px-2 py-0.5 rounded-lg text-[#EF4444]">
+                            <span className="text-[9px] block uppercase tracking-wide text-center">Час</span>
+                            <span className="text-[11px] font-bold font-mono block flex items-center gap-1">
+                              <Clock className="w-2.5 h-2.5" /> {lot.timeLeft}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              )
-            })}
-
-            {/* Floating activity ticker */}
-            <div className="absolute -bottom-4 left-0 right-0 flex justify-center">
-              <ActivityTicker />
+              ))}
+            </div>
+            
+            {/* Live activity feed card demo */}
+            <div className="bg-white border border-[#E2E8F0] p-3 rounded-xl shadow-sm flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
+              <p className="text-[12px] text-[#475569] leading-none">
+                <span className="font-bold text-[#0B1220]">Дмитро В.</span> щойно запропонував <span className="font-bold text-[#2563EB]">{formatPrice(16800)}</span> за PS5 Slim
+              </p>
             </div>
           </div>
+
         </div>
       </div>
     </section>
-  )
-}
-
-function CountdownDisplay({ seconds }: { seconds: number }) {
-  const [s, setS] = useState(seconds)
-  useEffect(() => {
-    const i = setInterval(() => setS(prev => Math.max(0, prev - 1)), 1000)
-    return () => clearInterval(i)
-  }, [])
-  const h = Math.floor(s / 3600)
-  const m = Math.floor((s % 3600) / 60)
-  const sec = s % 60
-  const isUrgent = s < 3600
-  return (
-    <div className={`px-2 py-1 rounded-md ${isUrgent ? 'bg-[#FEF2F2] text-[#EF4444]' : 'bg-[#F8FAFC] text-[#64748B]'}`}>
-      <p className="text-[10px] font-medium opacity-70">Залишилось</p>
-      <p className="text-[12px] font-bold font-mono">
-        {String(h).padStart(2, '0')}:{String(m).padStart(2, '0')}:{String(sec).padStart(2, '0')}
-      </p>
-    </div>
-  )
-}
-
-function ActivityTicker() {
-  const activities = [
-    'user***73 поставив ставку на MacBook',
-    'tech***02 виграв аукціон',
-    'buyer***45 додав в обране',
-    'pro***88 створив лот Canon EOS',
-  ]
-  const [i, setI] = useState(0)
-  useEffect(() => {
-    const t = setInterval(() => setI(prev => (prev + 1) % activities.length), 2500)
-    return () => clearInterval(t)
-  }, [])
-  return (
-    <div className="bg-white border border-[#E2E8F0] rounded-full pl-2 pr-4 py-1.5 shadow-premium flex items-center gap-2 max-w-[280px] animate-float">
-      <span className="flex-shrink-0 w-6 h-6 bg-[#10B981] rounded-full flex items-center justify-center">
-        <TrendingUp className="w-3 h-3 text-white" />
-      </span>
-      <span className="text-[11px] text-[#64748B] truncate animate-fade-in" key={i}>
-        {activities[i]}
-      </span>
-      <span className="flex-shrink-0 text-[10px] text-[#94A3B8]">щойно</span>
-    </div>
   )
 }

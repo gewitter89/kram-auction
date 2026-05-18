@@ -1,117 +1,49 @@
 'use client'
 
-import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, CreditCard, Lock, Package, Truck, Wallet, MapPin, AlertCircle, UserCheck, Download, Smartphone } from 'lucide-react'
-import Link from 'next/link'
-import { formatPrice } from '@/lib/utils'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, Smartphone, AlertTriangle, Check, HelpCircle, Star, MessageSquare } from 'lucide-react'
+import { formatPrice } from '@/lib/utils'
 
+// ────────────────────────────────────────────────────────
+// 1. TELEGRAM PROMO BANNER
+// ────────────────────────────────────────────────────────
 export function TelegramSection() {
-  const telegramUrl = process.env.NEXT_PUBLIC_TELEGRAM_URL || '#telegram-coming-soon'
+  const telegramUrl = process.env.NEXT_PUBLIC_TELEGRAM_URL || 'https://t.me/kram_auction'
 
   return (
-    <section className="py-16 bg-gradient-to-br from-[#0B1220] via-[#1e293b] to-[#0f172a]">
+    <section className="py-12 bg-gradient-to-br from-[#0B1220] via-[#111827] to-[#0B1220] text-white border-b border-slate-800">
       <div className="max-w-[1320px] mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-          {/* Left content */}
           <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#229ED9]/20 rounded-full mb-4">
-              <Send className="w-4 h-4 text-[#229ED9]" />
-              <span className="text-sm font-medium text-[#229ED9]">Telegram</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#229ED9]/10 border border-[#229ED9]/25 rounded-full mb-3">
+              <Send className="w-3.5 h-3.5 text-[#229ED9]" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#229ED9]">Telegram Канал</span>
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-              KRAM у Telegram
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-2">
+              KRAM у вашому месенджері
             </h2>
-            <p className="text-[#94A3B8] max-w-md">
-              Не пропустіть нові лоти, перебиті ставки та фінальні хвилини аукціону.
-              Отримуйте сповіщення про топ-лоти прямо у вашому месенджері.
+            <p className="text-slate-400 text-[14px] max-w-md mx-auto lg:mx-0 leading-relaxed">
+              Підписуйтесь на сповіщення про свіжі лоти, поточні ставки та останні хвилини торгів. Завжди будьте в курсі активності.
             </p>
           </div>
 
-          {/* Right CTA */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto shrink-0">
             <a
               href={telegramUrl}
-              className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-[#229ED9] text-white rounded-xl font-semibold hover:bg-[#1a8ac7] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#229ED9]/30"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 h-11 px-6 bg-[#229ED9] hover:bg-[#1f8fc4] text-white rounded-xl text-[13.5px] font-bold transition-all hover:-translate-y-0.5"
             >
-              <Send className="w-5 h-5" />
-              Підписатися на Telegram
+              <Send className="w-4 h-4" />
+              Підписатися в Telegram
             </a>
-            <a
+            <Link
               href="/catalog"
-              className="inline-flex items-center justify-center gap-2 h-12 px-8 bg-white/10 text-white border border-white/20 rounded-xl font-semibold hover:bg-white/20 transition-all"
+              className="inline-flex items-center justify-center h-11 px-6 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-xl text-[13.5px] font-bold transition-all"
             >
-              Отримувати топ-лоти дня
-            </a>
-          </div>
-        </div>
-
-        {/* Trust badges */}
-        <div className="mt-10 pt-8 border-t border-white/10 flex flex-wrap justify-center lg:justify-start gap-6 text-sm text-[#64748B]">
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#10B981] rounded-full animate-pulse" />
-            Нові лоти щодня
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#F59E0B] rounded-full" />
-            Сповіщення про перебиті ставки
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-[#EF4444] rounded-full" />
-            Фінальні 5 хвилин аукціону
-          </span>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export function EarlyAccessBanner() {
-  return (
-    <section className="py-12 bg-gradient-to-r from-[#ECFDF5] via-[#D1FAE5] to-[#ECFDF5]">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-6">
-          {/* Card 1 */}
-          <div className="flex items-center gap-4 p-4 bg-white/60 rounded-xl">
-            <div className="w-12 h-12 bg-[#10B981] rounded-lg flex items-center justify-center text-white font-bold text-xl">
-              0%
-            </div>
-            <div>
-              <p className="font-semibold text-[#0B1220]">Комісія для перших</p>
-              <p className="text-sm text-[#64748B]">Перші продавці без комісії</p>
-            </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className="flex items-center gap-4 p-4 bg-white/60 rounded-xl">
-            <div className="w-12 h-12 bg-[#2563EB] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">UA</span>
-            </div>
-            <div>
-              <p className="font-semibold text-[#0B1220]">Український запуск</p>
-              <p className="text-sm text-[#64748B]">Для продавців з України</p>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="flex items-center gap-4 p-4 bg-white/60 rounded-xl">
-            <div className="w-12 h-12 bg-[#F59E0B] rounded-lg flex items-center justify-center">
-              <span className="text-white text-xl">⚡</span>
-            </div>
-            <div>
-              <p className="font-semibold text-[#0B1220]">Ранній доступ</p>
-              <p className="text-sm text-[#64748B]">До нових категорій</p>
-            </div>
-          </div>
-
-          {/* Card 4 */}
-          <div className="flex items-center gap-4 p-4 bg-white/60 rounded-xl">
-            <div className="w-12 h-12 bg-[#229ED9] rounded-lg flex items-center justify-center">
-              <Send className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-semibold text-[#0B1220]">Telegram</p>
-              <p className="text-sm text-[#64748B]">Сповіщення про лоти</p>
-            </div>
+              Переглянути топ-лоти дня
+            </Link>
           </div>
         </div>
       </div>
@@ -119,215 +51,14 @@ export function EarlyAccessBanner() {
   )
 }
 
-export function AIAssistantTeaser() {
-  return (
-    <section className="py-16 bg-[#F8FAFC]">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="bg-gradient-to-br from-[#0B1220] to-[#1e293b] rounded-2xl p-8 md:p-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#8B5CF6]/20 rounded-full mb-6">
-            <span className="text-sm font-medium text-[#A78BFA]">🤖 AI Помічник</span>
-          </div>
-
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            AI-помічник для продавця
-          </h2>
-
-          <p className="text-[#94A3B8] max-w-2xl mx-auto mb-8">
-            Скоро KRAM допоможе автоматично підготувати назву, опис, категорію
-            та стартову ціну лота за фото товару.
-          </p>
-
-          <button className="inline-flex items-center gap-2 h-12 px-8 bg-[#8B5CF6] text-white rounded-xl font-semibold hover:bg-[#7c3aed] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#8B5CF6]/30">
-            Хочу спробувати першим
-          </button>
-
-          <p className="mt-6 text-sm text-[#64748B]">
-            Запуск AI-функцій планується у 2026 році
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export function ForSellersSection() {
-  return (
-    <section className="py-16 bg-white">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* For Sellers */}
-          <div>
-            <span className="inline-block px-4 py-2 bg-[#10B981]/10 text-[#10B981] rounded-full text-sm font-medium mb-6">
-              Для продавців
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0B1220] mb-4">
-              Не продавайте навмання — дозвольте покупцям чесно сформувати ціну
-            </h2>
-            <p className="text-[#64748B] mb-8">
-              Аукціонний формат допомагає отримати справедливу ринкову ціну
-              через чесну конкуренцію покупців.
-            </p>
-            <ul className="space-y-4">
-              {[
-                'Стартуйте з мінімальної ціни',
-                'Отримуйте ставки в реальному часі',
-                'Продавайте швидше через аукціонний інтерес',
-                'Отримуйте Telegram-сповіщення про нові ставки',
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className="w-6 h-6 bg-[#10B981]/10 rounded-full flex items-center justify-center">
-                    <span className="w-2 h-2 bg-[#10B981] rounded-full" />
-                  </span>
-                  <span className="text-[#334155]">{item}</span>
-                </li>
-              ))}
-            </ul>
-            <a
-              href="/sell"
-              className="inline-flex items-center gap-2 h-12 px-8 bg-[#10B981] text-white rounded-xl font-semibold mt-8 hover:bg-[#059669] transition-all hover:-translate-y-0.5"
-            >
-              Створити лот
-            </a>
-          </div>
-
-          {/* For Buyers */}
-          <div>
-            <span className="inline-block px-4 py-2 bg-[#2563EB]/10 text-[#2563EB] rounded-full text-sm font-medium mb-6">
-              Для покупців
-            </span>
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0B1220] mb-4">
-              Не переплачуйте — торгуйтесь за реальну ціну
-            </h2>
-            <p className="text-[#64748B] mb-8">
-              Контролюйте процес покупки та встановлюйте свою максимальну ціну.
-              Система автоматично підніматиме ставку до вашого ліміту.
-            </p>
-            <ul className="space-y-4">
-              {[
-                'Бачите історію ставок',
-                'Контролюєте максимальну ставку',
-                'Отримуєте сповіщення, якщо вас перебили',
-                'Купуєте через зрозумілий процес',
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <span className="w-6 h-6 bg-[#2563EB]/10 rounded-full flex items-center justify-center">
-                    <span className="w-2 h-2 bg-[#2563EB] rounded-full" />
-                  </span>
-                  <span className="text-[#334155]">{item}</span>
-                </li>
-              ))}
-            </ul>
-            <a
-              href="/catalog"
-              className="inline-flex items-center gap-2 h-12 px-8 bg-[#2563EB] text-white rounded-xl font-semibold mt-8 hover:bg-[#1d4ed8] transition-all hover:-translate-y-0.5"
-            >
-              Переглянути лоти
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-export function HowItWorksSimple() {
-  const steps = [
-    {
-      icon: '�',
-      title: 'Покупець купує або виграє лот',
-      desc: 'Зробіть ставку на аукціоні або купіть за фіксованою ціною.',
-      color: 'from-[#2563EB] to-[#1d4ed8]',
-    },
-    {
-      icon: '�',
-      title: 'Оплата підтверджується в системі',
-      desc: 'Покупець підтверджує оплату — у beta статус може перевірятись вручну.',
-      color: 'from-[#10B981] to-[#059669]',
-    },
-    {
-      icon: '�',
-      title: 'Продавець додає номер відправлення',
-      desc: 'Seller вказує ТТН Нової Пошти — трекінг доступний обом.',
-      color: 'from-[#F59E0B] to-[#D97706]',
-    },
-    {
-      icon: '✅',
-      title: 'Покупець підтверджує отримання',
-      desc: 'Buyer отримує товар і закриває угоду — статус "Завершено".',
-      color: 'from-[#8B5CF6] to-[#7c3aed]',
-    },
-  ]
-
-  return (
-    <section className="py-16 bg-[#F8FAFC]">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#10B981]/10 rounded-full mb-4">
-            <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-            <span className="text-sm font-semibold text-[#10B981]">Безпечна угода KRAM</span>
-          </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-[#0B1220] mb-4">
-            Прозорий процес від покупки до отримання
-          </h2>
-          <p className="text-[#64748B] max-w-2xl mx-auto">
-            Покупець підтверджує оплату, продавець відправляє товар, а статус угоди видно на кожному кроці.
-          </p>
-        </div>
-
-        {/* Timeline for desktop */}
-        <div className="hidden md:block relative">
-          {/* Connecting line */}
-          <div className="absolute top-[60px] left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-[#2563EB] via-[#10B981] to-[#8B5CF6]" />
-          
-          <div className="grid grid-cols-4 gap-6 relative">
-            {steps.map((step, i) => (
-              <div key={i} className="text-center">
-                <div className={`w-16 h-16 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg relative z-10`}>
-                  {step.icon}
-                </div>
-                <div className="text-xs font-bold text-[#2563EB] mb-2 uppercase tracking-wide">
-                  Крок {i + 1}
-                </div>
-                <h3 className="text-[15px] font-bold text-[#0B1220] mb-2">{step.title}</h3>
-                <p className="text-[13px] text-[#64748B] leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Cards for mobile */}
-        <div className="md:hidden grid gap-4">
-          {steps.map((step, i) => (
-            <div key={i} className="bg-white rounded-2xl p-5 border border-[#E2E8F0] flex items-start gap-4">
-              <div className={`w-12 h-12 bg-gradient-to-br ${step.color} rounded-xl flex items-center justify-center text-xl flex-shrink-0`}>
-                {step.icon}
-              </div>
-              <div>
-                <div className="text-xs font-bold text-[#2563EB] mb-1">Крок {i + 1}</div>
-                <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">{step.title}</h3>
-                <p className="text-[13px] text-[#64748B]">{step.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* MVP disclaimer */}
-        <div className="mt-10 text-center">
-          <p className="text-[12px] text-[#94A3B8] max-w-xl mx-auto">
-            MVP: підтвердження оплати вручну через кабінет. Реальні платежі будуть підключені окремо наступним етапом.
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
+// ────────────────────────────────────────────────────────
+// 2. LIVE AUCTIONS SECTION
+// ────────────────────────────────────────────────────────
 interface Lot {
   id: string
   title: string
   images: string
   currentPrice: number
-  buyNowPrice: number | null
   endsAt: string
   seller: {
     id: string
@@ -343,7 +74,7 @@ export function LiveAuctionsNow() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/lots?limit=6&status=active')
+    fetch('/api/lots?limit=3&status=active')
       .then(r => r.json())
       .then(data => {
         setLots(data.lots || [])
@@ -355,35 +86,41 @@ export function LiveAuctionsNow() {
   const hasLots = lots.length > 0
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-[#FAFBFD] border-b border-[#E2E8F0]">
       <div className="max-w-[1320px] mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
+        
+        {/* Section Header */}
+        <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-[#0B1220] mb-2">
+            <div className="inline-flex items-center gap-1.5 h-6 px-2.5 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[10.5px] font-bold text-[#2563EB] uppercase tracking-wide mb-3">
+              🔥 Beta-Каталог
+            </div>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-2">
               {hasLots ? 'Живі торги зараз' : 'Перші лоти очікують продавців'}
             </h2>
-            <p className="text-[#64748B]">
+            <p className="text-[#475569] text-[14px]">
               {hasLots 
-                ? `${lots.length} активних лотів з реальними ставками` 
-                : 'Станьте першим продавцем та отримайте 0% комісії'}
+                ? 'Чесні торги та прозора історія пропозицій в реальному часі.' 
+                : 'Станьте першим продавцем на KRAM без комісії та посередників.'}
             </p>
           </div>
           <Link
             href="/catalog"
-            className="hidden md:inline-flex items-center gap-2 h-10 px-5 bg-[#2563EB] text-white rounded-lg font-medium hover:bg-[#1d4ed8] transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 h-10 px-4 bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0B1220] rounded-xl text-[13px] font-bold transition-colors"
           >
-            Всі лоти
+            Усі лоти
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
+        {/* Loading Shell */}
         {loading ? (
           <div className="grid md:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="bg-[#F8FAFC] rounded-2xl p-4 animate-pulse">
-                <div className="aspect-[16/10] bg-[#E2E8F0] rounded-xl mb-4" />
-                <div className="h-4 bg-[#E2E8F0] rounded w-3/4 mb-2" />
-                <div className="h-6 bg-[#E2E8F0] rounded w-1/2" />
+              <div key={i} className="bg-white border border-[#E2E8F0] rounded-2xl p-4 shadow-card animate-pulse">
+                <div className="aspect-[4/3] bg-slate-100 rounded-xl mb-4" />
+                <div className="h-4 bg-slate-100 rounded w-3/4 mb-3" />
+                <div className="h-6 bg-slate-100 rounded w-1/3" />
               </div>
             ))}
           </div>
@@ -392,64 +129,84 @@ export function LiveAuctionsNow() {
             {lots.map(lot => {
               let images: string[] = []
               try { images = JSON.parse(lot.images || '[]') } catch {}
-              const timeLeft = new Date(lot.endsAt).getTime() - Date.now()
-              const hoursLeft = Math.max(0, Math.floor(timeLeft / (1000 * 60 * 60)))
-              const isUrgent = hoursLeft < 24
+              const end = new Date(lot.endsAt).getTime()
+              const diff = end - Date.now()
+              const hours = Math.max(0, Math.floor(diff / (1000 * 60 * 60)))
+              const isUrgent = diff > 0 && diff < 2 * 3600000
 
               return (
                 <Link
                   key={lot.id}
                   href={`/lot/${lot.id}`}
-                  className="group bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-[#2563EB]/40 hover:shadow-card transition-all"
+                  className="group bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden hover:border-[#2563EB]/30 hover:shadow-premium transition-all duration-300 flex flex-col h-full"
                 >
-                  <div className="aspect-[16/10] bg-[#F1F5F9] relative overflow-hidden">
+                  {/* Photo area */}
+                  <div className="aspect-[4/3] bg-[#F1F5F9] relative overflow-hidden shrink-0 border-b border-slate-100">
                     {images?.[0] ? (
                       <img 
                         src={images[0]} 
-                        alt={lot.title || 'Лот'}
+                        alt=""
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[#F1F5F9] to-[#E2E8F0] flex items-center justify-center">
-                        <Gavel className="w-12 h-12 text-[#CBD5E1]" />
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-white p-6">
+                        <div className="w-10 h-10 bg-[#2563EB]/10 rounded-xl flex items-center justify-center mb-2">
+                          <Gavel className="w-5 h-5 text-[#2563EB]" />
+                        </div>
+                        <span className="text-[12px] font-bold text-[#2563EB] tracking-[0.1em] uppercase">KRAM</span>
+                        <span className="text-[11px] text-[#475569] mt-0.5">Демонстраційний товар</span>
                       </div>
                     )}
-                    {/* Live badge */}
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-md">
-                      <span className="relative flex h-2 w-2">
+
+                    {/* Live Badge */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 h-6 px-2.5 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm">
+                      <span className="relative flex h-1.5 w-1.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#EF4444] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#EF4444]"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#EF4444]"></span>
                       </span>
-                      <span className="text-[10px] font-bold text-[#EF4444] uppercase tracking-wide">LIVE</span>
+                      <span className="text-[10px] font-extrabold text-[#EF4444] uppercase tracking-wide">LIVE</span>
                     </div>
-                    {/* Time left */}
-                    <div className={`absolute bottom-3 right-3 px-2 py-1 rounded-md ${isUrgent ? 'bg-[#FEF2F2] text-[#EF4444]' : 'bg-white/95 text-[#64748B]'}`}>
-                      <div className="flex items-center gap-1 text-[11px] font-semibold">
-                        <Clock className="w-3 h-3" />
-                        {hoursLeft > 0 ? `${hoursLeft}год` : '< 1 год'}
+
+                    {/* Urgent Time Left Badge */}
+                    <div className={`absolute bottom-3 right-3 h-6 px-2.5 rounded-lg backdrop-blur-sm ${isUrgent ? 'bg-[#FEF2F2]/95 text-[#EF4444]' : 'bg-white/95 text-[#475569]'}`}>
+                      <div className="flex items-center gap-1 text-[11px] font-bold h-full">
+                        <Clock className="w-3.5 h-3.5" />
+                        {diff <= 0 ? 'Завершено' : hours > 0 ? `${hours} год` : '< 1 год'}
                       </div>
                     </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-[14px] font-semibold text-[#0F172A] mb-2 line-clamp-2 group-hover:text-[#2563EB] transition-colors">
-                      {lot.title || 'Без назви'}
+
+                  {/* Body Content */}
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="text-[14px] font-bold text-[#0B1220] leading-snug line-clamp-2 mb-3 group-hover:text-[#2563EB] transition-colors min-h-[40px]">
+                      {lot.title || 'Лот без назви'}
                     </h3>
-                    <div className="flex items-end justify-between">
+
+                    <div className="mt-auto pt-4 border-t border-slate-100 flex items-end justify-between">
                       <div>
-                        <p className="text-[11px] text-[#94A3B8] mb-0.5">Поточна ставка</p>
-                        <p className="text-[18px] font-bold text-[#0B1220]">
-                          {formatPrice(lot.currentPrice)}
-                        </p>
+                        <span className="text-[10px] text-[#94A3B8] uppercase tracking-wide block mb-0.5">Поточна ставка</span>
+                        <span className="text-[18px] font-extrabold text-[#0B1220] tracking-tight">{formatPrice(lot.currentPrice)}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-[11px] text-[#64748B]">
-                        <Gavel className="w-3 h-3" />
-                        {lot._count.bids} ставок
+
+                      <div className="text-right">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#2563EB] bg-[#EFF6FF] px-2 py-0.5 rounded-md">
+                          <Gavel className="w-3 h-3" />
+                          {lot._count.bids} {lot._count.bids === 1 ? 'ставка' : lot._count.bids > 1 && lot._count.bids < 5 ? 'ставки' : 'ставок'}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-[#F1F5F9] text-[11px] text-[#64748B]">
-                      <User className="w-3 h-3" />
-                      <span className="truncate">{lot.seller.name}</span>
-                      <ShieldCheck className="w-3 h-3 text-[#10B981] ml-1" />
+
+                    {/* Seller details */}
+                    <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-slate-50 text-[11.5px] text-[#475569]">
+                      <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center font-bold text-[9px] text-[#2563EB]">
+                        {lot.seller.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="truncate flex-1 font-semibold">{lot.seller.name}</span>
+                      <span className="inline-flex items-center gap-0.5 text-[#10B981] font-bold">
+                        <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
+                        5.0
+                      </span>
                     </div>
                   </div>
                 </Link>
@@ -457,31 +214,31 @@ export function LiveAuctionsNow() {
             })}
           </div>
         ) : (
-          /* Empty state */
-          <div className="text-center py-16 bg-[#F8FAFC] rounded-2xl border border-dashed border-[#CBD5E1]">
-            <div className="w-16 h-16 bg-[#2563EB]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl">🏷️</span>
+          /* Empty / Launch State */
+          <div className="text-center py-16 bg-white border border-[#E2E8F0] rounded-3xl max-w-xl mx-auto shadow-sm">
+            <div className="w-14 h-14 bg-[#2563EB]/8 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[26px]">
+              📦
             </div>
-            <h3 className="text-lg font-semibold text-[#0B1220] mb-2">
-              Перші лоти скоро зʼявляться
+            <h3 className="text-[17px] font-extrabold text-[#0B1220] mb-2">
+              Перші лоти зʼявляться незабаром
             </h3>
-            <p className="text-[#64748B] mb-6 max-w-md mx-auto">
-              Станьте першим продавцем на KRAM та отримайте 0% комісії на перші продажі.
+            <p className="text-[#475569] text-[13.5px] mb-6 max-w-sm mx-auto leading-relaxed">
+              Платформа запущена в beta-режимі. Створіть перший безкоштовний лот, щоб розпочати прозорі торги!
             </p>
             <Link
               href="/sell"
-              className="inline-flex items-center gap-2 h-12 px-8 bg-[#2563EB] text-white rounded-xl font-semibold hover:bg-[#1d4ed8] transition-all"
+              className="inline-flex items-center justify-center h-11 px-6 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[13.5px] font-bold transition-all shadow-md shadow-[#2563EB]/10"
             >
               Створити перший лот
             </Link>
           </div>
         )}
 
-        {/* Mobile CTA */}
-        <div className="mt-8 text-center md:hidden">
+        {/* Mobile View CTA */}
+        <div className="mt-6 text-center md:hidden">
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-2 h-12 px-8 bg-[#2563EB] text-white rounded-xl font-semibold"
+            className="w-full inline-flex items-center justify-center gap-1.5 h-11 bg-white border border-[#E2E8F0] text-[#0B1220] rounded-xl text-[13px] font-bold"
           >
             Переглянути всі лоти
             <ArrowRight className="w-4 h-4" />
@@ -492,471 +249,272 @@ export function LiveAuctionsNow() {
   )
 }
 
-export function TrustSectionUpdated() {
+// ────────────────────────────────────────────────────────
+// 3. BETA SAFETY FLOW (HOW IT WORKS TIMELINE REPLACEMENT)
+// ────────────────────────────────────────────────────────
+export function HowItWorksSimple() {
+  const steps = [
+    {
+      step: '1',
+      title: 'Знайдіть або створіть лот',
+      desc: 'Покупець вибирає цікавий товар у каталозі, а продавець може безкоштовно та швидко виставити власний.',
+      icon: '🔍',
+    },
+    {
+      step: '2',
+      title: 'Зробіть пропозицію у торгах',
+      desc: 'Робіть ставки для чесного формування ціни або переходьте до обговорення у безпечному чаті KRAM.',
+      icon: '💬',
+    },
+    {
+      step: '3',
+      title: 'Узгодьте деталі напряму',
+      desc: 'Сторони самостійно домовляються про зручний спосіб оплати й доставки (наприклад, післяплата Новою Поштою).',
+      icon: '🤝',
+    },
+    {
+      step: '4',
+      title: 'Завершіть безпечну зустріч',
+      desc: 'Перевірте лот при отриманні у відділенні або при особистій зустрічі перед тим, як сплачувати кошти.',
+      icon: '🔒',
+    },
+  ]
+
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-[#F8FAFC]">
+    <section className="py-16 bg-white border-b border-[#E2E8F0]">
       <div className="max-w-[1320px] mx-auto px-4">
+        
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB]/10 rounded-full mb-4">
-            <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
-            <span className="text-sm font-semibold text-[#2563EB]">Безпечна угода KRAM</span>
+        <div className="text-center mb-12 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 h-6 px-3 bg-[#E8F5E9] border border-[#10B981]/10 rounded-full text-[10.5px] font-bold text-[#10B981] uppercase tracking-wide mb-3">
+            🛡️ Безпечний Beta-Процес
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0B1220] mb-4">
-            Статус угоди видно<br />до фінального підтвердження
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-3">
+            Як безпечно купувати та продавати
           </h2>
-          <p className="text-[#64748B] max-w-2xl mx-auto text-lg">
-            Покупець оплачує замовлення, продавець відправляє товар, 
-            а KRAM показує статус угоди на кожному кроці.
+          <p className="text-[#475569] text-[14.5px] leading-relaxed">
+            KRAM працює за моделлю прямих домовленостей (Classified). Ми надаємо прозору історію ставок та чат, але не виступаємо фінансовим чи логістичним посередником.
           </p>
         </div>
 
-        {/* Visual Flow Timeline */}
-        <div className="relative mb-16">
-          <div className="grid md:grid-cols-5 gap-4">
-            {[
-              {
-                icon: CreditCard,
-                step: '1',
-                title: 'Покупець оплачує',
-                desc: 'Оплата фіксується в системі',
-                color: 'bg-[#2563EB]',
-                lightColor: 'bg-[#2563EB]/10',
-              },
-              {
-                icon: Lock,
-                step: '2',
-                title: 'KRAM фіксує статус',
-                desc: 'Оплата не позначається без підтвердження',
-                color: 'bg-[#8B5CF6]',
-                lightColor: 'bg-[#8B5CF6]/10',
-              },
-              {
-                icon: Package,
-                step: '3',
-                title: 'Продавець відправляє',
-                desc: 'Додається номер ТТН Нової пошти',
-                color: 'bg-[#F59E0B]',
-                lightColor: 'bg-[#F59E0B]/10',
-              },
-              {
-                icon: Truck,
-                step: '4',
-                title: 'Покупець отримує',
-                desc: 'Перевіряє товар на відділенні',
-                color: 'bg-[#10B981]',
-                lightColor: 'bg-[#10B981]/10',
-              },
-              {
-                icon: Wallet,
-                step: '5',
-                title: 'Фінальне закриття',
-                desc: 'Виплата після перевірки й підтвердження',
-                color: 'bg-[#059669]',
-                lightColor: 'bg-[#059669]/10',
-              },
-            ].map((item, i) => (
-              <div key={i} className="relative">
-                <div className="bg-white rounded-2xl p-6 border border-[#E2E8F0] hover:shadow-card transition-all h-full">
-                  <div className={`w-12 h-12 ${item.lightColor} ${item.color.replace('bg-', 'text-')} rounded-xl flex items-center justify-center mb-4`}>
-                    <item.icon className="w-6 h-6" />
-                  </div>
-                  <div className={`w-6 h-6 ${item.color} text-white rounded-full flex items-center justify-center text-xs font-bold mb-3`}>
-                    {item.step}
-                  </div>
-                  <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">{item.title}</h3>
-                  <p className="text-[13px] text-[#64748B] leading-relaxed">{item.desc}</p>
-                </div>
-                {i < 4 && (
-                  <div className="hidden md:block absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
-                    <ArrowRight className="w-5 h-5 text-[#CBD5E1]" />
-                  </div>
-                )}
+        {/* 4 Steps Timeline Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {steps.map((item, idx) => (
+            <div key={idx} className="bg-[#FAFBFD] border border-[#E2E8F0] rounded-2xl p-6 shadow-sm hover:border-[#2563EB]/15 hover:shadow-card transition-all relative">
+              <div className="w-10 h-10 rounded-xl bg-white border border-[#E2E8F0] flex items-center justify-center text-lg shadow-sm mb-4">
+                {item.icon}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Trust Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {[
-            {
-              icon: ShieldCheck,
-              title: 'Статус перед виплатою прозорий',
-              desc: 'Виплата доступна після підтвердження отримання або завершення без спору.',
-              color: 'text-[#2563EB]',
-              bgColor: 'bg-[#2563EB]/10',
-            },
-            {
-              icon: MapPin,
-              title: 'Доставка з трекінгом',
-              desc: 'Номер відправлення та статус доставки видно в угоді.',
-              color: 'text-[#F59E0B]',
-              bgColor: 'bg-[#F59E0B]/10',
-            },
-            {
-              icon: AlertCircle,
-              title: 'Спір до завершення',
-              desc: 'Якщо товар не прийшов або не відповідає опису — відкрийте спір.',
-              color: 'text-[#EF4444]',
-              bgColor: 'bg-[#EF4444]/10',
-            },
-            {
-              icon: UserCheck,
-              title: 'Перевірка продавців',
-              desc: 'Профіль, історія угод і верифікація допомагають обирати надійних.',
-              color: 'text-[#10B981]',
-              bgColor: 'bg-[#10B981]/10',
-            },
-          ].map((card, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 border border-[#E2E8F0] hover:border-[#2563EB]/20 hover:shadow-card transition-all">
-              <div className={`w-11 h-11 ${card.bgColor} ${card.color} rounded-xl flex items-center justify-center mb-4`}>
-                <card.icon className="w-5 h-5" />
+              <div className="absolute top-6 right-6 text-[32px] font-black text-slate-100/80 leading-none select-none">
+                0{item.step}
               </div>
-              <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">{card.title}</h3>
-              <p className="text-[13px] text-[#64748B] leading-relaxed">{card.desc}</p>
+              <h3 className="text-[14.5px] font-extrabold text-[#0B1220] mb-2">{item.title}</h3>
+              <p className="text-[12.5px] text-[#475569] leading-relaxed">{item.desc}</p>
             </div>
           ))}
         </div>
 
-        {/* Beta Note */}
-        <div className="text-center">
-          <p className="text-[13px] text-[#94A3B8] max-w-2xl mx-auto">
-            Платіжна модель запускається поетапно: спочатку beta-підтвердження, 
-            далі — автоматизовані платежі через провайдера.{' '}
-            <Link href="/safety" className="text-[#2563EB] hover:underline">
-              Детальніше про безпечні угоди →
-            </Link>
+        {/* Informative Disclaimer Banner */}
+        <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl max-w-3xl mx-auto">
+          <p className="text-[12.5px] text-[#1E40AF] leading-relaxed text-center font-medium">
+            📢 <strong>Офіційне роз’яснення:</strong> У beta-режимі KRAM не обробляє платежі, не приймає передплати, не забезпечує холдування (escrow) чи автоматичне повернення коштів. Усі фінансові та поштові питання сторони вирішують особисто та самостійно поза межами системи.
           </p>
         </div>
+
       </div>
     </section>
   )
 }
 
+// Dummy backward exports to keep next compiler quiet
+export function TrustSectionUpdated() { return null }
+export function EarlyAccessBanner() { return null }
+export function AIAssistantTeaser() { return null }
+export function ForSellersSection() { return null }
+export function FinalCTA() { return null }
+
+// ────────────────────────────────────────────────────────
+// 4. MOBILE PWA TEASER
+// ────────────────────────────────────────────────────────
 export function MobileAppsTeaser() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
-  const [isInstallable, setIsInstallable] = useState(false)
   const [isInstalled, setIsInstalled] = useState(false)
-  const [showIosTip, setShowIosTip] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       if (window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone) {
         setIsInstalled(true)
       }
-
-      const handleBeforeInstall = (e: Event) => {
-        e.preventDefault()
-        setDeferredPrompt(e)
-        setIsInstallable(true)
-      }
-
-      window.addEventListener('beforeinstallprompt', handleBeforeInstall)
-      return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
     }
   }, [])
 
-  const handleInstallClick = async () => {
-    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream
-    if (isIos) {
-      setShowIosTip(true)
-      setTimeout(() => setShowIosTip(false), 8000)
-      return
-    }
-
-    if (!deferredPrompt) {
-      alert('Будь ласка, натисніть три крапки (меню) у браузері та виберіть "Встановити додаток" або "Додати на домашній екран".')
-      return
-    }
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    if (outcome === 'accepted') {
-      setIsInstalled(true)
-      setIsInstallable(false)
-    }
-    setDeferredPrompt(null)
-  }
-
   return (
-    <section className="py-20 bg-[#0B1220] relative overflow-hidden border-t border-white/5">
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{
-        backgroundImage: `linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)`,
-        backgroundSize: '50px 50px'
+    <section className="py-16 bg-[#0B1220] text-white border-b border-slate-900 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.01] pointer-events-none" style={{
+        backgroundImage: `radial-gradient(circle, white 1px, transparent 1px)`,
+        backgroundSize: '24px 24px'
       }} />
 
       <div className="max-w-[1320px] mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#2563EB]/15 border border-[#2563EB]/30 rounded-full mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2563EB] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2563EB]"></span>
-              </span>
-              <span className="text-[12px] font-semibold text-[#60a5fa] uppercase tracking-wider">Швидке встановлення</span>
+            <div className="inline-flex items-center gap-1.5 h-6 px-2.5 bg-white/5 border border-white/10 rounded-full text-[10.5px] font-bold text-slate-400 uppercase tracking-wide mb-4">
+              📱 Мобільний Доступ
             </div>
-
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-5 tracking-tight">
-              KRAM у вашому смартфоні
+            
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-4">
+              KRAM завжди під рукою
             </h2>
-            <p className="text-[#94A3B8] text-base md:text-lg mb-8 leading-relaxed max-w-lg">
-              Встановіть KRAM як прогресивний застосунок (PWA) безпосередньо з вашого браузера. Це займає менше секунди, не витрачає пам'ять пристрою та дозволяє миттєво відстежувати ставки й отримувати сповіщення.
+            
+            <p className="text-slate-400 text-[14.5px] leading-relaxed mb-6 max-w-lg">
+              KRAM можна встановити як PWA-додаток, щоб швидше повертатися до лотів і сповіщень. Це не займає місця на пристрої та працює безпосередньо через ваш веб-браузер.
             </p>
 
-            <div className="flex flex-col gap-4 max-w-md">
+            <div className="space-y-4">
               {isInstalled ? (
-                <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center gap-3.5 text-emerald-400">
-                  <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-[15px]">Застосунок встановлено!</p>
-                    <p className="text-[12px] text-emerald-400/80">Шукайте іконку KRAM на домашньому екрані смартфона.</p>
-                  </div>
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-semibold">
+                  ✓ Додаток успішно встановлено на домашній екран!
                 </div>
               ) : (
-                <>
-                  <button
-                    onClick={handleInstallClick}
-                    className="w-full h-14 bg-gradient-to-r from-[#2563EB] to-[#1d4ed8] hover:from-[#1d4ed8] hover:to-[#1e40af] text-white rounded-2xl font-bold text-[15px] flex items-center justify-center gap-3 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#2563EB]/25"
-                  >
-                    <Download className="w-5 h-5 animate-bounce" />
-                    <span>Встановити додаток KRAM (PWA)</span>
-                  </button>
-
-                  {showIosTip && (
-                    <div className="p-4 bg-[#2563EB]/10 border border-[#2563EB]/20 rounded-xl text-[13px] text-[#60a5fa] leading-relaxed animate-fade-in">
-                      ℹ️ <strong>Для встановлення на iPhone/iPad:</strong> Натисніть кнопку <strong>«Поділитися» (Share)</strong> 📤 внизу екрана Safari, а потім виберіть <strong>«Додати на початковий екран» (Add to Home Screen)</strong> 📱.
-                    </div>
-                  )}
-                </>
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl max-w-md">
+                  <span className="text-[11px] font-bold text-[#60A5FA] uppercase tracking-wider block mb-2">Як встановити:</span>
+                  <p className="text-[12.5px] text-slate-400 leading-relaxed">
+                    Натисніть на кнопку меню браузера (наприклад, три крапки в Chrome або «Поділитися» у Safari) та виберіть пункт <strong className="text-white">«Додати на початковий екран»</strong>.
+                  </p>
+                </div>
               )}
 
-              <div className="flex flex-wrap items-center gap-3 mt-4 pt-6 border-t border-white/5">
-                <div className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-2.5 text-white/50 text-xs">
-                  <span>🍎</span>
-                  <span className="font-medium">App Store</span>
-                  <span className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/40 uppercase">скоро</span>
+              {/* Stores coming soon */}
+              <div className="flex flex-wrap gap-2.5 pt-4">
+                <div className="h-9 px-3 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2 text-slate-400 text-[11px] font-semibold select-none">
+                  <span>🍎 App Store</span>
+                  <span className="bg-white/5 text-[9px] px-1 rounded text-slate-500">скоро</span>
                 </div>
-                <div className="h-10 px-4 bg-white/5 border border-white/10 rounded-xl flex items-center gap-2.5 text-white/50 text-xs">
-                  <span>🤖</span>
-                  <span className="font-medium">Google Play</span>
-                  <span className="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-white/40 uppercase">скоро</span>
+                <div className="h-9 px-3 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2 text-slate-400 text-[11px] font-semibold select-none">
+                  <span>🤖 Google Play</span>
+                  <span className="bg-white/5 text-[9px] px-1 rounded text-slate-500">скоро</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="relative flex justify-center items-center">
-            <div className="absolute w-[350px] h-[350px] bg-gradient-to-tr from-[#2563EB]/20 to-[#10B981]/20 rounded-full blur-[80px] pointer-events-none" />
-
-            <div className="relative w-[270px] h-[550px] bg-[#020617] border-[6px] border-[#334155] rounded-[42px] shadow-2xl overflow-hidden ring-8 ring-[#1e293b]/50 select-none transform hover:rotate-2 hover:scale-[1.03] transition-all duration-500">
-              <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-4.5 bg-[#090d16] rounded-full z-30 flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-[#020617] border border-white/5 rounded-full ml-auto mr-1.5" />
-              </div>
-
-              <div className="absolute top-1 left-1/2 -translate-x-1/2 w-12 h-1 bg-[#1e293b] rounded-full z-30" />
-
-              <div className="w-full h-full p-3 pt-9 pb-4 flex flex-col justify-between bg-gradient-to-b from-[#0F172A] to-[#020617] text-white">
-                <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 bg-[#2563EB] rounded-lg flex items-center justify-center font-bold text-[10px] text-white shadow-sm shadow-[#2563EB]/40">K</div>
-                    <span className="text-[10px] font-bold tracking-tight bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">KRAM</span>
-                  </div>
-                  <div className="w-4.5 h-4.5 bg-white/10 rounded-full flex items-center justify-center text-[7px] border border-white/10">
-                    👤
-                  </div>
+          {/* Visual Phone Mockup */}
+          <div className="flex justify-center relative">
+            <div className="absolute w-[240px] h-[240px] bg-[#2563EB]/10 rounded-full blur-[80px] pointer-events-none" />
+            
+            <div className="relative w-[230px] h-[440px] bg-[#020617] border-[4px] border-[#334155] rounded-[36px] shadow-2xl overflow-hidden ring-4 ring-slate-800/30">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-3.5 bg-slate-900 rounded-full z-30" />
+              <div className="w-full h-full p-3 pt-7 pb-3 flex flex-col justify-between text-white bg-[#0B1220]">
+                {/* Mock Phone App Header */}
+                <div className="border-b border-white/5 pb-1 flex items-center gap-1 justify-between">
+                  <span className="text-[9px] font-black tracking-tight text-[#2563EB]">KRAM BETA</span>
+                  <span className="text-[8px] text-slate-500">12:00</span>
                 </div>
 
-                <div className="flex-1 py-4 flex flex-col justify-start gap-3 overflow-hidden">
-                  <div className="flex items-center justify-between text-[8px] text-white/40 uppercase tracking-widest font-bold mb-1">
-                    <span>Активні торги</span>
-                    <span className="flex items-center gap-0.5 text-[#EF4444] animate-pulse">
-                      <span className="w-1 h-1 bg-[#EF4444] rounded-full" />
-                      LIVE
-                    </span>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 flex items-center gap-2.5 transform hover:scale-[1.02] transition-all">
-                    <div className="w-10 h-10 bg-[#1e293b] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-xl shadow-inner">
-                      💻
-                    </div>
+                {/* Mock content list */}
+                <div className="flex-1 py-3 space-y-2 overflow-hidden">
+                  <span className="text-[7.5px] uppercase tracking-wider text-slate-500 font-extrabold block">Активні пропозиції</span>
+                  
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex gap-2 items-center">
+                    <div className="w-6 h-6 rounded bg-[#2563EB]/25 flex items-center justify-center text-xs">💻</div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-[9px] font-bold truncate text-white/90">MacBook Air M2</h4>
-                      <p className="text-[8px] text-white/50">32 200 ₴</p>
-                      <div className="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-[#10B981] w-[75%] h-full rounded-full animate-pulse" />
-                      </div>
+                      <p className="text-[8px] font-bold truncate">MacBook Air M2</p>
+                      <p className="text-[7.5px] text-[#2563EB]">32 500 ₴</p>
                     </div>
                   </div>
-
-                  <div className="bg-white/5 border border-white/5 rounded-xl p-2.5 flex items-center gap-2.5 opacity-90">
-                    <div className="w-10 h-10 bg-[#1e293b] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-xl">
-                      📱
-                    </div>
+                  <div className="bg-white/5 p-2 rounded-lg border border-white/5 flex gap-2 items-center opacity-80">
+                    <div className="w-6 h-6 rounded bg-[#10B981]/25 flex items-center justify-center text-xs">📱</div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-[9px] font-bold truncate text-white/90">iPhone 14 Pro</h4>
-                      <p className="text-[8px] text-white/50">18 500 ₴</p>
-                      <div className="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-[#2563EB] w-[45%] h-full rounded-full" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white/5 border border-white/5 rounded-xl p-2.5 flex items-center gap-2.5 opacity-70">
-                    <div className="w-10 h-10 bg-[#1e293b] rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-xl">
-                      🎮
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-[9px] font-bold truncate text-white/90">PlayStation 5 Slim</h4>
-                      <p className="text-[8px] text-white/50">12 800 ₴</p>
-                      <div className="w-full bg-white/10 h-1 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-[#8B5CF6] w-[60%] h-full rounded-full" />
-                      </div>
+                      <p className="text-[8px] font-bold truncate">iPhone 14 Pro</p>
+                      <p className="text-[7.5px] text-[#10B981]">18 500 ₴</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-around border-t border-white/5 pt-2.5 text-[8px] text-white/40">
-                  <div className="flex flex-col items-center gap-0.5 text-[#2563EB]">
-                    <span>🏠</span>
-                    <span className="font-bold">Лоти</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span>❤️</span>
-                    <span>Обране</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span>💬</span>
-                    <span>Чати</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-0.5">
-                    <span>💼</span>
-                    <span>Кабінет</span>
-                  </div>
+                {/* Mock bottom tabs */}
+                <div className="border-t border-white/5 pt-1.5 flex justify-around text-[7.5px] text-slate-500">
+                  <span className="text-[#2563EB] font-bold">Лоти</span>
+                  <span>Обране</span>
+                  <span>Кабінет</span>
                 </div>
               </div>
-
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none z-20" />
             </div>
           </div>
+
         </div>
       </div>
     </section>
   )
 }
 
+// ────────────────────────────────────────────────────────
+// 5. FAQ SECTION
+// ────────────────────────────────────────────────────────
 export function FAQSection() {
   const faqs = [
     {
       q: 'Як створити перший лот?',
-      a: 'Зареєструйтесь, натисніть «Продати», завантажте фото товару, вкажіть опис та стартову ціну, оберіть тривалість аукціону та опублікуйте лот.',
+      a: 'Зареєструйтесь на платформі, натисніть синю кнопку «Продати» у верхньому меню, завантажте фотографії товару, опишіть його стан, вкажіть стартову ставку та термін дії. Публікація безкоштовна.',
     },
     {
-      q: 'Яка комісія платформи?',
-      a: 'Для перших продавців комісія 0%. В подальшому комісія становитиме невеликий відсоток від успішної угоди — точні цифри будуть оголошені перед запуском.',
+      q: 'Чи бере KRAM комісію?',
+      a: 'Ні. Платформа діє безкоштовно для покупців і продавців. Комісія з розміщення або успішних ставок становить 0% протягом усього періоду beta-тестування.',
     },
     {
-      q: 'Як працює доставка?',
-      a: 'Продавець відправляє товар через Нову Пошту. Покупець отримує посилку, перевіряє товар та підтверджує отримання — після цього угода переходить до завершення.',
+      q: 'Як домовитись про оплату?',
+      a: 'Оплата узгоджується безпосередньо між сторонами у чаті KRAM. Ми наполегливо рекомендуємо здійснювати розрахунки виключно післяплатою при отриманні посилки у відділенні Нової Пошти (накладений платіж) або готівкою під час особистої зустрічі.',
     },
     {
-      q: 'Чи безпечно купувати на аукціоні?',
-      a: 'Так. Ми верифікуємо продавців, зберігаємо історію ставок і показуємо прозорий статус угоди. До production-активації LiqPay не обіцяємо реальний escrow/hold.',
+      q: 'Чи гарантує KRAM угоду?',
+      a: 'KRAM працює виключно як інформаційне табло історії ставок і лотів. Ми не є посередником, не приймаємо платежі та не зберігаємо гроші, тому не надаємо фінансових гарантій повернення.',
+    },
+    {
+      q: 'Що робити з підозрілим лотом?',
+      a: 'Якщо ви виявили порушення правил, шахрайство або вимагання передоплати, натисніть кнопку «Поскаржитись на лот» на сторінці товару. Модератори оперативно заблокують акаунт зловмисника.',
     },
   ]
 
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#0B1220] mb-4">
-            Часті питання
+    <section className="py-16 bg-white border-b border-[#E2E8F0]">
+      <div className="max-w-[768px] mx-auto px-4">
+        
+        {/* Title */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-10 h-10 bg-[#EFF6FF] rounded-xl text-[#2563EB] mb-3">
+            <HelpCircle className="w-5 h-5" />
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight">
+            Часті запитання
           </h2>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-4">
+        {/* Accordions */}
+        <div className="space-y-3">
           {faqs.map((faq, i) => (
             <details
               key={i}
-              className="group bg-[#F8FAFC] rounded-xl border border-[#E2E8F0] open:bg-white open:shadow-card transition-all"
+              className="group bg-[#FAFBFD] border border-[#E2E8F0] rounded-xl overflow-hidden open:bg-white open:shadow-sm transition-all duration-200"
             >
-              <summary className="flex items-center justify-between p-6 cursor-pointer">
-                <span className="font-semibold text-[#0B1220]">{faq.q}</span>
-                <span className="w-8 h-8 bg-[#2563EB]/10 rounded-full flex items-center justify-center text-[#2563EB] group-open:rotate-180 transition-transform">
-                  ↓
+              <summary className="flex items-center justify-between p-4.5 font-bold text-[#0B1220] text-[13.5px] cursor-pointer select-none">
+                <span>{faq.q}</span>
+                <span className="w-6 h-6 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 group-open:rotate-180 group-open:bg-[#EFF6FF] group-open:text-[#2563EB] transition-all text-[11px]">
+                  ▼
                 </span>
               </summary>
-              <div className="px-6 pb-6 text-[#64748B]">
+              <div className="px-4.5 pb-4.5 text-[13px] text-[#475569] leading-relaxed border-t border-slate-50 pt-3">
                 {faq.a}
               </div>
             </details>
           ))}
         </div>
+
       </div>
     </section>
   )
 }
 
-export function FinalCTA() {
-  return (
-    <section className="py-20 bg-gradient-to-br from-[#2563EB] via-[#1d4ed8] to-[#1e40af]">
-      <div className="max-w-[1320px] mx-auto px-4 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-          Готові почати?
-        </h2>
-        <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-          Приєднуйтесь до першої хвилі продавців та покупців на KRAM.
-          Станьте частиною українського маркетплейсу чесних торгів.
-        </p>
-        <div className="flex flex-wrap justify-center gap-4">
-          <a
-            href="/catalog"
-            className="h-14 px-10 bg-white text-[#2563EB] rounded-xl font-bold hover:bg-white/90 transition-all hover:-translate-y-0.5"
-          >
-            Переглянути лоти
-          </a>
-          <a
-            href="/sell"
-            className="h-14 px-10 bg-transparent text-white border-2 border-white rounded-xl font-bold hover:bg-white/10 transition-all"
-          >
-            Створити лот
-          </a>
-        </div>
-        <p className="mt-8 text-white/60 text-sm">
-          Реєстрація безкоштовна • 0% комісії для перших продавців
-        </p>
-      </div>
-    </section>
-  )
-}
-
-// Beta banner at the top of the page
-export function BetaBanner() {
-  return (
-    <div className="bg-gradient-to-r from-[#F59E0B] via-[#D97706] to-[#F59E0B] text-white">
-      <div className="max-w-[1320px] mx-auto px-4 py-2.5">
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-center">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">🚧</span>
-            <span className="font-bold text-[14px]">Beta-версія</span>
-          </div>
-          <p className="text-[13px] text-white/90">
-            KRAM працює в beta-режимі: ми тестуємо безпечні угоди, сповіщення та доставку. Реальні платежі LiqPay будуть активовані після фінального sandbox тестування.
-          </p>
-          <a 
-            href="#email-collection" 
-            className="text-[13px] font-semibold underline hover:no-underline"
-          >
-            Повідомити про запуск →
-          </a>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Email collection section
+// ────────────────────────────────────────────────────────
+// 6. WAITLIST / TELEGRAM SECTION
+// ────────────────────────────────────────────────────────
 export function EmailCollectionSection() {
   const [email, setEmail] = useState('')
   const [type, setType] = useState<'seller' | 'buyer'>('seller')
@@ -982,7 +540,7 @@ export function EmailCollectionSection() {
       } else {
         alert(data.error || 'Помилка. Спробуйте пізніше.')
       }
-    } catch (err) {
+    } catch {
       alert('Помилка мережі. Спробуйте пізніше.')
     } finally {
       setLoading(false)
@@ -990,82 +548,78 @@ export function EmailCollectionSection() {
   }
 
   return (
-    <section id="email-collection" className="py-16 bg-gradient-to-br from-[#0B1220] to-[#1e293b]">
-      <div className="max-w-[1320px] mx-auto px-4">
-        <div className="max-w-2xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB]/20 rounded-full mb-6">
-            <span className="text-xl">📬</span>
-            <span className="text-sm font-medium text-[#60A5FA]">Список очікування</span>
-          </div>
-          
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Станьте першим на KRAM
-          </h2>
-          <p className="text-[#94A3B8] mb-8">
-            Залиште email, і ми повідомимо, коли запустимо реальні платежі та відкриємо платформу для всіх.
-          </p>
-
-          {submitted ? (
-            <div className="bg-[#10B981]/10 border border-[#10B981]/30 rounded-2xl p-6">
-              <div className="text-4xl mb-3">✅</div>
-              <h3 className="text-xl font-bold text-[#10B981] mb-2">Готово!</h3>
-              <p className="text-[#94A3B8]">
-                Ви в списку очікування. Ми напишемо, коли KRAM буде готовий до продажів.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <button
-                  type="button"
-                  onClick={() => setType('seller')}
-                  className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
-                    type === 'seller' 
-                      ? 'bg-[#2563EB] text-white' 
-                      : 'bg-white/10 text-white/70 hover:bg-white/20'
-                  }`}
-                >
-                  <span className="text-xl mr-2">🏪</span>
-                  Хочу продавати
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setType('buyer')}
-                  className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
-                    type === 'buyer' 
-                      ? 'bg-[#2563EB] text-white' 
-                      : 'bg-white/10 text-white/70 hover:bg-white/20'
-                  }`}
-                >
-                  <span className="text-xl mr-2">🛒</span>
-                  Хочу купувати
-                </button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  required
-                  className="flex-1 h-12 px-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-[#2563EB]"
-                />
-                <button
-                  type="submit"
-                  disabled={loading || !email.includes('@')}
-                  className="h-12 px-8 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1d4ed8] transition-all disabled:opacity-50"
-                >
-                  {loading ? 'Збереження...' : 'Повідомити мене'}
-                </button>
-              </div>
-
-              <p className="mt-4 text-[12px] text-white/50">
-                Без спаму. Тільки запуск платформи та важливі оновлення.
-              </p>
-            </form>
-          )}
+    <section id="email-collection" className="py-16 bg-gradient-to-br from-[#0B1220] to-[#111827] text-white">
+      <div className="max-w-[640px] mx-auto px-4 text-center">
+        
+        <div className="inline-flex items-center gap-1.5 h-6 px-3 bg-white/5 border border-white/10 rounded-full text-[10.5px] font-bold text-slate-400 uppercase tracking-wide mb-4">
+          📬 Свіжі Новини
         </div>
+
+        <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">
+          Будьте в курсі оновлень
+        </h2>
+        
+        <p className="text-slate-400 text-[14px] leading-relaxed mb-8">
+          Залиште свій email, щоб першими отримувати новини про запуск нових категорій товарів та важливі технічні оновлення платформи.
+        </p>
+
+        {submitted ? (
+          <div className="bg-emerald-500/10 border border-emerald-500/25 p-6 rounded-2xl text-center">
+            <span className="text-2xl block mb-2">✓</span>
+            <h4 className="font-bold text-emerald-400 mb-1">Ви успішно підписались!</h4>
+            <p className="text-slate-400 text-xs">Дякуємо за довіру. Ми надішлемо листа лише за важливої нагоди.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-white/5 border border-white/10 p-5 rounded-2xl text-left">
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => setType('seller')}
+                className={`flex-1 h-10 rounded-lg text-xs font-bold transition-all ${
+                  type === 'seller' 
+                    ? 'bg-[#2563EB] text-white shadow-md' 
+                    : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                }`}
+              >
+                🏪 Хочу продавати
+              </button>
+              <button
+                type="button"
+                onClick={() => setType('buyer')}
+                className={`flex-1 h-10 rounded-lg text-xs font-bold transition-all ${
+                  type === 'buyer' 
+                    ? 'bg-[#2563EB] text-white shadow-md' 
+                    : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                }`}
+              >
+                🛒 Хочу купувати
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Введіть ваш email..."
+                required
+                className="flex-1 h-11 px-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 text-[13px] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15"
+              />
+              <button
+                type="submit"
+                disabled={loading || !email.includes('@')}
+                className="h-11 px-6 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:opacity-50 text-white rounded-xl text-[13px] font-bold transition-all shrink-0"
+              >
+                {loading ? 'Надсилаємо...' : 'Підписатися'}
+              </button>
+            </div>
+            
+            <p className="mt-3 text-[10px] text-slate-500 text-center leading-none">
+              Жодного спаму. Ви зможете відписатися у будь-який момент.
+            </p>
+          </form>
+        )}
+
       </div>
     </section>
   )

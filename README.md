@@ -1,166 +1,89 @@
-# ⚡ KRAM — український маркетплейс безпечних угод
+# ⚡ KRAM — український маркетплейс чесних торгів (Beta Classified Mode)
 
-> Чесні торги без зайвого ризику.
+> Чесні торги та прямі домовленості без зайвого ризику.
 
-KRAM — український marketplace для лотів, ставок, доставки, сповіщень і прозорого статусу угоди. Проєкт працює в beta/MVP-режимі: реальні LiqPay-платежі активуються після фінального sandbox/prod тестування.
+**KRAM** — це українська інформаційна beta-платформа для розміщення лотів, ведення прозорої історії ставок та координації прямих домовленостей між покупцями та продавцями. 
 
-## 🚀 Запуск
+У поточному beta-режимі **KRAM не є платіжним чи фінансовим посередником**: платформа не приймає оплату, не утримує кошти (escrow/hold) та не здійснює виплати продавцям. Сторони самостійно та безпосередньо погоджують зручні методи оплати й доставки (рекомендовано післяплату при отриманні у відділенні Нової Пошти).
+
+---
+
+## ⚙️ Налаштування режимів та Environment Variables
+
+Для переведення платформи в безпечний beta-режим без прийому онлайн-платежів використовуються такі ключі в `.env`:
+
+```env
+# 🛡️ Режим безпечної beta-платформи прямого зв'язку
+KRAM_BETA_CLASSIFIED_MODE=true
+NEXT_PUBLIC_KRAM_BETA_CLASSIFIED_MODE=true
+
+# 🚫 Вимкнення фінансових інструментів
+PAYMENTS_ENABLED=false
+LIQPAY_ENABLED=false
+
+# 💬 Налаштування сповіщень (за бажанням)
+SMS_ENABLED=false
+```
+
+Завдяки цим прапорцям:
+1. **Кабінети користувачів** переходять у режим "Угоди & Заявки". Всі згадки фінансових транзакцій приховано.
+2. **Оформлення замовлення** перетворено на панель координації прямої угоди та надсилання реквізитів продавцю.
+3. **Реєстраційні та верифікаційні кроки** проходять безкоштовно без симульованих платіжних форм.
+4. **Служба підтримки та модератори** виступають у ролі арбітрів поведінки та приймають скарги на лоти для оперативного блокування порушників.
+
+---
+
+## 🚀 Швидкий запуск
 
 ```bash
 # 1. Встановити залежності
 npm install
 
-# 2. Створити базу даних
+# 2. Створити базу даних (PostgreSQL / Neon)
 npx prisma db push
 
-# 3. Заповнити тестовими даними
+# 3. Заповнити демонстраційними даними
 npm run seed
 
-# 4. Запустити
+# 4. Запустити локально
 npm run dev
 
-# Відкрити: http://localhost:3000
+# Відкрити у браузері: http://localhost:3000
 ```
 
-## 🔑 Тестові акаунти
+---
 
-Demo accounts призначені лише для локального тестування/стейджингу. У production UI вони мають показуватись тільки з `NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS=true`.
+## 👥 Демонстраційні акаунти
+
+Для зручності тестування функціоналу платформи ви можете використовувати такі облікові записи (доступні, якщо `NEXT_PUBLIC_SHOW_DEMO_ACCOUNTS=true`):
 
 | Роль | Email | Пароль |
 |------|-------|--------|
-| Admin | admin@kram.ua | password123 |
-| Seller | tech@test.com | password123 |
-| Buyer | ivan@test.com | password123 |
+| **Адміністратор** | admin@kram.ua | password123 |
+| **Продавець** | tech@test.com | password123 |
+| **Покупець** | ivan@test.com | password123 |
 
-## 🔐 Авторизація
+---
 
-Email/password вхід працює одразу без додаткових налаштувань.
+## 🛠 Технологічний стек
 
-### Як включити Google OAuth:
+- **Frontend:** Next.js 15.4, TypeScript, Vanilla CSS + HSL design variables (Tailwind CSS 4 utilities)
+- **Backend:** Next.js API Routes (App Router)
+- **База даних:** PostgreSQL / Prisma ORM
+- **Авторизація:** NextAuth.js (Credentials Provider + Google OAuth ready)
+- **Real-time оновлення:** SSE (Server-Sent Events) для відстеження ставок у реальному часі
 
-1. Відкрити [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Створити OAuth 2.0 Client ID
-3. Тип: Web application
-4. Authorized JavaScript origins: `http://localhost:3000`
-5. Authorized redirect URI: `http://localhost:3000/api/auth/callback/google`
-6. Скопіювати Client ID та Client Secret
-7. Вставити в `.env`:
-   ```
-   GOOGLE_CLIENT_ID=your_client_id
-   GOOGLE_CLIENT_SECRET=your_client_secret
-   NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_client_id
-   ```
-8. Перезапустити dev server
+---
 
-### Apple OAuth:
+## 🔒 Безпека та правила спільноти
 
-Apple Sign In вимагає Apple Developer Account ($99/рік).
-Поки ключі не налаштовані — кнопка показує "Скоро" і неактивна.
+Для захисту користувачів від шахрайства на платформі діють суворі обмеження:
+* **Заборонені лоти:** зброя, наркотичні речовини, контрафакт, медичні вироби та ліки, персональні дані (повний перелік див. у розділі [/rules](file:///c:/Users/user2/Desktop/newsbot_top_v3/projects/kram/src/app/rules/page.tsx)).
+* **Система скарг:** кожен користувач може поскаржитися на підозрілий лот або спробу виманити спілкування у сторонні месенджери (Viber, Telegram).
+* **Верифікація профілю:** користувачі можуть безкоштовно підтвердити особу через інтегровані системи Дія та BankID для отримання бейджа довіри.
 
-1. Відкрити [Apple Developer](https://developer.apple.com/account/resources/identifiers)
-2. Створити Services ID
-3. Налаштувати Sign in with Apple
-4. Вставити ключі в `.env`
-
-## 🛠 Tech Stack
-
-- **Frontend:** Next.js 15.4, TypeScript, Tailwind CSS 4, Lucide Icons
-- **Backend:** Next.js API Routes
-- **Database:** PostgreSQL/Prisma ORM
-- **Auth:** Custom JWT + bcrypt
-- **Icons:** Lucide React
-
-## 📋 Функціонал
-
-### Реалізовано:
-- ✅ Головна сторінка (hero, категорії, гарячі лоти, як це працює, безпека)
-- ✅ Картки лотів з таймером зворотного відліку
-- ✅ Категорії з іконками
-- ✅ API: реєстрація, вхід, NextAuth авторизація (Google OAuth + Credentials)
-- ✅ API: створення лотів, список з фільтрами
-- ✅ API: ставки з антиснайпінгом (+2 хв)
-- ✅ API: сповіщення при перебитті ставки
-- ✅ API: повідомлення, избранное, уведомления
-- ✅ SSE real-time события для ставок
-- ✅ Seed: 12 категорій, 10 юзерів, 30 лотів, 92 ставки
-- ✅ Mobile-first responsive дизайн
-- ✅ Bottom navigation для мобільних
-- ✅ PWA-ready структура
-- ✅ Prisma ORM з повною схемою (User, Listing, Bid, Favorite, Message, Notification, Review, Report, Transaction)
-- ✅ Сторінка лота (gallery, bid form, seller card)
-- ✅ Каталог з фільтрами
-- ✅ Кабінет користувача (/cabinet)
-- ✅ Admin panel (/admin)
-- ✅ Сторінка створення лота (/sell)
-
-### Roadmap:
-- 🔲 Production-активація LiqPay після sandbox/prod перевірок
-- 🔲 Пошук з автокомплітом
-- 🔲 i18n (UA/RU/EN)
-- 🔲 Email сповіщення
-- 🔲 Pricing page
-
-## 📁 Структура проекту
-
-```
-kram/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Головна
-│   │   ├── layout.tsx            # Root layout
-│   │   ├── globals.css           # Стилі
-│   │   └── api/
-│   │       ├── auth/login/       # POST /api/auth/login
-│   │       ├── auth/register/    # POST /api/auth/register
-│   │       ├── lots/             # GET/POST /api/lots
-│   │       └── bids/             # POST /api/bids
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Header.tsx
-│   │   │   └── MobileNav.tsx
-│   │   ├── home/
-│   │   │   ├── HeroSection.tsx
-│   │   │   ├── CategoriesSection.tsx
-│   │   │   ├── AuctionGrid.tsx
-│   │   │   ├── HowItWorks.tsx
-│   │   │   └── TrustSection.tsx
-│   │   └── lots/
-│   │       └── LotCard.tsx
-│   └── lib/
-│       ├── prisma.ts             # DB client
-│       ├── auth.ts               # JWT helpers
-│       └── utils.ts              # Formatters
-├── prisma/
-│   ├── schema.prisma             # Database schema
-│   ├── seed.ts                   # Seed data
-│   └── dev.db                    # SQLite database
-└── package.json
-```
-
-## 🎨 Дизайн-система
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| Primary Dark | #0B1220 | Header, dark sections |
-| Blue | #2563EB | CTA, links, active |
-| Green | #10B981 | Success, trust |
-| Amber | #F59E0B | Warnings, stars |
-| Red | #EF4444 | Danger, timer |
-| Background | #F8FAFC | Page bg |
-| Card | #FFFFFF | Cards |
-| Text | #0F172A | Primary text |
-| Text Secondary | #64748B | Secondary text |
-| Border | #E2E8F0 | Borders |
-
-## 🌐 Домен і URLs
-
-Для production використовуйте `NEXT_PUBLIC_SITE_URL` як canonical base URL. Рекомендовані домени:
-
-- `kram.ua`
-- `kram.com.ua`
-- `kram.market`
-- `kram.auction`
+---
 
 ## 📄 Ліцензія
 
-MIT
+Проєкт поширюється під ліцензією MIT.

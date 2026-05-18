@@ -121,12 +121,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
         <ChevronRight className="w-4 h-4 text-[#CBD5E1]" />
         <div className={`flex items-center gap-2 ${step >= 2 ? 'text-[#2563EB]' : 'text-[#94A3B8]'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[14px] ${step >= 2 ? 'bg-[#2563EB] text-white' : 'bg-[#F1F5F9]'}`}>2</div>
-          <span className="font-semibold text-[14px]">Оплата</span>
+          <span className="font-semibold text-[14px]">Погодження</span>
         </div>
         <ChevronRight className="w-4 h-4 text-[#CBD5E1]" />
         <div className={`flex items-center gap-2 ${step >= 3 ? 'text-[#2563EB]' : 'text-[#94A3B8]'}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[14px] ${step >= 3 ? 'bg-[#2563EB] text-white' : 'bg-[#F1F5F9]'}`}>3</div>
-          <span className="font-semibold text-[14px]">Готово</span>
+          <span className="font-semibold text-[14px]">Запит</span>
         </div>
       </div>
 
@@ -136,7 +136,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
           {step === 1 && (
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
               <h2 className="text-[18px] font-bold text-[#0B1220] mb-6 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-[#2563EB]" /> Дані для доставки
+                <Truck className="w-5 h-5 text-[#2563EB]" /> Дані отримувача та доставки
               </h2>
               <div className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -170,7 +170,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
 
                 {/* Nova Poshta City Search */}
                 <div className="relative">
-                  <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Місто</label>
+                  <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Місто доставки</label>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
                     <input 
@@ -210,7 +210,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                 {/* Nova Poshta Warehouse Selection */}
                 {selectedCity && (
                   <div className="animate-fade-in">
-                    <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Відділення / Поштомат</label>
+                    <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Відділення Нової Пошти для отримання</label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
                       <select 
@@ -242,7 +242,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                   disabled={!formData.fullName || !formData.phone || !selectedCity || !selectedWarehouse}
                   className="w-full h-12 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1D4ED8] transition-all disabled:opacity-50"
                 >
-                  Перейти до оплати
+                  Продовжити оформлення
                 </button>
               </div>
             </div>
@@ -251,29 +251,25 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
           {step === 2 && (
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
               <h2 className="text-[18px] font-bold text-[#0B1220] mb-6 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-[#2563EB]" /> Оплата
+                <ShieldCheck className="w-5 h-5 text-[#2563EB]" /> Погодження та завершення угоди
               </h2>
               <div className="space-y-4">
-                <div className="p-4 bg-[#F0FDF4] border border-[#10B981]/20 rounded-xl mb-6">
-                  <div className="flex items-center gap-2 text-[#10B981] font-bold text-[14px] mb-1">
-                    <ShieldCheck className="w-4 h-4" /> Безпечна угода активована
+                <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl mb-6">
+                  <div className="flex items-center gap-2 text-[#1E40AF] font-bold text-[14px] mb-1">
+                    📢 Beta-режим платформи KRAM
                   </div>
-                  <p className="text-[12px] text-[#047857]">
-                    KRAM фіксує статус оплати та показує наступні кроки угоди. У beta-режимі підтвердження може бути ручним до production-підключення LiqPay.
+                  <p className="text-[12px] text-[#1E40AF]/90 leading-relaxed">
+                    KRAM наразі не приймає онлайн-платежі, не утримує кошти та не бере комісії. Ви оформлюєте прямий запит продавцю. Після підтвердження ви зможете зв'язатися з продавцем через чат KRAM для узгодження оплати (наприклад, післяплати на пошті) та доставки.
                   </p>
                 </div>
 
-                <div className="border border-[#2563EB] bg-[#EFF6FF] p-4 rounded-xl flex items-center gap-4 cursor-pointer">
-                  <div className="w-5 h-5 border-2 border-[#2563EB] rounded-full flex items-center justify-center">
-                    <div className="w-2.5 h-2.5 bg-[#2563EB] rounded-full" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[14px] font-bold text-[#0F172A]">Оплата картою онлайн</p>
-                    <p className="text-[12px] text-[#64748B]">Visa, Mastercard, Apple Pay, Google Pay</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <div className="w-8 h-5 bg-white border border-[#E2E8F0] rounded shadow-xs" />
-                    <div className="w-8 h-5 bg-white border border-[#E2E8F0] rounded shadow-xs" />
+                <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4 space-y-3">
+                  <p className="text-[13px] font-bold text-[#0F172A] border-b border-[#E2E8F0] pb-2">Резюме домовленості:</p>
+                  <div className="text-[12px] text-[#64748B] space-y-1.5">
+                    <p>👤 <strong>Отримувач:</strong> {formData.fullName}</p>
+                    <p>📞 <strong>Телефон:</strong> {formData.phone}</p>
+                    <p>📍 <strong>Місто:</strong> {selectedCity?.Description}</p>
+                    <p>📦 <strong>Відділення:</strong> {selectedWarehouse?.Description}</p>
                   </div>
                 </div>
 
@@ -283,7 +279,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                   className="w-full h-12 bg-[#2563EB] text-white rounded-xl font-bold hover:bg-[#1D4ED8] transition-all flex items-center justify-center gap-2"
                 >
                   {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                  {submitting ? 'Оформлення...' : `Оплатити ${formatPrice(lot.currentPrice)}`}
+                  {submitting ? 'Надсилання...' : 'Надіслати запит продавцю'}
                 </button>
                 <button onClick={() => setStep(1)} className="w-full text-[13px] font-semibold text-[#64748B] hover:text-[#0F172A]">Повернутись до доставки</button>
               </div>
@@ -295,12 +291,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               <div className="w-20 h-20 bg-[#ECFDF5] text-[#10B981] rounded-full flex items-center justify-center mx-auto mb-6">
                 <Package className="w-10 h-10" />
               </div>
-              <h2 className="text-[24px] font-bold text-[#0B1220] mb-2">Замовлення оформлено!</h2>
-              <p className="text-[14px] text-[#64748B] mb-8 max-w-[360px] mx-auto">
-                Дякуємо за покупку. Ми повідомили продавця про ваше замовлення. Ви можете відстежувати статус у кабінеті.
+              <h2 className="text-[24px] font-bold text-[#0B1220] mb-2">Запит надіслано!</h2>
+              <p className="text-[14px] text-[#64748B] mb-8 max-w-[400px] mx-auto">
+                Угоду успішно ініційовано. Ми повідомили продавця про ваш запит. Будь ласка, перейдіть до кабінету, щоб почати діалог та домовитись про оплату й доставку.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <button onClick={() => router.push('/cabinet')} className="h-11 px-6 bg-[#2563EB] text-white rounded-xl font-bold">У кабінет</button>
+                <button onClick={() => router.push('/cabinet')} className="h-11 px-6 bg-[#2563EB] text-white rounded-xl font-bold">Перейти до кабінету</button>
                 <button onClick={() => router.push('/')} className="h-11 px-6 bg-[#F1F5F9] text-[#0B1220] rounded-xl font-bold">На головну</button>
               </div>
             </div>
@@ -310,7 +306,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
         {/* Right Side: Order Summary */}
         <div className="space-y-4">
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-sm">
-            <h3 className="text-[15px] font-bold text-[#0B1220] mb-4">Ваше замовлення</h3>
+            <h3 className="text-[15px] font-bold text-[#0B1220] mb-4">Деталі лота</h3>
             <div className="flex gap-3 mb-4 pb-4 border-b border-[#F1F5F9]">
               <div className="w-16 h-16 bg-[#F8FAFC] rounded-lg overflow-hidden flex-shrink-0">
                 {JSON.parse(lot.images || '[]')[0] && <img src={JSON.parse(lot.images || '[]')[0]} alt="" className="w-full h-full object-cover" />}
@@ -323,7 +319,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
             
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-[13px]">
-                <span className="text-[#64748B]">Вартість лота</span>
+                <span className="text-[#64748B]">Ваша фінальна ставка</span>
                 <span className="font-semibold text-[#0F172A]">{formatPrice(lot.currentPrice)}</span>
               </div>
               <div className="flex justify-between text-[13px]">
@@ -332,12 +328,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               </div>
               <div className="flex justify-between text-[13px]">
                 <span className="text-[#64748B]">Комісія сервісу</span>
-                <span className="text-[#10B981] font-medium">0 ₴</span>
+                <span className="text-[#10B981] font-medium">0 ₴ (Beta-запуск)</span>
               </div>
             </div>
 
             <div className="flex justify-between items-center pt-4 border-t border-[#E2E8F0]">
-              <span className="text-[15px] font-bold text-[#0B1220]">Разом</span>
+              <span className="text-[15px] font-bold text-[#0B1220]">Узгоджена ціна</span>
               <span className="text-[20px] font-black text-[#2563EB]">{formatPrice(lot.currentPrice)}</span>
             </div>
           </div>
@@ -346,9 +342,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
             <div className="flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-[#2563EB] flex-shrink-0" />
               <div>
-                <p className="text-[12px] font-bold text-[#0F172A] mb-0.5">KRAM Protection</p>
+                <p className="text-[12px] font-bold text-[#0F172A] mb-0.5">Поради з безпеки</p>
                 <p className="text-[11px] text-[#64748B] leading-normal">
-                  Статус угоди прозорий: оплата, доставка, отримання та спір відображаються в кабінеті.
+                  Рекомендуємо скористатись післяплатою при отриманні у відділенні Нової Пошти, щоб особисто перевірити лот перед розрахунком.
                 </p>
               </div>
             </div>

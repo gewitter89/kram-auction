@@ -5,7 +5,7 @@ const steps = [
     icon: Search,
     step: '01',
     title: 'Знайдіть лот',
-    desc: 'Тисячі товарів від перевірених продавців по всій Україні',
+    desc: 'Перші лоти від продавців по всій Україні на чесних торгах',
     color: 'from-blue-500 to-indigo-600',
     iconBg: 'bg-blue-100',
     iconColor: 'text-blue-600'

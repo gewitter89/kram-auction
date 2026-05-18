@@ -2,55 +2,41 @@
 
 import { HeroSection } from '@/components/home/HeroSection'
 import { CategoriesSection } from '@/components/home/CategoriesSection'
-import { HowItWorks } from '@/components/home/HowItWorks'
-import { TrustSection } from '@/components/home/TrustSection'
 import { Footer } from '@/components/layout/Footer'
 import {
   TelegramSection,
-  EarlyAccessBanner,
-  AIAssistantTeaser,
-  ForSellersSection,
   HowItWorksSimple,
   LiveAuctionsNow,
-  TrustSectionUpdated,
   MobileAppsTeaser,
   FAQSection,
-  FinalCTA,
-  BetaBanner,
   EmailCollectionSection,
 } from '@/components/home/TelegramSection'
 
 export default function HomePage() {
   return (
     <div className="bg-[#FAFBFD]">
-      {/* Beta banner - at the top */}
-      <BetaBanner />
-
-      {/* Hero with live auction mockup */}
+      {/* 1. Hero Pitch & Stacked Interactive Mockups */}
       <HeroSection />
 
-      {/* Live auctions section with active lists */}
+      {/* 2. Live Catalog Auction Cards Grid */}
       <LiveAuctionsNow />
 
-      {/* How it works - simple steps */}
+      {/* 3. Beta 4-Step Safety & Negotiation Walkthrough */}
       <HowItWorksSimple />
 
-      {/* Trust and safety badges */}
-      <TrustSectionUpdated />
-
-      {/* Categories grid */}
+      {/* 4. Popular Marketplace Categories */}
       <CategoriesSection />
 
-      {/* PWA 3D smartphone installation section */}
+      {/* 5. Clean PWA Application Prompt */}
       <MobileAppsTeaser />
 
-      {/* FAQ */}
+      {/* 6. Accordion Direct Beta FAQs */}
       <FAQSection />
 
-      {/* Waitlist and early-access email collection */}
+      {/* 7. Premium Subscription & Telegram Alerts */}
       <EmailCollectionSection />
 
-      {/* Beautiful dark corporate footer */}
+      {/* 8. Modern minimalist footer */}
       <Footer />
     </div>
   )

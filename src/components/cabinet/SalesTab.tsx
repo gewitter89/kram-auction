@@ -31,32 +31,32 @@ interface Transaction {
 }
 
 const statusLabels: Record<string, { label: string; color: string; icon: LucideIcon }> = {
-  PENDING_PAYMENT: { label: 'Очікує підтвердження оплати', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  PAID_HELD: { label: 'Оплату підтверджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
+  PENDING_PAYMENT: { label: 'Очікує узгодження умов', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  PAID_HELD: { label: 'Узгоджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
   SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження покупця', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
   BUYER_RECEIVED: { label: 'Отримано покупцем', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   COMPLETED: { label: 'Угоду завершено', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   DISPUTED: { label: 'Відкрито спір', color: 'bg-red-100 text-red-700', icon: AlertCircle },
   CANCELLED: { label: 'Угоду скасовано', color: 'bg-gray-100 text-gray-700', icon: AlertCircle },
-  REFUNDED: { label: 'Кошти повернено', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
+  REFUNDED: { label: 'Угоду скасовано продавцем', color: 'bg-purple-100 text-purple-700', icon: CreditCard },
 }
 
 function getNextAction(transaction: Transaction): { text: string; action?: string } {
   switch (transaction.status) {
     case 'PENDING_PAYMENT':
-      return { text: 'Очікуємо підтвердження оплати від покупця' }
+      return { text: 'Покупець має підтвердити домовленість у своєму кабінеті.' }
     case 'PAID_HELD':
-      return { text: 'Відправте товар та вкажіть номер накладної', action: 'ship' }
+      return { text: 'Надішліть товар покупцю узгодженим перевізником та вкажіть ТТН', action: 'ship' }
     case 'SELLER_SHIPPED':
-      return { text: 'Очікуємо підтвердження отримання від покупця' }
+      return { text: 'Посилку відправлено. Очікуємо перевірки та підтвердження від покупця.' }
     case 'DISPUTED':
-      return { text: 'Спір розглядається командою KRAM' }
+      return { text: 'Виникли розбіжності. Будь ласка, вирішуйте їх у чаті або зверніться до модератора.' }
     case 'COMPLETED':
-      return { text: 'Угоду завершено — кошти будуть перераховані (MVP)' }
+      return { text: 'Угоду успішно завершено!' }
     case 'CANCELLED':
-      return { text: 'Угоду скасовано — лот знову в каталозі' }
+      return { text: 'Угоду скасовано' }
     case 'REFUNDED':
-      return { text: 'Кошти повернуто покупцю' }
+      return { text: 'Угоду скасовано / відхилено' }
     default:
       return { text: '' }
   }

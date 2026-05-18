@@ -69,11 +69,27 @@ export function CabinetContent({ user }: CabinetContentProps) {
       <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 mb-6">
         <div className="flex flex-col md:flex-row md:items-center gap-5">
           <div className="flex items-center gap-5 flex-1">
-            <div className="w-16 h-16 bg-[#EFF6FF] rounded-2xl flex items-center justify-center overflow-hidden">
-              {user.image ? (
-                <img src={user.image} alt="" className="w-full h-full object-cover" />
+            <div className="w-16 h-16 bg-[#EFF6FF] rounded-2xl flex items-center justify-center overflow-hidden relative">
+              {user.image && user.image.trim() !== '' ? (
+                <img 
+                  src={user.image} 
+                  alt="" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      const fallback = document.createElement('span');
+                      fallback.className = 'text-[22px] font-bold text-[#2563EB]';
+                      fallback.innerText = (user.name || user.email || 'U').charAt(0).toUpperCase();
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
               ) : (
-                <User className="w-7 h-7 text-[#2563EB]" />
+                <span className="text-[22px] font-bold text-[#2563EB]">
+                  {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                </span>
               )}
             </div>
             <div className="flex-1">

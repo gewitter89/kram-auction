@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { Search, Bell, Heart, MessageCircle, User, PlusCircle, LogIn } from 'lucide-react'
+import { Search, Bell, Heart, MessageCircle, User, PlusCircle, LogIn, Loader2 } from 'lucide-react'
 import { KramLogo } from '@/components/brand/KramLogo'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { formatPrice } from '@/lib/utils'
 
 export function Header() {
   const { data: session } = useSession()
@@ -15,10 +16,27 @@ export function Header() {
   const [unreadNotifs, setUnreadNotifs] = useState(0)
   const [unreadMessages, setUnreadMessages] = useState(0)
 
+  // Autocomplete states
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [searching, setSearching] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   // Poll unread counts every 30s when logged in
@@ -37,35 +55,123 @@ export function Header() {
     return () => clearInterval(t)
   }, [session?.user?.id])
 
+  // Autocomplete search suggestions fetch
+  useEffect(() => {
+    if (search.trim().length < 2) {
+      setSuggestions([])
+      return
+    }
+    const delayDebounce = setTimeout(async () => {
+      setSearching(true)
+      try {
+        const res = await fetch(`/api/lots/search?q=${encodeURIComponent(search)}`)
+        if (res.ok) {
+          const data = await res.json()
+          setSuggestions(data.lots || [])
+        }
+      } catch (err) {
+        console.error('Autocomplete fetch error:', err)
+      } finally {
+        setSearching(false)
+      }
+    }, 250) // 250ms debounce
+
+    return () => clearTimeout(delayDebounce)
+  }, [search])
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
     if (search.trim()) {
+      setIsOpen(false)
       router.push(`/catalog?search=${encodeURIComponent(search.trim())}`)
     }
   }
 
   return (
-    <header className={`sticky top-0 z-50 bg-white/85 backdrop-blur-lg transition-all ${scrolled ? 'border-b border-[#E2E8F0] shadow-card' : 'border-b border-transparent'}`}>
+    <header className={`sticky top-0 z-50 bg-white/90 backdrop-blur-md transition-all ${scrolled ? 'border-b border-[#E2E8F0]/80 shadow-card' : 'border-b border-[#E2E8F0]/40'}`}>
       <div className="max-w-[1320px] mx-auto px-4 h-[64px] flex items-center gap-5">
         <Link href="/" className="flex-shrink-0">
           <KramLogo variant="full" size={34} />
         </Link>
 
-        <form onSubmit={handleSearch} className="flex-1 max-w-[560px] hidden md:block">
-          <div className="relative">
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Пошук лотів, брендів, категорій..."
-              className="peer w-full pl-10 pr-4 h-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] text-[#0F172A] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/15 focus:bg-white transition-all duration-300"
-            />
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#94A3B8] peer-focus:text-[#2563EB] peer-focus:scale-110 peer-focus:rotate-12 transition-all duration-300 pointer-events-none" />
-            {search && (
-              <kbd className="hidden md:inline-flex absolute right-3 top-1/2 -translate-y-1/2 h-6 px-1.5 items-center bg-white border border-[#E2E8F0] rounded text-[10px] font-mono text-[#94A3B8]">↵</kbd>
-            )}
-          </div>
-        </form>
+        <div ref={dropdownRef} className="flex-1 max-w-[520px] hidden md:block relative">
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              <input
+                type="text"
+                value={search}
+                onFocus={() => setIsOpen(true)}
+                onChange={(e) => {
+                  setSearch(e.target.value)
+                  setIsOpen(true)
+                }}
+                placeholder="Пошук товарів, брендів..."
+                className="peer w-full pl-10 pr-4 h-10 bg-[#F1F5F9]/60 border border-[#E2E8F0] rounded-xl text-[13.5px] text-[#0B1220] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/8 focus:bg-white transition-all duration-200"
+              />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[16px] h-[16px] text-[#94A3B8] peer-focus:text-[#2563EB] transition-colors pointer-events-none" />
+            </div>
+          </form>
+
+          {/* Autocomplete Dropdown */}
+          {isOpen && search.trim().length >= 2 && (
+            <div className="absolute top-12 left-0 right-0 bg-white/95 backdrop-blur-md border border-[#E2E8F0] rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              {searching ? (
+                <div className="p-5 text-center text-[13px] text-[#64748B] flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
+                  <span>Шукаємо лоти...</span>
+                </div>
+              ) : suggestions.length === 0 ? (
+                <div className="p-5 text-center text-[13px] text-[#64748B]">
+                  Нічого не знайдено за запитом <span className="font-semibold">"{search}"</span>
+                </div>
+              ) : (
+                <div className="p-2 space-y-0.5">
+                  <div className="px-3 py-2 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider">Знайдені лоти</div>
+                  {suggestions.map((lot: any) => (
+                    <button
+                      key={lot.id}
+                      type="button"
+                      onClick={() => {
+                        router.push(`/lot/${lot.id}`)
+                        setSearch('')
+                        setIsOpen(false)
+                      }}
+                      className="w-full text-left p-2 hover:bg-[#F1F5F9] rounded-xl flex items-center gap-3 transition-colors group"
+                    >
+                      <div className="w-10 h-10 bg-[#F1F5F9] rounded-lg overflow-hidden flex-shrink-0 border border-slate-100 relative">
+                        {lot.image ? (
+                          <img src={lot.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-300 text-[14px]">📦</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-semibold text-[#0F172A] truncate group-hover:text-[#2563EB] transition-colors">
+                          {lot.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[12px] font-bold text-[#2563EB]">{formatPrice(lot.currentPrice)}</span>
+                          <span className="text-[10px] text-[#94A3B8]">• {lot.bidsCount} ставок</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                  <div className="border-t border-[#F1F5F9] mt-2 pt-2 px-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        handleSearch(e)
+                      }}
+                      className="w-full text-center py-2 text-[12px] font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] rounded-xl transition-all duration-300 shadow-md shadow-[#2563EB]/15 hover:shadow-lg hover:shadow-[#2563EB]/25"
+                    >
+                      Показати всі результати для "{search}"
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <Link
           href={session ? '/sell' : '/auth/login?callbackUrl=/sell'}
@@ -99,11 +205,27 @@ export function Header() {
               )}
             </Link>
 
-            <Link href="/cabinet" className="ml-1 w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] hover:scale-105 transition-transform overflow-hidden" title="Кабінет">
-              {session.user?.image ? (
-                <img src={session.user.image} alt="" className="w-full h-full object-cover" />
+            <Link href="/cabinet" className="ml-1 w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] hover:scale-105 transition-transform overflow-hidden relative" title="Кабінет">
+              {session.user?.image && session.user.image.trim() !== '' ? (
+                <img 
+                  src={session.user.image} 
+                  alt="" 
+                  className="w-full h-full object-cover" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      const initialSpan = document.createElement('span');
+                      initialSpan.className = 'text-[13px] font-bold text-[#2563EB]';
+                      initialSpan.innerText = (session.user?.name || session.user?.email || 'U').charAt(0).toUpperCase();
+                      parent.appendChild(initialSpan);
+                    }
+                  }}
+                />
               ) : (
-                <User className="w-4 h-4 text-[#2563EB]" />
+                <span className="text-[13px] font-bold text-[#2563EB]">
+                  {(session.user?.name || session.user?.email || 'U').charAt(0).toUpperCase()}
+                </span>
               )}
             </Link>
           </nav>
