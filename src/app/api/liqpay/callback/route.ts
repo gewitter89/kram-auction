@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { parseCallback } from '@/lib/liqpay-service'
-import { eventBus } from '@/lib/eventBus'
+import { broadcast } from '@/lib/realtime-server'
 import { createPendingRelease } from '@/lib/payment-release-service'
 
 // POST /api/liqpay/callback - Handle LiqPay payment callback
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
       })
 
       // Emit notification
-      eventBus.emit('global', {
+      broadcast('global', 'payment', {
         type: 'payment',
         transactionId: paymentRecord.transactionId,
         amount: payment.amount,

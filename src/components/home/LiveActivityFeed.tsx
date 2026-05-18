@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useRealtimeSubscription } from '@/lib/realtime-client'
 import { Gavel, Trophy, Heart } from 'lucide-react'
 
 const initialMockEvents = [
@@ -13,28 +14,43 @@ const initialMockEvents = [
 export function LiveActivityFeed() {
   const [feed, setFeed] = useState<any[]>(initialMockEvents)
 
-  useEffect(() => {
-    let pollingInterval: NodeJS.Timeout | null = null
-    let sse: EventSource | null = null
+  const iconMap = { bid: Gavel, won: Trophy, fav: Heart } as Record<string, any>
+  const colorMap = { bid: 'text-[#2563EB]', won: 'text-[#10B981]', fav: 'text-[#EF4444]' } as Record<string, string>
+  const bgMap = { bid: 'bg-[#EFF6FF]', won: 'bg-[#ECFDF5]', fav: 'bg-[#FEF2F2]' } as Record<string, string>
+  const textMap = { bid: 'нова ставка', won: 'виграно лот', fav: 'додано в обране' } as Record<string, string>
 
-    const iconMap: Record<string, any> = { bid: Gavel, won: Trophy, fav: Heart }
-    const colorMap: Record<string, string> = { bid: 'text-[#2563EB]', won: 'text-[#10B981]', fav: 'text-[#EF4444]' }
-    const bgMap: Record<string, string> = { bid: 'bg-[#EFF6FF]', won: 'bg-[#ECFDF5]', fav: 'bg-[#FEF2F2]' }
-    const textMap: Record<string, string> = { bid: 'нова ставка', won: 'виграно лот', fav: 'додано в обране' }
-
-    function mapRawEvent(data: any) {
-      return {
-        type: data.type,
-        icon: iconMap[data.type] || Gavel,
-        color: colorMap[data.type] || 'text-[#2563EB]',
-        bg: bgMap[data.type] || 'bg-[#EFF6FF]',
-        text: textMap[data.type] || 'активність',
-        name: data.name,
-        amount: data.amount || '',
-        user: data.user
-      }
+  const mapRawEvent = useCallback((data: any) => {
+    return {
+      type: data.type,
+      icon: iconMap[data.type] || Gavel,
+      color: colorMap[data.type] || 'text-[#2563EB]',
+      bg: bgMap[data.type] || 'bg-[#EFF6FF]',
+      text: textMap[data.type] || 'активність',
+      name: data.name,
+      amount: data.amount || '',
+      user: data.user || 'користувач'
     }
+  }, [])
 
+  const handleGlobalEvent = useCallback((data: any) => {
+    if (data.type === 'bid' || data.type === 'won' || data.type === 'fav') {
+      const newEvent = mapRawEvent(data)
+      setFeed(prev => {
+        // Deduplicate events by user & name if already exists in top 4
+        const exists = prev.slice(0, 4).some(item => 
+          item.user === newEvent.user && 
+          item.name === newEvent.name && 
+          item.amount === newEvent.amount
+        )
+        if (exists) return prev
+        return [newEvent, ...prev].slice(0, 4)
+      })
+    }
+  }, [mapRawEvent])
+
+  useRealtimeSubscription('global', handleGlobalEvent)
+
+  useEffect(() => {
     // 1. Fetch initial real data from database
     async function fetchInitialFeed() {
       try {
@@ -51,65 +67,26 @@ export function LiveActivityFeed() {
       }
     }
 
-    // 2. Set up short-polling fallback
-    function startPollingFallback() {
-      if (pollingInterval) return
-      pollingInterval = setInterval(async () => {
-        try {
-          const res = await fetch('/api/events/recent')
-          if (res.ok) {
-            const data = await res.json()
-            if (data.events && data.events.length > 0) {
-              const mapped = data.events.map((e: any) => mapRawEvent(e))
-              setFeed(mapped)
-            }
-          }
-        } catch (err) {}
-      }, 5000)
-    }
-
     fetchInitialFeed()
 
-    // 3. Try to establish SSE connection
-    try {
-      sse = new EventSource('/api/events?channel=global')
-
-      sse.onmessage = (e) => {
-        try {
-          const data = JSON.parse(e.data)
-          if (data.type === 'bid' || data.type === 'won' || data.type === 'fav') {
-            const newEvent = mapRawEvent(data)
-            setFeed(prev => {
-              // Deduplicate events by user & name if already exists in top 4
-              const exists = prev.slice(0, 4).some(item => 
-                item.user === newEvent.user && 
-                item.name === newEvent.name && 
-                item.amount === newEvent.amount
-              )
-              if (exists) return prev
-              return [newEvent, ...prev].slice(0, 4)
-            })
+    // 2. Set up short-polling fallback
+    const pollingInterval = setInterval(async () => {
+      try {
+        const res = await fetch('/api/events/recent')
+        if (res.ok) {
+          const data = await res.json()
+          if (data.events && data.events.length > 0) {
+            const mapped = data.events.map((e: any) => mapRawEvent(e))
+            setFeed(mapped)
           }
-        } catch (err) {}
-      }
-
-      sse.onerror = () => {
-        // SSE connection failed or dropped (expected on serverless closeout)
-        if (sse) {
-          sse.close()
-          sse = null
         }
-        startPollingFallback()
-      }
-    } catch (e) {
-      startPollingFallback()
-    }
+      } catch (err) {}
+    }, 5000)
 
     return () => {
-      if (sse) sse.close()
-      if (pollingInterval) clearInterval(pollingInterval)
+      clearInterval(pollingInterval)
     }
-  }, [])
+  }, [mapRawEvent])
 
   return (
     <section className="max-w-[1320px] mx-auto px-4 py-10">

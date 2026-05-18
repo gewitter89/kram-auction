@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { eventBus } from '@/lib/eventBus'
+import { broadcast } from '@/lib/realtime-server'
 import { createTransactionFromAuctionWin } from '@/lib/transaction-service'
 
 // This route is called by a cron job or manually to close expired auctions
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
           )
 
           // Broadcast won event to global feed
-          eventBus.emit('global', {
+          broadcast('global', 'won', {
             type: 'won',
             name: listing.title,
             amount: `${winner.amount} ₴`,

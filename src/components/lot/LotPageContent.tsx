@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRealtimeSubscription } from '@/lib/realtime-client'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X, Info, XCircle } from 'lucide-react'
@@ -59,81 +60,58 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
     return () => clearInterval(i)
   }, [endsAt])
 
+  const handleRealtimeEvent = useCallback((data: any) => {
+    if (data.type === 'new_bid') {
+      setCurrentPrice(data.amount)
+      setBidCount((prev: number) => prev + 1)
+      if (data.endsAt) setEndsAt(data.endsAt)
+      if (data.bid) {
+        setBidsHistory((prev: any) => {
+          const exists = prev.some((b: any) => b.id === data.bid.id)
+          if (exists) return prev
+          return [data.bid, ...prev]
+        })
+      }
+      // Trigger visual live outbid alert if bid is from another user!
+      if (session?.user && data.userId !== session.user.id) {
+        setOutbidAlert({ amount: data.amount, lotTitle: lot.title })
+        try {
+          const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = 'sine'
+          osc.frequency.setValueAtTime(550, ctx.currentTime)
+          gain.gain.setValueAtTime(0.06, ctx.currentTime)
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25)
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+          osc.start()
+          osc.stop(ctx.currentTime + 0.25)
+        } catch (e) {}
+      }
+    }
+  }, [lot.title, session])
+
+  useRealtimeSubscription(`lot_${lot.id}`, handleRealtimeEvent)
+
+  // Polling fallback
   useEffect(() => {
-    let pollingInterval: NodeJS.Timeout | null = null
-    let sse: EventSource | null = null
-
-    function startPollingFallback() {
-      if (pollingInterval) return
-      pollingInterval = setInterval(async () => {
-        try {
-          const res = await fetch(`/api/listings/${lot.id}/price`)
-          if (res.ok) {
-            const data = await res.json()
-            setCurrentPrice(data.currentPrice)
-            setBidCount(data.bidCount)
-            if (data.endsAt) setEndsAt(data.endsAt)
-            if (data.bids) {
-              setBidsHistory(data.bids)
-            }
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/listings/${lot.id}/price`)
+        if (res.ok) {
+          const data = await res.json()
+          setCurrentPrice(data.currentPrice)
+          setBidCount(data.bidCount)
+          if (data.endsAt) setEndsAt(data.endsAt)
+          if (data.bids) {
+            setBidsHistory(data.bids)
           }
-        } catch (err) {}
-      }, 4000)
-    }
-
-    try {
-      sse = new EventSource(`/api/events?channel=lot_${lot.id}`)
-      sse.onmessage = (e) => {
-        try {
-          const data = JSON.parse(e.data)
-          if (data.type === 'new_bid') {
-            setCurrentPrice(data.amount)
-            setBidCount((prev: number) => prev + 1)
-            if (data.endsAt) setEndsAt(data.endsAt)
-            if (data.bid) {
-              setBidsHistory((prev: any) => {
-                const exists = prev.some((b: any) => b.id === data.bid.id)
-                if (exists) return prev
-                return [data.bid, ...prev]
-              })
-            }
-            // Trigger visual live outbid alert if bid is from another user!
-            if (session?.user && data.userId !== session.user.id) {
-              setOutbidAlert({ amount: data.amount, lotTitle: lot.title })
-              try {
-                const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-                const osc = ctx.createOscillator()
-                const gain = ctx.createGain()
-                osc.type = 'sine'
-                osc.frequency.setValueAtTime(550, ctx.currentTime)
-                gain.gain.setValueAtTime(0.06, ctx.currentTime)
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25)
-                osc.connect(gain)
-                gain.connect(ctx.destination)
-                osc.start()
-                osc.stop(ctx.currentTime + 0.25)
-              } catch (e) {}
-            }
-          }
-        } catch (err) {}
-      }
-
-      sse.onerror = () => {
-        if (sse) {
-          sse.close()
-          sse = null
         }
-        startPollingFallback()
-      }
-    } catch (e) {
-      startPollingFallback()
-    }
-
-    return () => {
-      if (sse) sse.close()
-      if (pollingInterval) clearInterval(pollingInterval)
-    }
-  }, [lot.id, session])
+      } catch (err) {}
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [lot.id])
 
   const isEnded = new Date(endsAt).getTime() <= Date.now()
   const isUrgent = !isEnded && new Date(endsAt).getTime() - Date.now() < 30 * 60000
@@ -331,7 +309,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
           </div>
 
           {/* Bid History */}
-          <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 mb-6">
+          <div data-testid="bids-history" className="bg-white border border-[#E2E8F0] rounded-2xl p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[18px] font-bold text-[#0F172A] tracking-tight">Історія ставок</h2>
               <span className="px-2 py-0.5 bg-[#EFF6FF] text-[#2563EB] text-[12px] font-bold rounded-full">{bidCount}</span>
@@ -434,7 +412,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
             {/* Price block */}
             <div className="bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] border border-[#E2E8F0] rounded-xl p-4 mb-4">
               <p className="text-[11px] text-[#64748B] uppercase tracking-wider font-semibold mb-1">Поточна ставка</p>
-              <p className="text-[32px] font-bold text-[#0B1220] tracking-tight">{formatPrice(currentPrice)}</p>
+              <p data-testid="current-price" className="text-[32px] font-bold text-[#0B1220] tracking-tight">{formatPrice(currentPrice)}</p>
               <div className="flex items-center gap-4 mt-2 text-[12px] text-[#64748B]">
                 <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{bidCount} ставок</span>
                 <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{lot.views} переглядів</span>
@@ -470,6 +448,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
             {!isEnded && !isOwner && (
               <div className="space-y-2 mb-4">
                 <button
+                  data-testid="open-bid-modal"
                   onClick={handleBid}
                   className="w-full h-12 bg-[#2563EB] text-white rounded-xl text-[15px] font-bold hover:bg-[#1D4ED8] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#2563EB]/30"
                 >

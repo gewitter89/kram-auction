@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     }
 
     // Rate limit to max 3 reports per minute per user
-    if (isRateLimited(`report:${userId}`, 3, 60_000)) {
+    if (await isRateLimited(`report:${userId}`, 3, 60_000)) {
       return NextResponse.json({ error: 'Занадто багато скарг. Спробуйте через кілька секунд.' }, { status: 429 })
     }
 

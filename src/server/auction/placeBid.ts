@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { eventBus } from '@/lib/eventBus'
+import { broadcast } from '@/lib/realtime-server'
 import { isRateLimited } from '@/lib/rateLimit'
 import { sendOutbidEmail } from '@/lib/email'
 import type { Bid, Prisma } from '@prisma/client'
@@ -27,7 +27,7 @@ export async function placeBid(params: {
   const { userId, listingId, amount, isAuto, autoMax } = params
 
   // Rate limiting
-  if (isRateLimited(`bid:${userId}`, 10, 60_000)) {
+  if (await isRateLimited(`bid:${userId}`, 10, 60_000)) {
     return { success: false, error: 'Забагато ставок. Зачекайте хвилину.' }
   }
 
@@ -190,8 +190,8 @@ export async function placeBid(params: {
     // Transaction succeeded! Run best-effort async side-effects outside of transaction
     const { listing, newlyCreatedBid, finalAmount, finalEndsAt, finalUserId, previousTopBid } = result
 
-    // Real-time SSE events
-    eventBus.emit(`lot_${listingId}`, {
+    // Real-time SSE and WebSocket events
+    broadcast(`lot_${listingId}`, 'new_bid', {
       type: 'new_bid',
       amount: finalAmount,
       endsAt: finalEndsAt.toISOString(),
@@ -204,7 +204,7 @@ export async function placeBid(params: {
       } : null
     })
 
-    eventBus.emit('global', {
+    broadcast('global', 'bid', {
       type: 'bid',
       name: listing.title,
       amount: `+${(finalAmount - listing.currentPrice).toLocaleString('uk-UA')} ₴`,
@@ -213,7 +213,7 @@ export async function placeBid(params: {
     // Outbid notification
     if (previousTopBid?.userId && previousTopBid.userId !== finalUserId) {
       // Real-time user alert
-      eventBus.emit(`user_${previousTopBid.userId}`, {
+      broadcast(`user_${previousTopBid.userId}`, 'outbid', {
         type: 'outbid',
         listingId,
         lotTitle: listing.title,

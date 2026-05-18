@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     // Rate limit by IP
     const ip = request.headers.get('x-forwarded-for') || 'unknown'
-    if (isRateLimited(`register:${ip}`, 5, 60_000)) {
+    if (await isRateLimited(`register:${ip}`, 5, 60_000)) {
       return NextResponse.json({ error: 'Забагато спроб. Спробуйте пізніше.' }, { status: 429 })
     }
 

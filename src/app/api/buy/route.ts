@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
 import { createTransactionFromBuyNow } from '@/lib/transaction-service'
-import { eventBus } from '@/lib/eventBus'
+import { broadcast } from '@/lib/realtime-server'
 
 export async function POST(request: Request) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     const transaction = await createTransactionFromBuyNow(listingId, userId, undefined, ip, userAgent, idempotencyKey)
 
-    eventBus.emit('global', {
+    broadcast('global', 'won', {
       type: 'won',
       name: listing.title,
       amount: `${transaction.amount.toLocaleString('uk-UA')} ₴`,

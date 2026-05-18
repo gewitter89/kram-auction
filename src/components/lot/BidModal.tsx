@@ -113,6 +113,7 @@ export function BidModal({ lotId, currentPrice, minIncrement, lotTitle, onClose,
           <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Ваша ставка (₴)</label>
           <input
             type="number"
+            name="amount"
             value={amount}
             onChange={(e) => setAmount(Number(e.target.value))}
             min={minBid}
@@ -159,6 +160,7 @@ export function BidModal({ lotId, currentPrice, minIncrement, lotTitle, onClose,
 
         {/* Submit */}
         <button
+          data-testid="submit-bid"
           onClick={handleSubmit}
           disabled={loading || amount < minBid}
           className="w-full h-12 bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"

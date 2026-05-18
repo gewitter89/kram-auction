@@ -29,7 +29,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // Rate limiting by IP
         const ip = request?.headers?.get('x-forwarded-for') || 'unknown'
-        if (isRateLimited(`login:${ip}`, 5, 60_000)) {
+        if (await isRateLimited(`login:${ip}`, 5, 60_000)) {
           throw new Error('Забагато спроб входу. Спробуйте через хвилину.')
         }
 
@@ -40,7 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!user) return null
         const valid = bcrypt.compareSync(credentials.password as string, user.passwordHash)
         if (!valid) {
-          isRateLimited(`login:${credentials.email}`, 1, 300_000) // Track failed attempts per email
+          await isRateLimited(`login:${credentials.email}`, 1, 300_000) // Track failed attempts per email
           return null
         }
 

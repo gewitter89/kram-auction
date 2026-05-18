@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Limit to 10 upload clicks per minute
-    if (isRateLimited(`upload:${userId}`, 10, 60_000)) {
+    if (await isRateLimited(`upload:${userId}`, 10, 60_000)) {
       return NextResponse.json({ error: 'Занадто багато завантажень. Спробуйте через кілька секунд.' }, { status: 429 })
     }
 
