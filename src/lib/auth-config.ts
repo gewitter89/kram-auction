@@ -1,6 +1,8 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import Google from 'next-auth/providers/google'
+import Facebook from 'next-auth/providers/facebook'
+import GitHub from 'next-auth/providers/github'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { isRateLimited } from './rateLimit'
@@ -17,6 +19,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    Facebook({
+      clientId: process.env.AUTH_FACEBOOK_ID || process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.AUTH_FACEBOOK_SECRET || process.env.FACEBOOK_CLIENT_SECRET,
+    }),
+    GitHub({
+      clientId: process.env.AUTH_GITHUB_ID || process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET || process.env.GITHUB_CLIENT_SECRET,
     }),
     Credentials({
       name: 'credentials',
@@ -71,8 +81,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   callbacks: {
     async signIn({ user, account }) {
-      // For Google OAuth - find or create user in our DB
-      if (account?.provider === 'google' && user.email) {
+      // For Google, Facebook, GitHub OAuth - find or create user in our DB
+      if ((account?.provider === 'google' || account?.provider === 'facebook' || account?.provider === 'github') && user.email) {
         let dbUser = await prisma.user.findUnique({ where: { email: user.email } })
         
         if (!dbUser) {
@@ -87,7 +97,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
           })
         } else {
-          // Update name and avatar from Google if changed
+          // Update name and avatar from provider if changed
           await prisma.user.update({
             where: { id: dbUser.id },
             data: {
