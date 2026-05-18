@@ -87,8 +87,8 @@ export default function SafetyPage() {
           <section>
             <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Як правильно здійснити пряму угоду</h2>
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
-              <ul className="space-y-6 list-none">
-                <li className="flex gap-4">
+              <div className="space-y-6">
+                <div className="flex gap-4">
                   <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">1</div>
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Оформлення запиту</h4>
@@ -96,8 +96,8 @@ export default function SafetyPage() {
                       Вигравши аукціон, покупець створює запит на домовленість і вказує реквізити Нової Пошти для доставки.
                     </p>
                   </div>
-                </li>
-                <li className="flex gap-4">
+                </div>
+                <div className="flex gap-4">
                   <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">2</div>
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Зв’язок та узгодження в чаті</h4>
@@ -105,8 +105,8 @@ export default function SafetyPage() {
                       Сторони списуються у безпечному чаті KRAM, підтверджують параметри лота й погоджують відправку післяплатою.
                     </p>
                   </div>
-                </li>
-                <li className="flex gap-4">
+                </div>
+                <div className="flex gap-4">
                   <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">3</div>
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Відправка продавцем</h4>
@@ -114,8 +114,8 @@ export default function SafetyPage() {
                       Продавець надсилає лот обраним перевізником і додає номер ТТН у чаті або у деталях угоди.
                     </p>
                   </div>
-                </li>
-                <li className="flex gap-4">
+                </div>
+                <div className="flex gap-4">
                   <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">4</div>
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Огляд посилки та оплата</h4>
@@ -123,8 +123,8 @@ export default function SafetyPage() {
                       Покупець оглядає товар у відділенні пошти, переконується у відповідності опису та оплачує накладений платіж.
                     </p>
                   </div>
-                </li>
-                <li className="flex gap-4">
+                </div>
+                <div className="flex gap-4">
                   <div className="w-8 h-8 bg-[#10B981] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">5</div>
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Угода виконана</h4>
@@ -132,8 +132,8 @@ export default function SafetyPage() {
                       Покупець позначає угоду як завершену у своєму кабінеті, підтверджуючи успішне отримання товару.
                     </p>
                   </div>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </section>
 

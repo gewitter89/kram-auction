@@ -305,7 +305,7 @@ export function HowItWorksSimple() {
                 {item.icon}
               </div>
               <div className="absolute top-6 right-6 text-[32px] font-black text-slate-100/80 leading-none select-none">
-                0{item.step}
+                {item.step}
               </div>
               <h3 className="text-[14.5px] font-extrabold text-[#0B1220] mb-2">{item.title}</h3>
               <p className="text-[12.5px] text-[#475569] leading-relaxed">{item.desc}</p>

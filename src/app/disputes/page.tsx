@@ -82,21 +82,21 @@ export default function DisputesPage() {
               <p>
                 З будь-яких питань щодо активних суперечок звертайтеся безпосередньо до нашого офіційного каналу підтримки:
               </p>
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                <div>
+              <div className="mt-4 space-y-3">
+                <div className="block">
                   <a 
                     href="https://t.me/kram_support" 
                     target="_blank" 
                     rel="noreferrer" 
-                    className="inline-flex h-11 px-5 items-center bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1D4ED8] transition-colors w-full sm:w-auto justify-center"
+                    className="inline-flex h-11 px-5 items-center bg-[#2563EB] text-white rounded-xl text-[13px] font-semibold hover:bg-[#1D4ED8] transition-colors justify-center"
                   >
                     Чат у Telegram
                   </a>
                 </div>
-                <div>
+                <div className="block">
                   <a 
                     href="mailto:support@kram.ua" 
-                    className="inline-flex h-11 px-5 items-center border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC] rounded-xl text-[13px] font-semibold transition-colors w-full sm:w-auto justify-center"
+                    className="inline-flex h-11 px-5 items-center border border-[#E2E8F0] text-[#0F172A] hover:bg-[#F8FAFC] rounded-xl text-[13px] font-semibold transition-colors justify-center"
                   >
                     support@kram.ua
                   </a>
