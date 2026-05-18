@@ -16,7 +16,7 @@ export default function SafetyPage() {
             <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
             <span className="text-[12px] font-medium text-[#2563EB]">Ваша безпека — наш пріоритет</span>
           </div>
-          <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Посібник з безпечних угод KRAM</h1>
+          <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Посібник з безпечних домовленостей KRAM</h1>
           <p className="text-[#64748B] text-lg">
             Як захистити себе та здійснити успішну домовленість напряму
           </p>
@@ -87,7 +87,7 @@ export default function SafetyPage() {
           <section>
             <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Як правильно здійснити пряму угоду</h2>
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
-              <ol className="space-y-6">
+              <ul className="space-y-6 list-none">
                 <li className="flex gap-4">
                   <div className="w-8 h-8 bg-[#2563EB] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">1</div>
                   <div>
@@ -133,7 +133,7 @@ export default function SafetyPage() {
                     </p>
                   </div>
                 </li>
-              </ol>
+              </ul>
             </div>
           </section>
 

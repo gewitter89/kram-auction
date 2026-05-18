@@ -70,16 +70,19 @@ function CatalogSSRShell() {
           {/* Catalog content list mockup */}
           <div>
             <div className="bg-white border border-[#E2E8F0] rounded-3xl p-12 text-center shadow-sm">
-              <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
-                🔍
+              <div className="w-14 h-14 bg-gradient-to-br from-[#EFF6FF] to-[#F5F3FF] border border-[#BFDBFE]/30 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
+                🌟
               </div>
-              <h3 className="text-[16.5px] font-extrabold text-[#0B1220] mb-2">Завантаження активних оголошень...</h3>
-              <p className="text-slate-400 text-[13px] max-w-sm mx-auto mb-6 leading-relaxed">
-                Зачекайте секунду, ми синхронізуємо ставки та завантажуємо лоти з бази даних.
+              <h3 className="text-[18px] font-extrabold text-[#0B1220] mb-2">Перші лоти скоро зʼявляться</h3>
+              <p className="text-slate-500 text-[13.5px] max-w-sm mx-auto mb-6 leading-relaxed">
+                KRAM тільки запускається! Ви можете стати першим продавцем на платформі, опублікувавши лот без комісії.
               </p>
-              <div className="inline-flex gap-3 justify-center">
-                <div className="w-8 h-8 rounded-full border-2 border-slate-200 border-t-[#2563EB] animate-spin" />
-              </div>
+              <a 
+                href="/sell" 
+                className="inline-flex h-11 px-6 items-center justify-center bg-[#2563EB] text-white rounded-xl text-[13.5px] font-bold hover:bg-[#1D4ED8] transition-colors"
+              >
+                Створити перший лот
+              </a>
             </div>
           </div>
         </div>

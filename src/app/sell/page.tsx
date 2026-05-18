@@ -256,8 +256,8 @@ export default function SellPage() {
         <div className="w-16 h-16 bg-[#EFF6FF] rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Camera className="w-8 h-8 text-[#2563EB]" />
         </div>
-        <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб продавати</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">Щоб створити лот, потрібен акаунт KRAM</p>
+        <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
+        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот, потрібен акаунт KRAM</p>
         <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center h-12 px-8 bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors">
           Увійти
         </Link>
@@ -287,10 +287,10 @@ export default function SellPage() {
           <Camera className="w-8 h-8 text-[#2563EB]" />
         </div>
         <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">Завантаження кабінету KRAM... Щоб створити лот, потрібен акаунт.</p>
-        <div className="w-32 h-11 bg-slate-100 rounded-xl mx-auto animate-pulse flex items-center justify-center text-xs font-bold text-slate-400">
-          Завантаження...
-        </div>
+        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот, потрібен акаунт KRAM</p>
+        <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center h-12 px-8 bg-[#2563EB]/80 text-white rounded-xl text-[15px] font-semibold transition-colors pointer-events-none opacity-80">
+          Увійти
+        </Link>
       </div>
     )
   }
