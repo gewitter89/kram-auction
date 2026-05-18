@@ -66,7 +66,7 @@ export default function DisputesPage() {
                   <span className="w-6 h-6 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[12px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
                   <div>
                     <h4 className="font-bold text-[#0F172A] text-[14px]">Модерація та блокування</h4>
-                    <p className="text-[#64748B] text-[13px] mt-1">Команда модерації розглядає скаргу протягом 24 годин. У разі підтвердження порушення правил платформи акаунт зловмисника буде назавжди заблоковано.</p>
+                    <p className="text-[#64748B] text-[13px] mt-1">Команда модерації розглядає скаргу. У разі підтвердження порушення акаунт може бути обмежено або заблоковано відповідно до правил платформи.</p>
                   </div>
                 </div>
               </div>

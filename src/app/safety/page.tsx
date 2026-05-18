@@ -3,7 +3,7 @@ import { ShieldCheck, AlertTriangle, MessageCircle, XCircle, Truck, Info, Phone 
 
 export const metadata = {
   title: 'Безпека на KRAM | KRAM',
-  description: 'Поради та правила безпечних прямих угод на українській beta-платформі KRAM',
+  description: 'Поради та правила безпечних прямих домовленостей на українській beta-платформі KRAM',
 }
 
 export default function SafetyPage() {
@@ -85,7 +85,7 @@ export default function SafetyPage() {
 
         <div className="space-y-10">
           <section>
-            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Як правильно здійснити пряму угоду</h2>
+            <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Як правильно здійснити пряму домовленість</h2>
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
               <div className="space-y-6">
                 <div className="flex gap-4">
@@ -111,7 +111,7 @@ export default function SafetyPage() {
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Відправка продавцем</h4>
                     <p className="text-[#64748B] text-[13px] leading-relaxed">
-                      Продавець надсилає лот обраним перевізником і додає номер ТТН у чаті або у деталях угоди.
+                      Продавець надсилає лот обраним перевізником і додає номер ТТН у чаті або у деталях домовленості.
                     </p>
                   </div>
                 </div>
@@ -127,9 +127,9 @@ export default function SafetyPage() {
                 <div className="flex gap-4">
                   <div className="w-8 h-8 bg-[#10B981] text-white rounded-full flex items-center justify-center font-bold shrink-0 text-[13px]">5</div>
                   <div>
-                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Угода виконана</h4>
+                    <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Домовленість завершена</h4>
                     <p className="text-[#64748B] text-[13px] leading-relaxed">
-                      Покупець позначає угоду як завершену у своєму кабінеті, підтверджуючи успішне отримання товару.
+                      Покупець позначає домовленість як завершену у своєму кабінеті, підтверджуючи успішне отримання товару.
                     </p>
                   </div>
                 </div>
