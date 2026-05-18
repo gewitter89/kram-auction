@@ -144,42 +144,43 @@ function VerifyPageContent() {
               <p className="text-[14px] text-[#64748B] mt-1">Оберіть спосіб перевірки особи для захисту угод та підвищення довіри.</p>
             </div>
 
+            {/* Beta Notice */}
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl">
+              <p className="text-[13px] text-amber-800 font-medium text-center">
+                🔒 Верифікація через Дія.Підпис та BankID запланована на наступний етап.
+              </p>
+            </div>
+
             <div className="space-y-3">
-              {/* Option 1: Diia */}
-              <div 
-                onClick={() => setMethod('diia')}
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 hover:border-amber-500/50 ${
-                  method === 'diia' ? 'border-amber-500 bg-amber-500/[0.02]' : 'border-[#E2E8F0] bg-white'
-                }`}
-              >
-                <div className="w-11 h-11 bg-black rounded-xl flex items-center justify-center font-black text-[13px] text-white flex-shrink-0">
-                  Дія
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="font-bold text-[14px] text-[#0F172A]">Дія.Підпис (Рекомендовано)</p>
-                    <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Безкоштовно</span>
+              {/* Option 1: Diia - DISABLED */}
+              <div className="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 opacity-60 cursor-not-allowed">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-black rounded-xl flex items-center justify-center font-black text-[13px] text-white flex-shrink-0">
+                    Дія
                   </div>
-                  <p className="text-[12px] text-[#64748B] mt-0.5">Отримайте золотий щит довіри 🛡️ та пріоритет лотів. Оплачує KRAM.</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-[14px] text-slate-500">Дія.Підпис</p>
+                      <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">Скоро</span>
+                    </div>
+                    <p className="text-[12px] text-slate-400 mt-0.5">Інтеграція в процесі розробки</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Option 2: BankID */}
-              <div 
-                onClick={() => setMethod('bankid')}
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-start gap-4 hover:border-amber-500/50 ${
-                  method === 'bankid' ? 'border-amber-500 bg-amber-500/[0.02]' : 'border-[#E2E8F0] bg-white'
-                }`}
-              >
-                <div className="w-11 h-11 bg-[#EFF6FF] rounded-xl flex items-center justify-center flex-shrink-0 text-xl">
-                  🏦
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className="font-bold text-[14px] text-[#0F172A]">Швидко через BankID</p>
-                    <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">Безкоштовно</span>
+              {/* Option 2: BankID - DISABLED */}
+              <div className="p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 opacity-60 cursor-not-allowed">
+                <div className="flex items-start gap-4">
+                  <div className="w-11 h-11 bg-slate-200 rounded-xl flex items-center justify-center text-xl">
+                    🏦
                   </div>
-                  <p className="text-[12px] text-[#64748B] mt-0.5">Перевірка через Приват24, Монобанк або інші банки. Оплачує KRAM.</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-[14px] text-slate-500">BankID</p>
+                      <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">Скоро</span>
+                    </div>
+                    <p className="text-[12px] text-slate-400 mt-0.5">Інтеграція в процесі розробки</p>
+                  </div>
                 </div>
               </div>
 
@@ -522,7 +523,7 @@ export default function VerifyPage() {
     <Suspense fallback={
       <div className="py-20 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 text-[#2563EB] animate-spin" />
-        <p className="text-[14px] text-[#64748B] font-medium">Завантаження верифікації...</p>
+        <p className="text-[14px] text-[#64748B] font-medium">Завантаження...</p>
       </div>
     }>
       <VerifyPageContent />

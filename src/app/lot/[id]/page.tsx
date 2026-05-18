@@ -44,7 +44,7 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
     where: { categoryId: lot.categoryId, id: { not: lot.id }, status: 'active' },
     take: 4,
     include: { 
-      seller: { select: { name: true, rating: true, verified: true } },
+      seller: { select: { name: true, rating: true, verified: true, reviewsCount: true } },
       _count: { select: { bids: true } }
     }
   })

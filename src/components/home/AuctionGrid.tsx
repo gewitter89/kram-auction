@@ -79,6 +79,7 @@ function transformLot(lot: any) {
     city: lot.city || 'Україна',
     seller: lot.seller?.name || 'Продавець',
     sellerRating: lot.seller?.rating || 0,
+    sellerReviewsCount: lot.seller?.reviewsCount || 0,
     image: images[0] || '',
     condition: lot.condition,
     type: lot.type,

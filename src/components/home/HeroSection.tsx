@@ -53,7 +53,7 @@ export function HeroSection() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
               </span>
               <span className="text-[12px] font-bold text-[#475569]">
-                {activeLots === null ? 'Завантаження...' : activeLots > 0 ? `${activeLots} активних лотів` : 'Beta-режим активовано'}
+                {activeLots === null ? 'Beta-режим' : activeLots > 0 ? `${activeLots} активних лотів` : 'Beta-режим активовано'}
               </span>
             </div>
 

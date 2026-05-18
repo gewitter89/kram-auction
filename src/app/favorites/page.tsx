@@ -38,6 +38,7 @@ export default function FavoritesPage() {
       city: lot.city || 'Україна',
       seller: lot.seller?.name || 'Продавець',
       sellerRating: lot.seller?.rating || 0,
+      sellerReviewsCount: lot.seller?.reviewsCount || 0,
       image: images[0] || `https://placehold.co/400x300/F1F5F9/334155?text=${encodeURIComponent(lot.title.slice(0, 20))}`,
       condition: lot.condition,
       type: lot.type,

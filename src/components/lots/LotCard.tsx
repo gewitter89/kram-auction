@@ -17,6 +17,7 @@ interface LotCardProps {
     city: string
     seller: string
     sellerRating: number
+    sellerReviewsCount?: number
     image: string
     condition: string
     type: string
@@ -190,17 +191,21 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
           </div>
 
           <div className="flex items-center gap-1" title={lot.verified ? "Верифікований користувач" : undefined}>
+            {/* DISABLED: Real verification not yet implemented
             {lot.verified && (
               <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
             )}
-            {lot.sellerRating > 0 ? (
+            */}
+            {/* DISABLED: Fake ratings in DB - only show when real review system is implemented
+            {lot.sellerReviewsCount && lot.sellerReviewsCount > 0 ? (
               <>
                 <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" aria-hidden="true" />
                 <span className="font-bold">{lot.sellerRating.toFixed(1)}</span>
               </>
             ) : (
-              <span className="text-[10px] text-[#94A3B8]">Відгуків немає</span>
             )}
+            */}
+            <span className="text-[10px] text-[#94A3B8]">Відгуків ще немає</span>
           </div>
         </div>
 

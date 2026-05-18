@@ -530,13 +530,15 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                     <Link href={`/user/${lot.seller.id}`} className="text-[15px] font-bold text-[#0F172A] hover:text-[#2563EB] transition-colors truncate">
                       {lot.seller.name}
                     </Link>
+                    {/* DISABLED: Real verification check not yet implemented
                     {lot.seller.verified && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10" title="Профіль верифіковано модератором KRAM">
                         <ShieldCheck className="w-3 h-3" aria-hidden="true" />
                         Підтверджено
                       </span>
                     )}
-                    {!lot.seller.verified && lot.seller.completedDealsCount === 0 && (
+                    */}
+                    {(!lot.seller.verified || true) && lot.seller.completedDealsCount === 0 && (
                       <span className="inline-flex items-center px-1.5 py-0.5 bg-[#FFFBEB] text-[#D97706] text-[10px] font-bold rounded-full border border-[#D97706]/10">
                         Новий продавець
                       </span>
@@ -957,6 +959,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                 city: s.city || 'Україна',
                 seller: s.seller?.name || 'Продавець',
                 sellerRating: s.seller?.rating || 0,
+                sellerReviewsCount: s.seller?.reviewsCount || 0,
                 image: images[0] || '',
                 condition: s.condition,
                 type: s.type,
