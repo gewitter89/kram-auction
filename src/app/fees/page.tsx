@@ -1,9 +1,9 @@
 import { FeesPageContent } from '@/components/fees/FeesPageContent'
 
 export const metadata = {
-  title: 'Тарифи та привілеї продавців | KRAM',
-  description: 'Дізнайтеся про тарифи та привілеї маркетплейсу KRAM. Оберіть Basic, PRO або VIP Platinum та продавайте без комісій з унікальними VIP-підсвітками лотів.',
-  keywords: ['тарифи kram', 'комісія продавця', 'vip platinum', 'аукціон тариф', 'безпечна угода', 'kram pro', 'безкоштовні лоти'],
+  title: 'Тарифи KRAM | Безкоштовний Beta-запуск',
+  description: 'Усі функції KRAM, створення лотів та ставки є повністю безкоштовними. Ми не стягуємо комісій та не приймаємо платежі під час Beta-тестування.',
+  keywords: ['тарифи kram', 'безкоштовні лоти', 'безкоштовний аукціон', 'комісія 0%', 'beta kram', 'прямі угоди'],
 }
 
 export default function FeesPage() {
