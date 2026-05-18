@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, Smartphone, AlertTriangle, Check, HelpCircle, Star, MessageSquare } from 'lucide-react'
+import { Send, ShieldCheck, Gavel, Clock, User, ArrowRight, Smartphone, AlertTriangle, Check, HelpCircle, Star, MessageSquare, TrendingUp } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
 // ────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ export function LiveAuctionsNow() {
         <div className="flex items-end justify-between mb-8">
           <div>
             <div className="inline-flex items-center gap-1.5 h-6 px-2.5 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[10.5px] font-bold text-[#2563EB] uppercase tracking-wide mb-3">
-              🔥 Beta-Каталог
+              <TrendingUp className="w-3.5 h-3.5" /> Beta-Каталог
             </div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-2">
               {hasLots ? 'Живі торги зараз' : 'Перші лоти очікують продавців'}
@@ -258,25 +258,25 @@ export function HowItWorksSimple() {
       step: '1',
       title: 'Знайдіть або створіть лот',
       desc: 'Покупець вибирає цікавий товар у каталозі, а продавець може безкоштовно та швидко виставити власний.',
-      icon: '🔍',
+      icon: <HelpCircle className="w-5 h-5 text-slate-700" />,
     },
     {
       step: '2',
       title: 'Зробіть пропозицію у торгах',
       desc: 'Робіть ставки для чесного формування ціни або переходьте до обговорення у безпечному чаті KRAM.',
-      icon: '💬',
+      icon: <MessageSquare className="w-5 h-5 text-slate-700" />,
     },
     {
       step: '3',
       title: 'Узгодьте деталі напряму',
       desc: 'Сторони самостійно домовляються про зручний спосіб оплати й доставки (наприклад, післяплата Новою Поштою).',
-      icon: '🤝',
+      icon: <User className="w-5 h-5 text-slate-700" />,
     },
     {
       step: '4',
       title: 'Завершіть безпечну зустріч',
       desc: 'Перевірте лот при отриманні у відділенні або при особистій зустрічі перед тим, як сплачувати кошти.',
-      icon: '🔒',
+      icon: <ShieldCheck className="w-5 h-5 text-slate-700" />,
     },
   ]
 
@@ -287,7 +287,7 @@ export function HowItWorksSimple() {
         {/* Header */}
         <div className="text-center mb-12 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 h-6 px-3 bg-[#E8F5E9] border border-[#10B981]/10 rounded-full text-[10.5px] font-bold text-[#10B981] uppercase tracking-wide mb-3">
-            🛡️ Безпечний Beta-Процес
+            <ShieldCheck className="w-3.5 h-3.5" /> Безпечний Beta-Процес
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-3">
             Як безпечно купувати та продавати

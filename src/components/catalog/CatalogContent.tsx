@@ -248,13 +248,12 @@ export default function CatalogContent() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-[20px] font-bold text-[#0F172A] mb-2">KRAM тільки запускається!</h3>
+                  <h3 className="text-[20px] font-bold text-[#0F172A] mb-2">Перші лоти скоро зʼявляться</h3>
                   <p className="text-[14px] text-[#64748B] max-w-[380px] mx-auto mb-6">
-                    Будьте першим! Виставте свій лот і отримайте реальних покупців.
-                    На старті — безкоштовно та без комісії.
+                    KRAM тільки запускається! Будьте першим, виставте свій лот безкоштовно та без комісії.
                   </p>
                   <a href="/sell" className="inline-flex items-center gap-2 h-12 px-8 bg-[#2563EB] text-white rounded-xl text-[15px] font-bold hover:bg-[#1D4ED8] transition-colors">
-                    🚀 Виставити перший лот
+                    Створити перший лот
                   </a>
                 </>
               )}

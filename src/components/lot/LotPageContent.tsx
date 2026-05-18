@@ -624,30 +624,34 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               <ul className="space-y-2.5 text-[12px] text-[#475569]">
                 <li className="flex items-start gap-2">
                   <span className="text-rose-500 font-bold mt-0.5">✕</span>
-                  <span>Не переходьте за сторонніми посиланнями оплати чи доставки.</span>
+                  <span>Не переходьте за сторонніми платіжними посиланнями.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-rose-500 font-bold mt-0.5">✕</span>
-                  <span>Не надсилайте повну або часткову передоплату незнайомим продавцям.</span>
+                  <span>Не надсилайте передоплату незнайомим продавцям.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>Перевіряйте товар у відділенні пошти перед оплатою.</span>
+                  <span>Перевіряйте товар перед оплатою.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>Домовляйтесь про доставку післяплатою через перевірених логістів.</span>
+                  <span>Домовляйтесь про доставку напряму.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-emerald-500 font-bold mt-0.5">✓</span>
-                  <span>Зберігайте історію домовленостей та листування в чаті KRAM.</span>
+                  <span>Зберігайте переписку в KRAM.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <span>Повідомляйте про підозрілі лоти.</span>
                 </li>
               </ul>
 
               {/* Direct Agreement Disclaimer */}
               <div className="p-3 bg-[#EFF6FF] border border-[#2563EB]/15 rounded-xl">
                 <p className="text-[11px] text-[#1E40AF] leading-relaxed font-semibold">
-                  ℹ️ KRAM не приймає оплату через платформу, не зберігає кошти та не проводить виплати. Сторони домовляються напряму.
+                  ℹ️ KRAM не приймає оплату, не зберігає кошти та не проводить виплати. Сторони домовляються напряму.
                 </p>
               </div>
 
