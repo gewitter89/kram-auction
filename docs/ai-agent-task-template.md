@@ -47,7 +47,7 @@
 4. Запустить QA seed:
    ```bash
    $env:ALLOW_QA_SEED="true"
-   $env:QA_SEED_PASSWORD="qa_secure_2024"
+   $env:QA_SEED_PASSWORD="<your-local-password>"
    npx prisma db seed
    ```
 5. Запустить локальный dev сервер:

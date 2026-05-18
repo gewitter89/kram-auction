@@ -35,7 +35,7 @@
 ```bash
 docker run -d --name kram-test-db \
   -e POSTGRES_USER=kram \
-  -e POSTGRES_PASSWORD=kram_test_password \
+  -e POSTGRES_PASSWORD=<password> \
   -e POSTGRES_DB=kram_test \
   -p 5433:5432 \
   postgres:15
@@ -47,9 +47,9 @@ docker run -d --name kram-test-db \
 Створіть локальний конфігураційний файл `.env.test.local` у корені проекту KRAM зі значеннями:
 
 ```ini
-DATABASE_URL="postgresql://kram:kram_test_password@localhost:5433/kram_test"
+DATABASE_URL="postgresql://kram:<password>@localhost:5433/kram_test"
 ALLOW_QA_SEED=true
-QA_SEED_PASSWORD="qa_test_secure_local"
+QA_SEED_PASSWORD="<your-local-password>"
 NEXTAUTH_SECRET="test-secret"
 AUTH_SECRET="test-secret"
 NEXTAUTH_URL="http://localhost:3000"
@@ -96,11 +96,11 @@ npx dotenv-cli -e .env.test.local -- npm run dev
 
 ```bash
 # Для PowerShell (Windows):
-$env:DATABASE_URL="postgresql://kram:kram_test_password@localhost:5433/kram_test"
+$env:DATABASE_URL="postgresql://kram:<password>@localhost:5433/kram_test"
 npx tsx scripts/e2e-local-qa.ts
 
 # Для Bash (Linux/macOS):
-DATABASE_URL="postgresql://kram:kram_test_password@localhost:5433/kram_test" npx tsx scripts/e2e-local-qa.ts
+DATABASE_URL="postgresql://kram:<password>@localhost:5433/kram_test" npx tsx scripts/e2e-local-qa.ts
 ```
 
 ---

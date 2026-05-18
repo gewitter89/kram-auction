@@ -49,7 +49,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     env: {
-      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://kram:kram_test_password@localhost:5433/kram_test',
+      DATABASE_URL: process.env.DATABASE_URL || '',
       NODE_ENV: 'test',
     }
   },

@@ -10,12 +10,12 @@ import { placeBid } from '../src/server/auction/placeBid'
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL || 'postgresql://kram:kram_test_password@localhost:5433/kram_test'
+      url: process.env.DATABASE_URL
     }
   }
 })
 
-const QA_PASSWORD = process.env.QA_SEED_PASSWORD || 'qa_test_2024'
+const QA_PASSWORD = process.env.QA_SEED_PASSWORD || ''
 
 interface TestResult {
   test: string
