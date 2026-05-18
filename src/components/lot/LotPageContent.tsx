@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X, Info, XCircle, Mail } from 'lucide-react'
+import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X, Info, XCircle } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { BidModal } from '@/components/lot/BidModal'
 import { LotCard } from '@/components/lots/LotCard'
@@ -530,19 +530,15 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                     <Link href={`/user/${lot.seller.id}`} className="text-[15px] font-bold text-[#0F172A] hover:text-[#2563EB] transition-colors truncate">
                       {lot.seller.name}
                     </Link>
-                    {lot.seller.verificationStatus === 'VERIFIED' && (
+                    {/* Show verified badge only for manually verified users */}
+                    {lot.seller.verified && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10" title="Профіль перевірено модератором KRAM">
                         <ShieldCheck className="w-3 h-3" aria-hidden="true" />
                         Профіль перевірено
                       </span>
                     )}
-                    {lot.seller.verificationStatus !== 'VERIFIED' && lot.seller.emailVerified && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#EFF6FF] text-[#2563EB] text-[10px] font-bold rounded-full border border-[#2563EB]/10">
-                        <Mail className="w-3 h-3" aria-hidden="true" />
-                        Email підтверджено
-                      </span>
-                    )}
-                    {lot.seller.verificationStatus !== 'VERIFIED' && !lot.seller.emailVerified && lot.seller.completedDealsCount === 0 && (
+                    {/* For unverified users - show New Seller badge if no completed deals */}
+                    {!lot.seller.verified && lot.seller.completedDealsCount === 0 && (
                       <span className="inline-flex items-center px-1.5 py-0.5 bg-[#FFFBEB] text-[#D97706] text-[10px] font-bold rounded-full border border-[#D97706]/10">
                         Новий продавець
                       </span>
