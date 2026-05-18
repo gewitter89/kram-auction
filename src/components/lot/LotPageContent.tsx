@@ -32,8 +32,16 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
   const [buying, setBuying] = useState(false)
   const [outbidAlert, setOutbidAlert] = useState<{ amount: number; lotTitle: string } | null>(null)
 
+  // Report Modal states
+  const [showReportModal, setShowReportModal] = useState(false)
+  const [reportReason, setReportReason] = useState('Шахрайство')
+  const [reportComment, setReportComment] = useState('')
+  const [reportSuccess, setReportSuccess] = useState(false)
+  const [reporting, setReporting] = useState(false)
+
   const images: string[] = (() => { try { return JSON.parse(lot.images || '[]') } catch { return [] } })()
   const [activeImage, setActiveImage] = useState(0)
+
 
   useEffect(() => {
     const update = () => {
@@ -159,6 +167,41 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
       body: JSON.stringify({ listingId: lot.id })
     })
   }
+
+  async function submitReport() {
+    if (reporting) return
+    setReporting(true)
+    try {
+      const fullReason = `${reportReason}${reportComment.trim() ? ': ' + reportComment.trim() : ''}`
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId: lot.id,
+          reason: fullReason
+        })
+      })
+
+      if (res.ok) {
+        setReportSuccess(true)
+        setTimeout(() => {
+          setShowReportModal(false)
+          setReportSuccess(false)
+          setReportComment('')
+        }, 3000)
+      } else {
+        const errData = await res.json()
+        setToast(errData.error || 'Помилка при надсиланні скарги')
+        setTimeout(() => setToast(''), 3000)
+      }
+    } catch (e) {
+      setToast('Помилка зʼєднання з сервером')
+      setTimeout(() => setToast(''), 3000)
+    } finally {
+      setReporting(false)
+    }
+  }
+
 
   function handleZoom(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -476,51 +519,144 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               </button>
             </div>
 
-            {/* Seller card */}
-            <Link href={`/user/${lot.seller.id}`} className="block bg-gradient-to-br from-[#F8FAFC] to-white border border-[#E2E8F0] rounded-xl p-3 hover:border-[#2563EB]/20 transition-colors mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-5 h-5 text-[#2563EB]" />
+            {/* Seller Trust Card */}
+            <div className="bg-white border border-[#E2E8F0] rounded-[1.5rem] p-5 shadow-sm hover:shadow-md transition-all mb-4">
+              <div className="flex items-start gap-3.5 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-full flex items-center justify-center flex-shrink-0 shadow-inner">
+                  <User className="w-5.5 h-5.5 text-[#2563EB]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className="text-[14px] font-bold text-[#0F172A] truncate">{lot.seller.name}</span>
-                    {lot.seller.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB] flex-shrink-0" />}
+                  <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                    <Link href={`/user/${lot.seller.id}`} className="text-[15px] font-bold text-[#0F172A] hover:text-[#2563EB] transition-colors truncate">
+                      {lot.seller.name}
+                    </Link>
+                    {lot.seller.verified && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10">
+                        <ShieldCheck className="w-3 h-3" />
+                        Підтверджено
+                      </span>
+                    )}
+                    {lot.seller.completedDealsCount === 0 && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 bg-[#FFFBEB] text-[#D97706] text-[10px] font-bold rounded-full border border-[#D97706]/10">
+                        Новий продавець
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 text-[11px] text-[#64748B]">
-                    <span className="flex items-center gap-0.5">
-                      <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
-                      <span className="font-semibold">{lot.seller.rating}</span>
-                    </span>
-                    <span>·</span>
-                    <span>{lot.seller.reviewsCount || 0} відгуків</span>
-                  </div>
+                  <p className="text-[11px] text-[#64748B]">
+                    Реєстрація: {new Date(lot.seller.createdAt).toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })}
+                  </p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#94A3B8]" />
               </div>
-            </Link>
 
-            {/* Trust badges */}
-            <div className="space-y-2 text-[12px]">
-              <div className="flex items-center gap-2 text-[#10B981]">
-                <ShieldCheck className="w-4 h-4" />
-                <span className="font-medium">Безпечна угода KRAM</span>
+              {/* Authentic Stats Row */}
+              <div className="grid grid-cols-2 gap-2.5 p-3 bg-[#F8FAFC] rounded-xl mb-4 border border-[#F1F5F9]">
+                <div className="text-center">
+                  <p className="text-[16px] font-extrabold text-[#0B1220]">{lot.seller.activeListingsCount || 0}</p>
+                  <p className="text-[10px] text-[#64748B] font-medium uppercase tracking-wider">Активні лоти</p>
+                </div>
+                <div className="text-center border-l border-[#E2E8F0]">
+                  <p className="text-[16px] font-extrabold text-[#10B981]">{lot.seller.completedDealsCount || 0}</p>
+                  <p className="text-[10px] text-[#64748B] font-medium uppercase tracking-wider">Завершені угоди</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-[#2563EB]">
-                <Truck className="w-4 h-4" />
-                <span className="font-medium">Доставка Новою Поштою</span>
+
+              {/* Rating representation */}
+              <div className="mb-4">
+                {lot.seller.reviewsCount > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-3.5 h-3.5 ${
+                            star <= Math.round(lot.seller.rating) ? 'fill-[#F59E0B] text-[#F59E0B]' : 'fill-[#E2E8F0] text-[#E2E8F0]'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[13px] font-bold text-[#0F172A]">{lot.seller.rating.toFixed(1)}</span>
+                    <span className="text-[11px] text-[#64748B]">({lot.seller.reviewsCount} відгуків)</span>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-[#64748B] leading-relaxed italic bg-[#F8FAFC] p-2.5 rounded-lg border border-dashed border-[#E2E8F0]">
+                    ⭐ Рейтинг зʼявиться після перших завершених домовленостей.
+                  </p>
+                )}
               </div>
-              <div className="flex items-center gap-2 text-[#64748B]">
-                <MapPin className="w-4 h-4" />
-                <span>{lot.city || 'Україна'}</span>
+
+              {/* Action Buttons within Card */}
+              <div className="flex gap-2">
+                {!isOwner && session && (
+                  <button
+                    onClick={() => router.push(`/messages?with=${lot.seller.id}`)}
+                    className="flex-1 h-9 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[12px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    Написати
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    if (!session) {
+                      router.push(`/auth/login?callbackUrl=/lot/${lot.seller.id}`);
+                      return;
+                    }
+                    setShowReportModal(true);
+                  }}
+                  className="flex-1 h-9 bg-transparent hover:bg-rose-50 border border-[#E2E8F0] hover:border-rose-200 text-[#64748B] hover:text-rose-600 text-[12px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                  Поскаржитись
+                </button>
               </div>
             </div>
 
-            {/* Report */}
-            <button className="w-full mt-4 pt-3 border-t border-[#F1F5F9] text-[11px] text-[#94A3B8] hover:text-[#EF4444] flex items-center justify-center gap-1 transition-colors">
-              <Flag className="w-3 h-3" />
-              <span>Поскаржитись на лот</span>
-            </button>
+            {/* Safety Tips on Listing Page */}
+            <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[1.5rem] p-5 space-y-4">
+              <div>
+                <h3 className="text-[14px] font-bold text-[#0B1220] flex items-center gap-2">
+                  <ShieldCheck className="w-4.5 h-4.5 text-[#10B981]" />
+                  Як безпечно домовитись
+                </h3>
+                <p className="text-[11px] text-[#64748B] mt-0.5">Дотримуйтесь простих правил KRAM для вашої безпеки:</p>
+              </div>
+
+              <ul className="space-y-2.5 text-[12px] text-[#475569]">
+                <li className="flex items-start gap-2">
+                  <span className="text-rose-500 font-bold mt-0.5">✕</span>
+                  <span>Не переходьте за сторонніми посиланнями оплати чи доставки.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-rose-500 font-bold mt-0.5">✕</span>
+                  <span>Не надсилайте повну або часткову передоплату незнайомим продавцям.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <span>Перевіряйте товар у відділенні пошти перед оплатою.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <span>Домовляйтесь про доставку післяплатою через перевірених логістів.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <span>Зберігайте історію домовленостей та листування в чаті KRAM.</span>
+                </li>
+              </ul>
+
+              {/* Direct Agreement Disclaimer */}
+              <div className="p-3 bg-[#EFF6FF] border border-[#2563EB]/15 rounded-xl">
+                <p className="text-[11px] text-[#1E40AF] leading-relaxed font-semibold">
+                  ℹ️ KRAM не приймає оплату через платформу, не зберігає кошти та не проводить виплати. Сторони домовляються напряму.
+                </p>
+              </div>
+
+              {/* Quick location info */}
+              <div className="flex items-center gap-2 text-[12px] text-[#64748B] pt-2 border-t border-[#E2E8F0]">
+                <MapPin className="w-3.5 h-3.5 text-[#64748B]" />
+                <span>Розташування: <strong>{lot.city || 'Україна'}</strong></span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -533,6 +669,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               <p className="text-[9px] text-[#94A3B8] leading-none mb-0.5">Поточна ставка</p>
               <p className="text-[15px] font-bold text-[#0B1220] leading-none">{formatPrice(currentPrice)}</p>
             </div>
+
             <div className="flex-1 flex gap-2">
               <button onClick={handleBid} className="flex-1 h-11 bg-[#2563EB] text-white rounded-xl text-[13px] font-bold hover:bg-[#1D4ED8] transition-colors">
                 Ставка
@@ -547,7 +684,103 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
         </div>
       )}
 
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowReportModal(false)}></div>
+          
+          <div className="relative bg-white rounded-3xl w-full max-w-[420px] p-6 shadow-2xl animate-fade-in border border-[#E2E8F0] z-50">
+            <button onClick={() => setShowReportModal(false)} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#F8FAFC]">
+              <X className="w-5 h-5 text-[#64748B]" />
+            </button>
+
+            {reportSuccess ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-emerald-50 border border-emerald-200 rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-4 animate-bounce">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h3 className="text-[20px] font-bold text-[#0B1220] mb-2">Скаргу прийнято</h3>
+                <p className="text-[13px] text-[#64748B] max-w-[280px] mx-auto leading-relaxed">
+                  Дякуємо. Ми перевіримо цей лот на відповідність правилам спільноти найближчим часом.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="w-12 h-12 bg-rose-50 border border-rose-100 rounded-2xl flex items-center justify-center text-rose-500 mb-4">
+                  <Flag className="w-6 h-6" />
+                </div>
+
+                <h2 className="text-[20px] font-bold text-[#0B1220] mb-1">Поскаржитись на лот</h2>
+                <p className="text-[13px] text-[#64748B] mb-5">
+                  Оберіть причину скарги. Наша модерація перевірить цей лот протягом кількох годин.
+                </p>
+
+                <div className="space-y-2 mb-4">
+                  {[
+                    'Шахрайство / Fraud',
+                    'Заборонений товар / Forbidden',
+                    'Підробка / Counterfeit',
+                    'Неправдивий опис / Incorrect',
+                    'Спам / Spam',
+                    'Інше / Other'
+                  ].map((reason) => {
+                    const isSelected = reportReason === reason
+                    return (
+                      <button
+                        key={reason}
+                        onClick={() => setReportReason(reason)}
+                        className={`w-full text-left px-4 py-2.5 rounded-xl border text-[13px] font-semibold transition-all flex items-center justify-between ${
+                          isSelected
+                            ? 'border-[#2563EB] bg-[#EFF6FF] text-[#2563EB]'
+                            : 'border-[#E2E8F0] hover:border-[#CBD5E1] text-[#475569] bg-white'
+                        }`}
+                      >
+                        <span>{reason}</span>
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div className="mb-5">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1.5">
+                    Деталі скарги (необов'язково)
+                  </label>
+                  <textarea
+                    value={reportComment}
+                    onChange={(e) => setReportComment(e.target.value)}
+                    placeholder="Напишіть деталі, які допоможуть модераторам..."
+                    maxLength={500}
+                    className="w-full min-h-[80px] p-3 text-[13px] border border-[#E2E8F0] rounded-xl focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/40 outline-none resize-none placeholder:text-[#94A3B8]"
+                  />
+                  <div className="text-right text-[10px] text-[#94A3B8] mt-1">
+                    {reportComment.length}/500
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={submitReport}
+                    disabled={reporting}
+                    className="flex-1 h-11 bg-rose-600 hover:bg-rose-700 disabled:bg-[#CBD5E1] text-white text-[13px] font-bold rounded-xl transition-all flex items-center justify-center"
+                  >
+                    {reporting ? 'Надсилання...' : 'Надіслати скаргу'}
+                  </button>
+                  <button
+                    onClick={() => setShowReportModal(false)}
+                    disabled={reporting}
+                    className="px-4 h-11 bg-transparent hover:bg-[#F8FAFC] text-[#64748B] hover:text-[#0F172A] text-[13px] font-semibold rounded-xl transition-colors border border-transparent hover:border-[#E2E8F0]"
+                  >
+                    Скасувати
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {showBidModal && (
+
         <BidModal
           lotId={lot.id}
           currentPrice={currentPrice}

@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth-config'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { v2 as cloudinary } from 'cloudinary'
+import { isRateLimited } from '@/lib/rateLimit'
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const MAX_SIZE_MB = 5
@@ -21,7 +22,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
+    // Limit to 10 upload clicks per minute
+    if (isRateLimited(`upload:${userId}`, 10, 60_000)) {
+      return NextResponse.json({ error: 'Занадто багато завантажень. Спробуйте через кілька секунд.' }, { status: 429 })
+    }
+
     const formData = await request.formData()
+
     const files = formData.getAll('files') as File[]
 
     if (!files || files.length === 0) {

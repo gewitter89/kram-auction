@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
+import { isRateLimited } from '@/lib/rateLimit'
 
 export async function POST(request: Request) {
   try {
@@ -10,7 +11,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
+    // Rate limit to max 3 reports per minute per user
+    if (isRateLimited(`report:${userId}`, 3, 60_000)) {
+      return NextResponse.json({ error: 'Занадто багато скарг. Спробуйте через кілька секунд.' }, { status: 429 })
+    }
+
     const { listingId, reason } = await request.json()
+
 
     if (!reason) {
       return NextResponse.json({ error: 'Вкажіть причину' }, { status: 400 })

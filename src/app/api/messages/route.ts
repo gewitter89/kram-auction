@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
+import { isRateLimited } from '@/lib/rateLimit'
 
 export async function GET(request: Request) {
   const session = await auth()
@@ -75,7 +76,13 @@ export async function POST(request: Request) {
   const userId = session?.user?.id
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Message rate limit: 30 messages per minute
+  if (isRateLimited(`messages:${userId}`, 30, 60_000)) {
+    return NextResponse.json({ error: 'Занадто багато повідомлень. Спробуйте через кілька секунд.' }, { status: 429 })
+  }
+
   const { receiverId, text, listingId } = await request.json()
+
   if (!receiverId || !text) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
 
   const message = await prisma.message.create({

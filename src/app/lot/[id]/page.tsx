@@ -23,6 +23,22 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
   // Increment views
   await prisma.listing.update({ where: { id }, data: { views: { increment: 1 } } })
 
+  // Query authentic counts for seller trust card
+  const [activeListingsCount, completedDealsCount] = await Promise.all([
+    prisma.listing.count({ where: { sellerId: lot.seller.id, status: 'active' } }),
+    prisma.transaction.count({ where: { sellerId: lot.seller.id, status: 'COMPLETED' } })
+  ])
+
+  // Attach authentic metadata to the seller object
+  const lotWithSellerMeta = {
+    ...lot,
+    seller: {
+      ...lot.seller,
+      activeListingsCount,
+      completedDealsCount
+    }
+  }
+
   // Get similar lots
   const similar = await prisma.listing.findMany({
     where: { categoryId: lot.categoryId, id: { not: lot.id }, status: 'active' },
@@ -33,5 +49,6 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
     }
   })
 
-  return <LotPageContent lot={lot} similar={similar} />
+  return <LotPageContent lot={lotWithSellerMeta} similar={similar} />
 }
+
