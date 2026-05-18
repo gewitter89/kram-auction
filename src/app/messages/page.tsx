@@ -87,7 +87,7 @@ function MessagesPageContent() {
   }
 
   if (status === 'loading' || loading) {
-    return <div className="max-w-[1200px] mx-auto px-4 py-8"><div className="text-[14px] text-[#64748B]">Завантаження...</div></div>
+    return <MessagesSkeleton />
   }
 
   return (
@@ -199,9 +199,53 @@ function MessagesPageContent() {
   )
 }
 
+function MessagesSkeleton() {
+  return (
+    <div className="max-w-[1200px] mx-auto px-4 py-6">
+      <div className="h-8 bg-slate-200 rounded animate-pulse w-48 mb-6" />
+      <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden grid lg:grid-cols-[320px_1fr] h-[600px]">
+        {/* List Sidebar Skeleton */}
+        <div className="border-r border-[#E2E8F0] overflow-y-auto hidden lg:block space-y-4 p-4 animate-pulse">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="flex gap-3 items-center">
+              <div className="w-10 h-10 bg-slate-100 rounded-full shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 bg-slate-200 rounded w-2/3" />
+                <div className="h-3 bg-slate-100 rounded w-5/6" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Chat Pane Skeleton */}
+        <div className="flex flex-col bg-slate-50/50 animate-pulse">
+          <div className="p-4 border-b border-[#E2E8F0] bg-white flex items-center gap-3">
+            <div className="w-9 h-9 bg-slate-100 rounded-full" />
+            <div className="h-4 bg-slate-200 rounded w-24" />
+          </div>
+          <div className="flex-1 p-4 space-y-4">
+            <div className="flex justify-start">
+              <div className="bg-white border border-[#E2E8F0] rounded-2xl p-3 w-2/3 space-y-1.5 shadow-sm">
+                <div className="h-3.5 bg-slate-100 rounded w-5/6" />
+                <div className="h-3.5 bg-slate-100 rounded w-1/2" />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <div className="bg-blue-50 border border-blue-100/50 rounded-2xl p-3 w-1/2 space-y-1.5 shadow-sm">
+                <div className="h-3.5 bg-blue-100 rounded w-5/6" />
+                <div className="h-3.5 bg-blue-100 rounded w-2/3" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function MessagesPage() {
   return (
-    <Suspense fallback={<div className="max-w-[1200px] mx-auto px-4 py-8 text-[14px] text-[#64748B]">Завантаження...</div>}>
+    <Suspense fallback={<MessagesSkeleton />}>
       <MessagesPageContent />
     </Suspense>
   )

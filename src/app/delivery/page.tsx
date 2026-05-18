@@ -1,32 +1,32 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, CheckCircle2, PackageCheck, ShieldCheck, Truck } from 'lucide-react'
+import { ArrowRight, CheckCircle2, MessageSquare, ShieldAlert, ShieldCheck, Truck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Доставка | KRAM',
-  description: 'Як працює доставка на KRAM: Нова Пошта, ТТН, статуси угоди та підтвердження отримання.',
+  title: 'Доставка за домовленістю сторін | KRAM',
+  description: 'Покупець і продавець самостійно домовляються про спосіб доставки та оплати.',
 }
 
 const steps = [
   {
-    icon: PackageCheck,
-    title: 'Покупка або перемога в аукціоні',
-    text: 'Після купівлі KRAM створює угоду з прозорими статусами для покупця й продавця.',
-  },
-  {
     icon: ShieldCheck,
-    title: 'Підтвердження деталей',
-    text: 'Всі розрахунки та доставка узгоджуються сторонами напряму. KRAM не приймає оплату та не утримує кошти.',
+    title: 'Узгодьте спосіб доставки',
+    text: 'Покупець і продавець самостійно домовляються про логістичного оператора (Нова Пошта, Укрпошта тощо) або особисту зустріч.',
   },
   {
     icon: Truck,
-    title: 'Продавець додає ТТН',
-    text: 'Продавець вказує службу доставки та номер відправлення в деталях угоди.',
+    title: 'Обирайте післяплату або особисту зустріч',
+    text: 'Ми рекомендуємо використовувати розрахунок після отримання та перевірки товару, щоб гарантувати чесність.',
   },
   {
-    icon: CheckCircle2,
-    title: 'Покупець підтверджує отримання',
-    text: 'Після перевірки товару покупець завершує угоду або відкриває спір, якщо щось не так.',
+    icon: ShieldAlert,
+    title: 'Перевірте товар перед оплатою',
+    text: 'Завжди оглядайте речі у відділенні перевізника або під час зустрічі перед передачею коштів.',
+  },
+  {
+    icon: MessageSquare,
+    title: 'Зберігайте переписку в KRAM',
+    text: 'Обговорення деталей угоди в чаті KRAM допомагає зафіксувати домовленості та швидко розібратися у разі спірних питань.',
   },
 ]
 
@@ -37,13 +37,13 @@ export default function DeliveryPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.24),_transparent_36%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.18),_transparent_34%)]" />
         <div className="relative mx-auto max-w-[1120px] px-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#93C5FD]">
-            KRAM delivery
+            Доставка
           </div>
           <h1 className="mt-5 max-w-3xl text-[36px] font-black leading-tight tracking-tight text-white md:text-[56px]">
-            Доставка з прозорим статусом угоди
+            Доставка за домовленістю сторін
           </h1>
           <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-[#CBD5E1]">
-            KRAM фіксує ключові кроки: покупка, підтвердження оплати, відправлення, отримання та завершення. Основний сценарій для запуску — доставка Новою Поштою з номером накладної.
+            KRAM не є логістичним посередником і не приймає оплату. Покупець і продавець самостійно домовляються про спосіб доставки.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/catalog" className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-[14px] font-bold text-[#0B1220] transition hover:-translate-y-0.5 hover:shadow-premium">
@@ -75,19 +75,11 @@ export default function DeliveryPage() {
           })}
         </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="rounded-[1.75rem] border border-[#E2E8F0] bg-white p-7 shadow-card">
-            <h2 className="text-[24px] font-black tracking-tight text-[#0B1220]">Що бачать покупець і продавець</h2>
-            <ul className="mt-5 space-y-3 text-[14px] leading-relaxed text-[#475569]">
-              <li><b>Покупець:</b> бачить статус оплати, номер ТТН, наступний крок і кнопку підтвердження отримання.</li>
-              <li><b>Продавець:</b> бачить підтвердження оплати, форму відправлення та історію подій угоди.</li>
-              <li><b>Спір:</b> якщо товар не відповідає опису або доставка має проблему, учасник відкриває спір у деталях угоди.</li>
-            </ul>
-          </div>
+        <div className="mt-10">
           <aside className="rounded-[1.75rem] border border-[#BAE6FD] bg-[#F0F9FF] p-7">
-            <h3 className="text-[18px] font-black text-[#0B1220]">Beta-режим</h3>
-            <p className="mt-3 text-[14px] leading-relaxed text-[#0369A1]">
-              KRAM є виключно інформаційним beta-майданчиком. Для безпеки угод ми рекомендуємо користуватися післяплатою у відділенні перевізника (Нової Пошти), щоб особисто оглянути та перевірити товар перед розрахунком.
+            <h3 className="text-[18px] font-black text-[#0B1220]">Чесний дисклеймер KRAM</h3>
+            <p className="mt-3 text-[14px] leading-relaxed text-[#035985] font-medium">
+              KRAM не перевозить товари, не приймає оплату та не відповідає за дії поштових операторів. Ми рекомендуємо післяплату з оглядом товару при отриманні.
             </p>
           </aside>
         </div>

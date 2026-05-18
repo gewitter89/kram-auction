@@ -1,0 +1,19 @@
+{
+  "name": "kram-auction-preview",
+  "env": {
+    "NODE_ENV": "preview",
+    "NEXT_PUBLIC_APP_URL": "https://kram-auction-preview.vercel.app"
+  },
+  "build": {
+    "env": {
+      "PRISMA_GENERATE": "true"
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "staging": true,
+      "preview": true
+    }
+  }
+}

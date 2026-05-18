@@ -58,7 +58,29 @@ export default function NotificationsPage() {
   }
 
   if (status === 'loading' || loading) {
-    return <div className="max-w-[800px] mx-auto px-4 py-8"><div className="text-[14px] text-[#64748B]">Завантаження...</div></div>
+    return (
+      <div className="max-w-[800px] mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="h-8 bg-slate-200 rounded animate-pulse w-48" />
+        </div>
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="p-4 border border-[#E2E8F0] rounded-xl bg-white space-y-2 animate-pulse">
+              <div className="flex gap-3">
+                <div className="w-9 h-9 bg-slate-100 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-slate-200 rounded w-1/3" />
+                    <div className="h-3 bg-slate-100 rounded w-12" />
+                  </div>
+                  <div className="h-3.5 bg-slate-100 rounded w-5/6" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   const unreadCount = notifications.filter(n => !n.read).length

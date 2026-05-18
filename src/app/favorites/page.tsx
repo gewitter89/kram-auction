@@ -49,7 +49,27 @@ export default function FavoritesPage() {
   }
 
   if (status === 'loading' || loading) {
-    return <div className="max-w-[1320px] mx-auto px-4 py-8"><div className="text-[14px] text-[#64748B]">Завантаження...</div></div>
+    return (
+      <div className="max-w-[1320px] mx-auto px-4 py-8">
+        <div className="h-8 bg-slate-200 rounded animate-pulse w-48 mb-6" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="border border-[#E2E8F0] rounded-2xl p-4 bg-white space-y-4 animate-pulse">
+              <div className="aspect-[4/3] bg-slate-100 rounded-xl" />
+              <div className="h-4 bg-slate-200 rounded w-3/4" />
+              <div className="space-y-2">
+                <div className="h-3 bg-slate-100 rounded w-1/2" />
+                <div className="h-3 bg-slate-100 rounded w-1/3" />
+              </div>
+              <div className="pt-4 border-t border-[#F1F5F9] flex items-center justify-between">
+                <div className="h-5 bg-slate-200 rounded w-20" />
+                <div className="h-4 bg-slate-100 rounded w-12" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   return (

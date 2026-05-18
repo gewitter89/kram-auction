@@ -1,10 +1,27 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
+// SAFETY: Prevent QA seed from running in production
+const isProduction = process.env.NODE_ENV === 'production'
+const allowQaSeed = process.env.ALLOW_QA_SEED === 'true'
+const qaSeedPassword = process.env.QA_SEED_PASSWORD || crypto.randomBytes(8).toString('hex')
+
+if (isProduction && !allowQaSeed) {
+  console.log('❌ Production detected. QA seed disabled.')
+  console.log('   Set ALLOW_QA_SEED=true to enable (not recommended for live production).')
+  process.exit(0)
+}
+
 async function main() {
   console.log('🌱 Seeding database...')
+  
+  if (!isProduction) {
+    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`)
+    console.log(`   QA Password: ${qaSeedPassword}`)
+  }
 
   // Categories — upsert (safe to run multiple times)
   const categoriesData = [
@@ -34,18 +51,25 @@ async function main() {
   console.log(`  ✅ ${categories.length} categories`)
 
   // Users — upsert by email
-  const hash = bcrypt.hashSync('password123', 10)
+  const prodHash = bcrypt.hashSync('password123', 10)
+  // QA users use generated password (not published)
+  const qaHash = bcrypt.hashSync(qaSeedPassword, 10)
+  
   const usersData = [
-    { name: 'Admin KRAM', email: 'admin@kram.ua', passwordHash: hash, role: 'admin', city: 'Київ', verified: true, rating: 5.0 },
-    { name: 'TechStoreUA', email: 'tech@test.com', passwordHash: hash, role: 'seller', city: 'Київ', verified: true, rating: 4.9, bio: 'Техніка з Європи. Гарантія.' },
-    { name: 'AppleZone', email: 'apple@test.com', passwordHash: hash, role: 'seller', city: 'Харків', verified: true, rating: 4.8 },
-    { name: 'GameHub', email: 'game@test.com', passwordHash: hash, role: 'seller', city: 'Одеса', verified: true, rating: 4.7 },
-    { name: 'HomeStore', email: 'home@test.com', passwordHash: hash, role: 'seller', city: 'Дніпро', verified: false, rating: 4.6 },
-    { name: 'Покупець Іван', email: 'ivan@test.com', passwordHash: hash, city: 'Львів', rating: 4.5 },
-    { name: 'Марія К.', email: 'maria@test.com', passwordHash: hash, city: 'Вінниця', rating: 4.3 },
-    { name: 'DroneUA', email: 'drone@test.com', passwordHash: hash, role: 'seller', city: 'Запоріжжя', verified: true, rating: 4.9 },
-    { name: 'BikeShop', email: 'bike@test.com', passwordHash: hash, role: 'seller', city: 'Полтава', verified: true, rating: 4.8 },
-    { name: 'Олексій П.', email: 'alex@test.com', passwordHash: hash, city: 'Київ', rating: 4.0 },
+    { name: 'Admin KRAM', email: 'admin@kram.ua', passwordHash: prodHash, role: 'admin', city: 'Київ', verified: true, rating: 5.0 },
+    { name: 'TechStoreUA', email: 'tech@test.com', passwordHash: prodHash, role: 'seller', city: 'Київ', verified: true, rating: 4.9, bio: 'Техніка з Європи. Гарантія.' },
+    { name: 'AppleZone', email: 'apple@test.com', passwordHash: prodHash, role: 'seller', city: 'Харків', verified: true, rating: 4.8 },
+    { name: 'GameHub', email: 'game@test.com', passwordHash: prodHash, role: 'seller', city: 'Одеса', verified: true, rating: 4.7 },
+    { name: 'HomeStore', email: 'home@test.com', passwordHash: prodHash, role: 'seller', city: 'Дніпро', verified: false, rating: 4.6 },
+    { name: 'Покупець Іван', email: 'ivan@test.com', passwordHash: prodHash, city: 'Львів', rating: 4.5 },
+    { name: 'Марія К.', email: 'maria@test.com', passwordHash: prodHash, city: 'Вінниця', rating: 4.3 },
+    { name: 'DroneUA', email: 'drone@test.com', passwordHash: prodHash, role: 'seller', city: 'Запоріжжя', verified: true, rating: 4.9 },
+    { name: 'BikeShop', email: 'bike@test.com', passwordHash: prodHash, role: 'seller', city: 'Полтава', verified: true, rating: 4.8 },
+    { name: 'Олексій П.', email: 'alex@test.com', passwordHash: prodHash, city: 'Київ', rating: 4.0 },
+    // QA Test Users (for staging/preview only) - use generated password
+    { name: 'QA Seller', email: 'qa-seller@kram.local', passwordHash: qaHash, role: 'seller', city: 'Київ', verified: false, rating: 0, bio: 'Тестовий продавець для QA' },
+    { name: 'QA Buyer', email: 'qa-buyer@kram.local', passwordHash: qaHash, role: 'user', city: 'Львів', rating: 0 },
+    { name: 'QA Admin', email: 'qa-admin@kram.local', passwordHash: qaHash, role: 'admin', city: 'Київ', verified: true, rating: 5.0 },
   ]
 
   const users = await Promise.all(
@@ -98,6 +122,8 @@ async function main() {
     { title: 'Проектор Xgimi Halo+', desc: 'Портативний, Full HD, Harman Kardon. Автофокус.', cat: 0, seller: 1, price: 14500, city: 'Київ', condition: 'like_new', hours: 17, img: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&q=80' },
     { title: 'Годинник Casio G-Shock GA-2100', desc: 'CasiOak, новий, повний комплект з коробкою.', cat: 11, seller: 3, price: 3500, city: 'Одеса', condition: 'new', hours: 21, img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80' },
     { title: 'Велосипед Giant Talon 29" 2023', desc: 'Рама L, пробіг 500 км. Shimano Deore 12 передач.', cat: 7, seller: 8, price: 15600, city: 'Полтава', condition: 'used', hours: 24, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
+    // QA Test Listing (for staging/preview only)
+    { title: 'Тестовий QA-лот KRAM', desc: 'Демо-лот для перевірки ставок, скарг та модерації. Не є реальним товаром.', cat: 0, seller: 10, price: 100, city: 'Київ', condition: 'new', hours: 1, img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80' },
   ]
 
   const createdListings = []
@@ -154,10 +180,20 @@ async function main() {
   console.log(`  ✅ ${bidCount} bids`)
 
   console.log('\n✨ Seed completed!')
-  console.log('\n📋 Test accounts:')
+  console.log('\n📋 Production Test accounts:')
   console.log('  Admin: admin@kram.ua / password123')
   console.log('  Seller: tech@test.com / password123')
   console.log('  Buyer: ivan@test.com / password123')
+  
+  if (!isProduction) {
+    console.log('\n📋 QA Test accounts (staging/preview only):')
+    console.log(`  QA Seller: qa-seller@kram.local / [QA_SEED_PASSWORD or generated]`)
+    console.log(`  QA Buyer: qa-buyer@kram.local / [QA_SEED_PASSWORD or generated]`)
+    console.log(`  QA Admin: qa-admin@kram.local / [QA_SEED_PASSWORD or generated]`)
+    console.log('  QA Lot: "Тестовий QA-лот KRAM" (1 hour duration for testing)')
+    console.log(`\n   ⚠️  QA Password: ${qaSeedPassword}`)
+    console.log('   Set QA_SEED_PASSWORD env var to use custom password')
+  }
 }
 
 main()
