@@ -203,10 +203,6 @@ export function LiveAuctionsNow() {
                         {lot.seller.name.charAt(0).toUpperCase()}
                       </div>
                       <span className="truncate flex-1 font-semibold">{lot.seller.name}</span>
-                      <span className="inline-flex items-center gap-0.5 text-[#10B981] font-bold">
-                        <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
-                        5.0
-                      </span>
                     </div>
                   </div>
                 </Link>
@@ -216,8 +212,8 @@ export function LiveAuctionsNow() {
         ) : (
           /* Empty / Launch State */
           <div className="text-center py-16 bg-white border border-[#E2E8F0] rounded-3xl max-w-xl mx-auto shadow-sm">
-            <div className="w-14 h-14 bg-[#2563EB]/8 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[26px]">
-              📦
+            <div className="w-14 h-14 bg-[#2563EB]/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Gavel className="w-7 h-7 text-[#2563EB]/50" />
             </div>
             <h3 className="text-[17px] font-extrabold text-[#0B1220] mb-2">
               Перші лоти зʼявляться незабаром
@@ -314,8 +310,9 @@ export function HowItWorksSimple() {
         </div>
 
         {/* Informative Disclaimer Banner */}
-        <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl max-w-3xl mx-auto">
-          <p className="text-[12.5px] text-[#1E40AF] leading-relaxed text-center font-medium">
+        <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl max-w-3xl mx-auto flex items-start gap-3">
+          <AlertTriangle className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
+          <p className="text-[12.5px] text-[#1E40AF] leading-relaxed font-medium">
             📢 <strong>Офіційне роз’яснення:</strong> У beta-режимі KRAM не обробляє платежі, не приймає передплати, не забезпечує холдування (escrow) чи автоматичне повернення коштів. Усі фінансові та поштові питання сторони вирішують особисто та самостійно поза межами системи.
           </p>
         </div>
@@ -358,7 +355,7 @@ export function MobileAppsTeaser() {
           
           <div>
             <div className="inline-flex items-center gap-1.5 h-6 px-2.5 bg-white/5 border border-white/10 rounded-full text-[10.5px] font-bold text-slate-400 uppercase tracking-wide mb-4">
-              📱 Мобільний Доступ
+              <Smartphone className="w-3.5 h-3.5" /> Мобільний Доступ
             </div>
             
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-4">
@@ -386,11 +383,13 @@ export function MobileAppsTeaser() {
               {/* Stores coming soon */}
               <div className="flex flex-wrap gap-2.5 pt-4">
                 <div className="h-9 px-3 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2 text-slate-400 text-[11px] font-semibold select-none">
-                  <span>🍎 App Store</span>
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>App Store</span>
                   <span className="bg-white/5 text-[9px] px-1 rounded text-slate-500">скоро</span>
                 </div>
                 <div className="h-9 px-3 bg-white/5 border border-white/10 rounded-lg flex items-center gap-2 text-slate-400 text-[11px] font-semibold select-none">
-                  <span>🤖 Google Play</span>
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Google Play</span>
                   <span className="bg-white/5 text-[9px] px-1 rounded text-slate-500">скоро</span>
                 </div>
               </div>
@@ -552,7 +551,7 @@ export function EmailCollectionSection() {
       <div className="max-w-[640px] mx-auto px-4 text-center">
         
         <div className="inline-flex items-center gap-1.5 h-6 px-3 bg-white/5 border border-white/10 rounded-full text-[10.5px] font-bold text-slate-400 uppercase tracking-wide mb-4">
-          📬 Свіжі Новини
+          <Send className="w-3 h-3" /> Свіжі Новини
         </div>
 
         <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight mb-3">
@@ -581,7 +580,7 @@ export function EmailCollectionSection() {
                     : 'bg-white/5 text-slate-400 hover:bg-white/10'
                 }`}
               >
-                🏪 Хочу продавати
+                Хочу продавати
               </button>
               <button
                 type="button"
@@ -592,7 +591,7 @@ export function EmailCollectionSection() {
                     : 'bg-white/5 text-slate-400 hover:bg-white/10'
                 }`}
               >
-                🛒 Хочу купувати
+                Хочу купувати
               </button>
             </div>
 
