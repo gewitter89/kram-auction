@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, User, Search, MoreVertical, XCircle } from 'lucide-react'
-import { formatPrice, timeAgo } from '@/lib/utils'
+import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -101,15 +100,7 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-1.5">
-                      {u.verified ? (
-                        <span className="flex items-center gap-1 text-[#10B981] font-bold text-[11px] uppercase">
-                          <CheckCircle className="w-3.5 h-3.5" /> Верифікований
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-[#94A3B8] font-bold text-[11px] uppercase">
-                           Неверіфікований
-                        </span>
-                      )}
+                      {getVerificationBadge(u.verificationStatus, u.emailVerified)}
                     </div>
                   </td>
                   <td className="py-4 px-6">
@@ -119,15 +110,33 @@ export default function AdminUsersPage() {
                     </div>
                   </td>
                   <td className="py-4 px-6 text-right">
-                    <button
-                      onClick={() => handleAction(u.id, 'setVerified', !u.verified)}
-                      disabled={processing === u.id}
-                      className={`h-8 px-3 rounded-lg text-[12px] font-bold transition-all ${
-                        u.verified ? 'bg-[#FEF2F2] text-[#EF4444] hover:bg-[#FEE2E2]' : 'bg-[#EFF6FF] text-[#2563EB] hover:bg-[#DBEAFE]'
-                      }`}
-                    >
-                      {u.verified ? 'Зняти верифікацію' : 'Верифікувати'}
-                    </button>
+                    <div className="flex items-center gap-2 justify-end">
+                      {(u.verificationStatus === 'NONE' || u.verificationStatus === 'EMAIL_ONLY' || u.verificationStatus === 'REJECTED') ? (
+                        <button
+                          onClick={() => handleAction(u.id, 'setVerificationStatus', 'VERIFIED')}
+                          disabled={processing === u.id}
+                          className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#ECFDF5] text-[#10B981] hover:bg-[#D1FAE5] transition-all"
+                        >
+                          Перевірити
+                        </button>
+                      ) : null}
+                      {u.verificationStatus === 'VERIFIED' ? (
+                        <button
+                          onClick={() => handleAction(u.id, 'setVerificationStatus', 'REJECTED')}
+                          disabled={processing === u.id}
+                          className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#FEF2F2] text-[#EF4444] hover:bg-[#FEE2E2] transition-all"
+                        >
+                          Відхилити
+                        </button>
+                      ) : null}
+                      <button
+                        onClick={() => handleAction(u.id, 'setVerificationStatus', 'NONE')}
+                        disabled={processing === u.id}
+                        className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#F1F5F9] text-[#64748B] hover:bg-[#E2E8F0] transition-all"
+                      >
+                        Скинути
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -139,10 +148,41 @@ export default function AdminUsersPage() {
   )
 }
 
-function CheckCircle(props: any) {
-  return (
-    <svg {...props} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-    </svg>
-  )
+function getVerificationBadge(status: string, emailVerified: boolean) {
+  switch (status) {
+    case 'VERIFIED':
+      return (
+        <span className="flex items-center gap-1 text-[#10B981] font-bold text-[11px] uppercase">
+          <CheckCircle className="w-3.5 h-3.5" /> Верифікований
+        </span>
+      )
+    case 'EMAIL_ONLY':
+      return (
+        <span className="flex items-center gap-1 text-[#2563EB] font-bold text-[11px] uppercase">
+          <ShieldCheck className="w-3.5 h-3.5" /> Email підтверджено
+        </span>
+      )
+    case 'MANUAL_REVIEW':
+      return (
+        <span className="flex items-center gap-1 text-[#D97706] font-bold text-[11px] uppercase">
+          <Clock className="w-3.5 h-3.5" /> На перевірці
+        </span>
+      )
+    case 'REJECTED':
+      return (
+        <span className="flex items-center gap-1 text-[#EF4444] font-bold text-[11px] uppercase">
+          <XCircle className="w-3.5 h-3.5" /> Відхилено
+        </span>
+      )
+    default:
+      return emailVerified ? (
+        <span className="flex items-center gap-1 text-[#2563EB] font-bold text-[11px] uppercase">
+          <ShieldCheck className="w-3.5 h-3.5" /> Email підтверджено
+        </span>
+      ) : (
+        <span className="flex items-center gap-1 text-[#94A3B8] font-bold text-[11px] uppercase">
+          <AlertCircle className="w-3.5 h-3.5" /> Не підтверджено
+        </span>
+      )
+  }
 }

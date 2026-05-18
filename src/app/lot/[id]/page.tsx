@@ -8,7 +8,7 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
   const lot = await prisma.listing.findUnique({
     where: { id },
     include: {
-      seller: { select: { id: true, name: true, rating: true, verified: true, city: true, createdAt: true, reviewsCount: true } },
+      seller: { select: { id: true, name: true, rating: true, verified: true, verificationStatus: true, emailVerified: true, city: true, createdAt: true, reviewsCount: true } },
       category: { select: { name: true, slug: true } },
       bids: {
         orderBy: { createdAt: 'desc' },
@@ -44,7 +44,7 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
     where: { categoryId: lot.categoryId, id: { not: lot.id }, status: 'active' },
     take: 4,
     include: { 
-      seller: { select: { name: true, rating: true, verified: true, reviewsCount: true } },
+      seller: { select: { name: true, rating: true, verified: true, verificationStatus: true, emailVerified: true, reviewsCount: true } },
       _count: { select: { bids: true } }
     }
   })

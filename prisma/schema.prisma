@@ -18,7 +18,9 @@ model User {
   bio          String?
   rating       Float    @default(0)
   reviewsCount Int      @default(0)
-  verified     Boolean  @default(false)
+  verified     Boolean  @default(false)  // legacy field, will be replaced by verificationStatus
+  verificationStatus String @default("NONE") // NONE, EMAIL_ONLY, MANUAL_REVIEW, VERIFIED, REJECTED
+  emailVerified Boolean @default(false)
   phoneVerificationCode   String?
   phoneVerificationExpiry DateTime?
   phoneVerificationAttempts Int @default(0)

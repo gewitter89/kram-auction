@@ -23,6 +23,8 @@ export async function GET(request: Request) {
         email: true,
         role: true,
         verified: true,
+        verificationStatus: true,
+        emailVerified: true,
         rating: true,
         createdAt: true,
         _count: {
@@ -51,11 +53,29 @@ export async function PATCH(request: Request) {
         where: { id: userId },
         data: { role: value }
       })
-    } else if (action === 'setVerified') {
+    } else if (action === 'setVerificationStatus') {
       await prisma.user.update({
         where: { id: userId },
-        data: { verified: value }
+        data: { 
+          verificationStatus: value,
+          // Sync legacy field
+          verified: value === 'VERIFIED'
+        }
       })
+      
+      // Audit log (non-blocking)
+      try {
+        await prisma.auditLog.create({
+          data: {
+            userId: userId,
+            action: value === 'VERIFIED' ? 'USER_VERIFICATION_APPROVED' : 
+                    value === 'REJECTED' ? 'USER_VERIFICATION_REJECTED' : 'USER_VERIFICATION_RESET',
+            metadata: JSON.stringify({ details: `Verification status changed to ${value}` })
+          }
+        })
+      } catch {
+        // Audit log failure should not block main action
+      }
     }
 
     return NextResponse.json({ success: true })

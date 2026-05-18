@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth-config'
 import Link from 'next/link'
-import { ShieldAlert, CheckCircle2, Package, User } from 'lucide-react'
+import { ShieldAlert, CheckCircle2, Package, User, ExternalLink, Eye } from 'lucide-react'
 import { timeAgo } from '@/lib/utils'
 import { prisma } from '@/lib/prisma'
 
@@ -111,6 +111,29 @@ export default async function AdminReportsPage() {
                         <Link href={`/lot/${r.listing.id}`} className="flex items-center gap-1 text-[#2563EB] hover:underline">
                           <Package className="w-3.5 h-3.5" />
                           {r.listing.title.slice(0, 30)}...
+                        </Link>
+                      )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="flex items-center gap-2 mt-3">
+                      {r.user && (
+                        <Link 
+                          href={`/admin/users?q=${encodeURIComponent(r.user.name || '')}`}
+                          className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[11px] font-semibold text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors"
+                        >
+                          <Eye className="w-3 h-3" />
+                          Переглянути продавця
+                        </Link>
+                      )}
+                      {r.listing && (
+                        <Link 
+                          href={`/lot/${r.listing.id}`}
+                          target="_blank"
+                          className="inline-flex items-center gap-1.5 h-7 px-2.5 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[11px] font-semibold text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Переглянути лот
                         </Link>
                       )}
                     </div>
