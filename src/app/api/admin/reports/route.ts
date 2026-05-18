@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/getCurrentUser'
 
+const ALLOWED_STATUSES = ['pending', 'reviewed', 'dismissed', 'action_taken', 'resolved']
+
 export async function GET(request: Request) {
   try {
     await requireAdmin()
@@ -10,12 +12,12 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
       include: {
         user: { select: { name: true, email: true } },
-        listing: { 
-          select: { 
-            id: true, 
-            title: true, 
-            seller: { select: { name: true } } 
-          } 
+        listing: {
+          select: {
+            id: true,
+            title: true,
+            seller: { select: { name: true } }
+          }
         }
       }
     })
@@ -34,6 +36,10 @@ export async function PATCH(request: Request) {
     await requireAdmin()
 
     const { reportId, status } = await request.json()
+
+    if (!reportId || !ALLOWED_STATUSES.includes(status)) {
+      return NextResponse.json({ error: 'Invalid reportId or status' }, { status: 400 })
+    }
 
     await prisma.report.update({
       where: { id: reportId },

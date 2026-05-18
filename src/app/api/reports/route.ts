@@ -16,8 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Занадто багато скарг. Спробуйте через кілька секунд.' }, { status: 429 })
     }
 
-    const { listingId, reason } = await request.json()
-
+    const { listingId, reason, comment } = await request.json()
 
     if (!reason) {
       return NextResponse.json({ error: 'Вкажіть причину' }, { status: 400 })
@@ -26,8 +25,9 @@ export async function POST(request: Request) {
     const report = await prisma.report.create({
       data: {
         userId: userId,
-        listingId: listingId || '', // Empty string for verification requests
+        listingId: listingId || null,
         reason,
+        comment: comment ? String(comment).trim().slice(0, 500) : null,
         status: 'pending'
       }
     })

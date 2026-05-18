@@ -157,7 +157,8 @@ model Report {
   listingId String?
   userId    String
   reason    String
-  status    String   @default("pending") // pending, reviewed, resolved
+  comment   String?  // optional details from reporter
+  status    String   @default("pending") // pending, reviewed, dismissed, action_taken, resolved
   createdAt DateTime @default(now())
 
   listing Listing? @relation(fields: [listingId], references: [id])

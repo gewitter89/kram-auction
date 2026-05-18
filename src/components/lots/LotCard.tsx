@@ -191,10 +191,16 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
 
           <div className="flex items-center gap-1" title={lot.verified ? "Верифікований користувач" : undefined}>
             {lot.verified && (
-              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
             )}
-            <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" />
-            <span className="font-bold">{lot.sellerRating.toFixed(1)}</span>
+            {lot.sellerRating > 0 ? (
+              <>
+                <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" aria-hidden="true" />
+                <span className="font-bold">{lot.sellerRating.toFixed(1)}</span>
+              </>
+            ) : (
+              <span className="text-[10px] text-[#94A3B8]">Відгуків немає</span>
+            )}
           </div>
         </div>
 

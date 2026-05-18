@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X, Info } from 'lucide-react'
+import { Clock, MapPin, Star, Truck, ShieldCheck, Eye, User, MessageCircle, Heart, Share2, Flag, TrendingUp, Lock, BadgeCheck, ChevronRight, CheckCircle2, Gavel, X, Info, XCircle } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { BidModal } from '@/components/lot/BidModal'
 import { LotCard } from '@/components/lots/LotCard'
@@ -531,12 +531,12 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                       {lot.seller.name}
                     </Link>
                     {lot.seller.verified && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10">
-                        <ShieldCheck className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10" title="Профіль верифіковано модератором KRAM">
+                        <ShieldCheck className="w-3 h-3" aria-hidden="true" />
                         Підтверджено
                       </span>
                     )}
-                    {lot.seller.completedDealsCount === 0 && (
+                    {!lot.seller.verified && lot.seller.completedDealsCount === 0 && (
                       <span className="inline-flex items-center px-1.5 py-0.5 bg-[#FFFBEB] text-[#D97706] text-[10px] font-bold rounded-full border border-[#D97706]/10">
                         Новий продавець
                       </span>
@@ -623,35 +623,36 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
 
               <ul className="space-y-2.5 text-[12px] text-[#475569]">
                 <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold mt-0.5">✕</span>
+                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Не переходьте за сторонніми платіжними посиланнями.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-rose-500 font-bold mt-0.5">✕</span>
+                  <XCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Не надсилайте передоплату незнайомим продавцям.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Перевіряйте товар перед оплатою.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Домовляйтесь про доставку напряму.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Зберігайте переписку в KRAM.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-emerald-500 font-bold mt-0.5">✓</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Повідомляйте про підозрілі лоти.</span>
                 </li>
               </ul>
 
               {/* Direct Agreement Disclaimer */}
-              <div className="p-3 bg-[#EFF6FF] border border-[#2563EB]/15 rounded-xl">
+              <div className="p-3 bg-[#EFF6FF] border border-[#2563EB]/15 rounded-xl flex items-start gap-2">
+                <Info className="w-3.5 h-3.5 text-[#2563EB] shrink-0 mt-0.5" aria-hidden="true" />
                 <p className="text-[11px] text-[#1E40AF] leading-relaxed font-semibold">
-                  ℹ️ KRAM не приймає оплату, не зберігає кошти та не проводить виплати. Сторони домовляються напряму.
+                  KRAM не приймає оплату, не зберігає кошти та не проводить виплати. Сторони домовляються напряму.
                 </p>
               </div>
 
