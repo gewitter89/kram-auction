@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { seedListingTitleFilters } from '@/lib/public-listing-filters'
+import { publicListingWhere } from '@/lib/public-listing-filters'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +11,7 @@ export async function GET() {
       take: 6,
       orderBy: { createdAt: 'desc' },
       where: {
-        listing: { NOT: seedListingTitleFilters }
+        listing: publicListingWhere()
       },
       include: {
         listing: { select: { title: true } },
@@ -21,7 +21,7 @@ export async function GET() {
 
     // 2. Fetch recent sold listings (wins)
     const recentWins = await prisma.listing.findMany({
-      where: { status: 'sold', NOT: seedListingTitleFilters },
+      where: publicListingWhere({ status: 'sold' }),
       take: 4,
       orderBy: { endsAt: 'desc' },
       include: {
@@ -61,6 +61,6 @@ export async function GET() {
     return NextResponse.json({ events: allEvents }, { status: 200 })
   } catch (error) {
     console.error('Fetch recent events error:', error)
-    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    return NextResponse.json({ events: [] }, { status: 200 })
   }
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import { PrismaClient } from '@prisma/client'
 import { getProductionReadiness } from '../src/lib/marketplace-checks'
+import { seedUserEmails } from '../src/lib/public-listing-filters'
 
 const prisma = new PrismaClient()
 
@@ -38,14 +39,16 @@ async function main() {
       checks.push({ label: check.label, ok: check.ok, detail: typeof check.value !== 'undefined' ? String(check.value) : undefined, required: true })
     }
 
-    const [testUsers, suspiciousLots, emptyImagesActiveLots] = await Promise.all([
-      prisma.user.count({ where: { email: { contains: '@test.com' } } }),
-      prisma.listing.count({ where: { OR: [{ title: { contains: 'Smoke Test' } }, { title: { contains: 'QA' } }, { title: { contains: 'Test' } }] } }),
+    const [seedUsers, suspiciousLots, seedSellerLots, emptyImagesActiveLots] = await Promise.all([
+      prisma.user.count({ where: { email: { in: seedUserEmails } } }),
+      prisma.listing.count({ where: { OR: [{ title: { contains: 'Smoke Test', mode: 'insensitive' } }, { title: { contains: 'QA', mode: 'insensitive' } }, { title: { contains: 'Test', mode: 'insensitive' } }, { title: { contains: 'Тестовий', mode: 'insensitive' } }] } }),
+      prisma.listing.count({ where: { seller: { email: { in: seedUserEmails } } } }),
       prisma.listing.count({ where: { status: 'active', images: '[]' } }),
     ])
 
-    checks.push({ label: 'No obvious @test.com users in production DB', ok: testUsers === 0, detail: String(testUsers) })
+    checks.push({ label: 'No seed/demo users in production DB', ok: seedUsers === 0, detail: String(seedUsers) })
     checks.push({ label: 'No obvious test/smoke listings in production DB', ok: suspiciousLots === 0, detail: String(suspiciousLots) })
+    checks.push({ label: 'No listings owned by seed/demo users', ok: seedSellerLots === 0, detail: String(seedSellerLots) })
     checks.push({ label: 'Active listings usually have photos', ok: emptyImagesActiveLots === 0, detail: `${emptyImagesActiveLots} active lots without images`, required: false })
   } catch (error) {
     checks.push({ label: 'Database connection works', ok: false, required: true, detail: error instanceof Error ? error.message : 'Unknown error' })

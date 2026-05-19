@@ -7,11 +7,13 @@ const prisma = new PrismaClient()
 // SAFETY: Prevent QA seed from running in production
 const isProduction = process.env.NODE_ENV === 'production'
 const allowQaSeed = process.env.ALLOW_QA_SEED === 'true'
+const allowDemoSeed = process.env.ALLOW_DEMO_SEED === 'true'
 const qaSeedPassword = process.env.QA_SEED_PASSWORD || crypto.randomBytes(8).toString('hex')
 
-if (isProduction && !allowQaSeed) {
-  console.log('❌ Production detected. QA seed disabled.')
-  console.log('   Set ALLOW_QA_SEED=true to enable (not recommended for live production).')
+if (isProduction && !allowQaSeed && !allowDemoSeed) {
+  console.log('❌ Production detected. Demo/QA seed disabled.')
+  console.log('   Use /api/admin/categories/ensure for production categories.')
+  console.log('   Set ALLOW_DEMO_SEED=true only for disposable demo/staging data.')
   process.exit(0)
 }
 
