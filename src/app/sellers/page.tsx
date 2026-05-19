@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Footer } from '@/components/layout/Footer'
-import { ArrowRight, BadgeCheck, Bell, Camera, CheckCircle2, Gavel, MessageSquare, ShieldCheck, Store, UploadCloud } from 'lucide-react'
+import { ArrowRight, BadgeCheck, Bell, Camera, CheckCircle2, ExternalLink, Gavel, MessageSquare, ShieldCheck, Store, UploadCloud } from 'lucide-react'
 
 const launchCategories = ['Телефони', 'Ноутбуки', 'Ігрові консолі', 'Аксесуари Apple', 'Комплектуючі ПК', 'Фото/відео']
 
@@ -12,6 +12,10 @@ export default function SellersPage() {
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [olxUrl, setOlxUrl] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState('')
+  const [importedLotId, setImportedLotId] = useState('')
 
   function update(field: string, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -46,6 +50,39 @@ export default function SellersPage() {
       setError('Помилка мережі. Спробуйте пізніше')
     } finally {
       setLoading(false)
+    }
+  }
+
+
+  async function importOlxLot(e: React.FormEvent) {
+    e.preventDefault()
+    setImportError('')
+    setImportedLotId('')
+    if (!olxUrl.includes('olx.ua')) {
+      setImportError('Вставте посилання на OLX-оголошення')
+      return
+    }
+    setImporting(true)
+    try {
+      const res = await fetch('/api/lots/import-olx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ olxUrl })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        if (res.status === 401) {
+          window.location.href = `/auth/login?callbackUrl=/sellers?importOlx=1`
+          return
+        }
+        setImportError(data.error || 'Не вдалося імпортувати оголошення')
+        return
+      }
+      setImportedLotId(data.id)
+    } catch {
+      setImportError('Помилка мережі. Спробуйте пізніше')
+    } finally {
+      setImporting(false)
     }
   }
 
@@ -150,6 +187,54 @@ export default function SellersPage() {
               <p className="text-[13px] text-[#64748B] leading-relaxed">{desc}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+
+      <section className="max-w-[900px] mx-auto px-4 pb-10">
+        <div className="bg-[#0B1220] text-white rounded-[2rem] p-6 md:p-8 shadow-sm">
+          <div className="flex items-start gap-4 mb-5">
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+              <ExternalLink className="w-6 h-6 text-[#60A5FA]" />
+            </div>
+            <div>
+              <h2 className="text-[22px] font-black tracking-tight mb-2">Імпорт лота з OLX</h2>
+              <p className="text-[13px] text-slate-300 leading-relaxed">
+                Вставте посилання на своє OLX-оголошення — KRAM підтягне назву, опис, ціну та фото. Лот буде створено як <strong className="text-white">чернетку на модерації</strong>, а не опубліковано без перевірки.
+              </p>
+            </div>
+          </div>
+
+          {importedLotId ? (
+            <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-2xl p-5">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-300 mt-0.5" />
+                <div>
+                  <p className="text-[14px] font-bold text-white">Лот імпортовано та відправлено на модерацію</p>
+                  <p className="text-[12px] text-emerald-100 mt-1">Після перевірки модератором він зʼявиться у каталозі.</p>
+                  <Link href={`/lot/${importedLotId}`} className="inline-flex mt-3 text-[12px] font-bold text-emerald-200 hover:text-white underline">
+                    Переглянути сторінку лота
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={importOlxLot} className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  value={olxUrl}
+                  onChange={e => setOlxUrl(e.target.value)}
+                  placeholder="https://www.olx.ua/d/uk/obyavlenie/..."
+                  className="flex-1 h-12 px-4 bg-white/10 border border-white/15 rounded-xl text-[14px] text-white placeholder:text-slate-500 outline-none focus:border-[#60A5FA]"
+                />
+                <button disabled={importing} className="h-12 px-6 bg-white text-[#0B1220] rounded-xl text-[14px] font-black hover:bg-slate-100 disabled:opacity-60 transition-all">
+                  {importing ? 'Імпортуємо...' : 'Імпортувати'}
+                </button>
+              </div>
+              {importError && <p className="text-[12px] text-red-300">{importError}</p>}
+              <p className="text-[11px] text-slate-500">Потрібен вхід в акаунт. Публікація все одно проходить ручну перевірку.</p>
+            </form>
+          )}
         </div>
       </section>
 
