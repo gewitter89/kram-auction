@@ -128,8 +128,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // Always fetch fresh data from DB to ensure correct user
       if (token.email) {
-        const rows = await prisma.$queryRaw<Array<{ id: string; name: string; email: string; avatar: string | null; role: string | null; verified: boolean | null }>>`
-          SELECT id, name, email, avatar, role, verified FROM "User" WHERE email = ${String(token.email).toLowerCase().trim()} LIMIT 1
+        const rows = await prisma.$queryRaw<Array<{ id: string; name: string; email: string; avatar: string | null; role: string | null; verified: boolean | null; verificationStatus: string | null }>>`
+          SELECT id, name, email, avatar, role, verified, "verificationStatus" FROM "User" WHERE email = ${String(token.email).toLowerCase().trim()} LIMIT 1
         `
         const dbUser = rows[0]
         if (dbUser) {
@@ -139,6 +139,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.picture = dbUser.avatar
           token.role = dbUser.role || 'user'
           token.verified = Boolean(dbUser.verified)
+          token.verificationStatus = dbUser.verificationStatus || 'NONE'
         }
       }
 
@@ -153,6 +154,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.image = token.picture as string
         ;(session.user as { role?: string }).role = token.role as string | undefined
         ;(session.user as { verified?: boolean }).verified = token.verified as boolean | undefined
+        ;(session.user as { verificationStatus?: string }).verificationStatus = token.verificationStatus as string | undefined
       }
       return session
     },

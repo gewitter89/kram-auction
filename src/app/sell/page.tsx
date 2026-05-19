@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck } from 'lucide-react'
+import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { compressImageForUpload } from '@/lib/image-compression'
 
@@ -291,15 +291,52 @@ export default function SellPage() {
   }
 
   if (session?.user && !session.user.verified) {
+    const vStatus = (session.user as any).verificationStatus || 'NONE'
+    
+    if (vStatus === 'MANUAL_REVIEW') {
+      return (
+        <div className="max-w-[480px] mx-auto px-4 py-20 text-center">
+          <div className="w-16 h-16 bg-[#FFFBEB] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#FDE68A]">
+            <Clock className="w-8 h-8 text-[#D97706] animate-pulse" />
+          </div>
+          <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Заявка на розгляді</h1>
+          <p className="text-[14px] text-[#64748B] mb-6">Ваша заявка на верифікацію продавця зараз розглядається модератором. Зазвичай це займає до 24 годин.</p>
+          <Link href="/cabinet?tab=verification" className="inline-flex items-center h-12 px-8 bg-[#EFF6FF] hover:bg-[#DBEAFE] text-[#2563EB] rounded-xl text-[15px] font-semibold transition-colors">
+            Переглянути в кабінеті
+          </Link>
+        </div>
+      )
+    }
+
+    if (vStatus === 'REJECTED') {
+      return (
+        <div className="max-w-[480px] mx-auto px-4 py-20 text-center">
+          <div className="w-16 h-16 bg-[#FEF2F2] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#FCA5A5]">
+            <X className="w-8 h-8 text-[#EF4444]" />
+          </div>
+          <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Верифікацію відхилено</h1>
+          <p className="text-[14px] text-[#64748B] mb-6">На жаль, ваш запит на продаж було відхилено. Будь ласка, зверніться в підтримку для з'ясування причин або повторної подачі.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link href="/support" className="inline-flex items-center justify-center h-12 px-8 w-full bg-[#EF4444] text-white rounded-xl text-[15px] font-semibold hover:bg-[#DC2626] transition-colors">
+              Підтримка
+            </Link>
+            <Link href="/cabinet?tab=verification" className="inline-flex items-center justify-center h-12 px-8 w-full bg-white border border-[#E2E8F0] text-[#0B1220] rounded-xl text-[15px] font-semibold hover:bg-[#F8FAFC] transition-colors">
+              Мій кабінет
+            </Link>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="max-w-[480px] mx-auto px-4 py-20 text-center">
         <div className="w-16 h-16 bg-[#FFFBEB] rounded-2xl flex items-center justify-center mx-auto mb-4 border border-[#FDE68A]">
           <ShieldCheck className="w-8 h-8 text-[#F59E0B]" />
         </div>
         <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Верифікація продавця</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">З метою безпеки платформи KRAM, нові продавці повинні пройти швидку верифікацію номера телефону.</p>
-        <Link href="/cabinet/verify?redirect=/sell" className="inline-flex items-center h-12 px-8 bg-[#F59E0B] text-white rounded-xl text-[15px] font-semibold hover:bg-[#D97706] transition-colors">
-          Пройти верифікацію
+        <p className="text-[14px] text-[#64748B] mb-6">З метою безпеки та прозорості платформи KRAM, нові продавці мають пройти швидку модерацію профілю перед публікацією лотів.</p>
+        <Link href="/cabinet?tab=verification" className="inline-flex items-center h-12 px-8 bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors">
+          Подати заявку
         </Link>
       </div>
     )

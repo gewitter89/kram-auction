@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PurchasesTab } from './PurchasesTab'
 import { SalesTab } from './SalesTab'
-import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 interface CabinetContentProps {
@@ -14,6 +14,8 @@ interface CabinetContentProps {
     name?: string | null
     email?: string | null
     image?: string | null
+    verified?: boolean
+    verificationStatus?: string | null
   }
 }
 
@@ -95,10 +97,27 @@ export function CabinetContent({ user }: CabinetContentProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-[20px] font-bold text-[#0B1220]">{user.name || 'Користувач'}</h1>
-                <div className="flex items-center gap-1 px-2 h-5 bg-[#ECFDF5] rounded-full">
-                  <ShieldCheck className="w-3 h-3 text-[#10B981]" />
-                  <span className="text-[10px] font-semibold text-[#10B981]">Верифіковано</span>
-                </div>
+                {user.verified ? (
+                  <div className="flex items-center gap-1 px-2 h-5 bg-[#ECFDF5] rounded-full">
+                    <ShieldCheck className="w-3 h-3 text-[#10B981]" />
+                    <span className="text-[10px] font-semibold text-[#10B981]">Верифіковано</span>
+                  </div>
+                ) : user.verificationStatus === 'MANUAL_REVIEW' ? (
+                  <div className="flex items-center gap-1 px-2 h-5 bg-[#FFFBEB] rounded-full border border-[#FDE68A]">
+                    <Clock className="w-3 h-3 text-[#D97706]" />
+                    <span className="text-[10px] font-semibold text-[#D97706]">На перевірці</span>
+                  </div>
+                ) : user.verificationStatus === 'REJECTED' ? (
+                  <div className="flex items-center gap-1 px-2 h-5 bg-[#FEF2F2] rounded-full border border-[#FCA5A5]">
+                    <XCircle className="w-3 h-3 text-[#EF4444]" />
+                    <span className="text-[10px] font-semibold text-[#EF4444]">Відхилено</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 px-2 h-5 bg-[#F1F5F9] rounded-full">
+                    <ShieldCheck className="w-3 h-3 text-[#64748B]" />
+                    <span className="text-[10px] font-semibold text-[#64748B]">Потребує верифікації</span>
+                  </div>
+                )}
               </div>
               <p className="text-[13px] text-[#64748B]">{user.email}</p>
             </div>
@@ -506,6 +525,10 @@ function VerificationTab({ user }: { user: any }) {
     setLoading(false)
   }
 
+  const isVerified = user?.verified
+  const isUnderReview = user?.verificationStatus === 'MANUAL_REVIEW' || requested
+  const isRejected = user?.verificationStatus === 'REJECTED'
+
   return (
     <div className="max-w-[560px]">
       <h2 className="text-[18px] font-bold text-[#0B1220] mb-2">Верифікація продавця</h2>
@@ -524,14 +547,53 @@ function VerificationTab({ user }: { user: any }) {
           </div>
         </div>
 
-        {requested ? (
-          <div className="bg-[#ECFDF5] border border-[#10B981]/20 rounded-xl p-4">
-            <p className="text-[13px] font-semibold text-[#10B981] mb-1 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" /> Запит надіслано
-            </p>
-            <p className="text-[12px] text-[#10B981]/80">
-              Модератор перевірить профіль. Якщо потрібно — з вами звʼяжуться через email акаунта.
-            </p>
+        {isVerified ? (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="text-[14px] font-bold text-emerald-950">Акаунт успішно верифіковано</h4>
+                <p className="text-[12px] text-emerald-800 leading-relaxed mt-1">
+                  Ваш профіль перевірено модератором KRAM. Ви можете створювати, редагувати та публікувати лоти.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/sell"
+              className="inline-flex items-center justify-center w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[14px] font-semibold transition-colors"
+            >
+              Створити новий лот
+            </Link>
+          </div>
+        ) : isUnderReview ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+            <div className="flex items-start gap-3">
+              <Clock className="w-5 h-5 text-amber-600 mt-0.5 shrink-0 animate-pulse" />
+              <div>
+                <h4 className="text-[14px] font-bold text-amber-950">Запит на верифікацію на розгляді</h4>
+                <p className="text-[12px] text-amber-850 leading-relaxed mt-1">
+                  Модератор отримав вашу заявку та перевірить її найближчим часом. Якщо знадобиться додаткова інформація, ми звʼяжемося з вами за адресою <strong className="text-amber-950">{user?.email}</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : isRejected ? (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <XCircle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="text-[14px] font-bold text-red-950">Запит на верифікацію відхилено</h4>
+                <p className="text-[12px] text-red-800 leading-relaxed mt-1">
+                  На жаль, модератор відхилив вашу заявку на продаж. Це могло статися через недостатній опис товарів або порушення правил безпеки платформи.
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/support"
+              className="inline-flex items-center justify-center w-full h-11 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[14px] font-semibold transition-colors"
+            >
+              Звʼязатися з підтримкою
+            </Link>
           </div>
         ) : (
           <form onSubmit={requestVerification} className="space-y-4">

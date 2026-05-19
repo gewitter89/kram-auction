@@ -119,6 +119,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { verified: true }
+    })
+    if (!user || !user.verified) {
+      return NextResponse.json({ error: 'Ваш акаунт не верифіковано для продажу товарів.' }, { status: 403 })
+    }
+
     const body = await request.json()
     const validation = validateBody(createLotSchema, body)
     if (validation.error) {
