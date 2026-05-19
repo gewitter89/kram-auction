@@ -159,6 +159,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Категорії не налаштовані. Зверніться до адміністратора.' }, { status: 500 })
     }
 
+    const existingListingsCount = await prisma.listing.count({ where: { sellerId: userId } })
+    const requiresModeration = existingListingsCount === 0
     const endsAt = new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000)
 
     const listing = await prisma.listing.create({
@@ -180,12 +182,20 @@ export async function POST(request: Request) {
         delivery: delivery || 'nova_poshta',
         featured: Boolean(featured),
         endsAt,
+        status: requiresModeration ? 'pending_review' : 'active',
       }
     })
 
-    notifyNewLot({ title: listing.title, startPrice: listing.startPrice, id: listing.id }).catch(console.error)
+    if (!requiresModeration) {
+      notifyNewLot({ title: listing.title, startPrice: listing.startPrice, id: listing.id }).catch(console.error)
+    }
 
-    return NextResponse.json({ message: 'Лот створено!', id: listing.id }, { status: 201 })
+    return NextResponse.json({
+      message: requiresModeration ? 'Лот створено та відправлено на модерацію.' : 'Лот створено!',
+      id: listing.id,
+      status: listing.status,
+      pendingReview: requiresModeration,
+    }, { status: 201 })
   } catch (error) {
     console.error('Create lot error:', error)
     return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })

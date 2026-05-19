@@ -113,8 +113,9 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
     return () => clearInterval(interval)
   }, [lot.id])
 
-  const isEnded = new Date(endsAt).getTime() <= Date.now()
-  const isUrgent = !isEnded && new Date(endsAt).getTime() - Date.now() < 30 * 60000
+  const isModerated = lot.status === 'pending_review' || lot.status === 'rejected'
+  const isEnded = isModerated || new Date(endsAt).getTime() <= Date.now()
+  const isUrgent = !isModerated && !isEnded && new Date(endsAt).getTime() - Date.now() < 30 * 60000
   const isOwner = session?.user?.id === lot.sellerId
 
   function handleBid() {
@@ -220,6 +221,25 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
       {toast && (
         <div className="fixed top-20 right-4 z-50 px-4 py-3 bg-[#0B1220] text-white text-[14px] font-medium rounded-xl shadow-premium animate-fade-in">
           {toast}
+        </div>
+      )}
+
+
+      {isModerated && (
+        <div className={`mb-5 rounded-2xl border p-4 ${lot.status === 'pending_review' ? 'bg-[#FFFBEB] border-[#FDE68A]' : 'bg-[#FEF2F2] border-[#FECACA]'}`}>
+          <div className="flex items-start gap-3">
+            {lot.status === 'pending_review' ? <Info className="w-5 h-5 text-[#D97706] mt-0.5" /> : <XCircle className="w-5 h-5 text-[#EF4444] mt-0.5" />}
+            <div>
+              <p className={`text-[14px] font-bold ${lot.status === 'pending_review' ? 'text-[#92400E]' : 'text-[#991B1B]'}`}>
+                {lot.status === 'pending_review' ? 'Лот очікує модерації' : 'Лот відхилено модератором'}
+              </p>
+              <p className="text-[13px] text-[#64748B] mt-1 leading-relaxed">
+                {lot.status === 'pending_review'
+                  ? 'Перший лот нового продавця не потрапляє в каталог до перевірки модератором. Після схвалення аукціон отримає повний термін показу.'
+                  : 'Цей лот не доступний у публічному каталозі. Оновіть опис/фото або зверніться в підтримку.'}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -420,6 +440,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
             </div>
 
             {/* Timer */}
+            {!isModerated && (
             <div className={`mb-4 ${isUrgent ? 'animate-urgent' : ''} bg-[#FEF2F2] border border-[#EF4444]/20 rounded-xl p-3`}>
               <div className="flex items-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-[#EF4444]" />
@@ -444,8 +465,10 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               )}
             </div>
 
+            )}
+
             {/* Actions */}
-            {!isEnded && !isOwner && (
+            {!isModerated && !isEnded && !isOwner && (
               <div className="space-y-2 mb-4">
                 <button
                   data-testid="open-bid-modal"
@@ -648,7 +671,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
       </div>
 
       {/* Mobile sticky bottom bar */}
-      {!isEnded && !isOwner && (
+      {!isModerated && !isEnded && !isOwner && (
         <div className="lg:hidden fixed bottom-16 left-0 right-0 z-40 bg-white border-t border-[#E2E8F0] p-3 shadow-premium">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 min-w-[90px]">

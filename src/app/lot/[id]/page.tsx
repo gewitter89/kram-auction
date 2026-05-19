@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { LotPageContent } from '@/components/lot/LotPageContent'
+import { auth } from '@/lib/auth-config'
 
 export default async function LotPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -19,6 +20,13 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
   })
 
   if (!lot) notFound()
+
+  const session = await auth()
+  const isOwner = session?.user?.id === lot.sellerId
+  const isAdmin = session?.user?.role === 'admin' || session?.user?.email === 'admin@kram.ua'
+  if ((lot.status === 'pending_review' || lot.status === 'rejected') && !isOwner && !isAdmin) {
+    notFound()
+  }
 
   // Increment views
   await prisma.listing.update({ where: { id }, data: { views: { increment: 1 } } })

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/getCurrentUser'
+import { notifyNewLot } from '@/lib/telegram'
 
 export async function GET(request: Request) {
   try {
@@ -33,10 +34,15 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'lotId is required' }, { status: 400 })
     }
 
-    const actionMap: Record<string, { status?: string; featured?: boolean }> = {
+    const existingLot = await prisma.listing.findUnique({ where: { id: lotId }, select: { duration: true, title: true, startPrice: true, status: true } })
+    if (!existingLot) return NextResponse.json({ error: 'Lot not found' }, { status: 404 })
+
+    const actionMap: Record<string, { status?: string; featured?: boolean; endsAt?: Date }> = {
       hide: { status: 'cancelled' },
       restore: { status: 'active' },
       end: { status: 'ended' },
+      approve: { status: 'active', endsAt: new Date(Date.now() + Number(existingLot.duration || 7) * 24 * 60 * 60 * 1000) },
+      reject: { status: 'rejected' },
       feature: { featured: true },
       unfeature: { featured: false },
     }
@@ -50,6 +56,31 @@ export async function PATCH(request: Request) {
       where: { id: lotId },
       data,
     })
+
+    if (action === 'approve') {
+      notifyNewLot({ title: lot.title, startPrice: lot.startPrice, id: lot.id }).catch(console.error)
+      await prisma.notification.create({
+        data: {
+          userId: lot.sellerId,
+          type: 'listing_approved',
+          title: 'Лот опубліковано',
+          message: `Ваш лот "${lot.title}" пройшов модерацію та доступний у каталозі.`,
+          listingId: lot.id,
+        }
+      }).catch(() => {})
+    }
+
+    if (action === 'reject') {
+      await prisma.notification.create({
+        data: {
+          userId: lot.sellerId,
+          type: 'listing_rejected',
+          title: 'Лот відхилено модератором',
+          message: `Ваш лот "${lot.title}" не пройшов модерацію. Оновіть опис/фото або зверніться в підтримку.`,
+          listingId: lot.id,
+        }
+      }).catch(() => {})
+    }
 
     await prisma.auditLog.create({
       data: {

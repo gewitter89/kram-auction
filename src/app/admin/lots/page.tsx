@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Package, Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star } from 'lucide-react'
+import { Package, Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -89,12 +89,12 @@ export default function AdminLotsPage() {
             let images = []
             try { images = JSON.parse(lot.images || '[]') } catch {}
             return (
-              <div key={lot.id} className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden flex flex-col">
+              <div key={lot.id} className={`bg-white border rounded-2xl overflow-hidden flex flex-col ${lot.status === 'pending_review' ? 'border-[#F59E0B] ring-2 ring-[#F59E0B]/20 animate-pulse' : 'border-[#E2E8F0]'}`}>
                 <div className="aspect-video bg-[#F1F5F9] relative overflow-hidden">
                   {images[0] && <img src={images[0]} alt="" className="w-full h-full object-cover" />}
                   <div className="absolute top-2 left-2 flex gap-1">
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      lot.status === 'active' ? 'bg-[#ECFDF5] text-[#10B981]' : 'bg-[#F1F5F9] text-[#64748B]'
+                      lot.status === 'active' ? 'bg-[#ECFDF5] text-[#10B981]' : lot.status === 'pending_review' ? 'bg-[#FFFBEB] text-[#D97706]' : lot.status === 'rejected' ? 'bg-[#FEF2F2] text-[#EF4444]' : 'bg-[#F1F5F9] text-[#64748B]'
                     }`}>
                       {lot.status}
                     </span>
@@ -127,21 +127,34 @@ export default function AdminLotsPage() {
                     >
                       <ExternalLink className="w-3.5 h-3.5" /> Переглянути
                     </Link>
-                    <button
-                      onClick={() => handleModerate(lot.id, lot.featured ? 'unfeature' : 'feature')}
-                      disabled={processing === lot.id}
-                      className="h-9 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#D97706] hover:bg-[#FEF3C7]"
-                    >
-                      <Star className="w-3.5 h-3.5" /> {lot.featured ? 'Зняти VIP' : 'VIP'}
-                    </button>
-                    <button
-                      onClick={() => handleModerate(lot.id, lot.status === 'active' ? 'hide' : 'restore')}
-                      disabled={processing === lot.id}
-                      className="h-9 bg-white border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#64748B] hover:bg-[#F8FAFC]"
-                    >
-                      {lot.status === 'active' ? <EyeOff className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
-                      {lot.status === 'active' ? 'Сховати' : 'Відновити'}
-                    </button>
+                    {lot.status === 'pending_review' ? (
+                      <>
+                        <button onClick={() => handleModerate(lot.id, 'approve')} disabled={processing === lot.id} className="h-9 bg-[#10B981] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-white hover:bg-[#059669]">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Схвалити
+                        </button>
+                        <button onClick={() => handleModerate(lot.id, 'reject')} disabled={processing === lot.id} className="h-9 bg-[#FEF2F2] border border-[#FECACA] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#EF4444] hover:bg-[#FEE2E2]">
+                          <XCircle className="w-3.5 h-3.5" /> Відхилити
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleModerate(lot.id, lot.featured ? 'unfeature' : 'feature')}
+                          disabled={processing === lot.id}
+                          className="h-9 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#D97706] hover:bg-[#FEF3C7]"
+                        >
+                          <Star className="w-3.5 h-3.5" /> {lot.featured ? 'Зняти VIP' : 'VIP'}
+                        </button>
+                        <button
+                          onClick={() => handleModerate(lot.id, lot.status === 'active' ? 'hide' : 'restore')}
+                          disabled={processing === lot.id}
+                          className="h-9 bg-white border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#64748B] hover:bg-[#F8FAFC]"
+                        >
+                          {lot.status === 'active' ? <EyeOff className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                          {lot.status === 'active' ? 'Сховати' : 'Відновити'}
+                        </button>
+                      </>
+                    )}
                     <button
                       onClick={() => handleDelete(lot.id)}
                       disabled={processing === lot.id}
