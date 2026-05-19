@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
+import { compressImageForUpload } from '@/lib/image-compression'
 
 const CATEGORIES = [
   { name: 'Електроніка', slug: 'electronics' },
@@ -137,13 +138,20 @@ export default function SellPage() {
           break
         }
 
-        if (file.size > 4 * 1024 * 1024) {
-          setError(`Фото ${file.name} завелике. Максимальний розмір — 4MB`)
+        let uploadFile = file
+        try {
+          uploadFile = await compressImageForUpload(file)
+        } catch {
+          // If compression fails, continue with the original file and let server validation respond.
+        }
+
+        if (uploadFile.size > 4 * 1024 * 1024) {
+          setError(`Фото ${file.name} завелике навіть після стиснення. Максимальний розмір — 4MB`)
           hasFailed = true
           break
         }
         const fd = new FormData()
-        fd.append('files', file)
+        fd.append('files', uploadFile)
 
         const res = await fetch('/api/upload', { method: 'POST', body: fd })
         const data = await res.json()
@@ -347,7 +355,7 @@ export default function SellPage() {
           {/* Photo upload */}
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
             <h2 className="text-[16px] font-bold text-[#0F172A] mb-1">Фотографії</h2>
-            <p className="text-[12px] text-[#94A3B8] mb-4">До 8 фото. JPEG, PNG або WebP — до 4MB кожне</p>
+            <p className="text-[12px] text-[#94A3B8] mb-4">До 8 фото. JPEG, PNG або WebP — фото з телефону автоматично стискаються до 4MB</p>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {imagePreviews.map((src, i) => (

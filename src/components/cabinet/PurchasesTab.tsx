@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare } from 'lucide-react'
+import { ShoppingBag, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare, ShieldCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
-import { LiqPayButton } from '@/components/payments/LiqPayButton'
-import { useLiqPayStatus } from '@/hooks/useLiqPayStatus'
-import { MockPaymentModal } from '@/components/payments/MockPaymentModal'
 
 interface Transaction {
   id: string
@@ -68,8 +65,6 @@ export function PurchasesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
-  const [activePaymentTx, setActivePaymentTx] = useState<{ id: string; amount: number; title: string } | null>(null)
-  const { configured: liqPayConfigured, loading: liqPayLoading } = useLiqPayStatus()
 
   const load = () => {
     fetch('/api/transactions?role=buyer')
@@ -173,7 +168,13 @@ export function PurchasesTab() {
 
   return (
     <>
-      <h2 className="text-[18px] font-bold text-[#0B1220] mb-5">Мої покупки</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <h2 className="text-[18px] font-bold text-[#0B1220]">Мої покупки</h2>
+        <div className="inline-flex items-center gap-2 px-3 py-2 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl text-[12px] font-semibold text-[#1E40AF]">
+          <ShieldCheck className="w-4 h-4" />
+          Оплата напряму з продавцем, рекомендовано післяплатою
+        </div>
+      </div>
       <div className="space-y-4">
         {transactions.map(tx => {
           let images: string[] = []
@@ -306,20 +307,6 @@ export function PurchasesTab() {
           )
         })}
       </div>
-
-      {activePaymentTx && (
-        <MockPaymentModal
-          isOpen={!!activePaymentTx}
-          onClose={() => setActivePaymentTx(null)}
-          onSuccess={() => {
-            const txId = activePaymentTx.id
-            setActivePaymentTx(null)
-            markPaid(txId)
-          }}
-          amount={activePaymentTx.amount}
-          listingTitle={activePaymentTx.title}
-        />
-      )}
     </>
   )
 }

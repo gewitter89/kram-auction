@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Package, Trash2, ExternalLink, Clock, User } from 'lucide-react'
+import { Package, Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -23,6 +23,18 @@ export default function AdminLotsPage() {
     setLoading(false)
   }
 
+  async function handleModerate(lotId: string, action: string) {
+    setProcessing(lotId)
+    const res = await fetch('/api/admin/lots', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lotId, action })
+    })
+    if (res.ok) loadLots()
+    else alert((await res.json()).error || 'Помилка')
+    setProcessing(null)
+  }
+
   async function handleDelete(lotId: string) {
     if (!confirm('Ви впевнені, що хочете видалити цей лот?')) return
     setProcessing(lotId)
@@ -38,7 +50,7 @@ export default function AdminLotsPage() {
   }
 
   async function handlePurgeFake() {
-    if (!confirm('Ви впевнені, що хочете видалити всі фейкові/тестові лоти? Ця дія є незворотною.')) return
+    if (!confirm('Ви впевнені, що хочете видалити всі seed/test лоти? Ця дія є незворотною.')) return
     setLoading(true)
     const res = await fetch('/api/admin/lots', {
       method: 'DELETE',
@@ -63,7 +75,7 @@ export default function AdminLotsPage() {
           onClick={handlePurgeFake}
           className="h-10 px-5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[13px] font-bold transition-all shadow-md shadow-amber-500/20 hover:scale-[1.02] flex items-center justify-center gap-1.5"
         >
-          🧹 Видалити всі тестові лоти
+          🧹 Видалити seed/test лоти
         </button>
       </div>
 
@@ -107,20 +119,35 @@ export default function AdminLotsPage() {
                       <span className="text-[11px] text-[#94A3B8]">{lot._count.bids} ставок</span>
                     </div>
                   </div>
-                  <div className="mt-auto flex gap-2">
+                  <div className="mt-auto grid grid-cols-2 gap-2">
                     <Link
                       href={`/lot/${lot.id}`}
                       target="_blank"
-                      className="flex-1 h-9 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-2 text-[12px] font-bold text-[#64748B] hover:bg-[#F1F5F9]"
+                      className="h-9 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-2 text-[12px] font-bold text-[#64748B] hover:bg-[#F1F5F9]"
                     >
                       <ExternalLink className="w-3.5 h-3.5" /> Переглянути
                     </Link>
                     <button
+                      onClick={() => handleModerate(lot.id, lot.featured ? 'unfeature' : 'feature')}
+                      disabled={processing === lot.id}
+                      className="h-9 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#D97706] hover:bg-[#FEF3C7]"
+                    >
+                      <Star className="w-3.5 h-3.5" /> {lot.featured ? 'Зняти VIP' : 'VIP'}
+                    </button>
+                    <button
+                      onClick={() => handleModerate(lot.id, lot.status === 'active' ? 'hide' : 'restore')}
+                      disabled={processing === lot.id}
+                      className="h-9 bg-white border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#64748B] hover:bg-[#F8FAFC]"
+                    >
+                      {lot.status === 'active' ? <EyeOff className="w-3.5 h-3.5" /> : <RotateCcw className="w-3.5 h-3.5" />}
+                      {lot.status === 'active' ? 'Сховати' : 'Відновити'}
+                    </button>
+                    <button
                       onClick={() => handleDelete(lot.id)}
                       disabled={processing === lot.id}
-                      className="w-9 h-9 bg-[#FEF2F2] border border-[#FEE2E2] rounded-lg flex items-center justify-center text-[#EF4444] hover:bg-[#FEE2E2]"
+                      className="h-9 bg-[#FEF2F2] border border-[#FEE2E2] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#EF4444] hover:bg-[#FEE2E2]"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" /> Видалити
                     </button>
                   </div>
                 </div>

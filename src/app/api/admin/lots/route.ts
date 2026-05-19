@@ -23,6 +23,51 @@ export async function GET(request: Request) {
   }
 }
 
+
+export async function PATCH(request: Request) {
+  try {
+    await requireAdmin()
+
+    const { lotId, action } = await request.json()
+    if (!lotId || typeof lotId !== 'string') {
+      return NextResponse.json({ error: 'lotId is required' }, { status: 400 })
+    }
+
+    const actionMap: Record<string, { status?: string; featured?: boolean }> = {
+      hide: { status: 'cancelled' },
+      restore: { status: 'active' },
+      end: { status: 'ended' },
+      feature: { featured: true },
+      unfeature: { featured: false },
+    }
+
+    const data = actionMap[action]
+    if (!data) {
+      return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+    }
+
+    const lot = await prisma.listing.update({
+      where: { id: lotId },
+      data,
+    })
+
+    await prisma.auditLog.create({
+      data: {
+        action: `admin_lot_${action}`,
+        metadata: JSON.stringify({ lotId, status: lot.status, featured: lot.featured }),
+      }
+    }).catch(() => {})
+
+    return NextResponse.json({ success: true, lot })
+  } catch (error) {
+    if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
+      return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
+    }
+    console.error('Patch lot error:', error)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     await requireAdmin()
