@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShieldCheck, TrendingUp, Truck, Clock, Info, CheckCircle } from 'lucide-react'
+import { ShieldCheck, TrendingUp, Truck, Info, CheckCircle } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 
 const demoLots = [
@@ -10,7 +10,6 @@ const demoLots = [
     title: 'Apple MacBook Air M2 8/256GB Space Gray',
     currentPrice: 32500,
     bidsCount: 14,
-    timeLeft: '02:45:10',
     category: 'Електроніка',
     image: 'https://placehold.co/400x300/EFF6FF/2563EB?text=MacBook+Air',
     seller: 'Олександр К. (м. Київ)',
@@ -19,7 +18,6 @@ const demoLots = [
     title: 'Sony PlayStation 5 Slim 1TB White',
     currentPrice: 16800,
     bidsCount: 9,
-    timeLeft: '06:12:45',
     category: 'Ігрові консолі',
     image: 'https://placehold.co/400x300/F0FDF4/10B981?text=PlayStation+5',
     seller: 'Дмитро В. (м. Львів)',
@@ -48,12 +46,9 @@ export function HeroSection() {
           <div className="flex flex-col text-center lg:text-left">
             {/* Live Indicator */}
             <div className="inline-flex items-center gap-2 h-8 px-3.5 bg-white border border-[#E2E8F0] rounded-full w-fit mx-auto lg:mx-0 mb-6 shadow-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
-              </span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${activeLots && activeLots > 0 ? 'bg-[#10B981]' : 'bg-[#2563EB]'}`} />
               <span className="text-[12px] font-bold text-[#475569]">
-                {activeLots === null ? 'Торги онлайн' : activeLots > 0 ? `${activeLots} активних лотів` : 'Торги активні'}
+                {activeLots === null ? 'KRAM запускається' : activeLots > 0 ? `${activeLots} активних лотів` : 'Перші лоти очікуються'}
               </span>
             </div>
 
@@ -121,10 +116,10 @@ export function HeroSection() {
             {/* Visual Header */}
             <div className="flex items-center justify-between px-2">
               <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider flex items-center gap-1">
-                <Info className="w-3 h-3" /> Приклад активних торгів
+                <Info className="w-3 h-3" /> Як виглядатимуть торги
               </span>
               <span className="text-[10px] text-[#94A3B8]">
-                Так виглядає прозора історія ціни
+                Демонстрація механіки ставки
               </span>
             </div>
 
@@ -161,7 +156,7 @@ export function HeroSection() {
 
                       <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                         <div>
-                          <span className="text-[9px] text-[#94A3B8] block uppercase tracking-wide">Поточна ціна</span>
+                          <span className="text-[9px] text-[#94A3B8] block uppercase tracking-wide">Приклад ціни</span>
                           <span className="text-[15px] font-extrabold text-[#0B1220]">{formatPrice(lot.currentPrice)}</span>
                         </div>
                         <div className="flex items-center gap-1.5 text-right">
@@ -169,11 +164,9 @@ export function HeroSection() {
                             <span className="text-[9px] text-[#94A3B8] block uppercase tracking-wide text-center">Ставки</span>
                             <span className="text-[11px] font-bold text-[#2563EB] block text-center">{lot.bidsCount}</span>
                           </div>
-                          <div className="bg-[#FEF2F2] border border-[#EF4444]/10 px-2 py-0.5 rounded-lg text-[#EF4444]">
-                            <span className="text-[9px] block uppercase tracking-wide text-center">Час</span>
-                            <span className="text-[11px] font-bold font-mono block flex items-center gap-1">
-                              <Clock className="w-2.5 h-2.5" /> {lot.timeLeft}
-                            </span>
+                          <div className="bg-[#EFF6FF] border border-[#2563EB]/10 px-2 py-0.5 rounded-lg text-[#2563EB]">
+                            <span className="text-[9px] block uppercase tracking-wide text-center">Крок</span>
+                            <span className="text-[11px] font-bold block">+500 ₴</span>
                           </div>
                         </div>
                       </div>
@@ -187,7 +180,7 @@ export function HeroSection() {
             <div className="bg-white border border-[#E2E8F0] p-3 rounded-xl shadow-sm flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
               <p className="text-[12px] text-[#475569] leading-none">
-                <span className="font-bold text-[#0B1220]">Дмитро В.</span> зробив ставку <span className="font-bold text-[#2563EB]">{formatPrice(16800)}</span> за PS5 Slim
+                <span className="font-bold text-[#0B1220]">Приклад:</span> нова ставка <span className="font-bold text-[#2563EB]">{formatPrice(16800)}</span> за PS5 Slim
               </p>
             </div>
           </div>

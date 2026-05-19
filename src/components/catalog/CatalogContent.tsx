@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { LotCard } from '@/components/lots/LotCard'
-import { Search, SlidersHorizontal, X, BellPlus } from 'lucide-react'
+import { Search, SlidersHorizontal, X, BellPlus, Gavel, ShieldCheck, Bell } from 'lucide-react'
 
 const categories = [
   { slug: 'all', name: 'Всі' },
@@ -338,9 +338,9 @@ export default function CatalogContent() {
               ))}
             </div>
           ) : lots.length === 0 ? (
-            <div className="text-center py-16">
+            <div className="text-center py-16 bg-white border border-[#E2E8F0] rounded-3xl px-6">
               <div className="w-20 h-20 bg-gradient-to-br from-[#EFF6FF] to-[#F5F3FF] rounded-3xl flex items-center justify-center mx-auto mb-5">
-                <span className="text-4xl">🌟</span>
+                {hasActiveFilters ? <Search className="w-9 h-9 text-[#2563EB]" /> : <Gavel className="w-9 h-9 text-[#2563EB]" />}
               </div>
               {hasActiveFilters ? (
                 <>
@@ -352,10 +352,27 @@ export default function CatalogContent() {
                 </>
               ) : (
                 <>
-                  <h3 className="text-[20px] font-bold text-[#0F172A] mb-2">Перші лоти скоро зʼявляться</h3>
-                  <p className="text-[14px] text-[#64748B] max-w-[380px] mx-auto mb-6">
-                    KRAM тільки запускається! Будьте першим, виставте свій лот безкоштовно та без комісії.
+                  <h3 className="text-[22px] font-extrabold text-[#0F172A] mb-2">Каталог готується до перших публічних лотів</h3>
+                  <p className="text-[14px] text-[#64748B] max-w-[520px] mx-auto mb-6 leading-relaxed">
+                    Ми не показуємо тестові або seed-лоти як справжні. Якщо ви продавець — створіть перший реальний лот; якщо покупець — залиште пошук і поверніться після запуску категорій.
                   </p>
+                  <div className="grid sm:grid-cols-3 gap-3 max-w-2xl mx-auto mb-7 text-left">
+                    <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                      <Gavel className="w-4 h-4 text-[#2563EB] mb-2" />
+                      <p className="text-[12px] font-bold text-[#0B1220]">Прозорі ставки</p>
+                      <p className="text-[11px] text-[#64748B] mt-1">Історія ціни фіксується у лоті.</p>
+                    </div>
+                    <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                      <ShieldCheck className="w-4 h-4 text-[#10B981] mb-2" />
+                      <p className="text-[12px] font-bold text-[#0B1220]">Без платежів KRAM</p>
+                      <p className="text-[11px] text-[#64748B] mt-1">Оплата й доставка напряму між сторонами.</p>
+                    </div>
+                    <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+                      <Bell className="w-4 h-4 text-[#F59E0B] mb-2" />
+                      <p className="text-[12px] font-bold text-[#0B1220]">Пошук можна зберегти</p>
+                      <p className="text-[11px] text-[#64748B] mt-1">Отримуйте сповіщення про нові лоти.</p>
+                    </div>
+                  </div>
                   <a href="/sell" className="inline-flex items-center gap-2 h-12 px-8 bg-[#2563EB] text-white rounded-xl text-[15px] font-bold hover:bg-[#1D4ED8] transition-colors">
                     Створити перший лот
                   </a>

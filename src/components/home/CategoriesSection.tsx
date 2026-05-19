@@ -40,8 +40,8 @@ export function CategoriesSection() {
           <div className="inline-flex items-center gap-1.5 h-6 px-2.5 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[10.5px] font-bold text-[#2563EB] uppercase tracking-wide mb-3">
             📂 Каталог лотів
           </div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-1">Популярні категорії</h2>
-          <p className="text-[#475569] text-[13.5px]">Знаходьте лоти у тематичних категоріях</p>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-1">Категорії для перших лотів</h2>
+          <p className="text-[#475569] text-[13.5px]">Оберіть напрям і створіть перший реальний лот без комісії</p>
         </div>
         <Link href="/catalog" className="text-[13px] font-bold text-[#2563EB] hover:underline">
           Всі категорії →
@@ -64,7 +64,7 @@ export function CategoriesSection() {
               <div className="text-center">
                 <p className="text-[13.5px] font-bold text-[#0B1220] leading-tight mb-1 group-hover:text-[#2563EB] transition-colors">{cat.name}</p>
                 <p className="text-[11px] text-[#475569] font-medium">
-                  {cat.count > 0 ? `${cat.count} лотів` : 'Перші лоти скоро'}
+                  {cat.count > 0 ? `${cat.count} лотів` : 'Очікує лоти'}
                 </p>
               </div>
 
