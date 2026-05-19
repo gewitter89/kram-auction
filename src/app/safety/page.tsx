@@ -14,11 +14,11 @@ export default function SafetyPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full mb-4">
             <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
-            <span className="text-[12px] font-medium text-[#2563EB]">Ваша безпека — наш пріоритет</span>
+            <span className="text-[12px] font-medium text-[#2563EB]">Правила безпечної домовленості</span>
           </div>
           <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Посібник з безпечних домовленостей KRAM</h1>
           <p className="text-[#64748B] text-lg">
-            Як захистити себе та здійснити успішну домовленість напряму
+            Як перевіряти лоти, уникати передоплат і зберігати докази домовленостей
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export default function SafetyPage() {
             <div className="w-12 h-12 bg-[#ECFDF5] rounded-xl flex items-center justify-center mb-4">
               <Truck className="w-6 h-6 text-[#10B981]" />
             </div>
-            <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">Тільки післяплата</h3>
+            <h3 className="font-bold text-[#0B1220] mb-2 text-[15px]">Рекомендовано: післяплата</h3>
             <p className="text-[13px] text-[#64748B] leading-relaxed">
               Наполегливо рекомендуємо оплату при отриманні на пошті (після огляду лота у відділенні).
             </p>
@@ -102,7 +102,7 @@ export default function SafetyPage() {
                   <div>
                     <h4 className="font-bold text-[#0B1220] mb-1 text-[14px]">Зв’язок та узгодження в чаті</h4>
                     <p className="text-[#64748B] text-[13px] leading-relaxed">
-                      Сторони списуються у безпечному чаті KRAM, підтверджують параметри лота й погоджують відправку післяплатою.
+                      Сторони списуються у чаті KRAM, підтверджують параметри лота й погоджують відправку післяплатою.
                     </p>
                   </div>
                 </div>
@@ -149,7 +149,7 @@ export default function SafetyPage() {
               <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl">
                 <h4 className="font-bold text-amber-900 mb-1">Користувач не виходить на зв'язок або порушує правила</h4>
                 <p className="text-amber-800 leading-relaxed">
-                  Будь ласка, зверніться до нашої служби модерації. Надішліть скаргу на лот або напишіть нашому модератору з додаванням доказів недобросовісної поведінки.
+                  Будь ласка, зверніться до нашої служби модерації. Надішліть скаргу на лот або напишіть модератору KRAM з додаванням доказів недобросовісної поведінки.
                 </p>
               </div>
             </div>

@@ -4,15 +4,8 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRealtimeSubscription } from '@/lib/realtime-client'
 import { Gavel, Trophy, Heart } from 'lucide-react'
 
-const initialMockEvents = [
-  { type: 'bid', icon: Gavel, color: 'text-[#2563EB]', bg: 'bg-[#EFF6FF]', text: 'нова ставка', name: 'iPhone 14 Pro', amount: '+500₴', user: 'user***73' },
-  { type: 'won', icon: Trophy, color: 'text-[#10B981]', bg: 'bg-[#ECFDF5]', text: 'виграно лот', name: 'MacBook Air M2', amount: '32 000₴', user: 'tech***02' },
-  { type: 'fav', icon: Heart, color: 'text-[#EF4444]', bg: 'bg-[#FEF2F2]', text: 'додано в обране', name: 'PlayStation 5', amount: '', user: 'buyer***45' },
-  { type: 'bid', icon: Gavel, color: 'text-[#2563EB]', bg: 'bg-[#EFF6FF]', text: 'нова ставка', name: 'Dyson V15', amount: '+250₴', user: 'pro***88' },
-]
-
 export function LiveActivityFeed() {
-  const [feed, setFeed] = useState<any[]>(initialMockEvents)
+  const [feed, setFeed] = useState<any[]>([])
 
   const iconMap = { bid: Gavel, won: Trophy, fav: Heart } as Record<string, any>
   const colorMap = { bid: 'text-[#2563EB]', won: 'text-[#10B981]', fav: 'text-[#EF4444]' } as Record<string, string>
@@ -99,6 +92,11 @@ export function LiveActivityFeed() {
         <span className="text-[12px] text-[#94A3B8]">в реальному часі</span>
       </div>
 
+      {feed.length === 0 ? (
+        <div className="bg-white border border-dashed border-[#CBD5E1] rounded-xl p-5 text-[13px] text-[#64748B]">
+          Поки немає живої активності. Тут зʼявлятимуться реальні ставки, обрані лоти та завершені торги.
+        </div>
+      ) : (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {feed.slice(0, 4).map((event, i) => {
           const Icon = event.icon
@@ -128,6 +126,7 @@ export function LiveActivityFeed() {
           )
         })}
       </div>
+      )}
     </section>
   )
 }

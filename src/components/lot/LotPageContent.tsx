@@ -822,7 +822,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               ⚔️
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-[13px] text-rose-400">Вашу ставку перебито!</p>
+              <p className="font-bold text-[13px] text-rose-400">Вашу ставку перебили</p>
               <p className="text-[11px] text-white/70 truncate mb-2">{outbidAlert.lotTitle}</p>
               <p className="text-[14px] font-bold mb-3">Нова ціна: {formatPrice(outbidAlert.amount)}</p>
               <div className="flex gap-2">
@@ -843,7 +843,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                   }}
                   className="flex-1 h-9 bg-rose-500 hover:bg-rose-600 rounded-lg text-[12px] font-bold text-white transition-colors"
                 >
-                  Реванш (+{lot.minIncrement} ₴)
+                  Підвищити (+{lot.minIncrement} ₴)
                 </button>
                 <button
                   onClick={() => setOutbidAlert(null)}
@@ -872,7 +872,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
             </div>
 
             <h2 className="text-[20px] font-bold text-[#0B1220] mb-1">Підтвердження покупки</h2>
-            <p className="text-[13px] text-[#64748B] mb-6">Ви купуєте цей лот в один клік за фіксованою ціною.</p>
+            <p className="text-[13px] text-[#64748B] mb-6">Ви резервуєте цей лот за фіксованою ціною. Оплата й доставка узгоджуються з продавцем напряму.</p>
 
             <div className="border border-[#E2E8F0] rounded-xl p-4 bg-[#F8FAFC] space-y-3 mb-6">
               <div className="flex justify-between items-start">
@@ -888,7 +888,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                 <span className="text-[12px] font-semibold text-[#10B981]">0 ₴</span>
               </div>
               <div className="flex justify-between items-center pt-2.5 border-t border-[#E2E8F0]">
-                <span className="text-[13px] font-bold text-[#0B1220]">Разом до сплати:</span>
+                <span className="text-[13px] font-bold text-[#0B1220]">Сума домовленості:</span>
                 <span className="text-[18px] font-extrabold text-[#2563EB]">{formatPrice(lot.buyNowPrice)}</span>
               </div>
             </div>
@@ -934,7 +934,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               disabled={buying}
               className="w-full h-12 bg-[#10B981] hover:bg-[#059669] text-white rounded-xl text-[15px] font-bold transition-all flex items-center justify-center gap-2 hover:scale-[1.01]"
             >
-              {buying ? 'Оформлення...' : `Підтвердити покупку`}
+              {buying ? 'Резервуємо...' : `Зарезервувати лот`}
             </button>
 
             <button

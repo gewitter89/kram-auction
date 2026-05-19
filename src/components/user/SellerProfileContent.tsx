@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { ShieldCheck, Star, Package, TrendingUp, Clock, User, MessageSquare, Flag, X, CheckCircle2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ShieldCheck, Star, Package, TrendingUp, Clock, User, MessageSquare, Flag, X, CheckCircle2, Info } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 import { ReviewModal } from './ReviewModal'
 
@@ -26,6 +27,7 @@ interface Props {
 
 export function SellerProfileContent({ seller }: Props) {
   const { data: session } = useSession()
+  const router = useRouter()
   const memberSince = new Date(seller.createdAt).toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })
   const [activeTab, setActiveTab] = useState<'lots' | 'reviews'>('lots')
   const [showReviewModal, setShowReviewModal] = useState(false)
@@ -141,11 +143,17 @@ export function SellerProfileContent({ seller }: Props) {
               {session?.user?.id !== seller.id && (
                 <>
                   <button 
-                    onClick={() => setShowReviewModal(true)}
-                    className="h-10 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[13px] font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                    onClick={() => {
+                      if (!session) { router.push(`/auth/login?callbackUrl=/user/${seller.id}`); return }
+                      if (seller.soldCount === 0) return
+                      setShowReviewModal(true)
+                    }}
+                    disabled={seller.soldCount === 0}
+                    title={seller.soldCount === 0 ? 'Відгуки відкриваються після першої завершеної домовленості' : undefined}
+                    className="h-10 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#E2E8F0] disabled:text-[#94A3B8] disabled:cursor-not-allowed text-white rounded-xl text-[13px] font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    Залишити відгук
+                    {seller.soldCount === 0 ? 'Відгук після угоди' : 'Залишити відгук'}
                   </button>
 
                   <button 
@@ -162,6 +170,37 @@ export function SellerProfileContent({ seller }: Props) {
         </div>
       </div>
 
+
+      {/* Trust explanation */}
+      <div className="grid md:grid-cols-3 gap-3 mb-6">
+        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+            <p className="text-[13px] font-bold text-[#0B1220]">Що означає перевірка</p>
+          </div>
+          <p className="text-[12px] text-[#64748B] leading-relaxed">
+            Бейдж означає базову перевірку профілю модератором KRAM. Це не гарантія оплати, доставки або стану товару.
+          </p>
+        </div>
+        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-[#2563EB]" />
+            <p className="text-[13px] font-bold text-[#0B1220]">Історія угод</p>
+          </div>
+          <p className="text-[12px] text-[#64748B] leading-relaxed">
+            Рейтинг зʼявляється тільки після завершених домовленостей. Новим продавцям довіра набирається поступово.
+          </p>
+        </div>
+        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Info className="w-4 h-4 text-[#F97316]" />
+            <p className="text-[13px] font-bold text-[#0B1220]">Як купувати обережно</p>
+          </div>
+          <p className="text-[12px] text-[#64748B] leading-relaxed">
+            Не надсилайте передоплату. Використовуйте післяплату та перевіряйте товар у відділенні перед оплатою.
+          </p>
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-6 border-b border-[#E2E8F0] mb-6">
@@ -222,7 +261,7 @@ export function SellerProfileContent({ seller }: Props) {
                         <p className="text-[15px] font-bold text-[#0B1220]">{formatPrice(lot.currentPrice)}</p>
                         <div className="flex items-center gap-1 text-[11px] text-[#64748B]">
                           <Clock className="w-3 h-3" />
-                          {isActive ? timeAgo(lot.endsAt) : timeAgo(lot.endsAt)}
+                          {isActive ? 'активний' : 'завершено'}
                         </div>
                       </div>
                     </div>
@@ -240,7 +279,7 @@ export function SellerProfileContent({ seller }: Props) {
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-12 text-center">
               <MessageSquare className="w-10 h-10 text-[#CBD5E1] mx-auto mb-3" />
               <p className="text-[15px] font-semibold text-[#0F172A]">Відгуків ще немає</p>
-              <p className="text-[13px] text-[#64748B]">Відгуків ще немає. Перші домовленості з'являться після завершення торгів</p>
+              <p className="text-[13px] text-[#64748B]">Перші відгуки зʼявляться тільки після завершених домовленостей</p>
             </div>
           ) : (
             seller.reviewsReceived?.map((review: any) => (

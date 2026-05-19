@@ -4,8 +4,8 @@ import type { SVGProps } from 'react'
 const features = [
   {
     icon: Lock,
-    title: 'Контрольована угода',
-    desc: 'KRAM показує статус покупки, оплати, доставки й підтвердження без обіцянок реального escrow до активації LiqPay.',
+    title: 'Прозорий статус домовленості',
+    desc: 'KRAM фіксує домовленість, повідомлення, ТТН та підтвердження отримання. Оплату сторони погоджують напряму.',
     color: 'text-[#10B981]',
   },
   {
@@ -16,23 +16,23 @@ const features = [
   },
   {
     icon: Star,
-    title: 'Рейтинг та відгуки',
-    desc: 'Прозорі профілі з історією угод та реальними відгуками від верифікованих покупців.',
+    title: 'Репутація після угод',
+    desc: 'Профілі показують активні лоти, завершені домовленості та відгуки тільки після реальних угод.',
     color: 'text-[#F59E0B]',
   },
   {
     icon: Headphones,
-    title: 'Арбітраж угод',
-    desc: 'У разі невідповідності товару опису, ви можете відкрити спір. Ми допоможемо вирішити ситуацію.',
+    title: 'Модерація та скарги',
+    desc: 'Якщо користувач порушує правила, можна подати скаргу. Модерація перевіряє докази та може обмежити профіль.',
     color: 'text-[#A855F7]',
   },
 ]
 
 const steps = [
-  { icon: CreditCard, label: 'Покупка' },
-  { icon: Clock, label: 'Підтвердження' },
+  { icon: CreditCard, label: 'Домовленість' },
+  { icon: Clock, label: 'Узгодження' },
   { icon: Truck, label: 'Відправлення' },
-  { icon: ShieldCheck, label: 'Отримання' },
+  { icon: ShieldCheck, label: 'Огляд' },
   { icon: CheckCircle, label: 'Завершення' },
 ]
 
@@ -68,13 +68,13 @@ export function TrustSection() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6">
             <ShieldCheck className="w-4 h-4 text-[#10B981]" />
-            <span className="text-[11px] font-bold text-white uppercase tracking-widest">KRAM Secure Delivery</span>
+            <span className="text-[11px] font-bold text-white uppercase tracking-widest">KRAM Transparent Deal Flow</span>
           </div>
           <h2 className="text-[32px] md:text-[48px] font-black text-white tracking-tight mb-6 leading-tight">
-            Ваша безпека — наш <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563EB] to-[#10B981]">головний пріоритет</span>
+            Прозора домовленість без <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563EB] to-[#10B981]">зайвих обіцянок</span>
           </h2>
           <p className="text-[16px] text-[#94A3B8] max-w-2xl mx-auto leading-relaxed">
-            Ми показуємо статус угоди на кожному кроці: покупка, підтвердження оплати, відправлення, отримання та завершення.
+            KRAM не приймає оплату й не є escrow-сервісом. Наша роль — прозоро зафіксувати ставки, переписку, статуси та допомогти модерацією у разі порушень.
           </p>
         </div>
 

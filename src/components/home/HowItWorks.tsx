@@ -5,7 +5,7 @@ const steps = [
     icon: Search,
     step: '1',
     title: 'Знайдіть лот',
-    desc: 'Перші лоти від продавців по всій Україні на чесних торгах',
+    desc: 'Обирайте лоти у каталозі та перевіряйте опис, фото, місто й профіль продавця',
     color: 'from-blue-500 to-indigo-600',
     iconBg: 'bg-blue-100',
     iconColor: 'text-blue-600'
@@ -14,7 +14,7 @@ const steps = [
     icon: Gavel,
     step: '2',
     title: 'Зробіть ставку',
-    desc: 'Беріть участь у живих аукціонах. Ставку приймуть миттєво.',
+    desc: 'Беріть участь у торгах. KRAM фіксує суму, час і публічну історію ставок.',
     color: 'from-amber-500 to-orange-600',
     iconBg: 'bg-amber-100',
     iconColor: 'text-amber-600'
@@ -23,7 +23,7 @@ const steps = [
     icon: ShieldCheck,
     step: '3',
     title: 'Пряма домовленість',
-    desc: 'Статус домовленості видно в кабінеті; оплату сторони погоджують напряму',
+    desc: 'Після перемоги сторони узгоджують оплату й доставку напряму, а KRAM зберігає переписку та статуси',
     color: 'from-emerald-500 to-green-600',
     iconBg: 'bg-emerald-100',
     iconColor: 'text-emerald-600'
@@ -32,7 +32,7 @@ const steps = [
     icon: Truck,
     step: '4',
     title: 'Отримайте товар',
-    desc: 'Узгодьте доставку Новою Поштою або самовивіз і підтвердіть отримання.',
+    desc: 'Рекомендуємо післяплату: огляньте товар у відділенні або при зустрічі перед оплатою.',
     color: 'from-purple-500 to-pink-600',
     iconBg: 'bg-purple-100',
     iconColor: 'text-purple-600'
@@ -46,7 +46,7 @@ export function HowItWorks() {
         <div className="text-center mb-12">
           <span className="inline-block text-[12px] font-bold text-[#2563EB] uppercase tracking-[0.2em] mb-2">Простий процес</span>
           <h2 className="text-[28px] md:text-[36px] font-bold text-[#0B1220] tracking-tight">Як це працює</h2>
-          <p className="text-[15px] text-[#64748B] mt-2 max-w-md mx-auto">Чотири кроки до вигідної угоди</p>
+          <p className="text-[15px] text-[#64748B] mt-2 max-w-md mx-auto">Чотири кроки: ставка, домовленість, перевірка, завершення</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
