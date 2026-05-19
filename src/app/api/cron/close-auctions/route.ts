@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
     })
 
     let closedCount = 0
+    const errors: Array<{ listingId: string; error: string }> = []
 
     for (const listing of expired) {
       const winner = listing.bids[0]
@@ -65,6 +66,7 @@ export async function GET(request: NextRequest) {
             console.log(`Transaction already exists for listing ${listing.id}, skipping`)
           } else {
             console.error(`Failed to create transaction for listing ${listing.id}:`, error)
+            errors.push({ listingId: listing.id, error: message || 'Unknown error' })
           }
         }
       } else {
@@ -78,13 +80,29 @@ export async function GET(request: NextRequest) {
       closedCount++
     }
 
+    const timestamp = new Date().toISOString()
+    await prisma.auditLog.create({
+      data: {
+        action: errors.length > 0 ? 'CRON_CLOSE_AUCTIONS_PARTIAL' : 'CRON_CLOSE_AUCTIONS_SUCCESS',
+        metadata: JSON.stringify({ closed: closedCount, expired: expired.length, errors, timestamp })
+      }
+    }).catch(() => {})
+
     return NextResponse.json({
-      ok: true,
+      ok: errors.length === 0,
       closed: closedCount,
-      timestamp: new Date().toISOString()
+      expired: expired.length,
+      errors,
+      timestamp
     })
   } catch (error) {
     console.error('Cron close-auctions error:', error)
+    await prisma.auditLog.create({
+      data: {
+        action: 'CRON_CLOSE_AUCTIONS_FAILED',
+        metadata: JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error', timestamp: new Date().toISOString() })
+      }
+    }).catch(() => {})
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Users, Package, Gavel, AlertCircle, TrendingUp, ShieldCheck, HandCoins, Scale, CheckCircle2, XCircle, Wrench, BadgeCheck } from 'lucide-react'
+import { Users, Package, Gavel, AlertCircle, TrendingUp, ShieldCheck, HandCoins, Scale, CheckCircle2, XCircle, Wrench, BadgeCheck, TimerReset } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AdminPage() {
@@ -106,6 +106,41 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+
+      {/* Auction cron health */}
+      <div className={`mb-8 rounded-2xl border p-5 ${data.expiredActiveLots > 0 ? 'bg-[#FEF2F2] border-[#FECACA]' : 'bg-white border-[#E2E8F0]'}`}>
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <TimerReset className={`w-5 h-5 ${data.expiredActiveLots > 0 ? 'text-[#EF4444]' : 'text-[#10B981]'}`} />
+              <h2 className="text-[16px] font-bold text-[#0B1220]">Auction closing health</h2>
+            </div>
+            <p className="text-[13px] text-[#64748B] max-w-2xl">
+              Контроль автоматичного закриття аукціонів. Якщо є прострочені активні лоти — cron не працює або потребує перевірки.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-3 min-w-[320px]">
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-3">
+              <p className="text-[11px] text-[#94A3B8] font-bold uppercase">Прострочені</p>
+              <p className={`text-[22px] font-black ${data.expiredActiveLots > 0 ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>{data.expiredActiveLots || 0}</p>
+            </div>
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-3">
+              <p className="text-[11px] text-[#94A3B8] font-bold uppercase">Останній запуск</p>
+              <p className="text-[12px] font-bold text-[#0F172A]">{data.lastCronRun?.timestamp ? new Date(data.lastCronRun.timestamp).toLocaleString('uk-UA') : 'Немає даних'}</p>
+            </div>
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-3">
+              <p className="text-[11px] text-[#94A3B8] font-bold uppercase">Закрито</p>
+              <p className="text-[22px] font-black text-[#0F172A]">{data.lastCronRun?.closed ?? '—'}</p>
+            </div>
+          </div>
+        </div>
+        {data.lastCronRun?.errors?.length > 0 && (
+          <div className="mt-3 p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-[12px] text-[#991B1B]">
+            Помилки останнього запуску: {data.lastCronRun.errors.length}
+          </div>
+        )}
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
