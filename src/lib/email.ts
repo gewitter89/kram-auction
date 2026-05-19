@@ -2,12 +2,31 @@ import nodemailer from 'nodemailer'
 
 const FROM = process.env.EMAIL_FROM || 'KRAM <noreply@kram.ua>'
 
+
+export function getEmailProviderStatus() {
+  if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
+    return { configured: true, provider: 'gmail', from: FROM }
+  }
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return { configured: true, provider: 'smtp', from: FROM }
+  }
+  return { configured: false, provider: 'dev-log', from: FROM }
+}
+
 function createTransport() {
   // Use Gmail SMTP if configured, else log to console (dev mode)
   if (process.env.GMAIL_USER && process.env.GMAIL_PASS) {
     return nodemailer.createTransport({
       service: 'gmail',
       auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_PASS },
+    })
+  }
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     })
   }
   // Dev fallback — log to console

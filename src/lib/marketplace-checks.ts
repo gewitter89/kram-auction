@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { getEmailProviderStatus } from '@/lib/email'
 
 export const REQUIRED_CATEGORIES = [
   { name: 'Електроніка', slug: 'electronics', icon: 'Laptop' },
@@ -45,6 +46,8 @@ export async function getProductionReadiness() {
     (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)
   )
 
+  const emailStatus = getEmailProviderStatus()
+
   const checks = [
     { key: 'database', label: 'База даних відповідає', ok: true },
     { key: 'categories', label: 'Категорії створені', ok: categories >= REQUIRED_CATEGORIES.length, value: categories },
@@ -52,6 +55,7 @@ export async function getProductionReadiness() {
     { key: 'uploads', label: 'Фото-сховище Cloudinary налаштовано', ok: cloudinaryConfigured },
     { key: 'cron', label: 'CRON_SECRET налаштовано', ok: Boolean(process.env.CRON_SECRET) },
     { key: 'auth', label: 'AUTH_SECRET налаштовано', ok: Boolean(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET) },
+    { key: 'email', label: `Email provider налаштовано (${emailStatus.provider})`, ok: emailStatus.configured },
     { key: 'reports', label: 'Немає черги скарг перед запуском', ok: pendingReports === 0, value: pendingReports },
     { key: 'expired', label: 'Немає прострочених активних аукціонів', ok: expiredActiveLots === 0, value: expiredActiveLots },
   ]
@@ -59,6 +63,6 @@ export async function getProductionReadiness() {
   return {
     ready: checks.every(check => check.ok),
     checks,
-    stats: { categories, users, activeLots, pendingReports, expiredActiveLots, adminUsers },
+    stats: { categories, users, activeLots, pendingReports, expiredActiveLots, adminUsers, email: emailStatus },
   }
 }

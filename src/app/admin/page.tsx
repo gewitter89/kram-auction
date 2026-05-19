@@ -13,6 +13,7 @@ export default function AdminPage() {
   const [readiness, setReadiness] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [ensuringCategories, setEnsuringCategories] = useState(false)
+  const [sendingTestEmail, setSendingTestEmail] = useState(false)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -55,6 +56,17 @@ export default function AdminPage() {
     }
   }
 
+
+  async function sendTestEmail() {
+    setSendingTestEmail(true)
+    try {
+      const res = await fetch('/api/admin/test-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
+      alert(res.ok ? 'Тестовий email відправлено або залоговано fallback-провайдером.' : ((await res.json()).error || 'Помилка email'))
+    } finally {
+      setSendingTestEmail(false)
+    }
+  }
+
   const cards = [
     { icon: Users, label: 'Користувачів', value: data.users, color: 'text-[#2563EB]', bg: 'bg-[#EFF6FF]' },
     { icon: Package, label: 'Активних лотів', value: data.activeLots, color: 'text-[#10B981]', bg: 'bg-[#ECFDF5]' },
@@ -84,14 +96,23 @@ export default function AdminPage() {
                 Контрольний список перед публічним запуском: фото-сховище, категорії, cron, auth, модерація та прострочені аукціони.
               </p>
             </div>
-            <button
-              onClick={ensureCategories}
-              disabled={ensuringCategories}
-              className="h-10 px-4 bg-[#0B1220] text-white rounded-xl text-[13px] font-bold disabled:opacity-60 flex items-center justify-center gap-2"
-            >
-              <Wrench className="w-4 h-4" />
-              {ensuringCategories ? 'Перевіряємо...' : 'Створити базові категорії'}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={sendTestEmail}
+                disabled={sendingTestEmail}
+                className="h-10 px-4 bg-white border border-[#E2E8F0] text-[#0B1220] rounded-xl text-[13px] font-bold disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {sendingTestEmail ? 'Надсилання...' : 'Тест email'}
+              </button>
+              <button
+                onClick={ensureCategories}
+                disabled={ensuringCategories}
+                className="h-10 px-4 bg-[#0B1220] text-white rounded-xl text-[13px] font-bold disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                <Wrench className="w-4 h-4" />
+                {ensuringCategories ? 'Перевіряємо...' : 'Створити базові категорії'}
+              </button>
+            </div>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {readiness.checks.map((check: any) => (
