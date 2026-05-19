@@ -24,7 +24,7 @@ export default function VerifyPage() {
           </h1>
           
           <p className="text-[15px] text-[#64748B] leading-relaxed mb-6">
-            У beta-режимі KRAM не проводить автоматичну перевірку через Дія або BankID. Ця функція запланована наступним етапом.
+            KRAM наразі використовує ручну/контактну перевірку продавця. Автоматична перевірка через Дія або BankID може бути підключена окремим етапом.
           </p>
 
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl mb-6">

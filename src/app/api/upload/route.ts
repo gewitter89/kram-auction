@@ -5,14 +5,34 @@ import { join } from 'path'
 import { v2 as cloudinary } from 'cloudinary'
 import { isRateLimited } from '@/lib/rateLimit'
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
-const MAX_SIZE_MB = 5
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_SIZE_MB = 4
 const MAX_FILES = 8
 
-// Configure Cloudinary if URL is provided
-if (process.env.CLOUDINARY_URL) {
-  cloudinary.config(true) // Configures using CLOUDINARY_URL
+function hasCloudinaryConfig() {
+  return Boolean(
+    process.env.CLOUDINARY_URL ||
+    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)
+  )
 }
+
+function configureCloudinary() {
+  if (process.env.CLOUDINARY_URL) {
+    cloudinary.config(true)
+    return
+  }
+
+  if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    })
+  }
+}
+
+configureCloudinary()
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +45,13 @@ export async function POST(request: NextRequest) {
     // Limit to 10 upload clicks per minute
     if (await isRateLimited(`upload:${userId}`, 10, 60_000)) {
       return NextResponse.json({ error: 'Занадто багато завантажень. Спробуйте через кілька секунд.' }, { status: 429 })
+    }
+
+    if (!hasCloudinaryConfig() && process.env.NODE_ENV === 'production') {
+      return NextResponse.json(
+        { error: 'Завантаження фото не налаштовано. Додайте CLOUDINARY_URL або CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET у Vercel Environment Variables.' },
+        { status: 503 }
+      )
     }
 
     const formData = await request.formData()
@@ -44,7 +71,7 @@ export async function POST(request: NextRequest) {
     for (const file of files) {
       // Validate type
       if (!ALLOWED_TYPES.includes(file.type)) {
-        return NextResponse.json({ error: 'Дозволені тільки зображення (JPEG, PNG, WebP, GIF)' }, { status: 400 })
+        return NextResponse.json({ error: 'Дозволені тільки зображення JPEG, PNG або WebP' }, { status: 400 })
       }
 
       // Validate size
@@ -54,11 +81,11 @@ export async function POST(request: NextRequest) {
 
       const buffer = Buffer.from(await file.arrayBuffer())
 
-      if (process.env.CLOUDINARY_URL) {
+      if (hasCloudinaryConfig()) {
         // Upload to Cloudinary
         const uploadResult = await new Promise<string>((resolve, reject) => {
           const uploadStream = cloudinary.uploader.upload_stream(
-            { folder: 'kram_uploads', resource_type: 'image' },
+            { folder: 'kram_uploads', resource_type: 'image', overwrite: false, unique_filename: true },
             (error, result) => {
               if (error) reject(error)
               else resolve(result!.secure_url)
@@ -69,7 +96,7 @@ export async function POST(request: NextRequest) {
         urls.push(uploadResult)
       } else {
         // Fallback to local storage (for local development only)
-        console.warn('⚠️ CLOUDINARY_URL is missing. Using ephemeral local storage.')
+        console.warn('⚠️ Cloudinary config is missing. Using local storage for development only.')
         const uploadDir = join(process.cwd(), 'public', 'uploads')
         await mkdir(uploadDir, { recursive: true })
         const ext = file.type.split('/')[1].replace('jpeg', 'jpg')

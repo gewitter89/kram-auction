@@ -3,7 +3,7 @@ import { ShieldCheck, AlertTriangle, Scale, FileText } from 'lucide-react'
 
 export const metadata = {
   title: 'Умови використання | KRAM',
-  description: 'Умови використання української інформаційної beta-платформи торгів KRAM',
+  description: 'Умови використання української інформаційної платформи торгів KRAM',
 }
 
 export default function TermsPage() {
@@ -14,7 +14,7 @@ export default function TermsPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full mb-4">
             <AlertTriangle className="w-4 h-4 text-[#2563EB]" />
-            <span className="text-[12px] font-medium text-[#2563EB]">Beta-режим платформи</span>
+            <span className="text-[12px] font-medium text-[#2563EB]">Режим прямих домовленостей</span>
           </div>
           <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Умови використання KRAM</h1>
           <p className="text-[#64748B]">
@@ -22,16 +22,16 @@ export default function TermsPage() {
           </p>
         </div>
 
-        {/* Beta Notice */}
+        {/* Direct agreement notice */}
         <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl p-6 mb-10">
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 bg-white border border-[#BFDBFE] rounded-xl flex items-center justify-center shrink-0">
               <AlertTriangle className="w-5 h-5 text-[#2563EB]" />
             </div>
             <div>
-              <h3 className="font-bold text-[#1E40AF] mb-2">Важлива інформація про Beta-режим</h3>
+              <h3 className="font-bold text-[#1E40AF] mb-2">Важлива інформація про Режим прямих домовленостей</h3>
               <p className="text-[#1E40AF]/90 text-[15px] leading-relaxed">
-                KRAM працює в beta-режимі як інформаційна платформа для торгів та оголошень. Ми не є фінансовим посередником: KRAM не приймає онлайн-оплату, не утримує кошти та не проводить виплат. Усі угоди й розрахунки здійснюються покупцями та продавцями самостійно та під власну відповідальність.
+                KRAM працює в режимі прямих домовленостей як інформаційна платформа для торгів та оголошень. Ми не є фінансовим посередником: KRAM не приймає онлайн-оплату, не утримує кошти та не проводить виплат. Усі угоди й розрахунки здійснюються покупцями та продавцями самостійно та під власну відповідальність.
               </p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default function TermsPage() {
             </div>
             <div className="text-[#475569] leading-relaxed space-y-4">
               <p>
-                KRAM — це українська інформаційна beta-платформа, яка допомагає користувачам створювати лоти, проводити інтерактивні торги, робити ставки та координувати діалог для прямої купівлі-продажу товарів.
+                KRAM — це українська інформаційна платформа, яка допомагає користувачам створювати лоти, проводити інтерактивні торги, робити ставки та координувати діалог для прямої купівлі-продажу товарів.
               </p>
               <p>
                 Користуючись нашим сервісом, ви погоджуєтесь з цими умовами використання. Якщо ви не згодні з умовами, будь ласка, припиніть використання платформи.
@@ -63,7 +63,7 @@ export default function TermsPage() {
                 <li>Всі ставки є зобов'язаннями покупця. Якщо ваша ставка виграла, ви зобов’язані вийти на зв'язок з продавцем для обговорення доставки.</li>
                 <li>Продавець зобов'язаний надати точний опис товару, реальні фотографії та вказати чесні параметри торгів.</li>
                 <li>Штучне накручування ставок (шиллбідінг) заборонено та карається блокуванням акаунту.</li>
-                <li>У beta-режимі комісія сервісу становить 0% для всіх продавців та покупців.</li>
+                <li>У режимі прямих домовленостей комісія сервісу становить 0% для всіх продавців та покупців.</li>
               </ul>
             </div>
           </section>

@@ -8,25 +8,18 @@ import { GlobalNotifier } from '@/components/layout/GlobalNotifier'
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // 1. Wipe any old caches from Cache Storage to force fresh fetches
+    if (process.env.NEXT_PUBLIC_DISABLE_PWA !== 'true') return
+
+    // Emergency switch only. In normal production we keep the service worker/cache
+    // because the homepage advertises KRAM as an installable PWA.
     if (typeof window !== 'undefined' && 'caches' in window) {
-      caches.keys().then((keys) => {
-        return Promise.all(
-          keys.map((key) => {
-            console.log('Clearing old Cache Storage:', key)
-            return caches.delete(key)
-          })
-        )
-      }).catch(err => console.error('Error clearing Cache Storage:', err))
+      caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .catch(err => console.error('Error clearing Cache Storage:', err))
     }
 
-    // 2. Unregister any service workers that might be intercepting requests
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
-        for (const registration of registrations) {
-          console.log('Unregistering Service Worker:', registration)
-          registration.unregister()
-        }
+        for (const registration of registrations) registration.unregister()
       }).catch(err => console.error('Error unregistering Service Workers:', err))
     }
   }, [])

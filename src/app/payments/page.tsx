@@ -4,7 +4,7 @@ import { ArrowRight, BadgeCheck, ShieldAlert, Truck, ShieldCheck } from 'lucide-
 
 export const metadata: Metadata = {
   title: 'Угоди та безпека | KRAM',
-  description: 'Правила безпечних прямих угод, розрахунків та безпеки на інформаційній beta-платформі KRAM.',
+  description: 'Правила безпечних прямих угод, розрахунків та безпеки на інформаційній платформі KRAM.',
 }
 
 const statuses = [
@@ -21,13 +21,13 @@ export default function PaymentsPage() {
         <div className="grid gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-[#EFF6FF] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-[#2563EB]">
-              Beta Classified Mode
+              Classified mode
             </div>
             <h1 className="mt-5 max-w-3xl text-[36px] font-black leading-tight tracking-tight text-[#0B1220] md:text-[52px]">
               Прямі угоди та безпека торгів
             </h1>
             <p className="mt-5 max-w-2xl text-[16px] leading-relaxed text-[#64748B]">
-              KRAM працює як інформаційний beta-майданчик. Платформа не є фінансовим чи логістичним посередником: ми не приймаємо оплату, не утримуємо кошти покупців та не робимо виплат продавцям.
+              KRAM працює як інформаційний майданчик. Платформа не є фінансовим чи логістичним посередником: ми не приймаємо оплату, не утримуємо кошти покупців та не робимо виплат продавцям.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/safety" className="inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-5 py-3 text-[14px] font-bold text-white transition hover:-translate-y-0.5 hover:shadow-premium">

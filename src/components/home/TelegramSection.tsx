@@ -93,7 +93,7 @@ export function LiveAuctionsNow() {
         <div className="flex items-end justify-between mb-8">
           <div>
             <div className="inline-flex items-center gap-1.5 h-6 px-2.5 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[10.5px] font-bold text-[#2563EB] uppercase tracking-wide mb-3">
-              <TrendingUp className="w-3.5 h-3.5" /> Beta-Каталог
+              <TrendingUp className="w-3.5 h-3.5" /> Каталог лотів
             </div>
             <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-2">
               {hasLots ? 'Живі торги зараз' : 'Перші лоти очікують продавців'}
@@ -219,7 +219,7 @@ export function LiveAuctionsNow() {
               Перші лоти зʼявляться незабаром
             </h3>
             <p className="text-[#475569] text-[13.5px] mb-6 max-w-sm mx-auto leading-relaxed">
-              Платформа запущена в beta-режимі. Створіть перший безкоштовний лот, щоб розпочати прозорі торги!
+              Створіть безкоштовний лот, щоб розпочати прозорі торги та знайти покупця.
             </p>
             <Link
               href="/sell"
@@ -284,7 +284,7 @@ export function HowItWorksSimple() {
         <div className="text-center mb-12 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 h-6 px-3 bg-[#E8F5E9] border border-[#10B981]/10 rounded-full text-[10.5px] font-bold text-[#10B981] uppercase tracking-wide mb-3">
             <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-            <span>Безпечний Beta-Процес</span>
+            <span>Безпечний процес домовленості</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-[#0B1220] tracking-tight mb-3">
             Як безпечно купувати та продавати
@@ -314,7 +314,7 @@ export function HowItWorksSimple() {
         <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl max-w-3xl mx-auto flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
           <p className="text-[12.5px] text-[#1E40AF] leading-relaxed font-medium">
-            📢 <strong>Офіційне роз’яснення:</strong> У beta-режимі KRAM не обробляє платежі, не приймає передплати, не забезпечує холдування (escrow) чи автоматичне повернення коштів. Усі фінансові та поштові питання сторони вирішують особисто та самостійно поза межами системи.
+            📢 <strong>Офіційне роз’яснення:</strong> KRAM не обробляє платежі, не приймає передплати, не забезпечує холдування (escrow) чи автоматичне повернення коштів. Усі фінансові та поштові питання сторони вирішують особисто та самостійно поза межами системи.
           </p>
         </div>
 
@@ -458,7 +458,7 @@ export function FAQSection() {
     },
     {
       q: 'Чи бере KRAM комісію?',
-      a: 'Ні. Платформа діє безкоштовно для покупців і продавців. Комісія з розміщення або успішних ставок становить 0% протягом усього періоду beta-тестування.',
+      a: 'Ні. Платформа діє безкоштовно для покупців і продавців. Комісія з розміщення або успішних ставок становить 0% на старті платформи.',
     },
     {
       q: 'Як домовитись про оплату?',

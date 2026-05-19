@@ -13,7 +13,7 @@ export function Footer() {
               <KramLogo variant="dark" size={32} />
             </div>
             <p className="text-[12.5px] text-slate-400 leading-relaxed mb-3">
-              Українська beta-платформа прозорих онлайн-торгів та оголошень.
+              Українська платформа прозорих онлайн-торгів та оголошень.
             </p>
             <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">
               KRAM · BETA CLASSIFIED
@@ -65,12 +65,12 @@ export function Footer() {
             <p className="text-[11.5px] text-slate-500">&copy; 2026 KRAM. Усі права застережено.</p>
             <div className="hidden sm:block w-1 h-1 bg-white/10 rounded-full" />
             
-            {/* Safe Beta State Badge */}
+            {/* Direct agreement state badge */}
             <div className="flex items-center gap-1.5 text-[11px] text-[#F59E0B]">
               <span className="relative flex h-1.5 w-1.5 animate-pulse">
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#F59E0B]"></span>
               </span>
-              Beta-запуск: функції підключаються поетапно
+              Прямі домовленості: KRAM не приймає оплату
             </div>
           </div>
 

@@ -7,13 +7,16 @@ import { siteUrl } from '@/lib/site-url'
 const inter = Inter({ subsets: ['latin', 'cyrillic'] })
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: '#2563EB',
 }
 
 export const metadata: Metadata = {
   title: 'KRAM — чесні онлайн-торги для товарів в Україні',
-  description: 'Створюйте лоти, робіть ставки та знаходьте покупців у beta-режимі. KRAM не приймає оплату через платформу — сторони домовляються напряму.',
-  keywords: ['аукціон Україна', 'classified Україна', 'продати товар онлайн', 'купити товар аукціон', 'KRAM аукціон', 'beta запуск'],
+  description: 'Створюйте лоти, робіть ставки та знаходьте покупців на українській платформі прозорих торгів. KRAM фіксує історію ставок, а сторони домовляються напряму.',
+  keywords: ['аукціон Україна', 'classified Україна', 'продати товар онлайн', 'купити товар аукціон', 'KRAM аукціон', 'прозорі торги'],
   authors: [{ name: 'KRAM Team' }],
   creator: 'KRAM',
   publisher: 'KRAM',
@@ -23,7 +26,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'KRAM — чесні онлайн-торги для товарів в Україні',
-    description: 'Створюйте лоти, робіть ставки та знаходьте покупців у beta-режимі. KRAM не приймає оплату через платформу — сторони домовляються напряму.',
+    description: 'Створюйте лоти, робіть ставки та знаходьте покупців на українській платформі прозорих торгів. KRAM фіксує історію ставок, а сторони домовляються напряму.',
     type: 'website',
     locale: 'uk_UA',
     siteName: 'KRAM',
@@ -32,7 +35,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'KRAM — чесні онлайн-торги для товарів в Україні',
-    description: 'Створюйте лоти, робіть ставки та знаходьте покупців у beta-режимі. KRAM не приймає оплату через платформу — сторони домовляються напряму.',
+    description: 'Створюйте лоти, робіть ставки та знаходьте покупців на українській платформі прозорих торгів. KRAM фіксує історію ставок, а сторони домовляються напряму.',
     images: ['/og-image.jpg'],
   },
   robots: {

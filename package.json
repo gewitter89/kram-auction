@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "seed": "npx tsx prisma/seed.ts",
     "db:push": "npx prisma db push",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "preflight:prod": "npx tsx scripts/production-preflight.ts",
+    "test:smoke": "npx playwright test tests/public-smoke.spec.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

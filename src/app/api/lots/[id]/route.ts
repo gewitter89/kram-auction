@@ -60,7 +60,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     const { id } = await params
 
-    const lot = await prisma.listing.findUnique({ where: { id } })
+    const lot = await prisma.listing.findUnique({
+      where: { id },
+      include: { _count: { select: { bids: true, transactions: true } } }
+    })
     if (!lot) {
       return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
     }
@@ -69,15 +72,17 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Since we might have bids, favorites, messages related to this lot, 
-    // it's better to perform a soft delete or cascade delete.
-    // If Prisma schema doesn't have cascade delete configured, we might need to delete related records first.
-    // Let's delete related records manually to be safe.
-    await prisma.bid.deleteMany({ where: { listingId: id } })
+    // Production-safe behaviour: keep audit/history for lots with activity.
+    if (lot._count.bids > 0 || lot._count.transactions > 0) {
+      await prisma.listing.update({ where: { id }, data: { status: 'cancelled' } })
+      return NextResponse.json({ message: 'Лот з історією ставок/угод приховано, а не видалено.' })
+    }
+
     await prisma.favorite.deleteMany({ where: { listingId: id } })
     await prisma.message.updateMany({ where: { listingId: id }, data: { listingId: null } })
     await prisma.notification.deleteMany({ where: { listingId: id } })
-
+    await prisma.report.deleteMany({ where: { listingId: id } })
+    await prisma.review.deleteMany({ where: { listingId: id } })
     await prisma.listing.delete({ where: { id } })
 
     return NextResponse.json({ message: 'Лот видалено успішно' })

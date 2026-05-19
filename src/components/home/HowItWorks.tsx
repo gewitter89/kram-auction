@@ -22,8 +22,8 @@ const steps = [
   {
     icon: ShieldCheck,
     step: '3',
-    title: 'Контрольована оплата',
-    desc: 'Статус оплати видно в угоді; у beta можливе ручне підтвердження',
+    title: 'Пряма домовленість',
+    desc: 'Статус домовленості видно в кабінеті; оплату сторони погоджують напряму',
     color: 'from-emerald-500 to-green-600',
     iconBg: 'bg-emerald-100',
     iconColor: 'text-emerald-600'
@@ -32,7 +32,7 @@ const steps = [
     icon: Truck,
     step: '4',
     title: 'Отримайте товар',
-    desc: 'Доставка Новою Поштою по всій Україні. Підтвердіть отримання.',
+    desc: 'Узгодьте доставку Новою Поштою або самовивіз і підтвердіть отримання.',
     color: 'from-purple-500 to-pink-600',
     iconBg: 'bg-purple-100',
     iconColor: 'text-purple-600'

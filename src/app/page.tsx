@@ -21,7 +21,7 @@ export default function HomePage() {
       {/* 2. Live Catalog Auction Cards Grid */}
       <LiveAuctionsNow />
 
-      {/* 3. Beta 4-Step Safety & Negotiation Walkthrough */}
+      {/* 3. Direct deal safety walkthrough */}
       <HowItWorksSimple />
 
       {/* 4. Popular Marketplace Categories */}
@@ -30,7 +30,7 @@ export default function HomePage() {
       {/* 5. Clean PWA Application Prompt */}
       <MobileAppsTeaser />
 
-      {/* 6. Accordion Direct Beta FAQs */}
+      {/* 6. Accordion direct deal FAQs */}
       <FAQSection />
 
       {/* 7. Premium Subscription & Telegram Alerts */}

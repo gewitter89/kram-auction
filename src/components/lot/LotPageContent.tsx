@@ -150,13 +150,13 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
     if (reporting) return
     setReporting(true)
     try {
-      const fullReason = `${reportReason}${reportComment.trim() ? ': ' + reportComment.trim() : ''}`
       const res = await fetch('/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           listingId: lot.id,
-          reason: fullReason
+          reason: reportReason,
+          comment: reportComment.trim() || undefined
         })
       })
 
@@ -194,7 +194,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
     if (bidsHistory.length < 2) return null
     // Chronological: oldest first
     const sortedBids = [...bidsHistory].reverse()
-    const minVal = lot.startingPrice || sortedBids[0].amount * 0.9
+    const minVal = lot.startPrice || sortedBids[0].amount * 0.9
     const maxVal = currentPrice
     const valRange = maxVal - minVal || 1
 
@@ -325,7 +325,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                     </span>
                     Графік росту ціни
                   </span>
-                  <span>Початкова: {formatPrice(lot.startingPrice || trend.points[0].amount)}</span>
+                  <span>Початкова: {formatPrice(lot.startPrice || trend.points[0].amount)}</span>
                 </div>
                 <div className="relative w-full h-[120px]">
                   <svg className="w-full h-full overflow-visible" viewBox="0 0 500 120" preserveAspectRatio="none">
@@ -579,7 +579,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                 <button
                   onClick={() => {
                     if (!session) {
-                      router.push(`/auth/login?callbackUrl=/lot/${lot.seller.id}`);
+                      router.push(`/auth/login?callbackUrl=/lot/${lot.id}`);
                       return;
                     }
                     setShowReportModal(true);
@@ -848,7 +848,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[12px] text-[#64748B] font-medium">Сервісний збір KRAM:</span>
-                <span className="text-[12px] font-semibold text-[#10B981]">0 ₴ (Beta 0%)</span>
+                <span className="text-[12px] font-semibold text-[#10B981]">0 ₴</span>
               </div>
               <div className="flex justify-between items-center pt-2.5 border-t border-[#E2E8F0]">
                 <span className="text-[13px] font-bold text-[#0B1220]">Разом до сплати:</span>

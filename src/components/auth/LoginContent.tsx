@@ -57,7 +57,7 @@ export default function LoginContent() {
             KRAM запускає чесні онлайн-аукціони для продавців і покупців з України. Перші продавці отримують 0% комісії.
           </p>
           <div className="space-y-4">
-            {['Безпечна угода з гарантією', 'Перевірені продавці з рейтингом', 'Доставка Новою Поштою по всій Україні'].map((text, i) => (
+            {['Прозора історія ставок і повідомлень', 'Профілі продавців, рейтинг і скарги', 'Доставка за домовленістю сторін'].map((text, i) => (
               <div key={i} className="flex items-center gap-3 text-[14px] text-[#94A3B8]">
                 <div className="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center">
                   <span className="text-[#10B981] text-xs font-bold">{i + 1}</span>

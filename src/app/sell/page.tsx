@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck } from 'lucide-react'
 import Link from 'next/link'
+import { compressImageForUpload } from '@/lib/image-compression'
 
 const CATEGORIES = [
   { name: 'Електроніка', slug: 'electronics' },
@@ -130,8 +131,27 @@ export default function SellPage() {
       // Upload files individually to prevent body limit errors (e.g. 413 Payload Too Large)
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
+
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+          setError('Дозволені тільки фото JPEG, PNG або WebP')
+          hasFailed = true
+          break
+        }
+
+        let uploadFile = file
+        try {
+          uploadFile = await compressImageForUpload(file)
+        } catch {
+          // If compression fails, continue with the original file and let server validation respond.
+        }
+
+        if (uploadFile.size > 4 * 1024 * 1024) {
+          setError(`Фото ${file.name} завелике навіть після стиснення. Максимальний розмір — 4MB`)
+          hasFailed = true
+          break
+        }
         const fd = new FormData()
-        fd.append('files', file)
+        fd.append('files', uploadFile)
 
         const res = await fetch('/api/upload', { method: 'POST', body: fd })
         const data = await res.json()
@@ -257,7 +277,7 @@ export default function SellPage() {
           <Camera className="w-8 h-8 text-[#2563EB]" />
         </div>
         <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа працює в beta-режимі без прийому оплат.</p>
+        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа фіксує лоти, ставки та повідомлення, а оплату сторони погоджують напряму.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center justify-center h-12 px-8 w-full sm:w-auto bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors">
             Увійти
@@ -292,7 +312,7 @@ export default function SellPage() {
           <Camera className="w-8 h-8 text-[#2563EB]" />
         </div>
         <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа працює в beta-режимі без прийому оплат.</p>
+        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа фіксує лоти, ставки та повідомлення, а оплату сторони погоджують напряму.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center justify-center h-12 px-8 w-full sm:w-auto bg-[#2563EB]/80 text-white rounded-xl text-[15px] font-semibold transition-colors pointer-events-none opacity-80">
             Увійти
@@ -335,9 +355,9 @@ export default function SellPage() {
           {/* Photo upload */}
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
             <h2 className="text-[16px] font-bold text-[#0F172A] mb-1">Фотографії</h2>
-            <p className="text-[12px] text-[#94A3B8] mb-4">До 8 фото. JPEG, PNG, WebP — до 5MB кожне</p>
+            <p className="text-[12px] text-[#94A3B8] mb-4">До 8 фото. JPEG, PNG або WebP — фото з телефону автоматично стискаються до 4MB</p>
 
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {imagePreviews.map((src, i) => (
                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-[#F1F5F9] group">
                   <img src={src} alt="" className="w-full h-full object-cover" />
@@ -362,7 +382,7 @@ export default function SellPage() {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingPhotos}
-                  className="aspect-square rounded-xl border-2 border-dashed border-[#CBD5E1] flex flex-col items-center justify-center gap-1 hover:border-[#2563EB] hover:bg-[#EFF6FF] transition-all group disabled:opacity-50"
+                  className="aspect-square min-h-[96px] rounded-xl border-2 border-dashed border-[#CBD5E1] flex flex-col items-center justify-center gap-1 hover:border-[#2563EB] hover:bg-[#EFF6FF] transition-all group disabled:opacity-50"
                 >
                   <Upload className="w-5 h-5 text-[#94A3B8] group-hover:text-[#2563EB]" />
                   <span className="text-[10px] text-[#94A3B8] group-hover:text-[#2563EB]">Додати</span>
@@ -382,13 +402,13 @@ export default function SellPage() {
 
           {/* Basic info */}
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
               <h2 className="text-[16px] font-bold text-[#0F172A]">Основна інформація</h2>
               <button
                 type="button"
                 onClick={runAiAssist}
                 disabled={aiLoading || !form.title}
-                className="flex items-center gap-1.5 h-8 px-3 bg-gradient-to-r from-[#7C3AED] to-[#2563EB] text-white rounded-lg text-[12px] font-semibold hover:opacity-90 disabled:opacity-40 transition-all"
+                className="flex items-center justify-center gap-1.5 h-9 px-3 bg-gradient-to-r from-[#7C3AED] to-[#2563EB] text-white rounded-lg text-[12px] font-semibold hover:opacity-90 disabled:opacity-40 transition-all"
               >
                 {aiLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
                 {aiLoading ? 'Аналізую...' : 'AI-підказка'}
@@ -521,7 +541,7 @@ export default function SellPage() {
 
               <div>
                 <label className="block text-[13px] font-semibold text-[#0F172A] mb-1.5">Мінімальний крок ставки (₴)</label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {['10', '50', '100', '500'].map(v => (
                     <button
                       key={v}
@@ -561,7 +581,7 @@ export default function SellPage() {
 
               <div>
                 <label className="block text-[13px] font-semibold text-[#0F172A] mb-2">Тривалість аукціону</label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {DURATIONS.map(d => (
                     <button
                       key={d.value}
@@ -606,7 +626,7 @@ export default function SellPage() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button onClick={() => { setError(''); setStep(1) }} className="flex-1 h-12 border border-[#E2E8F0] rounded-xl text-[15px] font-medium text-[#64748B] hover:bg-[#F8FAFC] transition-colors">
               Назад
             </button>
@@ -674,7 +694,7 @@ export default function SellPage() {
             ✅ Публікуючи лот, ви погоджуєтесь з правилами платформи KRAM та підтверджуєте, що вся інформація є достовірною.
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button onClick={() => { setError(''); setStep(2) }} className="flex-1 h-12 border border-[#E2E8F0] rounded-xl text-[15px] font-medium text-[#64748B] hover:bg-[#F8FAFC] transition-colors">
               Назад
             </button>

@@ -1,6 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import { broadcast } from '@/lib/realtime-server'
-import { isRateLimited } from '@/lib/rateLimit'
 import { sendOutbidEmail } from '@/lib/email'
 import type { Bid, Prisma } from '@prisma/client'
 
@@ -25,11 +24,6 @@ export async function placeBid(params: {
   autoMax?: number
 }): Promise<PlaceBidResult> {
   const { userId, listingId, amount, isAuto, autoMax } = params
-
-  // Rate limiting
-  if (await isRateLimited(`bid:${userId}`, 10, 60_000)) {
-    return { success: false, error: 'Забагато ставок. Зачекайте хвилину.' }
-  }
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -257,7 +251,7 @@ export async function placeBid(params: {
         return { success: false, error: 'Ставку перебито іншим користувачем. Будь ласка, спробуйте ще раз.' }
       }
       if (msg === 'NOT_FOUND_OR_ENDED') {
-        return { success: false, error: 'Лот не знавно або завершено' }
+        return { success: false, error: 'Лот не знайдено або завершено' }
       }
       if (msg === 'AUCTION_ENDED') {
         return { success: false, error: 'Аукціон завершено' }

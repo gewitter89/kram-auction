@@ -3,7 +3,7 @@ import { Shield, Lock, Eye, Database, Cookie } from 'lucide-react'
 
 export const metadata = {
   title: 'Політика конфіденційності | KRAM',
-  description: 'Політика конфіденційності та обробки даних української beta-платформи KRAM',
+  description: 'Політика конфіденційності та обробки даних української платформи KRAM',
 }
 
 export default function PrivacyPage() {
@@ -18,7 +18,7 @@ export default function PrivacyPage() {
           </div>
           <h1 className="text-[32px] font-bold text-[#0B1220] mb-2">Політика конфіденційності</h1>
           <p className="text-[#64748B] text-[13px]">
-            Останнє оновлення: {new Date().toLocaleDateString('uk-UA')} (Beta-режим)
+            Останнє оновлення: {new Date().toLocaleDateString('uk-UA')} (Режим прямих домовленостей)
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
               <div className="bg-[#EFF6FF] border-l-4 border-[#2563EB] p-4 rounded-r-xl mt-4">
                 <p className="text-[13px] text-[#1E40AF] leading-relaxed">
                   <strong>Платіжна безпека:</strong> KRAM не збирає та не зберігає дані платіжних карт. 
-                  У beta-режимі KRAM взагалі не приймає платежі на платформі. Усі угоди оплачуються безпосередньо продавцю 
+                  KRAM не приймає платежі на платформі. Усі угоди оплачуються безпосередньо продавцю 
                   поза межами сайту (наприклад, післяплата Новою Поштою). Якщо платіжний провайдер буде підключено в майбутньому, 
                   платіжні дані оброблятимуться виключно на захищеній стороні цього сертифікованого провайдера.
                 </p>

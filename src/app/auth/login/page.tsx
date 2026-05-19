@@ -3,7 +3,7 @@ import LoginContent from '@/components/auth/LoginContent'
 
 export const metadata = {
   title: 'KRAM — вхід до кабінету',
-  description: 'Вхід до особистого кабінету української beta-платформи торгів KRAM.',
+  description: 'Вхід до особистого кабінету української платформи торгів KRAM.',
 }
 
 function LoginSSRShell() {

@@ -20,6 +20,25 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-wrap: anywhere;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
+input, textarea, select, button {
+  font: inherit;
+  min-width: 0;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--color-bg);
