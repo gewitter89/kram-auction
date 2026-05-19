@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare, ShieldCheck } from 'lucide-react'
+import { ShoppingBag, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare, ShieldCheck, Star } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
+import { ReviewModal } from '@/components/user/ReviewModal'
 
 interface Transaction {
   id: string
@@ -65,6 +66,7 @@ export function PurchasesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [reviewTx, setReviewTx] = useState<Transaction | null>(null)
 
   const load = () => {
     fetch('/api/transactions?role=buyer')
@@ -294,6 +296,16 @@ export function PurchasesTab() {
                     Переглянути лот
                   </Link>
                   
+                  {tx.status === 'COMPLETED' && (
+                    <button
+                      onClick={() => setReviewTx(tx)}
+                      className="h-10 px-5 bg-[#FFFBEB] border border-[#FDE68A] text-[#D97706] rounded-xl text-[13px] font-bold hover:bg-[#FEF3C7] transition-all flex items-center gap-2"
+                    >
+                      <Star className="w-4 h-4" />
+                      Залишити відгук
+                    </button>
+                  )}
+
                   <Link
                     href={`/messages?user=${tx.seller.id}&listing=${tx.listing.id}`}
                     className="h-10 px-5 bg-[#F8FAFC] text-[#64748B] rounded-xl text-[13px] font-medium hover:bg-[#F1F5F9] transition-all flex items-center gap-2"
@@ -307,6 +319,19 @@ export function PurchasesTab() {
           )
         })}
       </div>
+      {reviewTx && (
+        <ReviewModal
+          sellerId={reviewTx.seller.id}
+          sellerName={reviewTx.seller.name}
+          listingId={reviewTx.listing.id}
+          listingTitle={reviewTx.listing.title}
+          onClose={() => setReviewTx(null)}
+          onSuccess={() => {
+            setReviewTx(null)
+            load()
+          }}
+        />
+      )}
     </>
   )
 }

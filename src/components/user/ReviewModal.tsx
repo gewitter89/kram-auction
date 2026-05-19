@@ -6,11 +6,13 @@ import { X, Star } from 'lucide-react'
 interface ReviewModalProps {
   sellerId: string
   sellerName: string
+  listingId?: string
+  listingTitle?: string
   onClose: () => void
   onSuccess: () => void
 }
 
-export function ReviewModal({ sellerId, sellerName, onClose, onSuccess }: ReviewModalProps) {
+export function ReviewModal({ sellerId, sellerName, listingId, listingTitle, onClose, onSuccess }: ReviewModalProps) {
   const [rating, setRating] = useState(5)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -23,7 +25,7 @@ export function ReviewModal({ sellerId, sellerName, onClose, onSuccess }: Review
       const res = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sellerId, rating, text })
+        body: JSON.stringify({ sellerId, listingId, rating, text })
       })
       const data = await res.json()
       if (!res.ok) {
@@ -47,7 +49,8 @@ export function ReviewModal({ sellerId, sellerName, onClose, onSuccess }: Review
         </button>
 
         <h2 className="text-[20px] font-bold text-[#0B1220] mb-1">Залишити відгук</h2>
-        <p className="text-[13px] text-[#64748B] mb-6">Продавець: {sellerName}</p>
+        <p className="text-[13px] text-[#64748B] mb-1">Продавець: {sellerName}</p>
+        {listingTitle && <p className="text-[12px] text-[#94A3B8] mb-6 line-clamp-1">Лот: {listingTitle}</p>}
 
         <div className="flex justify-center gap-2 mb-6">
           {[1, 2, 3, 4, 5].map(star => (
