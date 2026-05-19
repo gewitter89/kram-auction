@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: validation.error }, { status: 400 })
     }
     const { name, email, password, phone } = validation.data!
+    const normalizedEmail = email.toLowerCase().trim()
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Імʼя, email та пароль обовʼязкові" }, { status: 400 })
@@ -26,18 +27,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Пароль має бути мінімум 8 символів' }, { status: 400 })
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } })
+    const existing = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true }
+    })
     if (existing) {
       return NextResponse.json({ error: 'Користувач з таким email вже існує' }, { status: 409 })
     }
 
     await prisma.user.create({
       data: {
-        name,
-        email,
+        name: name.trim(),
+        email: normalizedEmail,
         passwordHash: bcrypt.hashSync(password, 10),
-        phone: phone || null,
-      }
+        phone: phone?.trim() || null,
+      },
+      select: { id: true }
     })
 
     return NextResponse.json({ message: 'Реєстрація успішна!' }, { status: 201 })

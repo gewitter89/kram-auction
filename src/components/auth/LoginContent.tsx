@@ -78,7 +78,7 @@ export default function LoginContent() {
 
           <h1 className="text-[24px] font-bold text-[#0B1220] mb-2">Швидкий вхід</h1>
           <p className="text-[14px] text-[#64748B] mb-8">
-            Реєстрація не потрібна — просто увійдіть через Google або Email. Система автоматично створить акаунт, якщо ви у нас вперше.
+            Увійдіть через Google або Email. Якщо у вас ще немає акаунта, створіть його через форму реєстрації.
           </p>
 
           {error && (
