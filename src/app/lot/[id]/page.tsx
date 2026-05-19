@@ -2,6 +2,56 @@ import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { LotPageContent } from '@/components/lot/LotPageContent'
 import { auth } from '@/lib/auth-config'
+import type { Metadata } from 'next'
+import { absoluteUrl } from '@/lib/site-url'
+import { formatPrice } from '@/lib/utils'
+
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const lot = await prisma.listing.findUnique({
+    where: { id },
+    include: { seller: { select: { name: true } }, category: { select: { name: true } } }
+  })
+
+  if (!lot || lot.status !== 'active') {
+    return { title: 'Лот не знайдено | KRAM', robots: { index: false, follow: false } }
+  }
+
+  let images: string[] = []
+  try { images = JSON.parse(lot.images || '[]') } catch {}
+  const description = `${lot.description || lot.title}`.replace(/\s+/g, ' ').slice(0, 160)
+  const title = `${lot.title} — ${formatPrice(lot.currentPrice)} | KRAM`
+  const url = absoluteUrl(`/lot/${lot.id}`)
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url,
+      siteName: 'KRAM',
+      locale: 'uk_UA',
+      images: images[0] ? [{ url: images[0], alt: lot.title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: images[0] ? [images[0]] : undefined,
+    },
+    other: {
+      'product:price:amount': String(lot.currentPrice),
+      'product:price:currency': 'UAH',
+      'product:availability': 'in stock',
+      'product:category': lot.category?.name || 'Auction',
+      'seller': lot.seller?.name || 'KRAM seller',
+    }
+  }
+}
 
 export default async function LotPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
