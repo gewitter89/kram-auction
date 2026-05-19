@@ -42,7 +42,7 @@ export default function LaunchPage() {
 
   async function runCron(job: 'close-auctions' | 'ending-soon') {
     setCronResult(`Запуск ${job}...`)
-    const res = await fetch('/api/admin/cron-run', {
+    const res = await fetch('/api/admin/cron', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ job })
