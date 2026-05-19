@@ -33,11 +33,15 @@ export default function AdminLotsPage() {
   }
 
   async function handleModerate(lotId: string, action: string) {
+    const reason = action === 'reject'
+      ? prompt('Причина відхилення для продавця:', 'Недостатньо інформації або фото. Оновіть лот і надішліть повторно.')
+      : undefined
+    if (action === 'reject' && !reason) return
     setProcessing(lotId)
     const res = await fetch('/api/admin/lots', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lotId, action })
+      body: JSON.stringify({ lotId, action, reason })
     })
     if (res.ok) loadLots()
     else alert((await res.json()).error || 'Помилка')

@@ -35,7 +35,7 @@ export async function PATCH(request: Request) {
   try {
     await requireAdmin()
 
-    const { lotId, action } = await request.json()
+    const { lotId, action, reason } = await request.json()
     if (!lotId || typeof lotId !== 'string') {
       return NextResponse.json({ error: 'lotId is required' }, { status: 400 })
     }
@@ -66,7 +66,10 @@ export async function PATCH(request: Request) {
     if (action === 'approve' || action === 'reject') {
       await prisma.report.updateMany({
         where: { listingId: lot.id, reason: 'listing_moderation_required', status: 'pending' },
-        data: { status: action === 'approve' ? 'action_taken' : 'dismissed' }
+        data: {
+          status: action === 'approve' ? 'action_taken' : 'dismissed',
+          ...(action === 'reject' && reason ? { comment: JSON.stringify({ rejectionReason: String(reason).slice(0, 500) }) } : {})
+        }
       }).catch(() => {})
     }
 
@@ -89,7 +92,7 @@ export async function PATCH(request: Request) {
           userId: lot.sellerId,
           type: 'listing_rejected',
           title: 'Лот відхилено модератором',
-          message: `Ваш лот "${lot.title}" не пройшов модерацію. Оновіть опис/фото або зверніться в підтримку.`,
+          message: `Ваш лот "${lot.title}" не пройшов модерацію.${reason ? ` Причина: ${String(reason).slice(0, 300)}.` : ''} Оновіть опис/фото та надішліть повторно.`,
           listingId: lot.id,
         }
       }).catch(() => {})
