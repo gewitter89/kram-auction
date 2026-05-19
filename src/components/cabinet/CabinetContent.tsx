@@ -241,6 +241,11 @@ function MyLotsTab() {
                 </Link>
                 <div className="text-right flex-shrink-0 flex flex-col items-end gap-2">
                   <p className="text-[15px] font-bold text-[#0F172A]">{formatPrice(lot.currentPrice)}</p>
+                  {['rejected', 'pending_review', 'cancelled'].includes(lot.status) && (
+                    <Link href={`/lots/${lot.id}/edit`} className="text-[11px] font-semibold text-[#2563EB] hover:underline">
+                      Редагувати
+                    </Link>
+                  )}
                   <button
                     onClick={() => deleteLot(lot.id)}
                     className="flex items-center gap-1 text-[11px] text-[#EF4444] hover:text-[#DC2626] transition-colors"

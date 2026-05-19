@@ -45,6 +45,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
     }
 
+    const session = await auth()
+    const isOwner = session?.user?.id === listing.sellerId
+    const isAdmin = session?.user?.role === 'admin' || session?.user?.email === 'admin@kram.ua'
+    if ((listing.status === 'pending_review' || listing.status === 'rejected') && !isOwner && !isAdmin) {
+      return NextResponse.json({ error: 'Лот не знайдено' }, { status: 404 })
+    }
+
     return NextResponse.json(listing)
   } catch (error) {
     console.error('Get lot error:', error)

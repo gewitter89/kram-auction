@@ -490,7 +490,12 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
 
             {isOwner && (
               <div className="p-3 bg-[#EFF6FF] border border-[#2563EB]/20 rounded-xl text-[13px] text-[#2563EB] text-center mb-4">
-                Це ваш лот
+                <p className="font-semibold">Це ваш лот</p>
+                {['rejected', 'pending_review', 'cancelled'].includes(lot.status) && (
+                  <Link href={`/lots/${lot.id}/edit`} className="inline-flex mt-2 h-8 px-3 items-center justify-center rounded-lg bg-white border border-[#BFDBFE] text-[12px] font-bold text-[#2563EB] hover:bg-[#EFF6FF]">
+                    Редагувати і надіслати повторно
+                  </Link>
+                )}
               </div>
             )}
 
