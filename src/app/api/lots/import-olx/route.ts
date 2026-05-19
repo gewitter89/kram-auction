@@ -4,6 +4,8 @@ import { auth } from '@/lib/auth-config'
 import { ensureCoreCategories } from '@/lib/marketplace-checks'
 import { analyzeListingRisk } from '@/lib/listing-risk'
 import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
+import { notifyNewLot } from '@/lib/telegram'
+import { notifySavedSearchMatches } from '@/lib/saved-searches'
 
 const OLX_URL_RE = /^https:\/\/www\.olx\.ua\/d\/uk\/obyavlenie\/[a-z0-9-]+-ID([0-9A-Za-z]+)\.html/i
 const BASE62 = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -43,6 +45,12 @@ export async function POST(request: Request) {
     }
 
     await assertUserAllowed(userId, 'sell')
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { verified: true }
+    })
+    const publishImmediately = Boolean(user?.verified)
 
     const body = await request.json().catch(() => ({}))
     const olxUrl = typeof body.olxUrl === 'string' ? body.olxUrl.trim() : ''
@@ -125,8 +133,10 @@ export async function POST(request: Request) {
       images: photos,
       existingListingsCount,
     })
-    const moderationReasons = [...risk.reasons]
-    if (!moderationReasons.includes('Імпорт з OLX потребує перевірки модератором')) {
+    const moderationReasons = publishImmediately
+      ? []
+      : [...risk.reasons]
+    if (!publishImmediately && !moderationReasons.includes('Імпорт з OLX потребує перевірки модератором')) {
       moderationReasons.push('Імпорт з OLX потребує перевірки модератором')
     }
 
@@ -152,36 +162,51 @@ export async function POST(request: Request) {
         delivery: 'nova_poshta',
         featured: false,
         endsAt,
-        status: 'pending_review',
+        status: publishImmediately ? 'active' : 'pending_review',
       },
       select: { id: true, status: true, title: true },
     })
 
-    await prisma.report.create({
-      data: {
-        userId,
-        listingId: listing.id,
-        reason: 'listing_moderation_required',
-        comment: JSON.stringify({ reasons: moderationReasons, source: 'olx_import', olxUrl, offerId }),
-        status: 'pending',
-      }
-    }).catch(() => {})
+    if (publishImmediately) {
+      notifyNewLot({ title: listing.title, startPrice: Math.max(1, Number(body.startPrice || Math.max(1, Math.round(price * 0.8)))), id: listing.id }).catch(console.error)
+      notifySavedSearchMatches(listing.id).catch(console.error)
 
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'listing_pending_review',
-        title: 'Лот імпортовано з OLX',
-        message: `Лот "${listing.title}" створено та відправлено на модерацію.`,
-        listingId: listing.id,
-      }
-    }).catch(() => {})
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: 'listing_imported',
+          title: 'Лот опубліковано',
+          message: `Лот "${listing.title}" імпортовано з OLX та опубліковано у каталозі.`,
+          listingId: listing.id,
+        }
+      }).catch(() => {})
+    } else {
+      await prisma.report.create({
+        data: {
+          userId,
+          listingId: listing.id,
+          reason: 'listing_moderation_required',
+          comment: JSON.stringify({ reasons: moderationReasons, source: 'olx_import', olxUrl, offerId }),
+          status: 'pending',
+        }
+      }).catch(() => {})
+
+      await prisma.notification.create({
+        data: {
+          userId,
+          type: 'listing_pending_review',
+          title: 'Лот імпортовано з OLX',
+          message: `Лот "${listing.title}" створено та відправлено на модерацію.`,
+          listingId: listing.id,
+        }
+      }).catch(() => {})
+    }
 
     return NextResponse.json({
       success: true,
       id: listing.id,
       status: listing.status,
-      pendingReview: true,
+      pendingReview: !publishImmediately,
       moderationReasons,
       imported: { olxUrl, offerId, photos: photos.length, price },
     }, { status: 201 })

@@ -200,7 +200,7 @@ export default function SellersPage() {
             <div>
               <h2 className="text-[22px] font-black tracking-tight mb-2">Імпорт лота з OLX</h2>
               <p className="text-[13px] text-slate-300 leading-relaxed">
-                Вставте посилання на своє OLX-оголошення — KRAM підтягне назву, опис, ціну та фото. Лот буде створено як <strong className="text-white">чернетку на модерації</strong>, а не опубліковано без перевірки.
+                Вставте посилання на своє OLX-оголошення — KRAM підтягне назву, опис, ціну та фото. Для підтверджених продавців лот публікується одразу; нові продавці проходять модерацію.
               </p>
             </div>
           </div>
@@ -211,7 +211,7 @@ export default function SellersPage() {
                 <CheckCircle2 className="w-5 h-5 text-emerald-300 mt-0.5" />
                 <div>
                   <p className="text-[14px] font-bold text-white">Лот імпортовано та відправлено на модерацію</p>
-                  <p className="text-[12px] text-emerald-100 mt-1">Після перевірки модератором він зʼявиться у каталозі.</p>
+                  <p className="text-[12px] text-emerald-100 mt-1">Якщо профіль продавця підтверджено, лот уже доступний у каталозі. Для нового продавця він зʼявиться після модерації.</p>
                   <Link href={`/lot/${importedLotId}`} className="inline-flex mt-3 text-[12px] font-bold text-emerald-200 hover:text-white underline">
                     Переглянути сторінку лота
                   </Link>
@@ -232,7 +232,7 @@ export default function SellersPage() {
                 </button>
               </div>
               {importError && <p className="text-[12px] text-red-300">{importError}</p>}
-              <p className="text-[11px] text-slate-500">Потрібен вхід в акаунт. Публікація все одно проходить ручну перевірку.</p>
+              <p className="text-[11px] text-slate-500">Потрібен вхід в акаунт. Підтверджені продавці публікують імпортовані лоти одразу.</p>
             </form>
           )}
         </div>
