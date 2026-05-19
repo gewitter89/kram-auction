@@ -38,6 +38,12 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
       select: { id: true, userId: true, comment: true, createdAt: true }
     })
+    const notes = await prisma.report.findMany({
+      where: { userId: { in: users.map(u => u.id) }, reason: 'moderator_note', status: 'reviewed' },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, userId: true, comment: true, createdAt: true },
+      take: 200,
+    })
     const byUser = new Map<string, any>()
     for (const r of restrictions) {
       if (!r.userId || byUser.has(r.userId)) continue
@@ -45,7 +51,15 @@ export async function GET(request: Request) {
       catch { byUser.set(r.userId, { id: r.id, createdAt: r.createdAt, level: 'blocked', reason: r.comment || 'Порушення правил' }) }
     }
 
-    return NextResponse.json(users.map(u => ({ ...u, restriction: byUser.get(u.id) || null })))
+    const notesByUser = new Map<string, any[]>()
+    for (const note of notes) {
+      if (!note.userId) continue
+      const arr = notesByUser.get(note.userId) || []
+      if (arr.length < 3) arr.push(note)
+      notesByUser.set(note.userId, arr)
+    }
+
+    return NextResponse.json(users.map(u => ({ ...u, restriction: byUser.get(u.id) || null, moderatorNotes: notesByUser.get(u.id) || [] })))
   } catch (error) {
     if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
       return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
@@ -76,6 +90,11 @@ export async function PATCH(request: Request) {
       await prisma.report.updateMany({ where: { userId, reason: 'user_restriction', status: 'action_taken' }, data: { status: 'resolved' } })
       await prisma.notification.create({ data: { userId, type: 'account_restriction_cleared', title: 'Обмеження акаунта знято', message: 'Ваш акаунт знову може користуватися функціями KRAM.' } }).catch(() => {})
       await prisma.auditLog.create({ data: { userId, action: 'USER_RESTRICTION_CLEARED' } }).catch(() => {})
+    } else if (action === 'addModeratorNote') {
+      const note = String(value?.note || '').trim().slice(0, 1000)
+      if (!note) return NextResponse.json({ error: 'Note is required' }, { status: 400 })
+      await prisma.report.create({ data: { userId, listingId: null, reason: 'moderator_note', comment: note, status: 'reviewed' } })
+      await prisma.auditLog.create({ data: { userId, action: 'MODERATOR_NOTE_ADDED', metadata: JSON.stringify({ note }) } }).catch(() => {})
     } else if (action === 'setVerificationStatus') {
       await prisma.user.update({
         where: { id: userId },

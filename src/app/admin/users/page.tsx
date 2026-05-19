@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle, Ban, Unlock } from 'lucide-react'
+import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle, Ban, Unlock, StickyNote } from 'lucide-react'
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -83,6 +83,11 @@ export default function AdminUsersPage() {
                       <div>
                         <p className="text-[14px] font-bold text-[#0F172A]">{u.name}</p>
                         <p className="text-[12px] text-[#64748B]">{u.email}</p>
+                        {u.moderatorNotes?.[0] && (
+                          <p className="mt-1 text-[11px] text-[#92400E] bg-[#FFFBEB] border border-[#FDE68A] rounded px-2 py-1 max-w-[260px] truncate">
+                            📝 {u.moderatorNotes[0].comment}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -140,6 +145,16 @@ export default function AdminUsersPage() {
                         className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#F1F5F9] text-[#64748B] hover:bg-[#E2E8F0] transition-all"
                       >
                         Скинути
+                      </button>
+                      <button
+                        onClick={() => {
+                          const note = prompt('Внутрішня нотатка модератора', '')
+                          if (note) handleAction(u.id, 'addModeratorNote', { note })
+                        }}
+                        disabled={processing === u.id}
+                        className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#FFFBEB] text-[#D97706] hover:bg-[#FEF3C7] transition-all flex items-center gap-1"
+                      >
+                        <StickyNote className="w-3 h-3" /> Нотатка
                       </button>
                       {u.restriction ? (
                         <button
