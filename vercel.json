@@ -2,11 +2,12 @@
   "crons": [
     {
       "path": "/api/cron/close-auctions",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/cron/ending-soon",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 1 * * *"
     }
   ]
 }
+
