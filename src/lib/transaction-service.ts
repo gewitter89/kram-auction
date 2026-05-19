@@ -232,8 +232,8 @@ export async function createTransactionFromBuyNow(
     await createNotification(
       transaction.sellerId,
       'sold',
-      '💰 Лот куплено!',
-      `Ваш лот "${transaction.listing.title}" куплено за ${transaction.amount} ₴. Очікуйте підтвердження оплати.`,
+      '✅ Лот зарезервовано!',
+      `Покупець зарезервував "${transaction.listing.title}" за ${transaction.amount} ₴. Узгодьте оплату й доставку напряму.`,
       listingId
     )
   } catch (e) { console.error('Failed to notify seller:', e) }
@@ -242,8 +242,8 @@ export async function createTransactionFromBuyNow(
     await createNotification(
       buyerId,
       'purchase',
-      '✅ Покупка успішна',
-      `Ви купили "${transaction.listing.title}" за ${transaction.amount} ₴. Підтвердіть оплату для продовження.`,
+      '✅ Лот зарезервовано',
+      `Ви зарезервували "${transaction.listing.title}" за ${transaction.amount} ₴. Узгодьте оплату й доставку з продавцем.`,
       listingId
     )
   } catch (e) { console.error('Failed to notify buyer:', e) }
@@ -252,14 +252,14 @@ export async function createTransactionFromBuyNow(
   try {
     await notifyUserTelegram(
       transaction.sellerId,
-      `💰 <b>Лот куплено!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n👤 Покупець: ${transaction.buyer.name}\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Перейти в кабінет →</a>`
+      `✅ <b>Лот зарезервовано!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n👤 Покупець: ${transaction.buyer.name}\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Перейти в кабінет →</a>`
     )
   } catch (e) { console.error('Failed to send Telegram to seller:', e) }
 
   try {
     await notifyUserTelegram(
       buyerId,
-      `✅ <b>Покупка успішна!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті, щоб продавець міг відправити товар.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Підтвердити оплату →</a>`
+      `✅ <b>Лот зарезервовано!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nУзгодьте оплату й доставку з продавцем у чаті.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Перейти в кабінет →</a>`
     )
   } catch (e) { console.error('Failed to send Telegram to buyer:', e) }
 
@@ -369,7 +369,7 @@ export async function createTransactionFromAuctionWin(
       transaction.sellerId,
       'sold',
       '🎉 Лот продано на аукціоні!',
-      `Ваш лот "${transaction.listing.title}" продано на аукціоні за ${transaction.amount} ₴. Очікуйте підтвердження оплати.`,
+      `Ваш лот "${transaction.listing.title}" виграли на аукціоні за ${transaction.amount} ₴. Узгодьте оплату й доставку з покупцем напряму.`,
       listingId
     )
   } catch (e) { console.error('Notification failed:', e) }
@@ -379,7 +379,7 @@ export async function createTransactionFromAuctionWin(
       buyerId,
       'won',
       '🎉 Ви виграли аукціон!',
-      `Вітаємо! Ви виграли "${transaction.listing.title}" за ${transaction.amount} ₴. Підтвердіть оплату для продовження.`,
+      `Вітаємо! Ви виграли "${transaction.listing.title}" за ${transaction.amount} ₴. Узгодьте оплату й доставку з продавцем.`,
       listingId
     )
   } catch (e) { console.error('Notification failed:', e) }
@@ -394,7 +394,7 @@ export async function createTransactionFromAuctionWin(
   try {
     await notifyUserTelegram(
       buyerId,
-      `🎉 <b>Ви виграли аукціон!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nПідтвердіть оплату в кабінеті.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Підтвердити оплату →</a>`
+      `🎉 <b>Ви виграли аукціон!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nУзгодьте оплату й доставку з продавцем у чаті.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Перейти в кабінет →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
@@ -451,8 +451,8 @@ export async function markTransactionPaid(
       buyerId,
       TransactionStatus.PENDING_PAYMENT,
       TransactionStatus.PAID_HELD,
-      'Покупець підтвердив оплату (MVP)',
-      { note: 'MVP ручне підтвердження, реальний платіж буде інтегровано пізніше' }
+      'Покупець підтвердив, що умови оплати й доставки узгоджено',
+      { note: 'Пряма домовленість: KRAM не приймає оплату й не утримує кошти' }
     )
   } catch (e) { console.error('Event creation failed:', e) }
 
@@ -470,8 +470,8 @@ export async function markTransactionPaid(
     await createNotification(
       transaction.sellerId,
       'payment_confirmed',
-      '💳 Оплата підтверджена!',
-      `Покупець підтвердив оплату за "${transaction.listing.title}". Відправте товар та вкажіть номер накладної.`,
+      '✅ Умови узгоджено!',
+      `Покупець підтвердив узгодження умов за "${transaction.listing.title}". Відправте товар узгодженим способом та вкажіть номер накладної.`,
       transaction.listingId
     )
   } catch (e) { console.error('Notification failed:', e) }
@@ -479,7 +479,7 @@ export async function markTransactionPaid(
   try {
     await notifyUserTelegram(
       transaction.sellerId,
-      `💳 <b>Оплата підтверджена!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nВідправте товар та вкажіть номер накладної.\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Вказати відправлення →</a>`
+      `✅ <b>Умови узгоджено!</b>\n\n📦 "${transaction.listing.title}"\n💰 ${transaction.amount} ₴\n\nВідправте товар узгодженим способом та вкажіть номер накладної.\n\n<a href="${absoluteUrl('/cabinet?tab=sales')}">Вказати відправлення →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 
@@ -638,7 +638,7 @@ export async function confirmTransactionReceived(
       buyerId,
       TransactionStatus.SELLER_SHIPPED,
       TransactionStatus.COMPLETED,
-      'Покупець підтвердив отримання, угоду завершено. Кошти доступні для виплати продавцю.'
+      'Покупець підтвердив отримання, домовленість завершено.'
     )
   } catch (e) { console.error('Event failed:', e) }
 
@@ -657,7 +657,7 @@ export async function confirmTransactionReceived(
       transaction.sellerId,
       'completed',
       '✅ Угода завершена!',
-      `Покупець підтвердив отримання "${transaction.listing.title}". Угоду завершено, кошти будуть перераховані (MVP: реальні виплати інтегруються пізніше).`,
+      `Покупець підтвердив отримання "${transaction.listing.title}". Домовленість завершено.`,
       transaction.listingId
     )
   } catch (e) { console.error('Notification failed:', e) }
@@ -667,7 +667,7 @@ export async function confirmTransactionReceived(
       buyerId,
       'completed',
       '✅ Угода завершена!',
-      `Ви підтвердили отримання "${transaction.listing.title}". Дякуємо за покупку!`,
+      `Ви підтвердили отримання "${transaction.listing.title}". Дякуємо, що користуєтесь KRAM!`,
       transaction.listingId
     )
   } catch (e) { console.error('Notification failed:', e) }
@@ -682,7 +682,7 @@ export async function confirmTransactionReceived(
   try {
     await notifyUserTelegram(
       buyerId,
-      `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n\nДякуємо за покупку! Залиште відгук про продавця.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Залишити відгук →</a>`
+      `✅ <b>Угода завершена!</b>\n\n📦 "${transaction.listing.title}"\n\nЗалиште відгук про продавця після завершеної домовленості.\n\n<a href="${absoluteUrl('/cabinet?tab=purchases')}">Залишити відгук →</a>`
     )
   } catch (e) { console.error('Telegram failed:', e) }
 

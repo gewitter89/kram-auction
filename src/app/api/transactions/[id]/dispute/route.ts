@@ -59,7 +59,7 @@ export async function POST(
       return NextResponse.json({ error: 'Немає доступу' }, { status: 403 })
     }
     if (error.message === 'INVALID_STATUS') {
-      return NextResponse.json({ error: 'Спір можна відкрити тільки після оплати та до підтвердження отримання' }, { status: 409 })
+      return NextResponse.json({ error: 'Спір можна відкрити тільки після узгодження умов та до підтвердження отримання' }, { status: 409 })
     }
     
     return NextResponse.json(

@@ -44,13 +44,13 @@ export function SellerProfileContent({ seller }: Props) {
     if (reporting) return
     setReporting(true)
     try {
-      const fullReason = `Скарга на користувача ${seller.name || 'Продавець'} (${seller.id}): ${reportReason}${reportComment.trim() ? ': ' + reportComment.trim() : ''}`
       const res = await fetch('/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          listingId: '', // Empty listingId for user reports
-          reason: fullReason
+          targetUserId: seller.id,
+          reason: reportReason,
+          comment: reportComment.trim() || undefined,
         })
       })
 
@@ -145,15 +145,13 @@ export function SellerProfileContent({ seller }: Props) {
                   <button 
                     onClick={() => {
                       if (!session) { router.push(`/auth/login?callbackUrl=/user/${seller.id}`); return }
-                      if (seller.soldCount === 0) return
-                      setShowReviewModal(true)
+                      router.push('/cabinet?tab=purchases')
                     }}
-                    disabled={seller.soldCount === 0}
-                    title={seller.soldCount === 0 ? 'Відгуки відкриваються після першої завершеної домовленості' : undefined}
-                    className="h-10 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] disabled:bg-[#E2E8F0] disabled:text-[#94A3B8] disabled:cursor-not-allowed text-white rounded-xl text-[13px] font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
+                    title="Відгук можна залишити у кабінеті після завершеної домовленості за конкретним лотом"
+                    className="h-10 px-4 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[13px] font-bold transition-all shadow-sm flex items-center justify-center gap-1.5"
                   >
                     <MessageSquare className="w-4 h-4" />
-                    {seller.soldCount === 0 ? 'Відгук після угоди' : 'Залишити відгук'}
+                    Відгук після угоди
                   </button>
 
                   <button 

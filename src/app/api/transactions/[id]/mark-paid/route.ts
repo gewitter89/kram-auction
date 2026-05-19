@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { markTransactionPaid } from '@/lib/transaction-service'
 
-// POST /api/transactions/[id]/mark-paid - Buyer confirms payment
+// POST /api/transactions/[id]/mark-paid - Buyer confirms direct agreement terms
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -28,7 +28,7 @@ export async function POST(
 
     return NextResponse.json({ 
       success: true,
-      message: 'Оплату підтверджено. Очікуємо відправлення продавцем.',
+      message: 'Умови домовленості підтверджено. Очікуємо відправлення продавцем.',
       transaction 
     })
   } catch (error: any) {
@@ -38,7 +38,7 @@ export async function POST(
       return NextResponse.json({ error: 'Угоду не знайдено' }, { status: 404 })
     }
     if (error.message === 'FORBIDDEN') {
-      return NextResponse.json({ error: 'Тільки покупець може підтвердити оплату' }, { status: 403 })
+      return NextResponse.json({ error: 'Тільки покупець може підтвердити домовленість' }, { status: 403 })
     }
     if (error.message === 'INVALID_STATUS') {
       return NextResponse.json({ error: 'Неправильний статус угоди' }, { status: 409 })

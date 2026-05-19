@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true,
-      message: 'Лот куплено! Перейдіть у кабінет для підтвердження оплати.',
+      message: 'Лот зарезервовано. Перейдіть у кабінет, щоб узгодити оплату й доставку.',
       transactionId: transaction.id
     })
   } catch (error) {

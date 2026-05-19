@@ -3,6 +3,11 @@ import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
 import { sendSimpleEventEmail } from '@/lib/email'
 import { absoluteUrl } from '@/lib/site-url'
+import { isRateLimited } from '@/lib/rateLimit'
+
+function cleanReviewText(value: unknown) {
+  return typeof value === 'string' ? value.trim().slice(0, 1000) : ''
+}
 
 export async function POST(request: Request) {
   try {
@@ -12,10 +17,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
+    if (await isRateLimited(`review:${userId}`, 5, 60_000)) {
+      return NextResponse.json({ error: 'Занадто багато спроб. Спробуйте трохи пізніше.' }, { status: 429 })
+    }
+
     const { sellerId, listingId, rating, text } = await request.json()
     const numericRating = Number(rating)
 
-    if (!sellerId || !listingId || !numericRating || numericRating < 1 || numericRating > 5) {
+    if (!sellerId || !listingId || !Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
       return NextResponse.json({ error: 'Вкажіть лот, продавця та оцінку від 1 до 5' }, { status: 400 })
     }
 
@@ -30,19 +39,29 @@ export async function POST(request: Request) {
         buyerId: userId,
         status: 'COMPLETED',
       },
-      select: { id: true }
+      select: {
+        id: true,
+        listing: { select: { id: true, sellerId: true, title: true } },
+      }
     })
 
     if (!completedTransaction) {
       return NextResponse.json({ error: 'Відгук можна залишити тільки після завершеної домовленості за цим лотом' }, { status: 403 })
     }
 
+    if (completedTransaction.listing.sellerId !== sellerId) {
+      return NextResponse.json({ error: 'Лот не належить цьому продавцю' }, { status: 400 })
+    }
+
     const existing = await prisma.review.findFirst({
-      where: { sellerId, reviewerId: userId, listingId }
+      where: { sellerId, reviewerId: userId, listingId },
+      select: { id: true }
     })
     if (existing) {
       return NextResponse.json({ error: 'Ви вже залишали відгук за цей лот' }, { status: 409 })
     }
+
+    const reviewText = cleanReviewText(text)
 
     const review = await prisma.review.create({
       data: {
@@ -50,7 +69,7 @@ export async function POST(request: Request) {
         reviewerId: userId,
         listingId,
         rating: numericRating,
-        text: typeof text === 'string' ? text.trim().slice(0, 1000) : ''
+        text: reviewText
       }
     })
 
