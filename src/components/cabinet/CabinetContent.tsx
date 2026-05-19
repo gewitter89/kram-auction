@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PurchasesTab } from './PurchasesTab'
 import { SalesTab } from './SalesTab'
-import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Package, Gavel, ShoppingBag, DollarSign, Heart, MessageCircle, Bell, Star, Settings, LogOut, User, ShieldCheck, PlusCircle, Eye, Trash2, CheckCircle, XCircle, Clock, BellPlus } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
 
 interface CabinetContentProps {
@@ -27,6 +27,7 @@ const menuItems = [
   { id: 'favorites', label: 'Обране', icon: Heart },
   { id: 'messages', label: 'Повідомлення', icon: MessageCircle },
   { id: 'notifications', label: 'Сповіщення', icon: Bell },
+  { id: 'saved-searches', label: 'Збережені пошуки', icon: BellPlus },
   { id: 'reviews', label: 'Відгуки', icon: Star },
   { id: 'verification', label: 'Верифікація', icon: ShieldCheck },
   { id: 'settings', label: 'Налаштування', icon: Settings },
@@ -175,6 +176,7 @@ export function CabinetContent({ user }: CabinetContentProps) {
             {activeTab === 'favorites' && <FavoritesTab />}
             {activeTab === 'messages' && <MessagesTab />}
             {activeTab === 'notifications' && <NotificationsTab />}
+            {activeTab === 'saved-searches' && <SavedSearchesTab />}
             {activeTab === 'reviews' && <EmptyState icon={Star} title="Відгуки" text="У вас ще немає відгуків від покупців" />}
             {activeTab === 'verification' && <VerificationTab user={user} />}
             {activeTab === 'settings' && <SettingsTab user={user} />}
@@ -359,6 +361,85 @@ function FavoritesTab() {
               </Link>
             )
           })}
+        </div>
+      )}
+    </>
+  )
+}
+
+
+function SavedSearchesTab() {
+  const [items, setItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  async function load() {
+    setLoading(true)
+    const res = await fetch('/api/saved-searches')
+    if (res.ok) {
+      const data = await res.json()
+      setItems(data.savedSearches || [])
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
+
+  async function remove(id: string) {
+    await fetch('/api/saved-searches', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    })
+    load()
+  }
+
+  function toCatalogUrl(filters: any) {
+    const params = new URLSearchParams()
+    for (const [key, value] of Object.entries(filters || {})) {
+      if (value) params.set(key, String(value))
+    }
+    return `/catalog?${params.toString()}`
+  }
+
+  function describe(filters: any) {
+    const parts = []
+    if (filters.search) parts.push(`Пошук: ${filters.search}`)
+    if (filters.category) parts.push(`Категорія: ${filters.category}`)
+    if (filters.city) parts.push(`Місто: ${filters.city}`)
+    if (filters.minPrice || filters.maxPrice) parts.push(`Ціна: ${filters.minPrice || '0'}–${filters.maxPrice || '∞'} ₴`)
+    if (filters.condition) parts.push(`Стан: ${filters.condition}`)
+    if (filters.type) parts.push(`Тип: ${filters.type}`)
+    return parts.join(' • ') || 'Без опису'
+  }
+
+  if (loading) return <SkeletonList />
+
+  return (
+    <>
+      <h2 className="text-[18px] font-bold text-[#0B1220] mb-5">Збережені пошуки</h2>
+      {items.length === 0 ? (
+        <EmptyState icon={BellPlus} title="Немає збережених пошуків" text="У каталозі застосуйте фільтри або пошук і натисніть “Зберегти пошук”." cta={{ href: '/catalog', label: 'Перейти в каталог' }} />
+      ) : (
+        <div className="space-y-3">
+          {items.map(item => (
+            <div key={item.id} className="p-4 border border-[#E2E8F0] rounded-2xl bg-white hover:border-[#2563EB]/30 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div>
+                  <p className="text-[14px] font-bold text-[#0F172A]">{item.label || 'Збережений пошук'}</p>
+                  <p className="text-[12px] text-[#64748B] mt-1">{describe(item.filters)}</p>
+                  <p className="text-[11px] text-[#94A3B8] mt-1">Створено: {timeAgo(item.createdAt)}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Link href={toCatalogUrl(item.filters)} className="h-9 px-3 inline-flex items-center justify-center bg-[#2563EB] text-white rounded-lg text-[12px] font-bold hover:bg-[#1D4ED8]">
+                    Відкрити
+                  </Link>
+                  <button onClick={() => remove(item.id)} className="h-9 px-3 bg-[#FEF2F2] text-[#EF4444] rounded-lg text-[12px] font-bold hover:bg-[#FEE2E2]">
+                    Видалити
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </>
