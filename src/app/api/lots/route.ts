@@ -5,6 +5,7 @@ import { createLotSchema, validateBody } from '@/lib/validation'
 import { ensureCoreCategories } from '@/lib/marketplace-checks'
 import { notifyNewLot } from '@/lib/telegram'
 import { publicActiveListingWhere } from '@/lib/public-listing-filters'
+import { analyzeListingRisk } from '@/lib/listing-risk'
 
 export async function GET(request: Request) {
   try {
@@ -160,7 +161,15 @@ export async function POST(request: Request) {
     }
 
     const existingListingsCount = await prisma.listing.count({ where: { sellerId: userId } })
-    const requiresModeration = existingListingsCount === 0
+    const risk = analyzeListingRisk({
+      title,
+      description,
+      startPrice: Number(startPrice),
+      buyNowPrice: buyNowPrice ? Number(buyNowPrice) : null,
+      images: images || [],
+      existingListingsCount,
+    })
+    const requiresModeration = risk.requiresModeration
     const endsAt = new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000)
 
     const listing = await prisma.listing.create({
@@ -186,7 +195,17 @@ export async function POST(request: Request) {
       }
     })
 
-    if (!requiresModeration) {
+    if (requiresModeration) {
+      await prisma.report.create({
+        data: {
+          userId,
+          listingId: listing.id,
+          reason: 'listing_moderation_required',
+          comment: JSON.stringify({ reasons: risk.reasons }),
+          status: 'pending',
+        }
+      }).catch(() => {})
+    } else {
       notifyNewLot({ title: listing.title, startPrice: listing.startPrice, id: listing.id }).catch(console.error)
     }
 
@@ -195,6 +214,7 @@ export async function POST(request: Request) {
       id: listing.id,
       status: listing.status,
       pendingReview: requiresModeration,
+      moderationReasons: risk.reasons,
     }, { status: 201 })
   } catch (error) {
     console.error('Create lot error:', error)

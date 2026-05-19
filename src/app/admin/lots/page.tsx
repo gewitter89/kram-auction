@@ -1,9 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Package, Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle } from 'lucide-react'
+import { Package, Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
+
+
+function formatRisk(comment: string) {
+  try {
+    const parsed = JSON.parse(comment)
+    if (Array.isArray(parsed.reasons)) return parsed.reasons.join(' • ')
+  } catch {}
+  return comment
+}
 
 export default function AdminLotsPage() {
   const [lots, setLots] = useState<any[]>([])
@@ -105,6 +114,14 @@ export default function AdminLotsPage() {
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
                   <h3 className="text-[14px] font-bold text-[#0F172A] mb-2 line-clamp-1">{lot.title}</h3>
+                  {lot.reports?.[0]?.comment && (
+                    <div className="mb-3 p-2 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl text-[11px] text-[#92400E]">
+                      <div className="flex items-start gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                        <span>{formatRisk(lot.reports[0].comment)}</span>
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-1.5 mb-4">
                     <div className="flex items-center gap-2 text-[12px] text-[#64748B]">
                       <User className="w-3.5 h-3.5" />

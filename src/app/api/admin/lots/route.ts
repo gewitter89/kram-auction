@@ -11,6 +11,12 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
       include: {
         seller: { select: { name: true, email: true } },
+        reports: {
+          where: { reason: 'listing_moderation_required' },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { comment: true }
+        },
         _count: { select: { bids: true } }
       }
     })
@@ -56,6 +62,13 @@ export async function PATCH(request: Request) {
       where: { id: lotId },
       data,
     })
+
+    if (action === 'approve' || action === 'reject') {
+      await prisma.report.updateMany({
+        where: { listingId: lot.id, reason: 'listing_moderation_required', status: 'pending' },
+        data: { status: action === 'approve' ? 'action_taken' : 'dismissed' }
+      }).catch(() => {})
+    }
 
     if (action === 'approve') {
       notifyNewLot({ title: lot.title, startPrice: lot.startPrice, id: lot.id }).catch(console.error)
