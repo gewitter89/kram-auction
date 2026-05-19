@@ -480,18 +480,19 @@ function VerificationTab({ user }: { user: any }) {
   const [requested, setRequested] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [city, setCity] = useState('')
+  const [phone, setPhone] = useState('')
+  const [goods, setGoods] = useState('')
 
-  async function requestVerification() {
+  async function requestVerification(e: React.FormEvent) {
+    e.preventDefault()
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/reports', {
+      const res = await fetch('/api/user/verification-request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          listingId: '', // Special case for verification
-          reason: 'Запит на верифікацію профілю' 
-        })
+        body: JSON.stringify({ city, phone, goods })
       })
       if (res.ok) {
         setRequested(true)
@@ -506,10 +507,10 @@ function VerificationTab({ user }: { user: any }) {
   }
 
   return (
-    <div className="max-w-[480px]">
-      <h2 className="text-[18px] font-bold text-[#0B1220] mb-2">Верифікація профілю</h2>
+    <div className="max-w-[560px]">
+      <h2 className="text-[18px] font-bold text-[#0B1220] mb-2">Верифікація продавця</h2>
       <p className="text-[14px] text-[#64748B] mb-6">
-        Верифіковані користувачі отримують позначку <ShieldCheck className="inline-block w-4 h-4 text-[#2563EB]" /> та мають більше довіри від покупців.
+        Верифікація відкриває можливість публікувати лоти та додає більше довіри покупців до профілю продавця.
       </p>
 
       <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-6">
@@ -518,8 +519,8 @@ function VerificationTab({ user }: { user: any }) {
             <ShieldCheck className="w-6 h-6 text-[#2563EB]" />
           </div>
           <div>
-            <h4 className="text-[15px] font-bold text-[#0F172A]">Статус довіри</h4>
-            <p className="text-[12px] text-[#64748B]">Пройдіть перевірку, щоб стати частиною еліти KRAM</p>
+            <h4 className="text-[15px] font-bold text-[#0F172A]">Ручна перевірка модератором</h4>
+            <p className="text-[12px] text-[#64748B]">Без фейкових бейджів: статус підтверджується тільки після перевірки.</p>
           </div>
         </div>
 
@@ -529,35 +530,42 @@ function VerificationTab({ user }: { user: any }) {
               <CheckCircle className="w-4 h-4" /> Запит надіслано
             </p>
             <p className="text-[12px] text-[#10B981]/80">
-              Ми перевіримо ваш профіль протягом 24 годин. Очікуйте на сповіщення.
+              Модератор перевірить профіль. Якщо потрібно — з вами звʼяжуться через email акаунта.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[13px] text-[#0F172A]">
-                <CheckCircle className="w-4 h-4 text-[#10B981]" />
-                <span>Підвищення лімітів ставок</span>
-              </div>
-              <div className="flex items-center gap-2 text-[13px] text-[#0F172A]">
-                <CheckCircle className="w-4 h-4 text-[#10B981]" />
-                <span>Пріоритет у видачі каталогу</span>
-              </div>
-              <div className="flex items-center gap-2 text-[13px] text-[#0F172A]">
-                <CheckCircle className="w-4 h-4 text-[#10B981]" />
-                <span>Більше довіри при Безпечній Угоді</span>
-              </div>
+          <form onSubmit={requestVerification} className="space-y-4">
+            <div>
+              <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Місто</label>
+              <input value={city} onChange={e => setCity(e.target.value)} placeholder="Київ, Львів, Дніпро..."
+                className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-[14px] focus:outline-none focus:border-[#2563EB]" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Телефон для звʼязку</label>
+              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+380..."
+                className="w-full h-11 px-4 bg-white border border-[#E2E8F0] rounded-xl text-[14px] focus:outline-none focus:border-[#2563EB]" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-medium text-[#0F172A] mb-1.5">Що плануєте продавати *</label>
+              <textarea value={goods} onChange={e => setGoods(e.target.value)} rows={4} minLength={10} required
+                placeholder="Наприклад: вживану електроніку, ноутбуки, аксесуари. Товари власні, фото роблю самостійно..."
+                className="w-full px-4 py-3 bg-white border border-[#E2E8F0] rounded-xl text-[14px] focus:outline-none focus:border-[#2563EB] resize-none" />
+              <p className="mt-1 text-[11px] text-[#94A3B8]">Це допоможе модератору швидше прийняти рішення.</p>
+            </div>
+
+            <div className="p-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl text-[12px] text-[#1E40AF]">
+              Після підтвердження профілю ви зможете публікувати лоти. Для дорогих або ризикових категорій модератор може запросити додаткову інформацію.
             </div>
 
             <button
-              onClick={requestVerification}
+              type="submit"
               disabled={loading}
               className="w-full h-11 bg-[#2563EB] text-white rounded-xl text-[14px] font-bold hover:bg-[#1D4ED8] transition-all disabled:opacity-50"
             >
-              {loading ? 'Надсилання...' : 'Подати запит на верифікацію'}
+              {loading ? 'Надсилання...' : 'Подати запит на верифікацію продавця'}
             </button>
             {error && <p className="text-[12px] text-[#EF4444] text-center">{error}</p>}
-          </div>
+          </form>
         )}
       </div>
     </div>
