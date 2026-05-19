@@ -63,12 +63,12 @@ export default function LoginContent() {
           <div className="mb-10">
             <KramLogo variant="dark" />
           </div>
-          <h2 className="text-[28px] font-bold text-white leading-tight mb-4">Чесні торги України</h2>
+          <h2 className="text-[28px] font-bold text-white leading-tight mb-4">Прозорі торги України</h2>
           <p className="text-[16px] text-[#94A3B8] leading-relaxed mb-12">
-            KRAM запускає чесні онлайн-аукціони для продавців і покупців з України. Перші продавці отримують 0% комісії.
+            KRAM допомагає продавцям створювати лоти, покупцям робити ставки, а сторонам домовлятися напряму без платежів через платформу.
           </p>
           <div className="space-y-4">
-            {['Прозора історія ставок і повідомлень', 'Профілі продавців, рейтинг і скарги', 'Доставка за домовленістю сторін'].map((text, i) => (
+            {['Прозора історія ставок і повідомлень', 'Профілі продавців, рейтинг і скарги', 'Оплата й доставка за домовленістю сторін'].map((text, i) => (
               <div key={i} className="flex items-center gap-3 text-[14px] text-[#94A3B8]">
                 <div className="w-8 h-8 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center">
                   <span className="text-[#10B981] text-xs font-bold">{i + 1}</span>
