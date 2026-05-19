@@ -1,17 +1,25 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Package, Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
+import { Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle, AlertTriangle, Edit3 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 
 
-function formatRisk(comment: string) {
+function parseModeration(comment: string) {
   try {
     const parsed = JSON.parse(comment)
-    if (Array.isArray(parsed.reasons)) return parsed.reasons.join(' • ')
-  } catch {}
-  return comment
+    return {
+      reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
+      source: parsed.source,
+      olxUrl: parsed.olxUrl,
+      offerId: parsed.offerId,
+      rejectionReason: parsed.rejectionReason,
+      raw: comment,
+    }
+  } catch {
+    return { reasons: [comment], raw: comment }
+  }
 }
 
 export default function AdminLotsPage() {
@@ -118,14 +126,22 @@ export default function AdminLotsPage() {
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
                   <h3 className="text-[14px] font-bold text-[#0F172A] mb-2 line-clamp-1">{lot.title}</h3>
-                  {lot.reports?.[0]?.comment && (
-                    <div className="mb-3 p-2 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl text-[11px] text-[#92400E]">
-                      <div className="flex items-start gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                        <span>{formatRisk(lot.reports[0].comment)}</span>
+                  {lot.reports?.[0]?.comment && (() => {
+                    const moderation = parseModeration(lot.reports[0].comment)
+                    return (
+                      <div className="mb-3 p-2 bg-[#FFFBEB] border border-[#FDE68A] rounded-xl text-[11px] text-[#92400E] space-y-2">
+                        <div className="flex items-start gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                          <span>{moderation.reasons.length ? moderation.reasons.join(' • ') : 'Потребує перевірки'}</span>
+                        </div>
+                        {moderation.olxUrl && (
+                          <a href={moderation.olxUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#2563EB] font-bold hover:underline">
+                            <ExternalLink className="w-3 h-3" /> Джерело OLX
+                          </a>
+                        )}
                       </div>
-                    </div>
-                  )}
+                    )
+                  })()}
                   <div className="space-y-1.5 mb-4">
                     <div className="flex items-center gap-2 text-[12px] text-[#64748B]">
                       <User className="w-3.5 h-3.5" />
@@ -147,6 +163,13 @@ export default function AdminLotsPage() {
                       className="h-9 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-2 text-[12px] font-bold text-[#64748B] hover:bg-[#F1F5F9]"
                     >
                       <ExternalLink className="w-3.5 h-3.5" /> Переглянути
+                    </Link>
+                    <Link
+                      href={`/lots/${lot.id}/edit`}
+                      target="_blank"
+                      className="h-9 bg-white border border-[#E2E8F0] rounded-lg flex items-center justify-center gap-2 text-[12px] font-bold text-[#64748B] hover:bg-[#F8FAFC]"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" /> Редагувати
                     </Link>
                     {lot.status === 'pending_review' ? (
                       <>

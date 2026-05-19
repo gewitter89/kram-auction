@@ -235,18 +235,24 @@ function MyLotsTab() {
                     <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{lot.views} переглядів</span>
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
                       lot.status === 'active' ? 'bg-[#ECFDF5] text-[#10B981]' :
-                      lot.status === 'sold' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#F1F5F9] text-[#64748B]'
+                      lot.status === 'sold' ? 'bg-[#EFF6FF] text-[#2563EB]' :
+                      lot.status === 'pending_review' ? 'bg-[#FFFBEB] text-[#D97706]' :
+                      lot.status === 'rejected' ? 'bg-[#FEF2F2] text-[#EF4444]' : 'bg-[#F1F5F9] text-[#64748B]'
                     }`}>
-                      {lot.status === 'active' ? 'Активний' : lot.status === 'sold' ? 'Продано' : 'Завершено'}
+                      {lot.status === 'active' ? 'Активний' : lot.status === 'sold' ? 'Продано' : lot.status === 'pending_review' ? 'На модерації' : lot.status === 'rejected' ? 'Відхилено' : 'Завершено'}
                     </span>
                   </div>
                 </Link>
                 <div className="text-right flex-shrink-0 flex flex-col items-end gap-2">
                   <p className="text-[15px] font-bold text-[#0F172A]">{formatPrice(lot.currentPrice)}</p>
                   {['rejected', 'pending_review', 'cancelled'].includes(lot.status) && (
-                    <Link href={`/lots/${lot.id}/edit`} className="text-[11px] font-semibold text-[#2563EB] hover:underline">
-                      Редагувати
-                    </Link>
+                    <div className="flex flex-col items-end gap-1">
+                      {lot.status === 'pending_review' && <span className="text-[10px] text-[#D97706] font-semibold">Очікує рішення модератора</span>}
+                      {lot.status === 'rejected' && <span className="text-[10px] text-[#EF4444] font-semibold">Потрібні правки</span>}
+                      <Link href={`/lots/${lot.id}/edit`} className="text-[11px] font-semibold text-[#2563EB] hover:underline">
+                        Редагувати / повторно надіслати
+                      </Link>
+                    </div>
                   )}
                   <button
                     onClick={() => deleteLot(lot.id)}
