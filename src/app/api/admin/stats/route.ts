@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
-    const [users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun, recentUsers] = await Promise.all([
+    const [users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun, lastEndingSoonRun, recentUsers] = await Promise.all([
       prisma.user.count(),
       prisma.listing.count({ where: { status: 'active' } }),
       prisma.bid.count({ where: { createdAt: { gte: today } } }),
@@ -18,6 +18,11 @@ export async function GET(request: Request) {
       prisma.listing.count({ where: { status: 'active', endsAt: { lte: new Date() } } }),
       prisma.auditLog.findFirst({
         where: { action: { in: ['CRON_CLOSE_AUCTIONS_SUCCESS', 'CRON_CLOSE_AUCTIONS_PARTIAL', 'CRON_CLOSE_AUCTIONS_FAILED'] } },
+        orderBy: { createdAt: 'desc' },
+        select: { action: true, metadata: true, createdAt: true }
+      }),
+      prisma.auditLog.findFirst({
+        where: { action: { in: ['CRON_ENDING_SOON_SUCCESS', 'CRON_ENDING_SOON_PARTIAL', 'CRON_ENDING_SOON_FAILED'] } },
         orderBy: { createdAt: 'desc' },
         select: { action: true, metadata: true, createdAt: true }
       }),
@@ -33,8 +38,13 @@ export async function GET(request: Request) {
       try { cron = { action: lastCronRun.action, createdAt: lastCronRun.createdAt, ...(JSON.parse(lastCronRun.metadata || '{}')) } }
       catch { cron = { action: lastCronRun.action, createdAt: lastCronRun.createdAt } }
     }
+    let endingSoonCron = null
+    if (lastEndingSoonRun) {
+      try { endingSoonCron = { action: lastEndingSoonRun.action, createdAt: lastEndingSoonRun.createdAt, ...(JSON.parse(lastEndingSoonRun.metadata || '{}')) } }
+      catch { endingSoonCron = { action: lastEndingSoonRun.action, createdAt: lastEndingSoonRun.createdAt } }
+    }
 
-    return NextResponse.json({ users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun: cron, recentUsers })
+    return NextResponse.json({ users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun: cron, lastEndingSoonRun: endingSoonCron, recentUsers })
   } catch (error) {
     if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
       return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
