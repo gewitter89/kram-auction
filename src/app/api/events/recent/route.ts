@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { seedListingTitleFilters } from '@/lib/public-listing-filters'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,6 +10,9 @@ export async function GET() {
     const recentBids = await prisma.bid.findMany({
       take: 6,
       orderBy: { createdAt: 'desc' },
+      where: {
+        listing: { NOT: seedListingTitleFilters }
+      },
       include: {
         listing: { select: { title: true } },
         user: { select: { name: true } }
@@ -17,7 +21,7 @@ export async function GET() {
 
     // 2. Fetch recent sold listings (wins)
     const recentWins = await prisma.listing.findMany({
-      where: { status: 'sold' },
+      where: { status: 'sold', NOT: seedListingTitleFilters },
       take: 4,
       orderBy: { endsAt: 'desc' },
       include: {
@@ -34,7 +38,7 @@ export async function GET() {
       type: 'bid',
       name: b.listing.title,
       amount: `+${b.amount.toLocaleString('uk-UA')} ₴`,
-      user: `${b.user.name.slice(0, 4)}***`,
+      user: 'Учас***',
       time: b.createdAt
     }))
 
@@ -44,7 +48,7 @@ export async function GET() {
         type: 'won',
         name: w.title,
         amount: `${w.currentPrice.toLocaleString('uk-UA')} ₴`,
-        user: topBid ? `${topBid.user.name.slice(0, 4)}***` : 'Користувач',
+        user: topBid ? 'Учас***' : 'Користувач',
         time: w.endsAt
       }
     })
