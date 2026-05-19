@@ -6,6 +6,7 @@ import { ensureCoreCategories } from '@/lib/marketplace-checks'
 import { notifyNewLot } from '@/lib/telegram'
 import { publicActiveListingWhere } from '@/lib/public-listing-filters'
 import { analyzeListingRisk } from '@/lib/listing-risk'
+import { notifySavedSearchMatches } from '@/lib/saved-searches'
 import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
 
 export async function GET(request: Request) {
@@ -210,6 +211,7 @@ export async function POST(request: Request) {
       }).catch(() => {})
     } else {
       notifyNewLot({ title: listing.title, startPrice: listing.startPrice, id: listing.id }).catch(console.error)
+      notifySavedSearchMatches(listing.id).catch(console.error)
     }
 
     return NextResponse.json({

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { LotCard } from '@/components/lots/LotCard'
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { Search, SlidersHorizontal, X, BellPlus } from 'lucide-react'
 
 const categories = [
   { slug: 'all', name: 'Всі' },
@@ -29,6 +29,8 @@ export default function CatalogContent() {
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
+  const [savingSearch, setSavingSearch] = useState(false)
+  const [saveSearchMessage, setSaveSearchMessage] = useState('')
 
   const [search, setSearch] = useState(searchParams.get('search') || '')
   const [category, setCategory] = useState(searchParams.get('category') || 'all')
@@ -81,6 +83,27 @@ export default function CatalogContent() {
       delivery: lot.delivery === 'nova_poshta',
       verified: lot.seller?.verified || false,
       featured: lot.featured || false,
+    }
+  }
+
+
+  async function saveCurrentSearch() {
+    setSavingSearch(true)
+    setSaveSearchMessage('')
+    const filters = { search, category, minPrice, maxPrice, city, condition, type }
+    try {
+      const res = await fetch('/api/saved-searches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label: search || 'Пошук KRAM', filters })
+      })
+      const data = await res.json()
+      setSaveSearchMessage(res.ok ? (data.alreadyExists ? 'Цей пошук уже збережено' : 'Пошук збережено') : (data.error || 'Не вдалося зберегти пошук'))
+    } catch {
+      setSaveSearchMessage('Не вдалося зберегти пошук')
+    } finally {
+      setSavingSearch(false)
+      setTimeout(() => setSaveSearchMessage(''), 3000)
     }
   }
 
@@ -218,8 +241,15 @@ export default function CatalogContent() {
                 <option value="price-desc">Найдорожчі</option>
                 <option value="bids">Більше ставок</option>
               </select>
+              {hasActiveFilters && (
+                <button onClick={saveCurrentSearch} disabled={savingSearch} className="h-9 px-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg text-[13px] font-bold text-[#2563EB] hover:bg-[#DBEAFE] disabled:opacity-60 flex items-center gap-1.5">
+                  <BellPlus className="w-4 h-4" /> {savingSearch ? 'Збереження...' : 'Зберегти пошук'}
+                </button>
+              )}
             </div>
           </div>
+
+          {saveSearchMessage && <div className="mb-4 p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[13px] text-[#64748B]">{saveSearchMessage}</div>}
 
           {/* Lots */}
           {loading ? (
