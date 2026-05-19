@@ -123,3 +123,25 @@ export async function sendNewBidNotifyEmail(opts: {
     `),
   })
 }
+
+export async function sendSimpleEventEmail(opts: {
+  to?: string | null
+  subject: string
+  title: string
+  message: string
+  ctaUrl?: string
+  ctaLabel?: string
+}) {
+  if (!opts.to) return
+  const t = createTransport()
+  await t.sendMail({
+    from: FROM,
+    to: opts.to,
+    subject: opts.subject,
+    html: wrap(`
+      <h2 style="margin:0 0 8px;font-size:20px;color:#0B1220;">${opts.title}</h2>
+      <p style="color:#64748B;margin:0 0 20px;line-height:1.6;">${opts.message}</p>
+      ${opts.ctaUrl ? `<a href="${opts.ctaUrl}" style="${btnStyle}">${opts.ctaLabel || 'Відкрити KRAM'} →</a>` : ''}
+    `),
+  })
+}

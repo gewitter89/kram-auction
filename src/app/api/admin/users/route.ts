@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/getCurrentUser'
+import { sendSimpleEventEmail } from '@/lib/email'
+import { absoluteUrl } from '@/lib/site-url'
 
 export async function GET(request: Request) {
   try {
@@ -85,6 +87,8 @@ export async function PATCH(request: Request) {
       await prisma.report.updateMany({ where: { userId, reason: 'user_restriction', status: 'action_taken' }, data: { status: 'resolved' } })
       await prisma.report.create({ data: { userId, listingId: null, reason: 'user_restriction', comment: JSON.stringify({ level, reason }), status: 'action_taken' } })
       await prisma.notification.create({ data: { userId, type: 'account_restriction', title: 'Обмеження акаунта', message: `Ваш акаунт обмежено (${level}). Причина: ${reason}` } }).catch(() => {})
+      const restrictedUser = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } })
+      sendSimpleEventEmail({ to: restrictedUser?.email, subject: '⚠️ Обмеження акаунта KRAM', title: 'Ваш акаунт обмежено', message: `Рівень: ${level}. Причина: ${reason}`, ctaUrl: absoluteUrl('/support'), ctaLabel: 'Звернутися в підтримку' }).catch(console.error)
       await prisma.auditLog.create({ data: { userId, action: 'USER_RESTRICTED', metadata: JSON.stringify({ level, reason }) } }).catch(() => {})
     } else if (action === 'clearRestriction') {
       await prisma.report.updateMany({ where: { userId, reason: 'user_restriction', status: 'action_taken' }, data: { status: 'resolved' } })

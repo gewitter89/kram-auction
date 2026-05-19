@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
+import { sendSimpleEventEmail } from '@/lib/email'
+import { absoluteUrl } from '@/lib/site-url'
 
 export async function POST(request: Request) {
   try {
@@ -76,6 +78,16 @@ export async function POST(request: Request) {
         listingId,
       }
     }).catch(() => {})
+
+    const seller = await prisma.user.findUnique({ where: { id: sellerId }, select: { email: true } })
+    sendSimpleEventEmail({
+      to: seller?.email,
+      subject: '⭐ Новий відгук на KRAM',
+      title: 'Ви отримали новий відгук',
+      message: `Покупець залишив оцінку ${numericRating}/5 за завершену домовленість.`,
+      ctaUrl: absoluteUrl(`/user/${sellerId}`),
+      ctaLabel: 'Переглянути профіль'
+    }).catch(console.error)
 
     return NextResponse.json({ message: 'Відгук додано успішно', review }, { status: 201 })
   } catch (error) {

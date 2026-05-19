@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/getCurrentUser'
 import { notifyNewLot } from '@/lib/telegram'
+import { sendSimpleEventEmail } from '@/lib/email'
+import { absoluteUrl } from '@/lib/site-url'
 
 export async function GET(request: Request) {
   try {
@@ -40,7 +42,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'lotId is required' }, { status: 400 })
     }
 
-    const existingLot = await prisma.listing.findUnique({ where: { id: lotId }, select: { duration: true, title: true, startPrice: true, status: true } })
+    const existingLot = await prisma.listing.findUnique({ where: { id: lotId }, select: { duration: true, title: true, startPrice: true, status: true, seller: { select: { email: true, name: true } } } })
     if (!existingLot) return NextResponse.json({ error: 'Lot not found' }, { status: 404 })
 
     const actionMap: Record<string, { status?: string; featured?: boolean; endsAt?: Date }> = {
@@ -84,6 +86,14 @@ export async function PATCH(request: Request) {
           listingId: lot.id,
         }
       }).catch(() => {})
+      sendSimpleEventEmail({
+        to: existingLot.seller.email,
+        subject: `✅ Лот опубліковано — ${lot.title}`,
+        title: 'Лот пройшов модерацію',
+        message: `Ваш лот "${lot.title}" доступний у каталозі KRAM.`,
+        ctaUrl: absoluteUrl(`/lot/${lot.id}`),
+        ctaLabel: 'Переглянути лот'
+      }).catch(console.error)
     }
 
     if (action === 'reject') {
@@ -96,6 +106,14 @@ export async function PATCH(request: Request) {
           listingId: lot.id,
         }
       }).catch(() => {})
+      sendSimpleEventEmail({
+        to: existingLot.seller.email,
+        subject: `❌ Лот потребує виправлення — ${lot.title}`,
+        title: 'Лот не пройшов модерацію',
+        message: `Ваш лот "${lot.title}" потрібно виправити.${reason ? ` Причина: ${String(reason).slice(0, 300)}.` : ''}`,
+        ctaUrl: absoluteUrl(`/lots/${lot.id}/edit`),
+        ctaLabel: 'Редагувати лот'
+      }).catch(console.error)
     }
 
     await prisma.auditLog.create({
