@@ -139,3 +139,25 @@ npm run build
 ### Чому це важливо
 
 Для реального marketplace найболючіші місця перед запуском — фото з телефону, доверие к сделке, и аккуратная модерация. Этот пакет закрывает именно эти риски: фото меньше падают, покупателю не показывается фейковая sandbox-оплата, админ может модерировать без разрушительного удаления.
+
+## Четвертий пакет правок — launch preflight and production QA
+
+### Зроблено у четвертому пакеті
+
+- Додано production preflight script:
+  - `scripts/production-preflight.ts`;
+  - npm-команда `npm run preflight:prod`;
+  - перевіряє env, DB connectivity, readiness, Cloudinary, cron secret, auth secret, admin, categories, pending reports, expired auctions, obvious test users/listings.
+- Додано public smoke Playwright test:
+  - `tests/public-smoke.spec.ts`;
+  - npm-команда `npm run test:smoke`;
+  - перевіряє головні публічні сторінки, відсутність beta/demo/test positioning, мобільний overflow, mobile catalog filters.
+- Додано `LIVE_LAUNCH_CHECKLIST.md` з чітким порядком запуску в production.
+- Зроблено production-safe delete для лотів:
+  - якщо у лота вже є ставки або угоди, delete більше не стирає історію;
+  - такий лот переводиться в `cancelled`/hidden state;
+  - повне видалення залишається тільки для лотів без історії.
+
+### Чому це важливо
+
+Перед публічним запуском потрібен не тільки build, а контроль готовности среды. Этот пакет добавляет gate перед запуском: env, база, фото-хранилище, категории, admin, cron, отсутствие тестового мусора и smoke-тест публичного UI.
