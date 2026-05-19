@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
 import { placeBid } from '@/server/auction/placeBid'
+import { bidSchema, validateBody } from '@/lib/validation'
 import { requireAuth } from '@/lib/getCurrentUser'
 import { isRateLimited } from '@/lib/rateLimit'
 
@@ -22,18 +22,25 @@ export async function POST(request: Request) {
     if (await isRateLimited(`bid:${user.id}`, 10, 60_000)) {
       return NextResponse.json({ error: 'Занадто багато спроб. Спробуйте через кілька секунд.' }, { status: 429 })
     }
-    const { listingId, amount, isAuto, autoMax } = await request.json()
-
-    if (!listingId || !amount) {
-      return NextResponse.json({ error: 'Вкажіть лот та суму' }, { status: 400 })
+    const body = await request.json()
+    const validation = validateBody(bidSchema, {
+      ...body,
+      amount: Number(body?.amount),
+      autoMax: body?.autoMax === null || body?.autoMax === '' || body?.autoMax === undefined ? undefined : Number(body.autoMax),
+      isAuto: Boolean(body?.isAuto),
+    })
+    if (validation.error) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
+
+    const { listingId, amount, isAuto, autoMax } = validation.data!
 
     const result = await placeBid({
       userId: user.id,
       listingId,
-      amount: Number(amount),
+      amount,
       isAuto: Boolean(isAuto),
-      autoMax: autoMax ? Number(autoMax) : undefined
+      autoMax
     })
 
     if (!result.success) {

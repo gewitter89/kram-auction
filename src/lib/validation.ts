@@ -16,20 +16,38 @@ export const registerSchema = z.object({
   phone: z.string().optional(),
 })
 
+const optionalPositiveNumber = z.preprocess(
+  value => value === null || value === '' ? undefined : value,
+  z.number().positive().optional()
+)
+
+const imageUrlSchema = z.string().refine(
+  value => {
+    try {
+      new URL(value)
+      return true
+    } catch {
+      return value.startsWith('/uploads/')
+    }
+  },
+  'Некоректне посилання на фото'
+)
+
 // Create lot validation schema
 export const createLotSchema = z.object({
-  title: z.string().min(5, 'Назва має бути від 5 символів').max(100),
-  description: z.string().max(2000).optional(),
+  title: z.string().min(5, 'Назва має бути від 5 символів').max(120),
+  description: z.string().min(20, 'Опис має бути від 20 символів').max(2000),
   categoryId: z.string().min(1, 'Категорія обов\'язкова'),
-  condition: z.enum(['new', 'used', 'like_new']),
+  condition: z.enum(['new', 'used', 'like_new', 'for_parts']),
   startPrice: z.number().positive('Початкова ціна має бути додатньою'),
-  buyNowPrice: z.number().positive().optional(),
-  reservePrice: z.number().positive().optional(),
+  buyNowPrice: optionalPositiveNumber,
+  reservePrice: optionalPositiveNumber,
+  featured: z.boolean().optional(),
   minIncrement: z.number().min(1).default(10),
   duration: z.number().min(1).max(30, 'Тривалість не більше 30 днів'),
   city: z.string().min(2).max(50),
-  delivery: z.enum(['nova_poshta', 'ukrposhta', 'pickup']),
-  images: z.array(z.string().url()).max(10, 'Максимум 10 фото').optional(),
+  delivery: z.enum(['nova_poshta', 'ukrposhta', 'pickup', 'both']),
+  images: z.array(imageUrlSchema).max(8, 'Максимум 8 фото').optional(),
 })
 
 // Message validation schema

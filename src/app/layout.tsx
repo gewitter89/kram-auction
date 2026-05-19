@@ -7,6 +7,9 @@ import { siteUrl } from '@/lib/site-url'
 const inter = Inter({ subsets: ['latin', 'cyrillic'] })
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
   themeColor: '#2563EB',
 }
 

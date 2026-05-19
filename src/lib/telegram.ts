@@ -26,7 +26,7 @@ export async function sendTelegramMessage(chatId: string, text: string, options?
   }
 }
 
-export async function notifyNewLot(listing: { title: string; startingPrice: number; id: string }) {
+export async function notifyNewLot(listing: { title: string; startPrice: number; id: string }) {
   const subscribers = await prisma.telegramSubscription.findMany({
     where: { isActive: true }
   })
@@ -35,7 +35,7 @@ export async function notifyNewLot(listing: { title: string; startingPrice: numb
 🔔 <b>Новий лот на KRAM!</b>
 
 📦 <b>${listing.title}</b>
-💰 Стартова ціна: ${listing.startingPrice} грн
+💰 Стартова ціна: ${listing.startPrice} грн
 
 <a href="${absoluteUrl(`/lot/${listing.id}`)}">Переглянути лот →</a>
   `.trim()

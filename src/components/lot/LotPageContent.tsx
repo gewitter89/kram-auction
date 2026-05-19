@@ -194,7 +194,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
     if (bidsHistory.length < 2) return null
     // Chronological: oldest first
     const sortedBids = [...bidsHistory].reverse()
-    const minVal = lot.startingPrice || sortedBids[0].amount * 0.9
+    const minVal = lot.startPrice || sortedBids[0].amount * 0.9
     const maxVal = currentPrice
     const valRange = maxVal - minVal || 1
 
@@ -325,7 +325,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                     </span>
                     Графік росту ціни
                   </span>
-                  <span>Початкова: {formatPrice(lot.startingPrice || trend.points[0].amount)}</span>
+                  <span>Початкова: {formatPrice(lot.startPrice || trend.points[0].amount)}</span>
                 </div>
                 <div className="relative w-full h-[120px]">
                   <svg className="w-full h-full overflow-visible" viewBox="0 0 500 120" preserveAspectRatio="none">

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
+import { createLotSchema, validateBody } from '@/lib/validation'
 
 export async function GET(request: Request) {
   try {
@@ -113,15 +114,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
-    const data = await request.json()
-    const { title, description, categoryId, condition, startPrice, buyNowPrice, reservePrice, featured, minIncrement, duration, city, delivery, images } = data
-
-    if (!title || !startPrice || !duration) {
-      return NextResponse.json({ error: "Заповніть обовʼязкові поля" }, { status: 400 })
+    const body = await request.json()
+    const validation = validateBody(createLotSchema, body)
+    if (validation.error) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    let category = await prisma.category.findFirst({ where: { name: categoryId } })
+    const { title, description, categoryId, condition, startPrice, buyNowPrice, reservePrice, featured, minIncrement, duration, city, delivery, images } = validation.data!
+
+    let category = await prisma.category.findFirst({
+      where: {
+        OR: [
+          { name: categoryId },
+          { slug: categoryId },
+        ]
+      }
+    })
     if (!category) category = await prisma.category.findFirst()
+    if (!category) {
+      return NextResponse.json({ error: 'Категорії не налаштовані. Запустіть seed або створіть категорії в адмінці.' }, { status: 500 })
+    }
 
     const endsAt = new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000)
 
@@ -130,7 +142,7 @@ export async function POST(request: Request) {
         title,
         description: description || '',
         images: JSON.stringify(images || []),
-        categoryId: category!.id,
+        categoryId: category.id,
         sellerId: userId,
         condition: condition || 'used',
         city: city || '',

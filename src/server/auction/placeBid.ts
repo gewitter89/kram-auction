@@ -257,7 +257,7 @@ export async function placeBid(params: {
         return { success: false, error: 'Ставку перебито іншим користувачем. Будь ласка, спробуйте ще раз.' }
       }
       if (msg === 'NOT_FOUND_OR_ENDED') {
-        return { success: false, error: 'Лот не знавно або завершено' }
+        return { success: false, error: 'Лот не знайдено або завершено' }
       }
       if (msg === 'AUCTION_ENDED') {
         return { success: false, error: 'Аукціон завершено' }
