@@ -6,7 +6,9 @@ import { createTransactionFromAuctionWin } from '@/lib/transaction-service'
 // This route is called by a cron job or manually to close expired auctions
 // Protect with a secret token
 export async function GET(request: NextRequest) {
-  const token = request.headers.get('x-cron-secret') || request.nextUrl.searchParams.get('secret')
+  const authHeader = request.headers.get('authorization')
+  const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const token = request.headers.get('x-cron-secret') || bearer || request.nextUrl.searchParams.get('secret')
 
   // Allow local calls or valid token
   const cronSecret = process.env.CRON_SECRET

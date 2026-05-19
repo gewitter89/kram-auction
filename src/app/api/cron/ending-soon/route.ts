@@ -4,7 +4,9 @@ import { absoluteUrl } from '@/lib/site-url'
 import { sendSimpleEventEmail } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
-  const token = request.headers.get('x-cron-secret') || request.nextUrl.searchParams.get('secret')
+  const authHeader = request.headers.get('authorization')
+  const bearer = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+  const token = request.headers.get('x-cron-secret') || bearer || request.nextUrl.searchParams.get('secret')
   const cronSecret = process.env.CRON_SECRET
   if (!cronSecret) return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 500 })
   if (token !== cronSecret) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
