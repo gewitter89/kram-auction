@@ -161,3 +161,19 @@ npm run build
 ### Чому це важливо
 
 Перед публічним запуском потрібен не тільки build, а контроль готовности среды. Этот пакет добавляет gate перед запуском: env, база, фото-хранилище, категории, admin, cron, отсутствие тестового мусора и smoke-тест публичного UI.
+
+## Пʼятий оперативний пакет — live production cleanup after merge
+
+Після merge PR #5 live-перевірка показала, що production вже отримав нові тексти і mobile overflow виправлений, але публічні блоки ще показували seed/smoke лоти з production DB (`Smoke Test...`, `Test Seller`) і label `Демо-лот` у hero preview.
+
+### Зроблено
+
+- Додано `src/lib/public-listing-filters.ts` з фільтрами seed/test/smoke лотів.
+- `/api/lots` тепер за замовчуванням не повертає лоти з назвами `Smoke Test`, `QA`, `Test`; для адмін/діагностики можна передати `includeSeed=1`.
+- `/api/stats` рахує public activeLots без seed/test/smoke лотів.
+- Hero preview label `Демо-лот` замінено на нейтральне `Приклад`.
+- Placeholder `Демонстраційний товар` у live-card fallback замінено на `Фото очікується`.
+
+### Навіщо
+
+Навіть якщо в production DB залишились тестові записи, публічний каталог/головна не должны выглядеть как demo. Это временная защита UI/API до полной очистки production DB через admin/preflight.

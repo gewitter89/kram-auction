@@ -151,7 +151,7 @@ export function HeroSection() {
                           {lot.category}
                         </span>
                         <span className="text-[10px] font-bold text-[#EF4444] bg-[#FEF2F2] px-2 py-0.5 rounded-full uppercase tracking-wide">
-                          Демо-лот
+Приклад
                         </span>
                       </div>
                       

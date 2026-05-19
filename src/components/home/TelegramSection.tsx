@@ -155,7 +155,7 @@ export function LiveAuctionsNow() {
                           <Gavel className="w-5 h-5 text-[#2563EB]" />
                         </div>
                         <span className="text-[12px] font-bold text-[#2563EB] tracking-[0.1em] uppercase">KRAM</span>
-                        <span className="text-[11px] text-[#475569] mt-0.5">Демонстраційний товар</span>
+                        <span className="text-[11px] text-[#475569] mt-0.5">Фото очікується</span>
                       </div>
                     )}
 

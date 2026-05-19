@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth-config'
 import { createLotSchema, validateBody } from '@/lib/validation'
 import { ensureCoreCategories } from '@/lib/marketplace-checks'
 import { notifyNewLot } from '@/lib/telegram'
+import { publicActiveListingWhere } from '@/lib/public-listing-filters'
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +12,9 @@ export async function GET(request: Request) {
     const page = Number(searchParams.get('page')) || 1
     const limit = Number(searchParams.get('limit')) || 20
     
-    const where: any = { status: 'active' }
+    const includeSeed = searchParams.get('includeSeed') === '1'
+    const where: any = publicActiveListingWhere(includeSeed)
+
 
     // Text search
     const search = searchParams.get('search')

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { publicActiveListingWhere } from '@/lib/public-listing-filters'
 
 export async function GET(request: Request) {
   try {
@@ -7,13 +8,13 @@ export async function GET(request: Request) {
     today.setHours(0, 0, 0, 0)
 
     const [activeLots, totalUsers, bidsToday, categoryGroup] = await Promise.all([
-      prisma.listing.count({ where: { status: 'active' } }),
+      prisma.listing.count({ where: publicActiveListingWhere() }),
       prisma.user.count(),
       prisma.bid.count({ where: { createdAt: { gte: today } } }),
       prisma.listing.groupBy({
         by: ['categoryId'],
         _count: { id: true },
-        where: { status: 'active' }
+        where: publicActiveListingWhere()
       })
     ])
 
