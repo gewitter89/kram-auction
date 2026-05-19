@@ -20,6 +20,7 @@ export default function LaunchPage() {
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [testEmail, setTestEmail] = useState('')
+  const [cronResult, setCronResult] = useState('')
 
   async function load() {
     setLoading(true)
@@ -36,6 +37,19 @@ export default function LaunchPage() {
 
   async function copyEnv() {
     await navigator.clipboard.writeText(REQUIRED_ENV.join('\n'))
+  }
+
+
+  async function runCron(job: 'close-auctions' | 'ending-soon') {
+    setCronResult(`Запуск ${job}...`)
+    const res = await fetch('/api/admin/run-cron', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ job })
+    })
+    const data = await res.json()
+    setCronResult(res.ok ? `${job}: ${JSON.stringify(data.result)}` : `${job}: ${data.error || 'Помилка'}`)
+    await load()
   }
 
   async function sendTestEmail() {
@@ -111,7 +125,16 @@ export default function LaunchPage() {
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         <ActionCard icon={Cloud} title="Cloudinary" text="Потрібен для production-завантаження фото." href="/admin/readiness" />
-        <ActionCard icon={TimerReset} title="Cron jobs" text="Налаштуйте close-auctions і ending-soon у Vercel Cron." href="/admin" />
+        <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6">
+          <TimerReset className="w-7 h-7 text-[#2563EB] mb-3" />
+          <h3 className="text-[16px] font-bold text-[#0B1220] mb-1">Cron jobs</h3>
+          <p className="text-[13px] text-[#64748B] mb-4">Ручний запуск cron без розкриття CRON_SECRET.</p>
+          <div className="flex flex-col gap-2">
+            <button onClick={() => runCron('close-auctions')} className="h-10 px-4 rounded-xl bg-[#0B1220] text-white text-[13px] font-bold">Test close-auctions</button>
+            <button onClick={() => runCron('ending-soon')} className="h-10 px-4 rounded-xl bg-[#EFF6FF] text-[#2563EB] text-[13px] font-bold border border-[#BFDBFE]">Test ending-soon</button>
+          </div>
+          {cronResult && <p className="mt-3 text-[11px] text-[#64748B] break-words">{cronResult}</p>}
+        </div>
         <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6">
           <Mail className="w-7 h-7 text-[#2563EB] mb-3" />
           <h3 className="text-[16px] font-bold text-[#0B1220] mb-1">Email</h3>
