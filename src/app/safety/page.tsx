@@ -3,7 +3,7 @@ import { ShieldCheck, AlertTriangle, MessageCircle, XCircle, Truck, Info, Phone 
 
 export const metadata = {
   title: 'Безпека на KRAM | KRAM',
-  description: 'Поради та правила безпечних прямих домовленостей на українській beta-платформі KRAM',
+  description: 'Поради та правила безпечних прямих домовленостей на українській платформі KRAM',
 }
 
 export default function SafetyPage() {

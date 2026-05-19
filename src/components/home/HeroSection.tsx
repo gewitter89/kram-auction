@@ -53,7 +53,7 @@ export function HeroSection() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
               </span>
               <span className="text-[12px] font-bold text-[#475569]">
-                {activeLots === null ? 'Beta-режим' : activeLots > 0 ? `${activeLots} активних лотів` : 'Beta-режим активовано'}
+                {activeLots === null ? 'Торги онлайн' : activeLots > 0 ? `${activeLots} активних лотів` : 'Торги активні'}
               </span>
             </div>
 
@@ -64,7 +64,7 @@ export function HeroSection() {
 
             {/* Subheadline */}
             <p className="text-[15.5px] sm:text-[16.5px] text-[#475569] leading-relaxed mb-8 max-w-[560px] mx-auto lg:mx-0">
-              Створюйте лоти, робіть ставки та знаходьте покупців у beta-режимі. KRAM не приймає оплату через платформу — сторони домовляються напряму.
+              Створюйте лоти, робіть ставки та знаходьте покупців на прозорій українській платформі торгів. KRAM фіксує історію ставок, а оплату й доставку сторони погоджують напряму.
             </p>
 
             {/* Actions */}
@@ -95,7 +95,7 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 max-w-[560px]">
               <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-white border border-[#E2E8F0] rounded-full text-[11px] font-semibold text-[#475569] shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
-                Beta-запуск
+                0% комісії на старті
               </span>
               <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[11px] font-semibold text-[#2563EB]">
                 <CheckCircle className="w-3.5 h-3.5" />

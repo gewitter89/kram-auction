@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth-config'
 import { createLotSchema, validateBody } from '@/lib/validation'
+import { ensureCoreCategories } from '@/lib/marketplace-checks'
+import { notifyNewLot } from '@/lib/telegram'
 
 export async function GET(request: Request) {
   try {
@@ -130,9 +132,20 @@ export async function POST(request: Request) {
         ]
       }
     })
+    if (!category) {
+      await ensureCoreCategories()
+      category = await prisma.category.findFirst({
+        where: {
+          OR: [
+            { name: categoryId },
+            { slug: categoryId },
+          ]
+        }
+      })
+    }
     if (!category) category = await prisma.category.findFirst()
     if (!category) {
-      return NextResponse.json({ error: 'Категорії не налаштовані. Запустіть seed або створіть категорії в адмінці.' }, { status: 500 })
+      return NextResponse.json({ error: 'Категорії не налаштовані. Зверніться до адміністратора.' }, { status: 500 })
     }
 
     const endsAt = new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000)
@@ -158,6 +171,8 @@ export async function POST(request: Request) {
         endsAt,
       }
     })
+
+    notifyNewLot({ title: listing.title, startPrice: listing.startPrice, id: listing.id }).catch(console.error)
 
     return NextResponse.json({ message: 'Лот створено!', id: listing.id }, { status: 201 })
   } catch (error) {

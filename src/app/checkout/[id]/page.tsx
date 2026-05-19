@@ -256,7 +256,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               <div className="space-y-4">
                 <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl mb-6">
                   <div className="flex items-center gap-2 text-[#1E40AF] font-bold text-[14px] mb-1">
-                    📢 Beta-режим платформи KRAM
+                    📢 Режим прямих домовленостей KRAM
                   </div>
                   <p className="text-[12px] text-[#1E40AF]/90 leading-relaxed">
                     KRAM наразі не приймає онлайн-платежі, не утримує кошти та не бере комісії. Ви оформлюєте прямий запит продавцю. Після підтвердження ви зможете зв'язатися з продавцем через чат KRAM для узгодження оплати (наприклад, післяплати на пошті) та доставки.
@@ -328,7 +328,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               </div>
               <div className="flex justify-between text-[13px]">
                 <span className="text-[#64748B]">Комісія сервісу</span>
-                <span className="text-[#10B981] font-medium">0 ₴ (Beta-запуск)</span>
+                <span className="text-[#10B981] font-medium">0 ₴</span>
               </div>
             </div>
 

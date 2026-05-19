@@ -68,3 +68,51 @@ npm run build
 ```
 
 Після успішних перевірок — commit, push/PR, redeploy на Vercel і повторний live QA.
+
+## Другий пакет правок — professional marketplace hardening
+
+Додано після аналізу патернів eBay/OLX/classified-аукціонів: trust signals above the fold, seller verification, report flow, moderation queue, transparent fees, mobile tap targets, readiness checklist.
+
+### Зроблено у другому пакеті
+
+- Додано `src/lib/marketplace-checks.ts`:
+  - список обовʼязкових core-категорій;
+  - auto-create базових категорій;
+  - production readiness checklist.
+- Додано admin API:
+  - `GET /api/admin/readiness` — перевірка готовності production;
+  - `POST /api/admin/categories/ensure` — створення базових категорій без ручного seed.
+- Розширено `/admin` dashboard:
+  - блок Production readiness;
+  - перевірки Cloudinary, CRON_SECRET, AUTH_SECRET, admin user, категорій, pending reports, expired auctions;
+  - кнопка створення базових категорій.
+- Покращено створення лотів:
+  - якщо категорії відсутні, API автоматично створює core-набір;
+  - після створення лота запускається best-effort Telegram notification через `notifyNewLot`.
+- Покращено купівлю “Купити зараз”:
+  - перехід на `requireAuth`;
+  - rate limit для buy flow;
+  - валідація `listingId`.
+- Покращено report flow:
+  - reason і comment тепер передаються окремо;
+  - виправлено callbackUrl при спробі поскаржитись без логіну.
+- Покращено bidding service:
+  - прибрано дубльований rate-limit у service layer, щоб один клік ставки не рахувався двічі.
+- Покращено mobile catalog UX:
+  - фільтри/toolbar краще складаються на телефоні;
+  - select не розпирає ширину.
+- Прибрано beta-позиционирование из пользовательских текстов и заменено на модель “прямые договоренности / classified”.
+- Оставлены demo/test элементы только там, где они скрыты env-флагом или относятся к admin cleanup/payment sandbox.
+
+### Ориентир по похожим площадкам
+
+Для KRAM сейчас правильная production-модель — не обещать escrow/гарантию платежа, если платформа реально не принимает деньги. Поэтому UI должен честно показывать:
+
+- seller verification/status;
+- рейтинг и количество сделок;
+- прозрачную историю ставок;
+- простую кнопку жалобы;
+- предупреждения против предоплаты и сторонних ссылок;
+- понятный кабинет сделки;
+- модерацию и readiness-проверку для администратора.
+

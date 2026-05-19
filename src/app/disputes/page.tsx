@@ -3,7 +3,7 @@ import { AlertTriangle, Shield, CheckCircle, MessageSquare } from 'lucide-react'
 
 export const metadata = {
   title: 'Вирішення спорів | KRAM',
-  description: 'Порядок врегулювання розбіжностей та подання скарг на інформаційній beta-платформі KRAM.',
+  description: 'Порядок врегулювання розбіжностей та подання скарг на інформаційній платформі KRAM.',
 }
 
 export default function DisputesPage() {
@@ -14,7 +14,7 @@ export default function DisputesPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full mb-4">
             <AlertTriangle className="w-4 h-4 text-[#2563EB]" />
-            <span className="text-[12px] font-medium text-[#2563EB]">Beta-режим платформи</span>
+            <span className="text-[12px] font-medium text-[#2563EB]">Режим прямих домовленостей</span>
           </div>
           <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Скарги та врегулювання суперечок</h1>
           <p className="text-[#64748B]">

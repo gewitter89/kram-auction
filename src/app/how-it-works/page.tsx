@@ -14,7 +14,7 @@ export default function HowItWorksPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FEF3C7] border border-[#F59E0B]/20 rounded-full mb-4">
             <AlertTriangle className="w-4 h-4 text-[#D97706]" />
-            <span className="text-[12px] font-medium text-[#D97706]">Beta-версія платформи</span>
+            <span className="text-[12px] font-medium text-[#D97706]">Платформа прямих торгів</span>
           </div>
           <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Як це працює</h1>
           <p className="text-[#64748B]">

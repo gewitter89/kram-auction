@@ -40,7 +40,7 @@ const freeFeatures: Feature[] = [
 const faqs = [
   {
     q: 'Чому всі функції KRAM є безкоштовними?',
-    a: 'Наразі KRAM працює в режимі beta-тестування для перевірки попиту на онлайн-торги в Україні. Ми не приймаємо платежі та не стягуємо комісій, щоб кожен міг спробувати платформу абсолютно безпечно та безкоштовно.',
+    a: 'KRAM працює за моделлю прямих домовленостей: ми не приймаємо платежі та не стягуємо комісій. Користувачі можуть створювати лоти, робити ставки й домовлятися напряму.',
   },
   {
     q: 'Чи потрібно вводити дані банківської картки при реєстрації?',
@@ -48,7 +48,7 @@ const faqs = [
   },
   {
     q: 'Чи планується введення платних підписок у майбутньому?',
-    a: 'Під час beta-періоду платформа є повністю безкоштовною. Якщо в майбутньому з\'являться додаткові преміум-сервіси (наприклад, пріоритетне просування або VIP-оформлення), вони підключатимуться виключно за вашим бажанням. Основні функції торгів завжди залишаться доступними.',
+    a: 'Поточні основні функції платформи є безкоштовними. Якщо в майбутньому з\'являться додаткові преміум-сервіси (наприклад, пріоритетне просування або VIP-оформлення), вони підключатимуться виключно за вашим бажанням.',
   },
   {
     q: 'Як захистити свої кошти під час угоди?',
@@ -72,13 +72,13 @@ export function FeesPageContent() {
         <div className="text-center max-w-[800px] mx-auto mb-16">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full mb-4">
             <Award className="w-4 h-4 text-[#2563EB]" />
-            <span className="text-[11px] font-bold text-[#2563EB] tracking-wider uppercase">Beta-запуск платформи</span>
+            <span className="text-[11px] font-bold text-[#2563EB] tracking-wider uppercase">Прозорі умови платформи</span>
           </div>
           <h1 className="text-[36px] sm:text-[44px] font-black text-[#0B1220] tracking-tight mb-4 leading-tight">
             Прозорі умови без <span className="bg-gradient-to-r from-[#2563EB] to-emerald-600 bg-clip-text text-transparent">жодних комісій</span>
           </h1>
           <p className="text-[15px] sm:text-[16px] text-[#64748B] leading-relaxed">
-            Під час тестування beta-версії KRAM усі функції, лоти та ставки є повністю безкоштовними. Ми не приймаємо платежі та не стягуємо відсотків з угод.
+            KRAM не приймає платежі та не стягує відсотків з угод. Лоти, ставки та повідомлення фіксуються на платформі, а розрахунки сторони погоджують напряму.
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export function FeesPageContent() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <Sparkle className="w-5 h-5 text-emerald-400 animate-pulse" />
-                <span className="text-emerald-400 text-[12px] font-extrabold uppercase tracking-widest">Тариф "Beta-Старт"</span>
+                <span className="text-emerald-400 text-[12px] font-extrabold uppercase tracking-widest">Тариф "Старт"</span>
               </div>
               <h2 className="text-[28px] sm:text-[34px] font-black tracking-tight leading-none mb-3">
                 Повний доступ за 0 ₴
@@ -119,7 +119,7 @@ export function FeesPageContent() {
             <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 backdrop-blur-md">
               <h3 className="text-[16px] font-black mb-4 flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[#2563EB]" />
-                Чесний Beta-режим
+                Пряма модель без комісій
               </h3>
               <ul className="space-y-3.5">
                 <li className="flex items-start gap-2.5 text-[13px] text-slate-200">

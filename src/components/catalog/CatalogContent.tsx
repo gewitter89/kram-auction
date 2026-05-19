@@ -125,7 +125,7 @@ export default function CatalogContent() {
         ))}
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Filters sidebar */}
         <aside className={`${showFilters ? 'block' : 'hidden'} lg:block w-full lg:w-[260px] flex-shrink-0`}>
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-5 sticky top-[80px]">
@@ -199,11 +199,11 @@ export default function CatalogContent() {
 
         <div className="flex-1 min-w-0">
           {/* Toolbar */}
-          <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <div className="text-[13px] text-[#64748B]">
               <strong className="text-[#0F172A]">{total}</strong> {total === 1 ? 'лот' : total >= 2 && total <= 4 ? 'лоти' : 'лотів'}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className="lg:hidden flex items-center gap-1.5 h-9 px-3 bg-white border border-[#E2E8F0] rounded-lg text-[13px] font-medium"
@@ -211,7 +211,7 @@ export default function CatalogContent() {
                 <SlidersHorizontal className="w-4 h-4" /> Фільтри
               </button>
               <select value={sort} onChange={e => setSort(e.target.value)}
-                className="h-9 px-3 bg-white border border-[#E2E8F0] rounded-lg text-[13px] font-medium focus:outline-none focus:border-[#2563EB]">
+                className="h-9 max-w-full px-3 bg-white border border-[#E2E8F0] rounded-lg text-[13px] font-medium focus:outline-none focus:border-[#2563EB]">
                 <option value="ending">Завершуються скоро</option>
                 <option value="new">Найновіші</option>
                 <option value="price-asc">Найдешевші</option>

@@ -14,7 +14,7 @@ export default function AboutPage() {
         <div className="mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#FEF3C7] border border-[#F59E0B]/20 rounded-full mb-4">
             <AlertTriangle className="w-4 h-4 text-[#D97706]" />
-            <span className="text-[12px] font-medium text-[#D97706]">Beta-версія платформи</span>
+            <span className="text-[12px] font-medium text-[#D97706]">Платформа прямих торгів</span>
           </div>
           <h1 className="text-[32px] font-bold text-[#0B1220] mb-4">Про маркетплейс KRAM</h1>
           <p className="text-[#64748B]">
@@ -53,7 +53,7 @@ export default function AboutPage() {
           <section>
             <h2 className="text-[20px] font-bold text-[#0B1220] mb-4">Наш підхід до запуску</h2>
             <p className="text-[#475569] leading-relaxed">
-              Ми запускаємо KRAM поетапно. На стадії **Beta** ми перевіряємо стабільність навантаження торгів, швидкість сповіщень та зручність мобільного інтерфейсу. Перші продавці отримують **0% комісії**, а реальний платіжний холдинг коштів через банківський процесинг буде підключено на наступному кроці.
+              Ми запускаємо KRAM поетапно. На етапі **публічного запуску** ми перевіряємо стабільність навантаження торгів, швидкість сповіщень та зручність мобільного інтерфейсу. Перші продавці отримують **0% комісії**, а реальний платіжний холдинг коштів через банківський процесинг буде підключено на наступному кроці.
             </p>
           </section>
         </div>

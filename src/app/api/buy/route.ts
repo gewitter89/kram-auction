@@ -1,19 +1,21 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
 import { createTransactionFromBuyNow } from '@/lib/transaction-service'
 import { broadcast } from '@/lib/realtime-server'
+import { requireAuth } from '@/lib/getCurrentUser'
+import { isRateLimited } from '@/lib/rateLimit'
 
 export async function POST(request: Request) {
   try {
-    const session = await auth()
-    const userId = session?.user?.id
-    if (!userId) {
-      return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
+    const user = await requireAuth()
+    const userId = user.id
+
+    if (await isRateLimited(`buy:${userId}`, 8, 60_000)) {
+      return NextResponse.json({ error: 'Занадто багато спроб. Спробуйте через кілька секунд.' }, { status: 429 })
     }
 
     const { listingId } = await request.json()
-    if (!listingId) return NextResponse.json({ error: 'Вкажіть лот' }, { status: 400 })
+    if (!listingId || typeof listingId !== 'string') return NextResponse.json({ error: 'Вкажіть лот' }, { status: 400 })
 
     // Get listing for event
     const listing = await prisma.listing.findUnique({ where: { id: listingId } })
@@ -33,7 +35,7 @@ export async function POST(request: Request) {
       type: 'won',
       name: listing.title,
       amount: `${transaction.amount.toLocaleString('uk-UA')} ₴`,
-      user: (session?.user?.name || 'Учасник').slice(0, 3) + '***' + userId.slice(-2)
+      user: (user.name || 'Учасник').slice(0, 3) + '***' + userId.slice(-2)
     })
 
     return NextResponse.json({ 
@@ -45,6 +47,9 @@ export async function POST(request: Request) {
     console.error('Buy Now error:', error)
     const message = error instanceof Error ? error.message : ''
     
+    if (message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
+    }
     if (message === 'TRANSACTION_EXISTS') {
       return NextResponse.json({ error: 'Угода за цим лотом вже існує' }, { status: 409 })
     }

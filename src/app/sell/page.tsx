@@ -269,7 +269,7 @@ export default function SellPage() {
           <Camera className="w-8 h-8 text-[#2563EB]" />
         </div>
         <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа працює в beta-режимі без прийому оплат.</p>
+        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа фіксує лоти, ставки та повідомлення, а оплату сторони погоджують напряму.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center justify-center h-12 px-8 w-full sm:w-auto bg-[#2563EB] text-white rounded-xl text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors">
             Увійти
@@ -304,7 +304,7 @@ export default function SellPage() {
           <Camera className="w-8 h-8 text-[#2563EB]" />
         </div>
         <h1 className="text-[22px] font-bold text-[#0B1220] mb-2">Увійдіть, щоб створити лот</h1>
-        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа працює в beta-режимі без прийому оплат.</p>
+        <p className="text-[14px] text-[#64748B] mb-6">Щоб опублікувати лот на KRAM, потрібен акаунт. Платформа фіксує лоти, ставки та повідомлення, а оплату сторони погоджують напряму.</p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link href="/auth/login?callbackUrl=/sell" className="inline-flex items-center justify-center h-12 px-8 w-full sm:w-auto bg-[#2563EB]/80 text-white rounded-xl text-[15px] font-semibold transition-colors pointer-events-none opacity-80">
             Увійти
