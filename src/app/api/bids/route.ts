@@ -3,6 +3,7 @@ import { placeBid } from '@/server/auction/placeBid'
 import { bidSchema, validateBody } from '@/lib/validation'
 import { requireAuth } from '@/lib/getCurrentUser'
 import { isRateLimited } from '@/lib/rateLimit'
+import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     
     // Rate limit: 10 bids per minute per user
     const user = await requireAuth()
+    await assertUserAllowed(user.id, 'bid')
     
     // Check rate limit after auth to have userId
     if (await isRateLimited(`bid:${user.id}`, 10, 60_000)) {
@@ -52,6 +54,8 @@ export async function POST(request: Request) {
       newPrice: result.newPrice 
     }, { status: 201 })
   } catch (error) {
+    const restrictionMessage = restrictionErrorMessage(error)
+    if (restrictionMessage) return NextResponse.json({ error: restrictionMessage }, { status: 403 })
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }

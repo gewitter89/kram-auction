@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle, Ban, Unlock } from 'lucide-react'
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -101,6 +101,11 @@ export default function AdminUsersPage() {
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-1.5">
                       {getVerificationBadge(u.verificationStatus, u.emailVerified)}
+                      {u.restriction && (
+                        <span className="flex items-center gap-1 text-[#EF4444] font-bold text-[11px] uppercase">
+                          <Ban className="w-3.5 h-3.5" /> {u.restriction.level}
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="py-4 px-6">
@@ -136,6 +141,27 @@ export default function AdminUsersPage() {
                       >
                         Скинути
                       </button>
+                      {u.restriction ? (
+                        <button
+                          onClick={() => handleAction(u.id, 'clearRestriction', null)}
+                          disabled={processing === u.id}
+                          className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#ECFDF5] text-[#10B981] hover:bg-[#D1FAE5] transition-all flex items-center gap-1"
+                        >
+                          <Unlock className="w-3 h-3" /> Розблокувати
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            const level = prompt('Рівень: limited / blocked / banned', 'limited') || 'limited'
+                            const reason = prompt('Причина обмеження', 'Порушення правил платформи') || 'Порушення правил платформи'
+                            handleAction(u.id, 'setRestriction', { level, reason })
+                          }}
+                          disabled={processing === u.id}
+                          className="h-8 px-3 rounded-lg text-[12px] font-bold bg-[#FEF2F2] text-[#EF4444] hover:bg-[#FEE2E2] transition-all flex items-center gap-1"
+                        >
+                          <Ban className="w-3 h-3" /> Обмежити
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

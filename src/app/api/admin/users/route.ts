@@ -33,7 +33,19 @@ export async function GET(request: Request) {
       }
     })
 
-    return NextResponse.json(users)
+    const restrictions = await prisma.report.findMany({
+      where: { userId: { in: users.map(u => u.id) }, reason: 'user_restriction', status: 'action_taken' },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, userId: true, comment: true, createdAt: true }
+    })
+    const byUser = new Map<string, any>()
+    for (const r of restrictions) {
+      if (!r.userId || byUser.has(r.userId)) continue
+      try { byUser.set(r.userId, { id: r.id, createdAt: r.createdAt, ...JSON.parse(r.comment || '{}') }) }
+      catch { byUser.set(r.userId, { id: r.id, createdAt: r.createdAt, level: 'blocked', reason: r.comment || 'Порушення правил' }) }
+    }
+
+    return NextResponse.json(users.map(u => ({ ...u, restriction: byUser.get(u.id) || null })))
   } catch (error) {
     if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
       return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
@@ -53,6 +65,17 @@ export async function PATCH(request: Request) {
         where: { id: userId },
         data: { role: value }
       })
+    } else if (action === 'setRestriction') {
+      const level = ['limited', 'blocked', 'banned'].includes(value?.level) ? value.level : 'blocked'
+      const reason = String(value?.reason || 'Порушення правил платформи').slice(0, 500)
+      await prisma.report.updateMany({ where: { userId, reason: 'user_restriction', status: 'action_taken' }, data: { status: 'resolved' } })
+      await prisma.report.create({ data: { userId, listingId: null, reason: 'user_restriction', comment: JSON.stringify({ level, reason }), status: 'action_taken' } })
+      await prisma.notification.create({ data: { userId, type: 'account_restriction', title: 'Обмеження акаунта', message: `Ваш акаунт обмежено (${level}). Причина: ${reason}` } }).catch(() => {})
+      await prisma.auditLog.create({ data: { userId, action: 'USER_RESTRICTED', metadata: JSON.stringify({ level, reason }) } }).catch(() => {})
+    } else if (action === 'clearRestriction') {
+      await prisma.report.updateMany({ where: { userId, reason: 'user_restriction', status: 'action_taken' }, data: { status: 'resolved' } })
+      await prisma.notification.create({ data: { userId, type: 'account_restriction_cleared', title: 'Обмеження акаунта знято', message: 'Ваш акаунт знову може користуватися функціями KRAM.' } }).catch(() => {})
+      await prisma.auditLog.create({ data: { userId, action: 'USER_RESTRICTION_CLEARED' } }).catch(() => {})
     } else if (action === 'setVerificationStatus') {
       await prisma.user.update({
         where: { id: userId },

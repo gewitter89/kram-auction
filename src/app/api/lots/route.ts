@@ -6,6 +6,7 @@ import { ensureCoreCategories } from '@/lib/marketplace-checks'
 import { notifyNewLot } from '@/lib/telegram'
 import { publicActiveListingWhere } from '@/lib/public-listing-filters'
 import { analyzeListingRisk } from '@/lib/listing-risk'
+import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
 
 export async function GET(request: Request) {
   try {
@@ -120,6 +121,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
 
+    await assertUserAllowed(userId, 'sell')
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { verified: true }
@@ -217,6 +220,8 @@ export async function POST(request: Request) {
       moderationReasons: risk.reasons,
     }, { status: 201 })
   } catch (error) {
+    const restrictionMessage = restrictionErrorMessage(error)
+    if (restrictionMessage) return NextResponse.json({ error: restrictionMessage }, { status: 403 })
     console.error('Create lot error:', error)
     return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
   }

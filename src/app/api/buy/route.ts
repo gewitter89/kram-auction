@@ -4,11 +4,13 @@ import { createTransactionFromBuyNow } from '@/lib/transaction-service'
 import { broadcast } from '@/lib/realtime-server'
 import { requireAuth } from '@/lib/getCurrentUser'
 import { isRateLimited } from '@/lib/rateLimit'
+import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
 
 export async function POST(request: Request) {
   try {
     const user = await requireAuth()
     const userId = user.id
+    await assertUserAllowed(userId, 'buy')
 
     if (await isRateLimited(`buy:${userId}`, 8, 60_000)) {
       return NextResponse.json({ error: 'Занадто багато спроб. Спробуйте через кілька секунд.' }, { status: 429 })
@@ -44,6 +46,8 @@ export async function POST(request: Request) {
       transactionId: transaction.id
     })
   } catch (error) {
+    const restrictionMessage = restrictionErrorMessage(error)
+    if (restrictionMessage) return NextResponse.json({ error: restrictionMessage }, { status: 403 })
     console.error('Buy Now error:', error)
     const message = error instanceof Error ? error.message : ''
     

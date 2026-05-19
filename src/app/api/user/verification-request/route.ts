@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
 import { isRateLimited } from '@/lib/rateLimit'
+import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
 
 export async function POST(request: Request) {
   try {
@@ -12,6 +13,8 @@ export async function POST(request: Request) {
     if (!userId || !email) {
       return NextResponse.json({ error: 'Необхідна авторизація' }, { status: 401 })
     }
+
+    await assertUserAllowed(userId, 'verification')
 
     if (await isRateLimited(`seller-verification:${userId}`, 3, 60 * 60_000)) {
       return NextResponse.json({ error: 'Запит уже надіслано. Спробуйте пізніше або напишіть у підтримку.' }, { status: 429 })
@@ -75,6 +78,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, reportId: report.id })
   } catch (error) {
+    const restrictionMessage = restrictionErrorMessage(error)
+    if (restrictionMessage) return NextResponse.json({ error: restrictionMessage }, { status: 403 })
     console.error('Seller verification request error:', error)
     return NextResponse.json({ error: 'Помилка сервера' }, { status: 500 })
   }
