@@ -80,7 +80,12 @@ export default function AdminPage() {
         <ShieldCheck className="w-5 h-5 text-[#10B981]" />
         <span className="text-[12px] font-semibold text-[#10B981] uppercase tracking-wider">Admin Panel</span>
       </div>
-      <h1 className="text-[24px] font-bold text-[#0B1220] mb-6">Дашборд</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-[24px] font-bold text-[#0B1220]">Дашборд</h1>
+        <Link href="/admin/launch" className="h-10 px-4 inline-flex items-center justify-center rounded-xl bg-[#2563EB] text-white text-[13px] font-bold hover:bg-[#1D4ED8]">
+          Launch Center
+        </Link>
+      </div>
 
 
       {/* Production readiness */}
