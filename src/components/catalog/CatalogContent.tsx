@@ -119,6 +119,11 @@ export default function CatalogContent() {
         body: JSON.stringify({ label: search || 'Пошук KRAM', filters })
       })
       const data = await res.json()
+      if (res.status === 401) {
+        setSaveSearchMessage('Увійдіть, щоб зберегти пошук і отримувати сповіщення про нові лоти')
+        setTimeout(() => router.push(`/auth/login?callbackUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`), 900)
+        return
+      }
       setSaveSearchMessage(res.ok ? (data.alreadyExists ? 'Цей пошук уже збережено' : 'Пошук збережено') : (data.error || 'Не вдалося зберегти пошук'))
     } catch {
       setSaveSearchMessage('Не вдалося зберегти пошук')
