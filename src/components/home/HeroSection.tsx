@@ -71,10 +71,10 @@ export function HeroSection() {
                 Переглянути каталог
               </Link>
               <Link
-                href="/sell"
+                href="/sellers"
                 className="h-12 px-7 bg-white text-[#0B1220] border border-[#E2E8F0] rounded-xl text-[14.5px] font-bold hover:bg-[#F8FAFC] hover:border-[#CBD5E1] transition-all flex items-center justify-center gap-2"
               >
-                Створити лот
+                Стати продавцем
               </Link>
               <a
                 href={process.env.NEXT_PUBLIC_TELEGRAM_URL || 'https://t.me/kram_auction'}

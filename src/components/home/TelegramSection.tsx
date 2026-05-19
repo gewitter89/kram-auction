@@ -222,10 +222,10 @@ export function LiveAuctionsNow() {
               Створіть безкоштовний лот, щоб розпочати прозорі торги та знайти покупця.
             </p>
             <Link
-              href="/sell"
+              href="/sellers"
               className="inline-flex items-center justify-center h-11 px-6 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[13.5px] font-bold transition-all shadow-md shadow-[#2563EB]/10"
             >
-              Створити перший лот
+              Стати першим продавцем
             </Link>
           </div>
         )}

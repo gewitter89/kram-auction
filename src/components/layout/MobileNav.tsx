@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Home, Search, PlusCircle, Heart, User, LogIn } from 'lucide-react'
+import { Home, Search, PlusCircle, Store, User, LogIn } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
@@ -13,7 +13,7 @@ export function MobileNav() {
     { href: '/', icon: Home, label: 'Головна' },
     { href: '/catalog', icon: Search, label: 'Пошук' },
     { href: session ? '/sell' : '/auth/login?callbackUrl=/sell', icon: PlusCircle, label: 'Продати' },
-    { href: session ? '/favorites' : '/auth/login?callbackUrl=/favorites', icon: Heart, label: 'Обране' },
+    { href: '/sellers', icon: Store, label: 'Продавцям' },
     { href: session ? '/cabinet' : '/auth/login', icon: session ? User : LogIn, label: session ? 'Профіль' : 'Увійти' },
   ]
 

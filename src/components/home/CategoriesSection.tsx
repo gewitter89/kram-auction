@@ -2,21 +2,15 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Laptop, Smartphone, Car, Shirt, Home, Baby, Dumbbell, BookOpen, Wrench, Gamepad, Package, Monitor } from 'lucide-react'
+import { Laptop, Smartphone, Wrench, Gamepad, Monitor, Camera } from 'lucide-react'
 
 const initialCategories = [
   { name: 'Електроніка', slug: 'electronics', icon: Laptop, count: 0, gradient: 'from-blue-50 to-blue-100/50', iconColor: 'text-blue-600' },
-  { name: 'Ноутбуки', slug: 'laptops', icon: Monitor, count: 0, gradient: 'from-indigo-50 to-indigo-100/50', iconColor: 'text-indigo-600' },
   { name: 'Телефони', slug: 'phones', icon: Smartphone, count: 0, gradient: 'from-purple-50 to-purple-100/50', iconColor: 'text-purple-600' },
-  { name: 'Авто', slug: 'auto', icon: Car, count: 0, gradient: 'from-green-50 to-green-100/50', iconColor: 'text-green-600' },
-  { name: 'Одяг', slug: 'fashion', icon: Shirt, count: 0, gradient: 'from-pink-50 to-pink-100/50', iconColor: 'text-pink-600' },
-  { name: 'Дім', slug: 'home', icon: Home, count: 0, gradient: 'from-amber-50 to-amber-100/50', iconColor: 'text-amber-600' },
-  { name: 'Дитячі', slug: 'kids', icon: Baby, count: 0, gradient: 'from-rose-50 to-rose-100/50', iconColor: 'text-rose-600' },
-  { name: 'Спорт', slug: 'sport', icon: Dumbbell, count: 0, gradient: 'from-emerald-50 to-emerald-100/50', iconColor: 'text-emerald-600' },
-  { name: 'Книги', slug: 'books', icon: BookOpen, count: 0, gradient: 'from-violet-50 to-violet-100/50', iconColor: 'text-violet-600' },
-  { name: 'Колекції', slug: 'collections', icon: Package, count: 0, gradient: 'from-orange-50 to-orange-100/50', iconColor: 'text-orange-600' },
-  { name: 'Інструменти', slug: 'tools', icon: Wrench, count: 0, gradient: 'from-yellow-50 to-yellow-100/50', iconColor: 'text-yellow-600' },
-  { name: 'Ігри', slug: 'games', icon: Gamepad, count: 0, gradient: 'from-cyan-50 to-cyan-100/50', iconColor: 'text-cyan-600' },
+  { name: 'Ноутбуки', slug: 'laptops', icon: Monitor, count: 0, gradient: 'from-indigo-50 to-indigo-100/50', iconColor: 'text-indigo-600' },
+  { name: 'Ігри та консолі', slug: 'games', icon: Gamepad, count: 0, gradient: 'from-cyan-50 to-cyan-100/50', iconColor: 'text-cyan-600' },
+  { name: 'Фото/відео', slug: 'electronics', icon: Camera, count: 0, gradient: 'from-emerald-50 to-emerald-100/50', iconColor: 'text-emerald-600' },
+  { name: 'Комплектуючі', slug: 'tools', icon: Wrench, count: 0, gradient: 'from-yellow-50 to-yellow-100/50', iconColor: 'text-yellow-600' },
 ]
 
 export function CategoriesSection() {

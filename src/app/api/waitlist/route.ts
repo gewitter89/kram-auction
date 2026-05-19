@@ -3,26 +3,32 @@ import { prisma } from '@/lib/prisma'
 
 export async function POST(request: Request) {
   try {
-    const { email, type, source } = await request.json()
+    const { email, type, source, meta } = await request.json()
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Некоректний email' }, { status: 400 })
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+    const normalizedType = type || 'buyer'
+    const metaSummary = meta && typeof meta === 'object'
+      ? `${source || 'homepage'}:${JSON.stringify(meta).slice(0, 180)}`
+      : (source || 'homepage')
+
     const waitlist = await prisma.waitlistEmail.upsert({
       where: {
         email_type: {
-          email: email.toLowerCase(),
-          type: type || 'buyer'
+          email: normalizedEmail,
+          type: normalizedType
         }
       },
       update: {
-        source: source || 'homepage'
+        source: metaSummary
       },
       create: {
-        email: email.toLowerCase(),
-        type: type || 'buyer',
-        source: source || 'homepage'
+        email: normalizedEmail,
+        type: normalizedType,
+        source: metaSummary
       }
     })
 

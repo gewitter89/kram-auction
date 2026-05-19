@@ -10,12 +10,8 @@ const categories = [
   { slug: 'electronics', name: 'Електроніка' },
   { slug: 'phones', name: 'Телефони' },
   { slug: 'laptops', name: 'Ноутбуки' },
-  { slug: 'auto', name: 'Авто' },
-  { slug: 'fashion', name: 'Одяг' },
-  { slug: 'home', name: 'Дім' },
-  { slug: 'sport', name: 'Спорт' },
-  { slug: 'tools', name: 'Інструменти' },
-  { slug: 'games', name: 'Ігри' },
+  { slug: 'games', name: 'Ігри та консолі' },
+  { slug: 'tools', name: 'Комплектуючі' },
 ]
 
 const cities = ['Київ', 'Харків', 'Одеса', 'Дніпро', 'Львів', 'Запоріжжя', 'Вінниця', 'Полтава']

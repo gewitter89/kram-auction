@@ -173,12 +173,16 @@ export function Header() {
           )}
         </div>
 
+        <Link href="/sellers" className="hidden lg:flex items-center h-10 px-3 text-[13px] font-semibold text-[#475569] hover:text-[#2563EB] transition-colors">
+          Продавцям
+        </Link>
+
         <Link
           href={session ? '/sell' : '/auth/login?callbackUrl=/sell'}
           className="group hidden md:flex items-center gap-1.5 h-10 px-5 bg-[#2563EB] text-white rounded-xl text-[14px] font-semibold hover:bg-[#1D4ED8] transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-[#2563EB]/30"
         >
           <PlusCircle className="w-4 h-4 transition-transform duration-500 group-hover:rotate-180" />
-          <span>Продати</span>
+          <span>Створити лот</span>
         </Link>
 
         {session ? (

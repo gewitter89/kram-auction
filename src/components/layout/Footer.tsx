@@ -34,6 +34,7 @@ export function Footer() {
           <div>
             <h4 className="text-[10.5px] font-bold tracking-wider uppercase text-slate-400 mb-4">Продавцям</h4>
             <ul className="space-y-2.5">
+              <li><Link href="/sellers" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Для продавців</Link></li>
               <li><Link href="/sell" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Створити лот</Link></li>
               <li><Link href="/cabinet/verify" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Верифікація продавців — скоро</Link></li>
             </ul>
