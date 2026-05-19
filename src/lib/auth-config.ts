@@ -44,7 +44,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string }
+          where: { email: String(credentials.email).toLowerCase().trim() },
+          select: { id: true, name: true, email: true, passwordHash: true, avatar: true }
         })
 
         if (!user) return null
@@ -127,17 +128,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       // Always fetch fresh data from DB to ensure correct user
       if (token.email) {
-        const dbUser = await prisma.user.findUnique({ 
-          where: { email: token.email as string },
-          select: { id: true, name: true, email: true, avatar: true, role: true, verified: true }
-        })
+        const rows = await prisma.$queryRaw<Array<{ id: string; name: string; email: string; avatar: string | null; role: string | null; verified: boolean | null }>>`
+          SELECT id, name, email, avatar, role, verified FROM "User" WHERE email = ${String(token.email).toLowerCase().trim()} LIMIT 1
+        `
+        const dbUser = rows[0]
         if (dbUser) {
           token.id = dbUser.id
           token.name = dbUser.name
           token.email = dbUser.email
           token.picture = dbUser.avatar
-          token.role = dbUser.role
-          token.verified = dbUser.verified
+          token.role = dbUser.role || 'user'
+          token.verified = Boolean(dbUser.verified)
         }
       }
 

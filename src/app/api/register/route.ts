@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { isRateLimited } from '@/lib/rateLimit'
 import { registerSchema, validateBody } from '@/lib/validation'
 
@@ -27,23 +28,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Пароль має бути мінімум 8 символів' }, { status: 400 })
     }
 
-    const existing = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
-      select: { id: true }
-    })
-    if (existing) {
+    const existing = await prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT id FROM "User" WHERE email = ${normalizedEmail} LIMIT 1
+    `
+    if (existing.length > 0) {
       return NextResponse.json({ error: 'Користувач з таким email вже існує' }, { status: 409 })
     }
 
-    await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email: normalizedEmail,
-        passwordHash: bcrypt.hashSync(password, 10),
-        phone: phone?.trim() || null,
-      },
-      select: { id: true }
-    })
+    const userId = `user_${crypto.randomUUID()}`
+    const passwordHash = bcrypt.hashSync(password, 10)
+
+    // Use a minimal SQL insert to remain compatible with production databases that may
+    // lag behind the Prisma schema with newer optional profile/verification columns.
+    await prisma.$executeRaw`
+      INSERT INTO "User" (id, name, email, "passwordHash")
+      VALUES (${userId}, ${name.trim()}, ${normalizedEmail}, ${passwordHash})
+    `
 
     return NextResponse.json({ message: 'Реєстрація успішна!' }, { status: 201 })
   } catch (error) {
