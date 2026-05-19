@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { KramLogo } from '@/components/brand/KramLogo'
 import { Eye, EyeOff } from 'lucide-react'
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/cabinet'
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
   const [agreed, setAgreed] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -54,7 +56,7 @@ export default function RegisterPage() {
       // Auto-login after registration
       const { signIn } = await import('next-auth/react')
       await signIn('credentials', { email: form.email, password: form.password, redirect: false })
-      router.push('/cabinet')
+      router.push(callbackUrl)
     } catch {
       setError('Помилка зʼєднання з сервером')
       setLoading(false)
@@ -175,12 +177,21 @@ export default function RegisterPage() {
 
           <p className="mt-8 text-center text-[13px] text-[#64748B]">
             Вже є акаунт?{' '}
-            <Link href="/auth/login" className="text-[#2563EB] font-medium hover:underline">
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`} className="text-[#2563EB] font-medium hover:underline">
               Увійти
             </Link>
           </p>
         </div>
       </div>
     </div>
+  )
+}
+
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F8FAFC]" />}>
+      <RegisterContent />
+    </Suspense>
   )
 }

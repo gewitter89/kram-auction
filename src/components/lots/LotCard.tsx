@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Heart, Clock, MapPin, Star, Truck, ShieldCheck, Gavel } from 'lucide-react'
+import { Heart, Clock, MapPin, Truck, Gavel } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { useState, useEffect } from 'react'
 
@@ -92,6 +92,14 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
     for_parts: 'На запч.',
   }[lot.condition] || ''
 
+  const typeLabel = lot.type === 'auction' ? 'Аукціон' : lot.type === 'buy_now' ? 'Купити зараз' : 'Аукціон + купити'
+  const priceLabel = lot.type === 'buy_now' ? 'Ціна' : lot.type === 'both' ? 'Поточна ставка' : 'Поточна ставка'
+  const sellerTrustLabel = lot.sellerReviewsCount && lot.sellerReviewsCount > 0
+    ? `${lot.sellerRating.toFixed(1)} · ${lot.sellerReviewsCount} відгуків`
+    : lot.verified
+      ? 'Перевірений продавець'
+      : 'Новий продавець'
+
   return (
     <Link
       href={`/lot/${lot.id}`}
@@ -119,9 +127,9 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
         {/* Top Floating Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1 z-20">
           <span className={`inline-flex items-center h-5 px-2 rounded-md text-[9.5px] font-bold uppercase tracking-wide backdrop-blur-sm ${
-            lot.type === 'auction' ? 'bg-[#0B1220]/90 text-white' : 'bg-[#10B981]/90 text-white'
+            lot.type === 'buy_now' ? 'bg-[#10B981]/90 text-white' : 'bg-[#0B1220]/90 text-white'
           }`}>
-            {lot.type === 'auction' ? 'Аукціон' : 'Купити'}
+            {typeLabel}
           </span>
           
           {conditionLabel && (
@@ -159,7 +167,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
         {/* Price & Bids Row */}
         <div className="mt-auto pt-3 border-t border-slate-100 flex items-end justify-between mb-3.5">
           <div>
-            <span className="text-[9.5px] text-[#94A3B8] uppercase tracking-wide block mb-0.5">Поточна ставка</span>
+            <span className="text-[9.5px] text-[#94A3B8] uppercase tracking-wide block mb-0.5">{priceLabel}</span>
             <span className="text-[18px] font-extrabold text-[#0B1220] tracking-tight">{formatPrice(lot.currentPrice)}</span>
           </div>
 
@@ -190,22 +198,8 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1" title={lot.verified ? "Верифікований користувач" : undefined}>
-            {/* DISABLED: Real verification not yet implemented
-            {lot.verified && (
-              <ShieldCheck className="w-3.5 h-3.5 text-[#2563EB]" aria-hidden="true" />
-            )}
-            */}
-            {/* DISABLED: Fake ratings in DB - only show when real review system is implemented
-            {lot.sellerReviewsCount && lot.sellerReviewsCount > 0 ? (
-              <>
-                <Star className="w-3 h-3 fill-[#F59E0B] text-[#F59E0B]" aria-hidden="true" />
-                <span className="font-bold">{lot.sellerRating.toFixed(1)}</span>
-              </>
-            ) : (
-            )}
-            */}
-            <span className="text-[10px] text-[#94A3B8]">Відгуків ще немає</span>
+          <div className="flex items-center gap-1" title={sellerTrustLabel}>
+            <span className="text-[10px] text-[#94A3B8]">{sellerTrustLabel}</span>
           </div>
         </div>
 

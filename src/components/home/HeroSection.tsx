@@ -59,12 +59,12 @@ export function HeroSection() {
 
             {/* Title */}
             <h1 className="text-[34px] sm:text-[44px] lg:text-[52px] font-extrabold text-[#0B1220] leading-[1.1] tracking-[-0.03em] mb-6">
-              KRAM — чесні онлайн-торги для товарів в Україні
+              KRAM — аукціони та оголошення з прозорими ставками
             </h1>
 
             {/* Subheadline */}
             <p className="text-[15.5px] sm:text-[16.5px] text-[#475569] leading-relaxed mb-8 max-w-[560px] mx-auto lg:mx-0">
-              Створюйте лоти, робіть ставки та знаходьте покупців на прозорій українській платформі торгів. KRAM фіксує історію ставок, а оплату й доставку сторони погоджують напряму.
+              Продавці створюють лоти, покупці роблять ставки, а умови оплати й доставки сторони погоджують напряму. KRAM фіксує історію торгів і переписку без прийому платежів.
             </p>
 
             {/* Actions */}
@@ -99,7 +99,7 @@ export function HeroSection() {
               </span>
               <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#EFF6FF] border border-[#2563EB]/10 rounded-full text-[11px] font-semibold text-[#2563EB]">
                 <CheckCircle className="w-3.5 h-3.5" />
-                0% комісії
+                Прозорі ставки
               </span>
               <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#E8F5E9] border border-[#10B981]/10 rounded-full text-[11px] font-semibold text-[#10B981]">
                 <TrendingUp className="w-3.5 h-3.5" />
@@ -111,7 +111,7 @@ export function HeroSection() {
               </span>
               <span className="inline-flex items-center gap-1.5 h-7 px-3 bg-[#FEF2F2] border border-[#EF4444]/10 rounded-full text-[11px] font-semibold text-[#EF4444]">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                Без прийому оплат через KRAM
+                Без оплати через KRAM
               </span>
             </div>
           </div>
@@ -121,10 +121,10 @@ export function HeroSection() {
             {/* Visual Header */}
             <div className="flex items-center justify-between px-2">
               <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider flex items-center gap-1">
-                <Info className="w-3 h-3" /> Приклад торгів
+                <Info className="w-3 h-3" /> Приклад активних торгів
               </span>
               <span className="text-[10px] text-[#94A3B8]">
-                Так виглядатимуть лоти після запуску
+                Так виглядає прозора історія ціни
               </span>
             </div>
 
@@ -151,7 +151,7 @@ export function HeroSection() {
                           {lot.category}
                         </span>
                         <span className="text-[10px] font-bold text-[#EF4444] bg-[#FEF2F2] px-2 py-0.5 rounded-full uppercase tracking-wide">
-Приклад
+Демо
                         </span>
                       </div>
                       
@@ -187,7 +187,7 @@ export function HeroSection() {
             <div className="bg-white border border-[#E2E8F0] p-3 rounded-xl shadow-sm flex items-center gap-3">
               <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
               <p className="text-[12px] text-[#475569] leading-none">
-                <span className="font-bold text-[#0B1220]">Дмитро В.</span> щойно запропонував <span className="font-bold text-[#2563EB]">{formatPrice(16800)}</span> за PS5 Slim
+                <span className="font-bold text-[#0B1220]">Дмитро В.</span> зробив ставку <span className="font-bold text-[#2563EB]">{formatPrice(16800)}</span> за PS5 Slim
               </p>
             </div>
           </div>

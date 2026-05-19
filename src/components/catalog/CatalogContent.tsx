@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { LotCard } from '@/components/lots/LotCard'
 import { Search, SlidersHorizontal, X, BellPlus } from 'lucide-react'
@@ -40,6 +40,27 @@ export default function CatalogContent() {
   const [city, setCity] = useState(searchParams.get('city') || '')
   const [condition, setCondition] = useState(searchParams.get('condition') || '')
   const [type, setType] = useState(searchParams.get('type') || '')
+
+  const categoryName = categories.find(c => c.slug === category)?.name
+
+  const syncCatalogUrl = useCallback((nextPage = page) => {
+    const params = new URLSearchParams()
+    if (search.trim()) params.set('search', search.trim())
+    if (category !== 'all') params.set('category', category)
+    if (sort !== 'ending') params.set('sort', sort)
+    if (minPrice) params.set('minPrice', minPrice)
+    if (maxPrice) params.set('maxPrice', maxPrice)
+    if (city) params.set('city', city)
+    if (condition) params.set('condition', condition)
+    if (type) params.set('type', type)
+    if (nextPage > 1) params.set('page', String(nextPage))
+    const qs = params.toString()
+    router.replace(qs ? `/catalog?${qs}` : '/catalog', { scroll: false })
+  }, [router, search, category, sort, minPrice, maxPrice, city, condition, type, page])
+
+  useEffect(() => {
+    syncCatalogUrl(page)
+  }, [syncCatalogUrl, page])
 
   useEffect(() => {
     setLoading(true)
@@ -111,9 +132,23 @@ export default function CatalogContent() {
     setSearch(''); setCategory('all'); setSort('ending')
     setMinPrice(''); setMaxPrice(''); setCity(''); setCondition(''); setType('')
     setPage(1)
+    router.replace('/catalog', { scroll: false })
+  }
+
+  function removeFilter(key: 'search' | 'category' | 'price' | 'city' | 'condition' | 'type') {
+    if (key === 'search') setSearch('')
+    if (key === 'category') setCategory('all')
+    if (key === 'price') { setMinPrice(''); setMaxPrice('') }
+    if (key === 'city') setCity('')
+    if (key === 'condition') setCondition('')
+    if (key === 'type') setType('')
+    setPage(1)
   }
 
   const hasActiveFilters = search || category !== 'all' || minPrice || maxPrice || city || condition || type
+
+  const conditionLabel = { new: 'Новий', like_new: 'Як новий', used: 'Вживаний' }[condition] || ''
+  const typeLabel = { auction: 'Аукціон', buy_now: 'Купити зараз', both: 'Аукціон + купити' }[type] || ''
 
   return (
     <div className="max-w-[1320px] mx-auto px-4 py-6">
@@ -147,6 +182,44 @@ export default function CatalogContent() {
           </button>
         ))}
       </div>
+
+      {hasActiveFilters && (
+        <div className="mb-5 flex flex-wrap items-center gap-2">
+          {search && (
+            <button onClick={() => removeFilter('search')} className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#E2E8F0] rounded-full text-[12px] font-semibold text-[#475569] hover:border-[#CBD5E1]">
+              Пошук: {search} <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {category !== 'all' && (
+            <button onClick={() => removeFilter('category')} className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#E2E8F0] rounded-full text-[12px] font-semibold text-[#475569] hover:border-[#CBD5E1]">
+              {categoryName} <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {(minPrice || maxPrice) && (
+            <button onClick={() => removeFilter('price')} className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#E2E8F0] rounded-full text-[12px] font-semibold text-[#475569] hover:border-[#CBD5E1]">
+              Ціна: {minPrice || '0'}–{maxPrice || '∞'} ₴ <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {city && (
+            <button onClick={() => removeFilter('city')} className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#E2E8F0] rounded-full text-[12px] font-semibold text-[#475569] hover:border-[#CBD5E1]">
+              {city} <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {condition && (
+            <button onClick={() => removeFilter('condition')} className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#E2E8F0] rounded-full text-[12px] font-semibold text-[#475569] hover:border-[#CBD5E1]">
+              Стан: {conditionLabel} <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {type && (
+            <button onClick={() => removeFilter('type')} className="inline-flex items-center gap-1.5 h-8 px-3 bg-white border border-[#E2E8F0] rounded-full text-[12px] font-semibold text-[#475569] hover:border-[#CBD5E1]">
+              {typeLabel} <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          <button onClick={clearFilters} className="h-8 px-3 text-[12px] font-bold text-[#2563EB] hover:underline">
+            Скинути все
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Filters sidebar */}

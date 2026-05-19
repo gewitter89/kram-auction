@@ -117,6 +117,9 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
   const isEnded = isModerated || new Date(endsAt).getTime() <= Date.now()
   const isUrgent = !isModerated && !isEnded && new Date(endsAt).getTime() - Date.now() < 30 * 60000
   const isOwner = session?.user?.id === lot.sellerId
+  const nextMinBid = currentPrice + (lot.minIncrement || 1)
+  const typeLabel = lot.type === 'auction' ? 'Аукціон' : lot.type === 'buy_now' ? 'Купити зараз' : 'Аукціон + Купити'
+  const priceLabel = lot.type === 'buy_now' ? 'Ціна' : 'Поточна ставка'
 
   function handleBid() {
     if (!session) { router.push(`/auth/login?callbackUrl=/lot/${lot.id}&action=bid`); return }
@@ -403,9 +406,9 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                 <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Домовленість та безпека</h3>
+                <h3 className="text-[15px] font-bold text-[#0B1220] mb-1">Прозора домовленість</h3>
                 <p className="text-[13px] text-[#475569] leading-relaxed mb-3">
-                  KRAM допомагає координувати етапи прямої домовленості (підтвердження, відправлення ТТН та отримання). Платформа не є фінансовим чи логістичним посередником.
+                  KRAM фіксує ставки, повідомлення та етапи прямої домовленості (підтвердження, відправлення ТТН та отримання). Платформа не є фінансовим чи логістичним посередником.
                 </p>
                 <div className="flex items-center gap-4 text-[12px] text-[#64748B]">
                   <div className="flex items-center gap-1.5"><Lock className="w-3.5 h-3.5 text-[#10B981]" />Прозорі статуси</div>
@@ -422,7 +425,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
             {/* Type badge */}
             <div className="flex items-center gap-2 mb-3">
               <span className="inline-flex items-center h-6 px-2.5 rounded-full text-[11px] font-bold uppercase tracking-wide bg-[#0B1220] text-white">
-                {lot.type === 'auction' ? 'Аукціон' : lot.type === 'buy_now' ? 'Купити зараз' : 'Аукціон + Купити'}
+                {typeLabel}
               </span>
               <span className="text-[12px] text-[#64748B]">№ {lot.id.slice(-8).toUpperCase()}</span>
             </div>
@@ -431,8 +434,13 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
 
             {/* Price block */}
             <div className="bg-gradient-to-br from-[#F8FAFC] to-[#F1F5F9] border border-[#E2E8F0] rounded-xl p-4 mb-4">
-              <p className="text-[11px] text-[#64748B] uppercase tracking-wider font-semibold mb-1">Поточна ставка</p>
+              <p className="text-[11px] text-[#64748B] uppercase tracking-wider font-semibold mb-1">{priceLabel}</p>
               <p data-testid="current-price" className="text-[32px] font-bold text-[#0B1220] tracking-tight">{formatPrice(currentPrice)}</p>
+              {lot.type !== 'buy_now' && !isEnded && (
+                <p className="mt-1 text-[12px] font-semibold text-[#2563EB]">
+                  Наступна мінімальна ставка: {formatPrice(nextMinBid)}
+                </p>
+              )}
               <div className="flex items-center gap-4 mt-2 text-[12px] text-[#64748B]">
                 <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" />{bidCount} ставок</span>
                 <span className="flex items-center gap-1"><Eye className="w-3 h-3" />{lot.views} переглядів</span>
@@ -475,7 +483,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                   onClick={handleBid}
                   className="w-full h-12 bg-[#2563EB] text-white rounded-xl text-[15px] font-bold hover:bg-[#1D4ED8] transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#2563EB]/30"
                 >
-                  Зробити ставку
+                  Зробити ставку від {formatPrice(nextMinBid)}
                 </button>
                 {lot.buyNowPrice && (
                   <button
@@ -539,7 +547,7 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
                     </Link>
                     {/* Show verified badge only for manually verified users */}
                     {lot.seller.verified && (
-                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10" title="Профіль перевірено модератором KRAM">
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-[#ECFDF5] text-[#10B981] text-[10px] font-bold rounded-full border border-[#10B981]/10" title="Базова ручна перевірка профілю модератором KRAM. Це не є гарантією угоди чи оплати.">
                         <ShieldCheck className="w-3 h-3" aria-hidden="true" />
                         Профіль перевірено
                       </span>
@@ -680,8 +688,9 @@ export function LotPageContent({ lot, similar = [] }: LotPageContentProps) {
         <div className="lg:hidden fixed bottom-16 left-0 right-0 z-40 bg-white border-t border-[#E2E8F0] p-3 shadow-premium">
           <div className="flex items-center justify-between gap-3">
             <div className="flex-shrink-0 min-w-[90px]">
-              <p className="text-[9px] text-[#94A3B8] leading-none mb-0.5">Поточна ставка</p>
+              <p className="text-[9px] text-[#94A3B8] leading-none mb-0.5">{priceLabel}</p>
               <p className="text-[15px] font-bold text-[#0B1220] leading-none">{formatPrice(currentPrice)}</p>
+              {lot.type !== 'buy_now' && <p className="text-[9px] text-[#2563EB] mt-1">мін. {formatPrice(nextMinBid)}</p>}
             </div>
 
             <div className="flex-1 flex gap-2">
