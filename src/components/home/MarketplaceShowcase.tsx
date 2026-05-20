@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Baby, CheckCircle2, Clock3, Gamepad2, Hammer, Home, Laptop, PackageSearch, Search, ShieldCheck, Shirt, Smartphone, TrendingUp } from 'lucide-react'
+import { ArrowRight, Baby, CheckCircle2, Clock3, Gamepad2, Hammer, Home, Laptop, MessageSquareText, PackageCheck, PackageSearch, Search, ShieldCheck, Shirt, Smartphone, TrendingUp, Truck } from 'lucide-react'
 import { LotCard } from '@/components/lots/LotCard'
 
 type ApiLot = {
@@ -336,7 +336,7 @@ export function MarketplaceShowcase() {
           <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-7 md:p-9 shadow-sm grid lg:grid-cols-[0.8fr_1.2fr] gap-6 items-center">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#2563EB] mb-2">Старт каталогу</p>
-              <h2 className="text-[26px] md:text-[36px] font-black text-[#0B1220] tracking-[-0.04em] mb-3">Перші лоти формують обличчя KRAM</h2>
+              <h2 className="text-[26px] md:text-[36px] font-black text-[#0B1220] tracking-[-0.04em] mb-3">Перші лоти формують сильну добірку KRAM</h2>
               <p className="text-[14px] text-[#64748B] leading-relaxed">Краще 20 якісних оголошень із реальними фото, ніж сотні випадкових позицій. Починаємо з категорій, де покупцям важлива прозора ціна та чесний стан товару.</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
@@ -355,12 +355,12 @@ export function MarketplaceShowcase() {
         <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-6 md:p-8 shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-6">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#ECFDF5] border border-[#BBF7D0] rounded-full text-[11px] font-black text-[#059669] uppercase tracking-wide mb-4">
-                <ShieldCheck className="w-4 h-4" /> Безпечна модель
+              <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full text-[11px] font-black text-[#2563EB] uppercase tracking-wide mb-4">
+                <ShieldCheck className="w-4 h-4" /> Довіра і правила KRAM
               </div>
-              <h2 className="text-[24px] md:text-[34px] font-black text-[#0B1220] tracking-[-0.04em] mb-3">KRAM не приймає оплату й не утримує кошти</h2>
+              <h2 className="text-[24px] md:text-[34px] font-black text-[#0B1220] tracking-[-0.04em] mb-3">Прозорі торги без оплати через платформу</h2>
               <p className="text-[14px] text-[#475569] leading-relaxed">
-                Платформа показує лот, ставку, чат і статус домовленості. Покупець і продавець самі погоджують оплату та доставку; рекомендуємо післяплату після огляду товару.
+                KRAM показує лот, ставку, чат і статус домовленості. Покупець і продавець самі погоджують оплату та доставку; рекомендований сценарій — післяплата після огляду товару.
               </p>
             </div>
             <Link href="/safety" className="inline-flex h-11 px-5 items-center justify-center bg-[#0B1220] text-white rounded-xl text-[13px] font-black hover:bg-[#111827]">
@@ -370,17 +370,23 @@ export function MarketplaceShowcase() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              ['Прозорі ставки', 'історія торгів видима для всіх'],
-              ['Чат і статуси', 'домовленості збережені в системі'],
-              ['Нова Пошта', 'післяплата після огляду товару'],
-              ['Модерація', 'скарги й ризики під контролем'],
-            ].map(([title, desc]) => (
-              <div key={title} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5">
-                <CheckCircle2 className="w-5 h-5 text-[#10B981] mb-3" />
-                <p className="text-[14px] font-black text-[#0B1220]">{title}</p>
-                <p className="text-[12px] text-[#64748B] mt-1 leading-snug">{desc}</p>
-              </div>
-            ))}
+              { title: 'Прозорі ставки', desc: 'історія торгів видима для всіх', icon: TrendingUp, tone: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
+              { title: 'Чат і статуси', desc: 'домовленості збережені в системі', icon: MessageSquareText, tone: 'bg-[#F8FAFC] text-[#0B1220] border-[#E2E8F0]' },
+              { title: 'Нова Пошта', desc: 'післяплата після огляду товару', icon: Truck, tone: 'bg-[#FEF2F2] text-[#E11D48] border-[#FECACA]', badge: 'НП' },
+              { title: 'Модерація', desc: 'скарги й ризики під контролем', icon: PackageCheck, tone: 'bg-[#ECFDF5] text-[#059669] border-[#BBF7D0]' },
+            ].map(item => {
+              const Icon = item.icon
+              return (
+                <div key={item.title} className="group bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 hover:bg-white hover:shadow-md hover:border-[#CBD5E1] transition-all">
+                  <div className={`w-11 h-11 rounded-2xl border ${item.tone} flex items-center justify-center mb-4 relative`}>
+                    <Icon className="w-5 h-5" />
+                    {item.badge && <span className="absolute -right-1 -top-1 h-5 px-1.5 rounded-md bg-[#E11D48] text-white text-[9px] font-black flex items-center">{item.badge}</span>}
+                  </div>
+                  <p className="text-[14px] font-black text-[#0B1220]">{item.title}</p>
+                  <p className="text-[12px] text-[#64748B] mt-1 leading-snug">{item.desc}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -392,8 +398,8 @@ export function MarketplaceShowcase() {
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_18%_20%,#2563EB_0,transparent_28%),radial-gradient(circle_at_85%_85%,#10B981_0,transparent_26%)]" />
           <div className="relative grid lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center">
             <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#93C5FD] mb-3">Перший тиждень запуску</p>
-              <h2 className="text-[28px] md:text-[40px] font-black tracking-[-0.045em] leading-tight mb-4">Зробимо каталог живим: 20 якісних лотів замість порожньої вітрини</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#93C5FD] mb-3">Каталог для перших продавців</p>
+              <h2 className="text-[28px] md:text-[40px] font-black tracking-[-0.045em] leading-tight mb-4">20 якісних лотів створять першу сильну добірку KRAM</h2>
               <p className="text-[14px] text-slate-300 leading-relaxed">KRAM уже готовий технічно. Тепер найсильніше впливають реальні фото, зрозумілі ціни, міста продавців і перші ставки.</p>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
