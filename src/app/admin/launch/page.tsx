@@ -54,12 +54,12 @@ export default function LaunchPage() {
   }
 
 
-  async function postLatestToTelegram() {
-    setTelegramResult('Публікуємо останні лоти...')
+  async function postLatestToTelegram(force = false) {
+    setTelegramResult(force ? 'Примусово публікуємо останні лоти...' : 'Публікуємо останні лоти...')
     const res = await fetch('/api/admin/telegram-channel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ limit: 5 })
+      body: JSON.stringify({ limit: 5, force })
     })
     const data = await res.json().catch(() => ({}))
     setTelegramResult(res.ok ? JSON.stringify(data.result) : (data.error || data.result?.reason || 'Telegram не налаштовано'))
@@ -182,8 +182,11 @@ export default function LaunchPage() {
           <Cloud className="w-7 h-7 text-[#2563EB] mb-3" />
           <h3 className="text-[16px] font-bold text-[#0B1220] mb-1">Telegram channel</h3>
           <p className="text-[13px] text-[#64748B] mb-4">Автопостинг нових лотів у канал, якщо задано TELEGRAM_CHANNEL_ID.</p>
-          <button onClick={postLatestToTelegram} className="h-10 px-4 rounded-xl bg-[#2563EB] text-white text-[13px] font-bold">Post latest lots</button>
-          {telegramResult && <p className="mt-3 text-[11px] text-[#64748B] break-words">{telegramResult}</p>}
+          <div className="flex flex-col gap-2">
+            <button onClick={() => postLatestToTelegram(false)} className="h-10 px-4 rounded-xl bg-[#2563EB] text-white text-[13px] font-bold">Post latest lots</button>
+            <button onClick={() => postLatestToTelegram(true)} className="h-10 px-4 rounded-xl bg-white border border-[#BFDBFE] text-[#2563EB] text-[13px] font-bold">Force repost latest</button>
+          </div>
+          {telegramResult && <pre className="mt-3 whitespace-pre-wrap text-[11px] text-[#64748B] break-words">{telegramResult}</pre>}
         </div>
         <div className="bg-white border border-[#E2E8F0] rounded-3xl p-6">
           <TimerReset className="w-7 h-7 text-[#2563EB] mb-3" />
