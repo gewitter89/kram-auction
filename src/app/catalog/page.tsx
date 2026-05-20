@@ -94,9 +94,9 @@ function CatalogSSRShell() {
               <div className="w-14 h-14 bg-gradient-to-br from-[#EFF6FF] to-[#F5F3FF] border border-[#BFDBFE]/30 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
                 🌟
               </div>
-              <h3 className="text-[18px] font-extrabold text-[#0B1220] mb-2">Перші лоти скоро зʼявляться</h3>
+              <h3 className="text-[18px] font-extrabold text-[#0B1220] mb-2">Каталог готовий до нових лотів</h3>
               <p className="text-slate-500 text-[13.5px] max-w-sm mx-auto mb-6 leading-relaxed">
-                KRAM тільки запускається! Ви можете стати першим продавцем на платформі, опублікувавши лот без комісії.
+                Додайте якісний лот із фото та чесним описом — він одразу стане частиною відкритої добірки KRAM.
               </p>
               <a 
                 href="/sell" 
