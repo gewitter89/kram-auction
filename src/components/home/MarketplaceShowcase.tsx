@@ -179,10 +179,11 @@ export function MarketplaceShowcase() {
     }).finally(() => setLoading(false))
   }, [])
 
-  const displayLots = lots.length > 0 ? lots : fallbackLots
+  const hasRealLots = lots.length > 0
+  const displayLots = hasRealLots ? lots : fallbackLots
   const featured = displayLots[0]
-  const sideLots = displayLots.slice(1, 5)
-  const endingLots = useMemo(() => [...displayLots].sort((a, b) => new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime()).slice(0, 4), [displayLots])
+  const sideLots = hasRealLots ? displayLots.slice(1, 5) : []
+  const endingLots = useMemo(() => hasRealLots ? [...displayLots].sort((a, b) => new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime()).slice(0, 4) : [], [displayLots, hasRealLots])
   const activeLots = loading ? '—' : stats.activeLots ?? lots.length
 
   return (
@@ -277,9 +278,29 @@ export function MarketplaceShowcase() {
                 </div>
               </Link>
 
-              <div className="space-y-3">
-                {(sideLots.length ? sideLots : displayLots).slice(0, 3).map((lot, idx) => <DenseLotRow key={`${lot.id}-${idx}`} lot={lot} />)}
-              </div>
+              {sideLots.length > 0 ? (
+                <div className="space-y-3">
+                  {sideLots.slice(0, 3).map((lot, idx) => <DenseLotRow key={`${lot.id}-${idx}`} lot={lot} />)}
+                </div>
+              ) : (
+                <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-5 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#2563EB] mb-2">Для продавців</p>
+                    <h3 className="text-[22px] font-black text-[#0B1220] tracking-[-0.03em] mb-3">Додайте перші сильні лоти</h3>
+                    <p className="text-[13px] text-[#64748B] leading-relaxed">Каталог виглядає переконливо, коли є 20+ реальних товарів із фото, містом і чесним описом стану.</p>
+                  </div>
+                  <div className="mt-5 space-y-2">
+                    {['3–5 фото товару', 'чесний опис стану', 'місто та доставка', 'без передоплати у тексті'].map(item => (
+                      <div key={item} className="flex items-center gap-2 text-[12px] font-bold text-[#475569]">
+                        <CheckCircle2 className="w-4 h-4 text-[#10B981]" /> {item}
+                      </div>
+                    ))}
+                  </div>
+                  <Link href="/sell" className="mt-6 h-11 px-5 bg-[#0B1220] text-white rounded-xl text-[13px] font-black flex items-center justify-center hover:bg-[#111827]">
+                    Створити лот
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -308,7 +329,27 @@ export function MarketplaceShowcase() {
         </div>
       </section>
 
-      <ProductGrid lots={displayLots} />
+      {hasRealLots ? (
+        <ProductGrid lots={displayLots} />
+      ) : (
+        <section className="max-w-[1320px] mx-auto px-4 py-10">
+          <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-7 md:p-9 shadow-sm grid lg:grid-cols-[0.8fr_1.2fr] gap-6 items-center">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#2563EB] mb-2">Старт каталогу</p>
+              <h2 className="text-[26px] md:text-[36px] font-black text-[#0B1220] tracking-[-0.04em] mb-3">Перші лоти формують обличчя KRAM</h2>
+              <p className="text-[14px] text-[#64748B] leading-relaxed">Краще 20 якісних оголошень із реальними фото, ніж сотні випадкових позицій. Починаємо з категорій, де покупцям важлива прозора ціна та чесний стан товару.</p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {['Дитячі товари', 'Одяг та взуття', 'Телефони', 'Ноутбуки', 'Інструменти', 'Техніка для дому'].map(item => (
+                <Link key={item} href="/sell" className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-4 hover:border-[#2563EB]/30 transition-colors">
+                  <p className="text-[14px] font-black text-[#0B1220]">{item}</p>
+                  <p className="text-[12px] text-[#64748B] mt-1">додати реальний лот</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="max-w-[1320px] mx-auto px-4 py-10">
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-5">
@@ -338,12 +379,14 @@ export function MarketplaceShowcase() {
         </div>
       </section>
 
-      <section className="max-w-[1320px] mx-auto px-4 py-10">
-        <SectionHeader eyebrow="Фініш торгів" title="Завершуються скоро" href="/catalog?sort=ending" />
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {endingLots.map((lot, idx) => <DenseLotRow key={`ending-${lot.id}-${idx}`} lot={lot} />)}
-        </div>
-      </section>
+      {endingLots.length > 1 && (
+        <section className="max-w-[1320px] mx-auto px-4 py-10">
+          <SectionHeader eyebrow="Фініш торгів" title="Завершуються скоро" href="/catalog?sort=ending" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {endingLots.map((lot, idx) => <DenseLotRow key={`ending-${lot.id}-${idx}`} lot={lot} />)}
+          </div>
+        </section>
+      )}
     </div>
   )
 }
