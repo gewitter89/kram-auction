@@ -13,12 +13,13 @@ export async function GET(request: NextRequest) {
   const timestamp = new Date().toISOString()
 
   try {
-    const result = await postDailyDigestToTelegramChannel()
+    const force = request.nextUrl.searchParams.get('force') === '1'
+    const result = await postDailyDigestToTelegramChannel({ force })
 
     await prisma.auditLog.create({
       data: {
         action: result.ok ? 'CRON_DAILY_DIGEST_SUCCESS' : 'CRON_DAILY_DIGEST_SKIPPED',
-        metadata: JSON.stringify({ result, timestamp }),
+        metadata: JSON.stringify({ result, force, timestamp }),
       },
     }).catch(() => {})
 
