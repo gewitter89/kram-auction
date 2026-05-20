@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, ExternalLink, Eye, Loader2, UploadCloud, XCircle } from 'lucide-react'
+import { CheckCircle2, ExternalLink, Eye, Loader2, Share2, UploadCloud, XCircle } from 'lucide-react'
 
 type PreviewResult = {
   ok: boolean
@@ -109,6 +109,24 @@ export function OlxImportBox() {
 
   const goodPreviews = previews.filter(item => item.ok && item.item)
 
+  async function shareLot(id: string) {
+    const url = `${window.location.origin}/lot/${id}`
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Лот KRAM', url }); return } catch {}
+    }
+    await navigator.clipboard.writeText(url)
+    setError('Посилання на лот скопійовано')
+    setTimeout(() => setError(''), 2500)
+  }
+
+  function resetImport() {
+    setOlxText('')
+    setPreviews([])
+    setResults([])
+    setError('')
+  }
+
+
   return (
     <section className="max-w-[900px] mx-auto px-4 pb-10 overflow-hidden">
       <div className="bg-[#0B1220] text-white rounded-[2rem] p-6 md:p-8 shadow-sm overflow-hidden">
@@ -179,17 +197,23 @@ export function OlxImportBox() {
               <CheckCircle2 className="w-5 h-5 text-emerald-300 mt-0.5" />
               <div>
                 <p className="text-[14px] font-bold text-white">Імпорт завершено</p>
-                <p className="text-[12px] text-emerald-100 mt-1">Перевірте статус кожного лота нижче.</p>
+                <p className="text-[12px] text-emerald-100 mt-1">Перевірте статус кожного лота нижче. Для Prom.ua/generic імпорту радимо вручну перевірити ціну, категорію та опис перед активним просуванням.</p>
               </div>
             </div>
             <div className="space-y-2">
               {results.map((result, index) => (
                 <div key={`${result.sourceUrl || result.olxUrl}-${index}`} className="text-[12px] text-slate-200 flex items-center justify-between gap-3 border-t border-white/10 pt-2 min-w-0 overflow-hidden">
                   <span className="min-w-0 break-all line-clamp-2">{result.sourceUrl || result.olxUrl}</span>
-                  {result.id ? <Link href={`/lot/${result.id}`} className="text-emerald-200 hover:text-white underline shrink-0">{result.status}</Link> : <span className="text-red-200 shrink-0">{result.error}</span>}
+                  {result.id ? (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Link href={`/lot/${result.id}`} className="h-8 px-3 inline-flex items-center rounded-lg bg-emerald-400/20 text-emerald-100 hover:bg-emerald-400/30 font-bold">Відкрити лот</Link>
+                      <button onClick={() => shareLot(result.id!)} className="h-8 px-3 inline-flex items-center gap-1 rounded-lg bg-white/10 text-white hover:bg-white/15 font-bold"><Share2 className="w-3 h-3" /> Поділитися</button>
+                    </div>
+                  ) : <span className="text-red-200 shrink-0">{result.error}</span>}
                 </div>
               ))}
             </div>
+            <button onClick={resetImport} className="w-full h-10 rounded-xl bg-white/10 hover:bg-white/15 text-white text-[13px] font-bold">Імпортувати ще посилання</button>
           </div>
         )}
       </div>
