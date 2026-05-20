@@ -99,7 +99,7 @@ export default function SellersPage() {
               </div>
               <div>
                 <p className="text-[15px] font-bold">Що отримує перший продавець</p>
-                <p className="text-[12px] text-slate-400">Фокус на реальних лотах, не demo-базі</p>
+                <p className="text-[12px] text-slate-400">Фокус на реальних лотах, без порожнього каталогу</p>
               </div>
             </div>
             <div className="space-y-4">
