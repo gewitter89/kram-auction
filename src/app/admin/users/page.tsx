@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle, Ban, Unlock, StickyNote } from 'lucide-react'
+import { ShieldCheck, User, Search, XCircle, CheckCircle, Clock, AlertCircle, Ban, Unlock, StickyNote, Trash2, RefreshCw } from 'lucide-react'
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [processing, setProcessing] = useState<string | null>(null)
+  const [qaUsers, setQaUsers] = useState<any[]>([])
+  const [qaLoading, setQaLoading] = useState(false)
+  const [qaMessage, setQaMessage] = useState('')
 
   useEffect(() => {
     loadUsers()
@@ -21,6 +24,36 @@ export default function AdminUsersPage() {
       setUsers(data)
     }
     setLoading(false)
+  }
+
+
+  async function loadQaUsers() {
+    setQaLoading(true)
+    setQaMessage('')
+    const res = await fetch('/api/admin/qa-cleanup')
+    if (res.ok) {
+      const data = await res.json()
+      setQaUsers(data.users || [])
+    } else {
+      setQaMessage((await res.json()).error || 'Не вдалося завантажити QA users')
+    }
+    setQaLoading(false)
+  }
+
+  async function cleanupQaUsers(emails: string[]) {
+    if (emails.length === 0) return
+    if (!confirm(`Видалити ${emails.length} QA/test/demo користувачів та їх артефакти? Адмінів endpoint не чіпає.`)) return
+    setQaLoading(true)
+    const res = await fetch('/api/admin/qa-cleanup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emails })
+    })
+    const data = await res.json().catch(() => ({}))
+    setQaMessage(res.ok ? `Очищено: ${data.count || 0}` : (data.error || 'Помилка cleanup'))
+    await loadQaUsers()
+    await loadUsers()
+    setQaLoading(false)
   }
 
   async function handleAction(userId: string, action: string, value: any) {
@@ -55,6 +88,57 @@ export default function AdminUsersPage() {
           />
         </div>
       </div>
+
+      <section className="mb-6 bg-white border border-[#E2E8F0] rounded-2xl p-5 shadow-card">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-[16px] font-bold text-[#0B1220] flex items-center gap-2">
+              <Trash2 className="w-4 h-4 text-[#EF4444]" />
+              QA/Test cleanup center
+            </h2>
+            <p className="text-[13px] text-[#64748B] mt-1">
+              Безпечно знаходить лише явні QA/test/demo акаунти та чистить їхні ставки, угоди, повідомлення, скарги й saved searches. Admin users не видаляються.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={loadQaUsers}
+              disabled={qaLoading}
+              className="h-10 px-4 bg-white border border-[#E2E8F0] text-[#0B1220] rounded-xl text-[13px] font-bold disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              <RefreshCw className="w-4 h-4" /> {qaLoading ? 'Пошук...' : 'Preview QA users'}
+            </button>
+            <button
+              onClick={() => cleanupQaUsers(qaUsers.map(user => user.email))}
+              disabled={qaLoading || qaUsers.length === 0}
+              className="h-10 px-4 bg-[#EF4444] text-white rounded-xl text-[13px] font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" /> Cleanup all found
+            </button>
+          </div>
+        </div>
+        {qaMessage && <p className="mb-3 text-[12px] font-semibold text-[#2563EB]">{qaMessage}</p>}
+        {qaUsers.length > 0 && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {qaUsers.map(user => (
+              <div key={user.id} className="border border-[#FEE2E2] bg-[#FEF2F2] rounded-xl p-3">
+                <p className="text-[13px] font-bold text-[#0F172A] truncate">{user.name}</p>
+                <p className="text-[11px] text-[#64748B] truncate">{user.email}</p>
+                <p className="text-[11px] text-[#991B1B] mt-1">
+                  Лоти {user._count?.listings || 0} · Ставки {user._count?.bids || 0} · Угоди {(user._count?.purchases || 0) + (user._count?.sales || 0)} · Reports {user._count?.reports || 0}
+                </p>
+                <button
+                  onClick={() => cleanupQaUsers([user.email])}
+                  disabled={qaLoading}
+                  className="mt-2 h-8 px-3 rounded-lg bg-white border border-[#FECACA] text-[#EF4444] text-[12px] font-bold hover:bg-[#FEE2E2]"
+                >
+                  Cleanup this user
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="bg-white border border-[#E2E8F0] rounded-2xl overflow-hidden shadow-card">
         <table className="w-full border-collapse">
