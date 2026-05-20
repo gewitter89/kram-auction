@@ -65,6 +65,17 @@ export default function LaunchPage() {
     setTelegramResult(res.ok ? JSON.stringify(data.result) : (data.error || data.result?.reason || 'Telegram не налаштовано'))
   }
 
+  async function postDailyDigest(force = false) {
+    setTelegramResult(force ? 'Примусово публікуємо daily digest...' : 'Публікуємо daily digest...')
+    const res = await fetch('/api/admin/telegram-channel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ digest: true, force })
+    })
+    const data = await res.json().catch(() => ({}))
+    setTelegramResult(res.ok ? JSON.stringify(data.result) : (data.error || data.result?.reason || 'Telegram digest не налаштовано'))
+  }
+
   async function sendTestEmail() {
     setTestEmail('Надсилання...')
     const res = await fetch('/api/admin/test-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
@@ -188,6 +199,8 @@ export default function LaunchPage() {
           <div className="flex flex-col gap-2">
             <button onClick={() => postLatestToTelegram(false)} className="h-10 px-4 rounded-xl bg-[#2563EB] text-white text-[13px] font-bold">Post latest lots</button>
             <button onClick={() => postLatestToTelegram(true)} className="h-10 px-4 rounded-xl bg-white border border-[#BFDBFE] text-[#2563EB] text-[13px] font-bold">Force repost latest</button>
+            <button onClick={() => postDailyDigest(false)} className="h-10 px-4 rounded-xl bg-[#0B1220] text-white text-[13px] font-bold">Post daily digest</button>
+            <button onClick={() => postDailyDigest(true)} className="h-10 px-4 rounded-xl bg-white border border-[#CBD5E1] text-[#0B1220] text-[13px] font-bold">Force daily digest</button>
           </div>
           {telegramResult && <pre className="mt-3 whitespace-pre-wrap text-[11px] text-[#64748B] break-words">{telegramResult}</pre>}
         </div>

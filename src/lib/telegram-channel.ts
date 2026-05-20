@@ -89,6 +89,62 @@ export async function postLatestListingsToTelegramChannel(limit = 5, options: { 
   }
 }
 
+
+export async function postDailyDigestToTelegramChannel(options: { force?: boolean } = {}) {
+  const chatId = getTelegramChannelId()
+  if (!chatId) return { ok: false, skipped: true, reason: 'TELEGRAM_CHANNEL_ID not configured' }
+
+  const dayKey = new Date().toISOString().slice(0, 10)
+  if (!options.force) {
+    const already = await prisma.auditLog.findFirst({
+      where: { action: 'TELEGRAM_CHANNEL_DAILY_DIGEST_POSTED', metadata: { contains: dayKey } },
+      select: { id: true },
+    })
+    if (already) return { ok: true, skipped: true, reason: 'Daily digest already posted today', dayKey }
+  }
+
+  const listings = await prisma.listing.findMany({
+    where: { status: 'active' },
+    orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+    take: 5,
+    include: {
+      category: { select: { name: true } },
+      _count: { select: { bids: true } },
+    },
+  })
+
+  if (listings.length === 0) return { ok: false, skipped: true, reason: 'No active listings' }
+
+  const lines = listings.map((listing, index) => {
+    const price = listing.currentPrice.toLocaleString('uk-UA')
+    const buyNow = listing.buyNowPrice ? ` · Купити зараз ${listing.buyNowPrice.toLocaleString('uk-UA')} ₴` : ''
+    return `${index + 1}. <a href="${absoluteUrl(`/lot/${listing.id}`)}"><b>${escapeHtml(listing.title)}</b></a>\n   💰 ${price} ₴${buyNow} · 📂 ${escapeHtml(listing.category?.name || 'Каталог')} · 🔨 ${listing._count.bids}`
+  }).join('\n\n')
+
+  const message = `
+🔥 <b>Добірка лотів KRAM на сьогодні</b>
+
+${lines}
+
+KRAM фіксує ставки та домовленості. Оплату й доставку сторони погоджують напряму — рекомендуємо післяплату після огляду.
+
+<a href="${absoluteUrl('/catalog')}">Відкрити весь каталог →</a>
+<a href="${absoluteUrl('/sell')}">Додати свій лот →</a>
+  `.trim()
+
+  const success = await sendTelegramMessage(chatId, message, { disable_web_page_preview: false }) || false
+  if (!success) return { ok: false, skipped: false, reason: 'Failed to send digest to Telegram API' }
+
+  await prisma.auditLog.create({
+    data: {
+      action: 'TELEGRAM_CHANNEL_DAILY_DIGEST_POSTED',
+      metadata: JSON.stringify({ dayKey, listingIds: listings.map(l => l.id), timestamp: new Date().toISOString() }),
+    },
+  }).catch(() => {})
+
+  return { ok: true, skipped: false, dayKey, listingIds: listings.map(l => l.id), count: listings.length }
+}
+
 function escapeHtml(value: string) {
   return value
     .replaceAll('&', '&amp;')

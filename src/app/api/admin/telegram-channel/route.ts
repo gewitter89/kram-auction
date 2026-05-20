@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/getCurrentUser'
-import { getTelegramChannelId, postLatestListingsToTelegramChannel, postListingToTelegramChannel } from '@/lib/telegram-channel'
+import { getTelegramChannelId, postDailyDigestToTelegramChannel, postLatestListingsToTelegramChannel, postListingToTelegramChannel } from '@/lib/telegram-channel'
 
 export async function GET() {
   try {
@@ -19,6 +19,11 @@ export async function POST(request: Request) {
     await requireAdmin()
     const body = await request.json().catch(() => ({}))
     const force = body.force === true
+
+    if (body.digest === true) {
+      const result = await postDailyDigestToTelegramChannel({ force })
+      return NextResponse.json({ success: Boolean(result.ok), result }, { status: result.ok ? 200 : 400 })
+    }
 
     if (typeof body.listingId === 'string' && body.listingId) {
       const result = await postListingToTelegramChannel(body.listingId, { force })
