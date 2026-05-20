@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/getCurrentUser'
 import { absoluteUrl } from '@/lib/site-url'
 
-const ALLOWED = new Set(['close-auctions', 'ending-soon'])
+const ALLOWED = new Set(['close-auctions', 'ending-soon', 'daily-digest'])
 
 export async function POST(request: Request) {
   try {

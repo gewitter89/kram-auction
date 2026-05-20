@@ -41,7 +41,7 @@ export default function LaunchPage() {
   }
 
 
-  async function runCron(job: 'close-auctions' | 'ending-soon') {
+  async function runCron(job: 'close-auctions' | 'ending-soon' | 'daily-digest') {
     setCronResult(`Запуск ${job}...`)
     const res = await fetch('/api/admin/cron', {
       method: 'POST',
@@ -211,6 +211,7 @@ export default function LaunchPage() {
           <div className="flex flex-col gap-2">
             <button onClick={() => runCron('close-auctions')} className="h-10 px-4 rounded-xl bg-[#0B1220] text-white text-[13px] font-bold">Test close-auctions</button>
             <button onClick={() => runCron('ending-soon')} className="h-10 px-4 rounded-xl bg-[#EFF6FF] text-[#2563EB] text-[13px] font-bold border border-[#BFDBFE]">Test ending-soon</button>
+            <button onClick={() => runCron('daily-digest')} className="h-10 px-4 rounded-xl bg-[#ECFDF5] text-[#059669] text-[13px] font-bold border border-[#BBF7D0]">Test daily-digest</button>
           </div>
           {cronResult && <p className="mt-3 text-[11px] text-[#64748B] break-words">{cronResult}</p>}
         </div>
