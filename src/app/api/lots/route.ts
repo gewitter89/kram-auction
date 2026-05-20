@@ -172,6 +172,8 @@ export async function POST(request: Request) {
       buyNowPrice: buyNowPrice ? Number(buyNowPrice) : null,
       images: images || [],
       existingListingsCount,
+      sellerVerified: user.verified,
+      categorySlug: category.slug,
     })
     const requiresModeration = risk.requiresModeration
     const endsAt = new Date(Date.now() + Number(duration) * 24 * 60 * 60 * 1000)

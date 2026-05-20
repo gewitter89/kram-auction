@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle, AlertTriangle, Edit3 } from 'lucide-react'
+import { Trash2, ExternalLink, Clock, User, EyeOff, RotateCcw, Star, CheckCircle2, XCircle, AlertTriangle, Edit3, Bot } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -26,6 +26,7 @@ export default function AdminLotsPage() {
   const [lots, setLots] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [autopilotSummary, setAutopilotSummary] = useState<string>('')
 
   useEffect(() => {
     loadLots()
@@ -70,6 +71,26 @@ export default function AdminLotsPage() {
     setProcessing(null)
   }
 
+
+  async function handleAutopilot(lotId?: string, dryRun = true) {
+    setProcessing(lotId || 'autopilot')
+    setAutopilotSummary('')
+    const res = await fetch('/api/admin/lots/autopilot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lotId, dryRun, limit: 25 })
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      alert(data.error || 'Помилка autopilot')
+    } else {
+      const details = (data.results || []).slice(0, 5).map((item: any) => `${item.title}: ${item.decision} (${item.riskLevel})`).join('\n')
+      setAutopilotSummary(`Перевірено: ${data.total}. Auto approve: ${data.autoApproved}. Manual: ${data.manualReview}.${details ? `\n${details}` : ''}`)
+      if (!dryRun) await loadLots()
+    }
+    setProcessing(null)
+  }
+
   async function handlePurgeFake() {
     if (!confirm('Ви впевнені, що хочете видалити всі seed/test лоти? Ця дія є незворотною.')) return
     setLoading(true)
@@ -92,13 +113,33 @@ export default function AdminLotsPage() {
           <h1 className="text-[24px] font-bold text-[#0B1220]">Модерація лотів</h1>
           <p className="text-[14px] text-[#64748B]">Контроль за контентом та видалення порушень</p>
         </div>
-        <button
-          onClick={handlePurgeFake}
-          className="h-10 px-5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[13px] font-bold transition-all shadow-md shadow-amber-500/20 hover:scale-[1.02] flex items-center justify-center gap-1.5"
-        >
-          🧹 Видалити seed/test лоти
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={() => handleAutopilot(undefined, true)}
+            disabled={processing === 'autopilot'}
+            className="h-10 px-5 bg-white border border-[#BFDBFE] text-[#2563EB] rounded-xl text-[13px] font-bold transition-all hover:bg-[#EFF6FF] flex items-center justify-center gap-1.5 disabled:opacity-60"
+          >
+            <Bot className="w-4 h-4" /> AI dry run
+          </button>
+          <button
+            onClick={() => { if (confirm('Автоматично схвалити лише low-risk pending лоти? Сумнівні залишаться на ручну перевірку.')) handleAutopilot(undefined, false) }}
+            disabled={processing === 'autopilot'}
+            className="h-10 px-5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[13px] font-bold transition-all shadow-md shadow-[#2563EB]/20 flex items-center justify-center gap-1.5 disabled:opacity-60"
+          >
+            <Bot className="w-4 h-4" /> Auto approve low-risk
+          </button>
+          <button
+            onClick={handlePurgeFake}
+            className="h-10 px-5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-[13px] font-bold transition-all shadow-md shadow-amber-500/20 hover:scale-[1.02] flex items-center justify-center gap-1.5"
+          >
+            🧹 Видалити seed/test лоти
+          </button>
+        </div>
       </div>
+
+      {autopilotSummary && (
+        <pre className="mb-4 whitespace-pre-wrap bg-[#EFF6FF] border border-[#BFDBFE] text-[#1E40AF] rounded-2xl p-4 text-[12px] font-semibold">{autopilotSummary}</pre>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
@@ -173,6 +214,9 @@ export default function AdminLotsPage() {
                     </Link>
                     {lot.status === 'pending_review' ? (
                       <>
+                        <button onClick={() => handleAutopilot(lot.id, true)} disabled={processing === lot.id} className="h-9 bg-white border border-[#BFDBFE] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-[#2563EB] hover:bg-[#EFF6FF]">
+                          <Bot className="w-3.5 h-3.5" /> AI check
+                        </button>
                         <button onClick={() => handleModerate(lot.id, 'approve')} disabled={processing === lot.id} className="h-9 bg-[#10B981] rounded-lg flex items-center justify-center gap-1 text-[12px] font-bold text-white hover:bg-[#059669]">
                           <CheckCircle2 className="w-3.5 h-3.5" /> Схвалити
                         </button>
