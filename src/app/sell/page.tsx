@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck, Clock } from 'lucide-react'
+import { Camera, ChevronRight, X, Upload, CheckCircle, AlertCircle, Sparkles, Loader2, ShieldCheck, Clock, Share2, ListChecks, BadgeCheck, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { compressImageForUpload } from '@/lib/image-compression'
 
@@ -48,6 +48,7 @@ export default function SellPage() {
   const [aiHint, setAiHint] = useState('')
   const [aiTips, setAiTips] = useState<string[]>([])
   const [error, setError] = useState('')
+  const [createdLot, setCreatedLot] = useState<any>(null)
 
   const [images, setImages] = useState<string[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
@@ -260,8 +261,8 @@ export default function SellPage() {
         return
       }
 
-      // Hard redirect — guaranteed to work unlike router.push
-      window.location.href = `/lot/${data.id}?published=1`
+      setCreatedLot(data)
+      setLoading(false)
     } catch {
       setError("Помилка з'єднання з сервером")
       setLoading(false)
@@ -362,14 +363,64 @@ export default function SellPage() {
     )
   }
 
+
+  if (createdLot) {
+    const isActive = createdLot.status === 'active' && !createdLot.pendingReview
+    const lotUrl = `/lot/${createdLot.id}`
+    return (
+      <div className="max-w-[720px] mx-auto px-4 py-12">
+        <div className={`rounded-[2rem] border p-8 text-center ${isActive ? 'bg-[#ECFDF5] border-[#BBF7D0]' : 'bg-[#FFFBEB] border-[#FDE68A]'}`}>
+          <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-5 ${isActive ? 'bg-[#10B981] text-white' : 'bg-[#F59E0B] text-white'}`}>
+            {isActive ? <CheckCircle className="w-8 h-8" /> : <Clock className="w-8 h-8" />}
+          </div>
+          <h1 className="text-[28px] font-black text-[#0B1220] mb-2">
+            {isActive ? 'Лот опубліковано!' : 'Лот створено та відправлено на модерацію'}
+          </h1>
+          <p className="text-[14px] text-[#64748B] max-w-xl mx-auto mb-6">
+            {isActive
+              ? 'Ваш лот уже доступний у каталозі. Він може потрапити в Telegram-канал KRAM і daily digest.'
+              : 'Модератор або autopilot перевірить лот. Low-risk товари з реальними фото можуть бути опубліковані швидко.'}
+          </p>
+          {createdLot.moderationReasons?.length > 0 && (
+            <div className="mb-6 text-left bg-white/70 border border-[#FDE68A] rounded-2xl p-4">
+              <p className="text-[12px] font-bold text-[#92400E] uppercase mb-2">Причини перевірки</p>
+              <ul className="space-y-1 text-[13px] text-[#92400E] list-disc pl-5">
+                {createdLot.moderationReasons.map((reason: string) => <li key={reason}>{reason}</li>)}
+              </ul>
+            </div>
+          )}
+          <div className="grid sm:grid-cols-3 gap-3 mb-6 text-left">
+            <NextStep icon={Share2} title="Поділіться" text="Надішліть посилання покупцям або в соцмережі." />
+            <NextStep icon={ListChecks} title="Слідкуйте" text="Ставки, повідомлення й статуси будуть у кабінеті." />
+            <NextStep icon={ShieldCheck} title="Домовляйтесь безпечно" text="Рекомендуйте післяплату після огляду товару." />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href={lotUrl} className="h-12 px-6 rounded-xl bg-[#2563EB] text-white text-[14px] font-bold flex items-center justify-center">Відкрити лот</Link>
+            <Link href="/cabinet" className="h-12 px-6 rounded-xl bg-white border border-[#E2E8F0] text-[#0B1220] text-[14px] font-bold flex items-center justify-center">Мій кабінет</Link>
+            <button onClick={() => { setCreatedLot(null); setStep(1); setImages([]); setImagePreviews([]); setForm({ title: '', description: '', categoryId: '', condition: 'used', city: '', startPrice: '', minIncrement: '50', buyNowPrice: '', reservePrice: '', duration: '7', delivery: 'nova_poshta', featured: false }) }} className="h-12 px-6 rounded-xl bg-white border border-[#E2E8F0] text-[#0B1220] text-[14px] font-bold">Створити ще</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   const stepTitles = ['Основна інформація', 'Ціна та умови', 'Перевірка та публікація']
 
   return (
     <div className="max-w-[680px] mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-[26px] font-bold text-[#0B1220] tracking-tight">Створити лот</h1>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 h-8 px-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-full text-[12px] font-bold text-[#2563EB] mb-4">
+          <Zap className="w-4 h-4" /> Створіть лот за 3 хвилини
+        </div>
+        <h1 className="text-[30px] font-black text-[#0B1220] tracking-tight">Створити лот</h1>
         <p className="text-[14px] text-[#64748B] mt-1">Крок {step} з 3 — {stepTitles[step - 1]}</p>
+      </div>
+
+      <div className="grid sm:grid-cols-3 gap-3 mb-8">
+        <OnboardingPill icon={BadgeCheck} title="0% комісії" text="На старті платформи" />
+        <OnboardingPill icon={ShieldCheck} title="Прямі домовленості" text="KRAM не приймає оплату" />
+        <OnboardingPill icon={Sparkles} title="Autopilot" text="Low-risk лоти швидше проходять модерацію" />
       </div>
 
       {/* Progress */}
@@ -392,7 +443,8 @@ export default function SellPage() {
           {/* Photo upload */}
           <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6">
             <h2 className="text-[16px] font-bold text-[#0F172A] mb-1">Фотографії</h2>
-            <p className="text-[12px] text-[#94A3B8] mb-4">До 8 фото. JPEG, PNG або WebP — фото з телефону автоматично стискаються до 4MB</p>
+            <p className="text-[12px] text-[#94A3B8] mb-2">До 8 фото. JPEG, PNG або WebP — фото з телефону автоматично стискаються до 4MB</p>
+            <p className="text-[11px] text-[#2563EB] font-semibold mb-4">Порада: додайте 3–5 реальних фото, перше фото стане головним у каталозі та Telegram.</p>
 
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {imagePreviews.map((src, i) => (
@@ -539,7 +591,7 @@ export default function SellPage() {
                   rows={5}
                   className="w-full px-4 py-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[14px] placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all resize-none"
                 />
-                <p className="text-[11px] text-[#94A3B8] mt-1">{form.description.length} символів (мінімум 20)</p>
+                <p className="text-[11px] text-[#94A3B8] mt-1">{form.description.length} символів (мінімум 20). Додайте стан, дефекти, комплектацію, розмір/модель і причину продажу.</p>
               </div>
             </div>
           </div>
@@ -714,6 +766,16 @@ export default function SellPage() {
               ))}
             </div>
 
+            <div className="mt-5 p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl">
+              <p className="text-[12px] font-bold text-[#0F172A] uppercase mb-2">Чеклист якісного лота</p>
+              <div className="grid sm:grid-cols-2 gap-2 text-[12px] text-[#64748B]">
+                <QualityItem ok={images.length >= 2} text="2+ реальних фото" />
+                <QualityItem ok={form.description.length >= 80} text="Детальний опис 80+ символів" />
+                <QualityItem ok={Boolean(form.city)} text="Вказане місто" />
+                <QualityItem ok={!/(telegram|телеграм|viber|передоплат|предоплат)/i.test(form.description)} text="Без небезпечних слів про передоплату/месенджери" />
+              </div>
+            </div>
+
             {/* VIP Toggle */}
             <div className="mt-5 p-4 rounded-xl border-2 border-dashed border-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:bg-[#FEF3C7] transition-colors flex items-center justify-between" onClick={() => setForm(prev => ({ ...prev, featured: !prev.featured }))}>
               <div>
@@ -750,6 +812,36 @@ export default function SellPage() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+
+function OnboardingPill({ icon: Icon, title, text }: any) {
+  return (
+    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-4">
+      <Icon className="w-5 h-5 text-[#2563EB] mb-2" />
+      <p className="text-[13px] font-bold text-[#0B1220]">{title}</p>
+      <p className="text-[11px] text-[#64748B] mt-0.5">{text}</p>
+    </div>
+  )
+}
+
+function QualityItem({ ok, text }: { ok: boolean; text: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <CheckCircle className={`w-4 h-4 ${ok ? 'text-[#10B981]' : 'text-[#CBD5E1]'}`} />
+      <span className={ok ? 'text-[#0F172A] font-semibold' : ''}>{text}</span>
+    </div>
+  )
+}
+
+function NextStep({ icon: Icon, title, text }: any) {
+  return (
+    <div className="bg-white/75 border border-white/70 rounded-2xl p-4">
+      <Icon className="w-5 h-5 text-[#2563EB] mb-2" />
+      <p className="text-[13px] font-bold text-[#0B1220]">{title}</p>
+      <p className="text-[12px] text-[#64748B] mt-1 leading-relaxed">{text}</p>
     </div>
   )
 }
