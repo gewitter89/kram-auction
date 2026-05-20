@@ -49,19 +49,24 @@ export async function getProductionReadiness() {
   const emailStatus = getEmailProviderStatus()
 
   const checks = [
-    { key: 'database', label: 'База даних відповідає', ok: true },
-    { key: 'categories', label: 'Категорії створені', ok: categories >= REQUIRED_CATEGORIES.length, value: categories },
-    { key: 'admin', label: 'Є адміністратор', ok: adminUsers > 0, value: adminUsers },
-    { key: 'uploads', label: 'Фото-сховище Cloudinary налаштовано', ok: cloudinaryConfigured },
-    { key: 'cron', label: 'CRON_SECRET налаштовано', ok: Boolean(process.env.CRON_SECRET) },
-    { key: 'auth', label: 'AUTH_SECRET налаштовано', ok: Boolean(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET) },
-    { key: 'email', label: `Email provider налаштовано (${emailStatus.provider})`, ok: emailStatus.configured },
-    { key: 'reports', label: 'Немає черги скарг перед запуском', ok: pendingReports === 0, value: pendingReports },
-    { key: 'expired', label: 'Немає прострочених активних аукціонів', ok: expiredActiveLots === 0, value: expiredActiveLots },
+    { key: 'database', label: 'База даних відповідає', ok: true, severity: 'critical' },
+    { key: 'categories', label: 'Категорії створені', ok: categories >= REQUIRED_CATEGORIES.length, value: categories, severity: 'critical' },
+    { key: 'admin', label: 'Є адміністратор', ok: adminUsers > 0, value: adminUsers, severity: 'critical' },
+    { key: 'uploads', label: 'Фото-сховище Cloudinary налаштовано', ok: cloudinaryConfigured, severity: 'critical' },
+    { key: 'cron', label: 'CRON_SECRET налаштовано', ok: Boolean(process.env.CRON_SECRET), severity: 'critical' },
+    { key: 'auth', label: 'AUTH_SECRET налаштовано', ok: Boolean(process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET), severity: 'critical' },
+    { key: 'email', label: `Email provider налаштовано (${emailStatus.provider})`, ok: emailStatus.configured, severity: 'warning', hint: 'Email у dev-log не блокує controlled launch, але реальні листи не дійдуть користувачам.' },
+    { key: 'reports', label: 'Немає черги скарг перед запуском', ok: pendingReports === 0, value: pendingReports, severity: 'critical' },
+    { key: 'expired', label: 'Немає прострочених активних аукціонів', ok: expiredActiveLots === 0, value: expiredActiveLots, severity: 'critical' },
   ]
 
+  const criticalFailed = checks.filter(check => check.severity === 'critical' && !check.ok)
+  const warnings = checks.filter(check => check.severity === 'warning' && !check.ok)
+
   return {
-    ready: checks.every(check => check.ok),
+    ready: criticalFailed.length === 0,
+    criticalFailed: criticalFailed.length,
+    warnings: warnings.length,
     checks,
     stats: { categories, users, activeLots, pendingReports, expiredActiveLots, adminUsers, email: emailStatus },
   }

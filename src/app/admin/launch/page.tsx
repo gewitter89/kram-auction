@@ -74,7 +74,9 @@ export default function LaunchPage() {
   if (loading) return <div className="max-w-[1320px] mx-auto px-4 py-8 text-[#64748B]">Завантаження launch checklist...</div>
 
   const checks = readiness?.checks || []
-  const ready = checks.length > 0 && checks.every((c: any) => c.ok)
+  const ready = Boolean(readiness?.ready)
+  const warningCount = readiness?.warnings || checks.filter((c: any) => c.severity === 'warning' && !c.ok).length
+  const criticalFailed = readiness?.criticalFailed || checks.filter((c: any) => c.severity !== 'warning' && !c.ok).length
 
   return (
     <div className="max-w-[1320px] mx-auto px-4 py-8">
@@ -97,8 +99,8 @@ export default function LaunchPage() {
         <div className="flex items-center gap-3">
           {ready ? <CheckCircle2 className="w-8 h-8 text-[#10B981]" /> : <XCircle className="w-8 h-8 text-[#D97706]" />}
           <div>
-            <h2 className="text-[20px] font-black text-[#0B1220]">{ready ? 'Готово до controlled launch' : 'Ще є blockers перед запуском'}</h2>
-            <p className="text-[13px] text-[#64748B]">{ready ? 'Усі критичні readiness-перевірки пройдено.' : 'Закрийте червоні/жовті пункти нижче перед публічним запуском.'}</p>
+            <h2 className="text-[20px] font-black text-[#0B1220]">{ready ? 'Готово до controlled launch' : 'Є critical blockers перед запуском'}</h2>
+            <p className="text-[13px] text-[#64748B]">{ready ? (warningCount > 0 ? `Критичні перевірки пройдено. Попереджень: ${warningCount}.` : 'Усі критичні readiness-перевірки пройдено.') : `Critical blockers: ${criticalFailed}. Закрийте червоні пункти нижче.`}</p>
           </div>
         </div>
       </div>
@@ -153,10 +155,11 @@ export default function LaunchPage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {checks.map((check: any) => (
               <div key={check.key} className="border border-[#E2E8F0] rounded-2xl p-4 flex items-start gap-3">
-                {check.ok ? <CheckCircle2 className="w-5 h-5 text-[#10B981] shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />}
+                {check.ok ? <CheckCircle2 className="w-5 h-5 text-[#10B981] shrink-0 mt-0.5" /> : check.severity === 'warning' ? <AlertTriangle className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />}
                 <div>
                   <p className="text-[13px] font-bold text-[#0F172A]">{check.label}</p>
                   {typeof check.value !== 'undefined' && <p className="text-[12px] text-[#64748B] mt-0.5">Значення: {check.value}</p>}
+                  {check.hint && <p className="text-[11px] text-[#D97706] mt-1">{check.hint}</p>}
                 </div>
               </div>
             ))}
