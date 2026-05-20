@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/getCurrentUser'
 
 const QA_EMAIL_PREFIXES = ['kram.qa.', 'qa.', 'test.', 'demo.', 'api.qa.', 'ui.qa.']
-const QA_EMAIL_SUBSTRINGS = ['+qa', '+test', 'qa-', 'test-', 'demo']
+const QA_EMAIL_SUBSTRINGS = ['+qa', '+test', 'qa-', 'test-', '-qa', '-test', 'demo']
 const QA_EMAIL_DOMAINS = ['example.com', 'test.com', 'kram-test.com']
 
 function isSafeQaEmail(email: string) {
