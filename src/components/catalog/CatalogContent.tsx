@@ -49,7 +49,7 @@ export default function CatalogContent({ initialCategory = 'all' }: { initialCat
   const syncCatalogUrl = useCallback((nextPage = page) => {
     const params = new URLSearchParams()
     if (search.trim()) params.set('search', search.trim())
-    if (category !== 'all') params.set('category', category)
+    if (category !== 'all' && initialCategory === 'all') params.set('category', category)
     if (sort !== 'ending') params.set('sort', sort)
     if (minPrice) params.set('minPrice', minPrice)
     if (maxPrice) params.set('maxPrice', maxPrice)
@@ -58,9 +58,9 @@ export default function CatalogContent({ initialCategory = 'all' }: { initialCat
     if (type) params.set('type', type)
     if (nextPage > 1) params.set('page', String(nextPage))
     const qs = params.toString()
-    const basePath = initialCategory !== 'all' ? `/category/${initialCategory}` : '/catalog'
+    const basePath = category !== 'all' ? `/category/${category}` : '/catalog'
     router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false })
-  }, [router, search, category, sort, minPrice, maxPrice, city, condition, type, page])
+  }, [router, search, category, sort, minPrice, maxPrice, city, condition, type, page, initialCategory])
 
   useEffect(() => {
     syncCatalogUrl(page)
@@ -141,7 +141,7 @@ export default function CatalogContent({ initialCategory = 'all' }: { initialCat
     setSearch(''); setCategory('all'); setSort('ending')
     setMinPrice(''); setMaxPrice(''); setCity(''); setCondition(''); setType('')
     setPage(1)
-    router.replace(initialCategory !== 'all' ? `/category/${initialCategory}` : '/catalog', { scroll: false })
+    router.replace('/catalog', { scroll: false })
   }
 
   function removeFilter(key: 'search' | 'category' | 'price' | 'city' | 'condition' | 'type') {

@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer className="bg-[#0B1220] border-t border-white/10 text-white">
       <div className="max-w-[1320px] mx-auto px-4 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-10">
           
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
@@ -55,6 +55,18 @@ export function Footer() {
             <ul className="space-y-2.5">
               <li><Link href="/disputes" className="text-[13px] text-slate-300 hover:text-[#EF4444] transition-colors">Вирішення спорів</Link></li>
               <li><Link href="/safety" className="text-[13px] text-slate-300 hover:text-[#2563EB] transition-colors">Центр безпеки</Link></li>
+            </ul>
+          </div>
+
+
+          {/* Column 5 */}
+          <div>
+            <h4 className="text-[10.5px] font-bold tracking-wider uppercase text-slate-400 mb-4">Категорії</h4>
+            <ul className="space-y-2.5">
+              <li><Link href="/category/phones" className="text-[13px] text-slate-300 hover:text-[#2563EB] transition-colors">Телефони</Link></li>
+              <li><Link href="/category/laptops" className="text-[13px] text-slate-300 hover:text-[#2563EB] transition-colors">Ноутбуки</Link></li>
+              <li><Link href="/category/games" className="text-[13px] text-slate-300 hover:text-[#2563EB] transition-colors">Ігри та консолі</Link></li>
+              <li><Link href="/category/tools" className="text-[13px] text-slate-300 hover:text-[#2563EB] transition-colors">Інструменти</Link></li>
             </ul>
           </div>
 
