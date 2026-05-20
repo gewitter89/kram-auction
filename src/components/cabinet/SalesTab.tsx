@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { DollarSign, Package, Truck, CheckCircle, AlertCircle, Clock, CreditCard, MessageSquare, Send } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { formatPrice, timeAgo } from '@/lib/utils'
+import { DisputeModal } from '@/components/cabinet/DisputeModal'
 
 interface Transaction {
   id: string
@@ -68,6 +69,7 @@ export function SalesTab() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [disputeTxId, setDisputeTxId] = useState<string | null>(null)
   const [shippingForm, setShippingForm] = useState<{ txId: string; tracking: string; provider: string } | null>(null)
 
   const load = () => {
@@ -125,12 +127,23 @@ export function SalesTab() {
     }
   }
 
-  async function openDispute(id: string) {
-    const reason = prompt('Вкажіть причину спору:')
-    if (!reason || reason.length < 5) {
-      alert('Причина має бути не менше 5 символів')
-      return
+  async function cancelAgreement(id: string) {
+    if (!confirm('Скасувати домовленість? Лот знову стане доступним у каталозі.')) return
+    setProcessing(id)
+    try {
+      const res = await fetch(`/api/transactions/${id}/cancel`, { method: 'POST' })
+      if (res.ok) {
+        load()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Помилка')
+      }
+    } finally {
+      setProcessing(null)
     }
+  }
+
+  async function openDispute(id: string, reason: string) {
     setProcessing(id)
     try {
       const res = await fetch(`/api/transactions/${id}/dispute`, {
@@ -287,9 +300,19 @@ export function SalesTab() {
                     </button>
                   )}
                   
+                  {(tx.status === 'PENDING_PAYMENT' || tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD') && (
+                    <button
+                      onClick={() => cancelAgreement(tx.id)}
+                      disabled={processing === tx.id}
+                      className="h-10 px-5 bg-white border border-[#CBD5E1] text-[#64748B] rounded-xl text-[13px] font-semibold hover:bg-[#F8FAFC] disabled:opacity-50 transition-all"
+                    >
+                      Скасувати домовленість
+                    </button>
+                  )}
+
                   {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
                     <button
-                      onClick={() => openDispute(tx.id)}
+                      onClick={() => setDisputeTxId(tx.id)}
                       disabled={processing === tx.id}
                       className="h-10 px-5 bg-white border border-[#EF4444] text-[#EF4444] rounded-xl text-[13px] font-semibold hover:bg-[#FEF2F2] disabled:opacity-50 transition-all"
                     >
@@ -324,6 +347,12 @@ export function SalesTab() {
           )
         })}
       </div>
+      {disputeTxId && (
+        <DisputeModal
+          onClose={() => setDisputeTxId(null)}
+          onSubmit={(reason) => openDispute(disputeTxId, reason)}
+        />
+      )}
     </>
   )
 }

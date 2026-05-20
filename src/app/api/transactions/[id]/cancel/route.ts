@@ -6,7 +6,7 @@ type SessionUserWithRole = {
   role?: string
 }
 
-// POST /api/transactions/[id]/cancel - Cancel transaction (only from PENDING_PAYMENT)
+// POST /api/transactions/[id]/cancel - Cancel transaction before shipment
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -49,7 +49,7 @@ export async function POST(
       return NextResponse.json({ error: 'Немає доступу' }, { status: 403 })
     }
     if (message === 'INVALID_STATUS') {
-      return NextResponse.json({ error: 'Скасувати можна тільки угоду, що очікує оплати' }, { status: 409 })
+      return NextResponse.json({ error: 'Скасувати можна тільки до відправлення або відкриття спору' }, { status: 409 })
     }
     
     return NextResponse.json(

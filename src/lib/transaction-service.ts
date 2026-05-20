@@ -774,7 +774,7 @@ export async function openTransactionDispute(
   return updated
 }
 
-// Cancel transaction (buyer, seller, or admin — only from PENDING_PAYMENT)
+// Cancel transaction (buyer, seller, or admin — before shipment)
 export async function cancelTransaction(
   transactionId: string,
   actorId: string,
@@ -804,8 +804,9 @@ export async function cancelTransaction(
     throw new Error('FORBIDDEN')
   }
 
-  // Can only cancel from PENDING_PAYMENT
-  if (transaction.status !== TransactionStatus.PENDING_PAYMENT) {
+  // Can only cancel before shipment/dispute/completion
+  const cancellableStatuses: string[] = [TransactionStatus.PENDING_PAYMENT, TransactionStatus.TERMS_AGREED, TransactionStatus.PAID_HELD]
+  if (!cancellableStatuses.includes(transaction.status)) {
     throw new Error('INVALID_STATUS')
   }
 
@@ -830,7 +831,7 @@ export async function cancelTransaction(
       transactionId,
       TransactionEventType.TRANSACTION_CANCELLED,
       actorId,
-      TransactionStatus.PENDING_PAYMENT,
+      transaction.status,
       TransactionStatus.CANCELLED,
       `Угоду скасовано ${isAdmin ? 'адміністратором' : isBuyer ? 'покупцем' : 'продавцем'}`
     )

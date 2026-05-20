@@ -10,6 +10,7 @@ import {
 import { formatPrice, timeAgo } from '@/lib/utils'
 import Link from 'next/link'
 import { Loader2 } from 'lucide-react'
+import { DisputeModal } from '@/components/cabinet/DisputeModal'
 
 export default function TransactionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -17,6 +18,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   const [tx, setTx] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
+  const [showDisputeModal, setShowDisputeModal] = useState(false)
 
   const load = async () => {
     try {
@@ -38,6 +40,11 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   useEffect(() => {
     load()
   }, [id])
+
+  async function cancelAgreement() {
+    if (!confirm('Скасувати домовленість? Лот знову стане доступним у каталозі.')) return
+    await handleAction('cancel')
+  }
 
   async function handleAction(action: string, body?: any) {
     setProcessing(true)
@@ -428,12 +435,19 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                 </button>
               )}
 
+              {(tx.status === 'PENDING_PAYMENT' || tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD') && (
+                <button
+                  onClick={cancelAgreement}
+                  disabled={processing}
+                  className="w-full h-11 bg-white border border-[#CBD5E1] text-[#64748B] rounded-xl text-[13px] font-bold hover:bg-[#F8FAFC] transition-all disabled:opacity-50"
+                >
+                  Скасувати домовленість
+                </button>
+              )}
+
               {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
                 <button
-                  onClick={() => {
-                    const reason = prompt('Вкажіть причину спору:')
-                    if (reason) handleAction('dispute', { reason })
-                  }}
+                  onClick={() => setShowDisputeModal(true)}
                   disabled={processing}
                   className="w-full h-11 bg-white border border-[#EF4444] text-[#EF4444] rounded-xl text-[13px] font-bold hover:bg-[#FEF2F2] transition-all"
                 >
@@ -466,6 +480,12 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
           </div>
         </div>
       </div>
+      {showDisputeModal && (
+        <DisputeModal
+          onClose={() => setShowDisputeModal(false)}
+          onSubmit={(reason) => handleAction('dispute', { reason })}
+        />
+      )}
     </div>
   )
 }
