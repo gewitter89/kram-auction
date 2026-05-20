@@ -117,7 +117,7 @@ export function LotCard({ lot, initialFavorite = false }: LotCardProps) {
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#EFF6FF] to-white p-6">
             <span className="text-[12px] font-black text-[#2563EB] tracking-widest uppercase">KRAM</span>
-            <span className="text-[11px] text-[#475569] mt-0.5">Демо-лот</span>
+            <span className="text-[11px] text-[#475569] mt-0.5">Лот KRAM</span>
           </div>
         )}
 
