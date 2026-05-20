@@ -99,7 +99,7 @@ function timeLeftLabel(endsAt: string) {
 
 function SectionHeader({ eyebrow, title, href }: { eyebrow: string; title: string; href?: string }) {
   return (
-    <div className="flex items-end justify-between gap-4 mb-5">
+    <div className="flex items-end justify-between gap-4 mb-6">
       <div>
         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#2563EB] mb-1.5">{eyebrow}</p>
         <h2 className="text-[22px] md:text-[30px] font-black text-[#0B1220] tracking-[-0.03em]">{title}</h2>
@@ -352,24 +352,30 @@ export function MarketplaceShowcase() {
       )}
 
       <section className="max-w-[1320px] mx-auto px-4 py-10">
-        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-5">
-          <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-6 shadow-sm">
-            <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#ECFDF5] border border-[#BBF7D0] rounded-full text-[11px] font-black text-[#059669] uppercase tracking-wide mb-4">
-              <ShieldCheck className="w-4 h-4" /> Безпечна модель
+        <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5 mb-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 h-7 px-3 bg-[#ECFDF5] border border-[#BBF7D0] rounded-full text-[11px] font-black text-[#059669] uppercase tracking-wide mb-4">
+                <ShieldCheck className="w-4 h-4" /> Безпечна модель
+              </div>
+              <h2 className="text-[24px] md:text-[34px] font-black text-[#0B1220] tracking-[-0.04em] mb-3">KRAM не приймає оплату й не утримує кошти</h2>
+              <p className="text-[14px] text-[#475569] leading-relaxed">
+                Платформа показує лот, ставку, чат і статус домовленості. Покупець і продавець самі погоджують оплату та доставку; рекомендуємо післяплату після огляду товару.
+              </p>
             </div>
-            <h2 className="text-[24px] md:text-[32px] font-black text-[#0B1220] tracking-[-0.035em] mb-3">KRAM не приймає оплату</h2>
-            <p className="text-[14px] text-[#475569] leading-relaxed">
-              Платформа фіксує лот, ставки, переписку та статус домовленості. Оплату й доставку покупець і продавець погоджують самостійно; рекомендуємо післяплату після огляду товару.
-            </p>
+            <Link href="/safety" className="inline-flex h-11 px-5 items-center justify-center bg-[#0B1220] text-white rounded-xl text-[13px] font-black hover:bg-[#111827]">
+              Правила безпеки
+            </Link>
           </div>
+
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {[
-              ['Прозорі ставки', 'історія торгів видима'],
-              ['Чат і статуси', 'домовленості збережені'],
-              ['Нова Пошта', 'післяплата після огляду'],
+              ['Прозорі ставки', 'історія торгів видима для всіх'],
+              ['Чат і статуси', 'домовленості збережені в системі'],
+              ['Нова Пошта', 'післяплата після огляду товару'],
               ['Модерація', 'скарги й ризики під контролем'],
             ].map(([title, desc]) => (
-              <div key={title} className="bg-white border border-[#E2E8F0] rounded-2xl p-5">
+              <div key={title} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5">
                 <CheckCircle2 className="w-5 h-5 text-[#10B981] mb-3" />
                 <p className="text-[14px] font-black text-[#0B1220]">{title}</p>
                 <p className="text-[12px] text-[#64748B] mt-1 leading-snug">{desc}</p>
