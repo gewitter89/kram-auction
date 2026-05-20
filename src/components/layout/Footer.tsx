@@ -36,7 +36,7 @@ export function Footer() {
             <ul className="space-y-2.5">
               <li><Link href="/sellers" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Для продавців</Link></li>
               <li><Link href="/sell" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Створити лот</Link></li>
-              <li><Link href="/cabinet/verify" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Верифікація продавців — скоро</Link></li>
+              <li><Link href="/cabinet/verify" className="text-[13px] text-slate-300 hover:text-[#10B981] transition-colors">Верифікація продавців</Link></li>
             </ul>
           </div>
 
