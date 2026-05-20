@@ -11,7 +11,7 @@ export async function sendTelegramMessage(chatId: string, text: string, options?
   }
 
   try {
-    await fetch(`${TELEGRAM_API}/sendMessage`, {
+    const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -21,32 +21,46 @@ export async function sendTelegramMessage(chatId: string, text: string, options?
         ...options
       })
     })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Telegram sendMessage API error:', response.status, errorText)
+      return false
+    }
+    return true
   } catch (error) {
     console.error('Failed to send Telegram message:', error)
+    return false
   }
 }
 
 
-export async function sendTelegramPhoto(chatId: string, photo: string, caption: string, options?: Record<string, unknown>) {
+export async function sendTelegramPhoto(chatId: string, photoUrl: string, caption: string, options?: Record<string, unknown>) {
   if (!BOT_TOKEN) {
     console.warn('TELEGRAM_BOT_TOKEN not set')
     return
   }
 
   try {
-    await fetch(`${TELEGRAM_API}/sendPhoto`, {
+    const response = await fetch(`${TELEGRAM_API}/sendPhoto`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
-        photo,
+        photo: photoUrl,
         caption,
         parse_mode: 'HTML',
         ...options
       })
     })
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Telegram sendPhoto API error:', response.status, errorText, 'Photo URL:', photoUrl)
+      return false
+    }
+    return true
   } catch (error) {
     console.error('Failed to send Telegram photo:', error)
+    return false
   }
 }
 
