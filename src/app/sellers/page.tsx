@@ -99,7 +99,7 @@ export default function SellersPage() {
               </div>
               <div>
                 <p className="text-[15px] font-bold">Що отримує перший продавець</p>
-                <p className="text-[12px] text-slate-400">Фокус на реальних лотах, без порожнього каталогу</p>
+                <p className="text-[12px] text-slate-400">Фокус на якісних лотах і сильній добірці</p>
               </div>
             </div>
             <div className="space-y-4">
@@ -171,7 +171,7 @@ export default function SellersPage() {
             <>
               <div className="mb-6">
                 <h2 className="text-[24px] font-black text-[#0B1220] mb-2">Подати заявку продавця</h2>
-                <p className="text-[14px] text-[#64748B]">Розкажіть, що ви продаєте. Це допоможе нам запускати перші категорії не порожніми.</p>
+                <p className="text-[14px] text-[#64748B]">Розкажіть, що ви продаєте. Це допоможе формувати сильні категорії з якісними реальними лотами.</p>
               </div>
               {error && <div className="mb-4 p-3 bg-[#FEF2F2] border border-[#FECACA] rounded-xl text-[13px] text-[#EF4444]">{error}</div>}
               <form onSubmit={submit} className="grid md:grid-cols-2 gap-4">
