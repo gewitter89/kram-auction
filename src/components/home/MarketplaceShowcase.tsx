@@ -379,6 +379,34 @@ export function MarketplaceShowcase() {
         </div>
       </section>
 
+
+
+      <section className="max-w-[1320px] mx-auto px-4 py-10">
+        <div className="relative overflow-hidden rounded-[1.75rem] bg-[#0B1220] text-white p-7 md:p-9 shadow-xl">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_18%_20%,#2563EB_0,transparent_28%),radial-gradient(circle_at_85%_85%,#10B981_0,transparent_26%)]" />
+          <div className="relative grid lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#93C5FD] mb-3">Перший тиждень запуску</p>
+              <h2 className="text-[28px] md:text-[40px] font-black tracking-[-0.045em] leading-tight mb-4">Зробимо каталог живим: 20 якісних лотів замість порожньої вітрини</h2>
+              <p className="text-[14px] text-slate-300 leading-relaxed">KRAM уже готовий технічно. Тепер найсильніше впливають реальні фото, зрозумілі ціни, міста продавців і перші ставки.</p>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              {[
+                ['01', 'Додати лоти', '3–5 фото, опис стану, місто'],
+                ['02', 'Поширити', 'Telegram, локальні групи, продавці'],
+                ['03', 'Закрити угоди', 'чат, статуси, післяплата після огляду'],
+              ].map(([num, title, desc]) => (
+                <div key={num} className="bg-white/8 border border-white/10 rounded-2xl p-5">
+                  <p className="text-[12px] font-black text-[#93C5FD] mb-3">{num}</p>
+                  <p className="text-[15px] font-black text-white mb-2">{title}</p>
+                  <p className="text-[12px] text-slate-400 leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {endingLots.length > 1 && (
         <section className="max-w-[1320px] mx-auto px-4 py-10">
           <SectionHeader eyebrow="Фініш торгів" title="Завершуються скоро" href="/catalog?sort=ending" />
