@@ -119,7 +119,7 @@ export function HeroSection() {
                 <Info className="w-3 h-3" /> Як виглядатимуть торги
               </span>
               <span className="text-[10px] text-[#94A3B8]">
-                Демонстрація механіки ставки
+                Приклад механіки ставки
               </span>
             </div>
 
@@ -146,7 +146,7 @@ export function HeroSection() {
                           {lot.category}
                         </span>
                         <span className="text-[10px] font-bold text-[#EF4444] bg-[#FEF2F2] px-2 py-0.5 rounded-full uppercase tracking-wide">
-Демо
+Приклад
                         </span>
                       </div>
                       

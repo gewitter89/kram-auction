@@ -16,7 +16,7 @@ export function Footer() {
               Українська платформа прозорих онлайн-торгів та оголошень.
             </p>
             <p className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">
-              KRAM · BETA CLASSIFIED
+              KRAM · ПРОЗОРІ ОНЛАЙН-ТОРГИ
             </p>
           </div>
 

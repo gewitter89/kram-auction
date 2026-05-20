@@ -121,7 +121,7 @@ export function TrustSection() {
           </div>
           <div className="text-center">
             <p className="text-[40px] font-black text-white">0₴</p>
-            <p className="text-[13px] font-bold text-[#10B981] uppercase tracking-widest mt-2">Комісія (BETA)</p>
+            <p className="text-[13px] font-bold text-[#10B981] uppercase tracking-widest mt-2">Комісія на старті</p>
           </div>
           <div className="text-center">
             <p className="text-[40px] font-black text-white">MVP</p>

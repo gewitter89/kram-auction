@@ -290,7 +290,7 @@ export function HowItWorksSimple() {
             Як обережно купувати та продавати
           </h2>
           <p className="text-[#475569] text-[14.5px] leading-relaxed">
-            KRAM працює за моделлю прямих домовленостей (Classified). Ми надаємо прозору історію ставок та чат, але не виступаємо фінансовим чи логістичним посередником.
+            KRAM працює за моделлю прямих домовленостей. Ми надаємо прозору історію ставок та чат, але не виступаємо фінансовим чи логістичним посередником.
           </p>
         </div>
 
@@ -407,7 +407,7 @@ export function MobileAppsTeaser() {
               <div className="w-full h-full p-3 pt-7 pb-3 flex flex-col justify-between text-white bg-[#0B1220]">
                 {/* Mock Phone App Header */}
                 <div className="border-b border-white/5 pb-1 flex items-center gap-1 justify-between">
-                  <span className="text-[9px] font-black tracking-tight text-[#2563EB]">KRAM BETA</span>
+                  <span className="text-[9px] font-black tracking-tight text-[#2563EB]">KRAM</span>
                   <span className="text-[8px] text-slate-500">12:00</span>
                 </div>
 
