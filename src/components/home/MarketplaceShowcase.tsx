@@ -286,8 +286,8 @@ export function MarketplaceShowcase() {
                 <div className="bg-white border border-[#E2E8F0] rounded-[1.75rem] p-5 shadow-sm flex flex-col justify-between">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#2563EB] mb-2">Для продавців</p>
-                    <h3 className="text-[22px] font-black text-[#0B1220] tracking-[-0.03em] mb-3">Додайте перші сильні лоти</h3>
-                    <p className="text-[13px] text-[#64748B] leading-relaxed">Каталог виглядає переконливо, коли є 20+ реальних товарів із фото, містом і чесним описом стану.</p>
+                    <h3 className="text-[22px] font-black text-[#0B1220] tracking-[-0.03em] mb-3">Додайте сильні лоти</h3>
+                    <p className="text-[13px] text-[#64748B] leading-relaxed">Професійна добірка тримається на реальних фото, місті, чесному описі стану та зрозумілій доставці.</p>
                   </div>
                   <div className="mt-5 space-y-2">
                     {['3–5 фото товару', 'чесний опис стану', 'місто та доставка', 'без передоплати у тексті'].map(item => (
@@ -399,8 +399,8 @@ export function MarketplaceShowcase() {
           <div className="relative grid lg:grid-cols-[0.8fr_1.2fr] gap-8 items-center">
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#93C5FD] mb-3">Каталог для перших продавців</p>
-              <h2 className="text-[28px] md:text-[40px] font-black tracking-[-0.045em] leading-tight mb-4">20 якісних лотів створять першу сильну добірку KRAM</h2>
-              <p className="text-[14px] text-slate-300 leading-relaxed">KRAM уже готовий технічно. Тепер найсильніше впливають реальні фото, зрозумілі ціни, міста продавців і перші ставки.</p>
+              <h2 className="text-[28px] md:text-[40px] font-black tracking-[-0.045em] leading-tight mb-4">Якісні лоти створюють довіру до торгів</h2>
+              <p className="text-[14px] text-slate-300 leading-relaxed">Сильна добірка починається з реальних фото, зрозумілих цін, міст продавців і прозорої історії ставок.</p>
             </div>
             <div className="grid sm:grid-cols-3 gap-3">
               {[
