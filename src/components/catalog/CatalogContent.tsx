@@ -23,7 +23,7 @@ const categories = [
 
 const cities = ['Київ', 'Харків', 'Одеса', 'Дніпро', 'Львів', 'Запоріжжя', 'Вінниця', 'Полтава']
 
-export default function CatalogContent() {
+export default function CatalogContent({ initialCategory = 'all' }: { initialCategory?: string } = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -36,7 +36,7 @@ export default function CatalogContent() {
   const [saveSearchMessage, setSaveSearchMessage] = useState('')
 
   const [search, setSearch] = useState(searchParams.get('search') || '')
-  const [category, setCategory] = useState(searchParams.get('category') || 'all')
+  const [category, setCategory] = useState(searchParams.get('category') || initialCategory || 'all')
   const [sort, setSort] = useState(searchParams.get('sort') || 'ending')
   const [minPrice, setMinPrice] = useState(searchParams.get('minPrice') || '')
   const [maxPrice, setMaxPrice] = useState(searchParams.get('maxPrice') || '')
@@ -58,7 +58,8 @@ export default function CatalogContent() {
     if (type) params.set('type', type)
     if (nextPage > 1) params.set('page', String(nextPage))
     const qs = params.toString()
-    router.replace(qs ? `/catalog?${qs}` : '/catalog', { scroll: false })
+    const basePath = initialCategory !== 'all' ? `/category/${initialCategory}` : '/catalog'
+    router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false })
   }, [router, search, category, sort, minPrice, maxPrice, city, condition, type, page])
 
   useEffect(() => {
@@ -140,7 +141,7 @@ export default function CatalogContent() {
     setSearch(''); setCategory('all'); setSort('ending')
     setMinPrice(''); setMaxPrice(''); setCity(''); setCondition(''); setType('')
     setPage(1)
-    router.replace('/catalog', { scroll: false })
+    router.replace(initialCategory !== 'all' ? `/category/${initialCategory}` : '/catalog', { scroll: false })
   }
 
   function removeFilter(key: 'search' | 'category' | 'price' | 'city' | 'condition' | 'type') {

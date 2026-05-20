@@ -54,7 +54,7 @@ export function CategoriesSection() {
           return (
             <Link
               key={cat.slug}
-              href={`/catalog?category=${cat.slug}`}
+              href={`/category/${cat.slug}`}
               className="group relative flex flex-col items-center gap-3 p-5 bg-white border border-[#E2E8F0] rounded-2xl hover:border-[#2563EB]/25 hover:shadow-premium transition-all duration-300"
             >
               <div className={`w-12 h-12 bg-gradient-to-br ${cat.gradient} rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform duration-300`}>

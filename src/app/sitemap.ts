@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 import { absoluteUrl } from '@/lib/site-url'
 import { publicActiveListingWhere } from '@/lib/public-listing-filters'
+import { launchCategories } from '@/lib/categories'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages = ['', '/catalog', '/fees', '/safety', '/rules', '/terms', '/privacy', '/support', '/about'].map(path => ({
@@ -24,11 +25,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [
       ...staticPages,
+      ...launchCategories.map(category => ({
+        url: absoluteUrl(`/category/${category.slug}`),
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.65,
+      })),
       ...categories.map(category => ({
         url: absoluteUrl(`/catalog?category=${category.slug}`),
         lastModified: new Date(),
         changeFrequency: 'daily' as const,
-        priority: 0.6,
+        priority: 0.45,
       })),
       ...lots.map(lot => ({
         url: absoluteUrl(`/lot/${lot.id}`),
