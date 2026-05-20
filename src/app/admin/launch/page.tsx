@@ -104,12 +104,13 @@ export default function LaunchPage() {
             <HealthTile label="Повідомлення 24h" value={stats.last24h?.messages} />
             <HealthTile label="Угоди 24h" value={stats.last24h?.transactions} />
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
             <QueueTile label="Скарги" value={stats.queues?.pendingReports} href="/admin/reports" danger={stats.queues?.pendingReports > 0} />
             <QueueTile label="Верифікації" value={stats.queues?.pendingVerificationRequests} href="/admin/verifications" danger={stats.queues?.pendingVerificationRequests > 0} />
             <QueueTile label="Лоти на модерації" value={stats.queues?.pendingReviewLots} href="/admin/lots" danger={stats.queues?.pendingReviewLots > 0} />
             <QueueTile label="Відкриті спори" value={stats.queues?.disputesOpen} href="/admin/disputes" danger={stats.queues?.disputesOpen > 0} />
             <QueueTile label="Прострочені лоти" value={stats.queues?.expiredActiveLots} href="/admin" danger={stats.queues?.expiredActiveLots > 0} />
+            <QueueTile label="QA/Test users" value={stats.queues?.qaUsers} href="/admin/users" danger={stats.queues?.qaUsers > 0} />
           </div>
           <div className="mt-5 grid sm:grid-cols-2 gap-3">
             <div className="rounded-2xl border border-[#E2E8F0] p-4 flex items-center justify-between">
@@ -120,6 +121,12 @@ export default function LaunchPage() {
               <span className="text-[13px] font-semibold text-[#64748B]">Saved searches</span>
               <strong className="text-[#0B1220]">{stats.health?.savedSearchesActive ?? 0}</strong>
             </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/admin/users" className="h-9 px-3 inline-flex items-center rounded-xl bg-[#FEF2F2] text-[#EF4444] text-[12px] font-bold border border-[#FECACA]">QA cleanup center</Link>
+            <Link href="/admin/lots" className="h-9 px-3 inline-flex items-center rounded-xl bg-[#EFF6FF] text-[#2563EB] text-[12px] font-bold border border-[#BFDBFE]">Lot autopilot</Link>
+            <Link href="/admin/reports" className="h-9 px-3 inline-flex items-center rounded-xl bg-white text-[#64748B] text-[12px] font-bold border border-[#E2E8F0]">Reports</Link>
+            <Link href="/admin/disputes" className="h-9 px-3 inline-flex items-center rounded-xl bg-white text-[#64748B] text-[12px] font-bold border border-[#E2E8F0]">Disputes</Link>
           </div>
         </section>
       )}

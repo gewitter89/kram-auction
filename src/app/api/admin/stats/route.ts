@@ -10,7 +10,19 @@ export async function GET(request: Request) {
     today.setHours(0, 0, 0, 0)
     const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-    const [users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun, lastEndingSoonRun, recentUsers, newUsers24h, newLots24h, bids24h, messages24h, transactions24h, pendingVerificationRequests, pendingReviewLots, disputesOpen, savedSearchesActive, paymentsDisabled] = await Promise.all([
+    const qaUserWhere = {
+      NOT: { role: 'admin' },
+      OR: [
+        { email: { contains: 'qa', mode: 'insensitive' as const } },
+        { email: { contains: 'test', mode: 'insensitive' as const } },
+        { email: { contains: 'demo', mode: 'insensitive' as const } },
+        { email: { endsWith: '@example.com', mode: 'insensitive' as const } },
+        { email: { endsWith: '@test.com', mode: 'insensitive' as const } },
+        { email: { endsWith: '@kram-test.com', mode: 'insensitive' as const } },
+      ],
+    }
+
+    const [users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun, lastEndingSoonRun, recentUsers, newUsers24h, newLots24h, bids24h, messages24h, transactions24h, pendingVerificationRequests, pendingReviewLots, disputesOpen, savedSearchesActive, paymentsDisabled, qaUsers] = await Promise.all([
       prisma.user.count(),
       prisma.listing.count({ where: { status: 'active' } }),
       prisma.bid.count({ where: { createdAt: { gte: today } } }),
@@ -42,6 +54,7 @@ export async function GET(request: Request) {
       prisma.transaction.count({ where: { status: 'DISPUTED' } }),
       prisma.report.count({ where: { reason: 'saved_search', status: 'reviewed' } }),
       Promise.resolve(process.env.PAYMENTS_ENABLED !== 'true'),
+      prisma.user.count({ where: qaUserWhere }),
     ])
 
     let cron = null
@@ -78,6 +91,7 @@ export async function GET(request: Request) {
         pendingReviewLots,
         disputesOpen,
         expiredActiveLots,
+        qaUsers,
       },
       health: {
         paymentsDisabled,
