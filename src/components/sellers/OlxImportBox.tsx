@@ -105,8 +105,8 @@ export function OlxImportBox() {
   const goodPreviews = previews.filter(item => item.ok && item.item)
 
   return (
-    <section className="max-w-[900px] mx-auto px-4 pb-10">
-      <div className="bg-[#0B1220] text-white rounded-[2rem] p-6 md:p-8 shadow-sm">
+    <section className="max-w-[900px] mx-auto px-4 pb-10 overflow-hidden">
+      <div className="bg-[#0B1220] text-white rounded-[2rem] p-6 md:p-8 shadow-sm overflow-hidden">
         <div className="flex items-start gap-4 mb-5">
           <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
             <ExternalLink className="w-6 h-6 text-[#60A5FA]" />
@@ -124,7 +124,7 @@ export function OlxImportBox() {
             value={olxText}
             onChange={e => setOlxText(e.target.value)}
             placeholder={'https://www.olx.ua/d/uk/obyavlenie/...\nhttps://www.olx.ua/d/uk/obyavlenie/...'}
-            className="w-full min-h-[96px] p-4 bg-white/10 border border-white/15 rounded-xl text-[14px] text-white placeholder:text-slate-500 outline-none focus:border-[#60A5FA] resize-none"
+            className="w-full min-h-[96px] max-h-[180px] p-4 bg-white/10 border border-white/15 rounded-xl text-[14px] text-white placeholder:text-slate-500 outline-none focus:border-[#60A5FA] resize-y break-all"
           />
           <div className="flex flex-col sm:flex-row gap-3">
             <button disabled={previewing} className="h-12 px-6 bg-white text-[#0B1220] rounded-xl text-[14px] font-black hover:bg-slate-100 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
@@ -143,24 +143,24 @@ export function OlxImportBox() {
         </form>
 
         {previews.length > 0 && (
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 space-y-3 max-h-[520px] overflow-y-auto pr-1">
             {previews.map((preview, index) => preview.ok && preview.item ? (
-              <div key={preview.item.olxUrl} className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-3">
+              <div key={preview.item.olxUrl} className="bg-white/5 border border-white/10 rounded-2xl p-3 flex gap-3 min-w-0 overflow-hidden">
                 <div className="w-20 h-20 rounded-xl bg-white/10 overflow-hidden shrink-0">
                   {preview.item.photos[0] && <img src={preview.item.photos[0]} alt="" className="w-full h-full object-cover" />}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-bold text-white line-clamp-2">{preview.item.title}</p>
+                <div className="min-w-0 flex-1 overflow-hidden">
+                  <p className="text-[13px] font-bold text-white line-clamp-2 break-words">{preview.item.title}</p>
                   <div className="mt-1 flex flex-wrap gap-1.5 text-[11px] text-slate-300">
                     <span className="px-2 py-0.5 bg-white/10 rounded-full">{preview.item.categoryName}</span>
                     <span className="px-2 py-0.5 bg-white/10 rounded-full">{preview.item.conditionLabel}</span>
                     <span className="px-2 py-0.5 bg-white/10 rounded-full">{preview.item.locationLabel}</span>
                   </div>
-                  <p className="mt-2 text-[13px] font-black text-[#93C5FD]">{preview.item.price.toLocaleString('uk-UA')} ₴ · старт {preview.item.startPrice.toLocaleString('uk-UA')} ₴</p>
+                  <p className="mt-2 text-[13px] font-black text-[#93C5FD] break-words">{preview.item.price.toLocaleString('uk-UA')} ₴ · старт {preview.item.startPrice.toLocaleString('uk-UA')} ₴</p>
                 </div>
               </div>
             ) : (
-              <div key={`${preview.olxUrl}-${index}`} className="bg-red-500/10 border border-red-400/20 rounded-2xl p-3 flex items-center gap-2 text-[12px] text-red-200">
+              <div key={`${preview.olxUrl}-${index}`} className="bg-red-500/10 border border-red-400/20 rounded-2xl p-3 flex items-start gap-2 text-[12px] text-red-200 min-w-0 overflow-hidden break-all">
                 <XCircle className="w-4 h-4" /> {preview.olxUrl}: {preview.error}
               </div>
             ))}
@@ -178,8 +178,8 @@ export function OlxImportBox() {
             </div>
             <div className="space-y-2">
               {results.map((result, index) => (
-                <div key={`${result.olxUrl}-${index}`} className="text-[12px] text-slate-200 flex items-center justify-between gap-3 border-t border-white/10 pt-2">
-                  <span className="truncate">{result.olxUrl}</span>
+                <div key={`${result.olxUrl}-${index}`} className="text-[12px] text-slate-200 flex items-center justify-between gap-3 border-t border-white/10 pt-2 min-w-0 overflow-hidden">
+                  <span className="min-w-0 break-all line-clamp-2">{result.olxUrl}</span>
                   {result.id ? <Link href={`/lot/${result.id}`} className="text-emerald-200 hover:text-white underline shrink-0">{result.status}</Link> : <span className="text-red-200 shrink-0">{result.error}</span>}
                 </div>
               ))}
