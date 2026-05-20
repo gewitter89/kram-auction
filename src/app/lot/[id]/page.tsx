@@ -5,22 +5,22 @@ import { auth } from '@/lib/auth-config'
 import type { Metadata } from 'next'
 import { absoluteUrl } from '@/lib/site-url'
 import { formatPrice } from '@/lib/utils'
+import { listingJsonLd, listingSeoDescription, lotBreadcrumbJsonLd, parseListingImages } from '@/lib/seo'
 
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const lot = await prisma.listing.findUnique({
     where: { id },
-    include: { seller: { select: { name: true } }, category: { select: { name: true } } }
+    include: { seller: { select: { name: true } }, category: { select: { name: true, slug: true } } }
   })
 
   if (!lot || lot.status !== 'active') {
     return { title: 'Лот не знайдено | KRAM', robots: { index: false, follow: false } }
   }
 
-  let images: string[] = []
-  try { images = JSON.parse(lot.images || '[]') } catch {}
-  const description = `${lot.description || lot.title}`.replace(/\s+/g, ' ').slice(0, 160)
+  const images = parseListingImages(lot.images)
+  const description = listingSeoDescription(lot)
   const title = `${lot.title} — ${formatPrice(lot.currentPrice)} | KRAM`
   const url = absoluteUrl(`/lot/${lot.id}`)
 
@@ -35,13 +35,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       url,
       siteName: 'KRAM',
       locale: 'uk_UA',
-      images: images[0] ? [{ url: images[0], alt: lot.title }] : undefined,
+      images: images[0] ? [{ url: images[0], alt: lot.title, width: 1200, height: 900 }] : [{ url: absoluteUrl('/kram-mark.svg'), alt: 'KRAM', width: 512, height: 512 }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: images[0] ? [images[0]] : undefined,
+      images: images[0] ? [images[0]] : [absoluteUrl('/kram-mark.svg')],
     },
     other: {
       'product:price:amount': String(lot.currentPrice),
@@ -107,6 +107,18 @@ export default async function LotPage({ params }: { params: Promise<{ id: string
     }
   })
 
-  return <LotPageContent lot={lotWithSellerMeta} similar={similar} />
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(listingJsonLd(lotWithSellerMeta)) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(lotBreadcrumbJsonLd(lotWithSellerMeta)) }}
+      />
+      <LotPageContent lot={lotWithSellerMeta} similar={similar} />
+    </>
+  )
 }
 

@@ -1,7 +1,28 @@
-'use client'
-
 import { Suspense } from 'react'
+import type { Metadata } from 'next'
 import CatalogContent from '@/components/catalog/CatalogContent'
+import { absoluteUrl } from '@/lib/site-url'
+
+export const metadata: Metadata = {
+  title: 'Каталог лотів | KRAM',
+  description: 'Активні аукціони та оголошення KRAM: техніка, телефони, ноутбуки, інструменти, товари для дому та інші лоти з прозорими ставками.',
+  alternates: { canonical: absoluteUrl('/catalog') },
+  openGraph: {
+    title: 'Каталог лотів | KRAM',
+    description: 'Знаходьте лоти, робіть ставки та домовляйтесь напряму з продавцями на KRAM.',
+    type: 'website',
+    url: absoluteUrl('/catalog'),
+    siteName: 'KRAM',
+    locale: 'uk_UA',
+    images: [{ url: absoluteUrl('/kram-mark.svg'), alt: 'KRAM', width: 512, height: 512 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Каталог лотів | KRAM',
+    description: 'Активні аукціони та оголошення KRAM з прозорими ставками.',
+    images: [absoluteUrl('/kram-mark.svg')],
+  },
+}
 
 function CatalogSSRShell() {
   return (

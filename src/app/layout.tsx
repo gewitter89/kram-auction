@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ClientLayout } from '@/components/layout/ClientLayout'
 import { siteUrl } from '@/lib/site-url'
+import { organizationJsonLd, websiteJsonLd } from '@/lib/seo'
 
 const inter = Inter({ subsets: ['latin', 'cyrillic'] })
 
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
+    images: [{ url: '/kram-mark.svg', alt: 'KRAM', width: 512, height: 512 }],
     title: 'KRAM — чесні онлайн-торги для товарів в Україні',
     description: 'Створюйте лоти, робіть ставки та знаходьте покупців на українській платформі прозорих торгів. KRAM фіксує історію ставок, а сторони домовляються напряму.',
     type: 'website',
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'KRAM — чесні онлайн-торги для товарів в Україні',
     description: 'Створюйте лоти, робіть ставки та знаходьте покупців на українській платформі прозорих торгів. KRAM фіксує історію ставок, а сторони домовляються напряму.',
-    images: ['/og-image.jpg'],
+    images: ['/kram-mark.svg'],
   },
   robots: {
     index: true,
@@ -68,6 +70,14 @@ export default function RootLayout({
   return (
     <html lang="uk" suppressHydrationWarning translate="no" className="notranslate">
       <body className={`${inter.className} bg-[#F8FAFC] min-h-screen`} suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }}
+        />
         <ClientLayout>
           {children}
         </ClientLayout>
