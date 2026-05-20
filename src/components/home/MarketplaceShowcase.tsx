@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Baby, CheckCircle2, Clock3, Gamepad2, Hammer, Home, Laptop, MessageSquareText, PackageCheck, PackageSearch, Search, ShieldCheck, Shirt, Smartphone, TrendingUp, Truck } from 'lucide-react'
+import { ArrowRight, Baby, CheckCircle2, Clock3, Gamepad2, Hammer, Home, Laptop, PackageSearch, Search, ShieldCheck, Shirt, Smartphone, TrendingUp } from 'lucide-react'
 import { LotCard } from '@/components/lots/LotCard'
 
 type ApiLot = {
@@ -369,24 +369,49 @@ export function MarketplaceShowcase() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              { title: 'Прозорі ставки', desc: 'історія торгів видима для всіх', icon: TrendingUp, tone: 'bg-[#EFF6FF] text-[#2563EB] border-[#BFDBFE]' },
-              { title: 'Чат і статуси', desc: 'домовленості збережені в системі', icon: MessageSquareText, tone: 'bg-[#F8FAFC] text-[#0B1220] border-[#E2E8F0]' },
-              { title: 'Нова Пошта', desc: 'післяплата після огляду товару', icon: Truck, tone: 'bg-[#FEF2F2] text-[#E11D48] border-[#FECACA]', badge: 'НП' },
-              { title: 'Модерація', desc: 'скарги й ризики під контролем', icon: PackageCheck, tone: 'bg-[#ECFDF5] text-[#059669] border-[#BBF7D0]' },
-            ].map(item => {
-              const Icon = item.icon
-              return (
-                <div key={item.title} className="group bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 hover:bg-white hover:shadow-md hover:border-[#CBD5E1] transition-all">
-                  <div className={`w-11 h-11 rounded-2xl border ${item.tone} flex items-center justify-center mb-4 relative`}>
-                    <Icon className="w-5 h-5" />
-                    {item.badge && <span className="absolute -right-1 -top-1 h-5 px-1.5 rounded-md bg-[#E11D48] text-white text-[9px] font-black flex items-center">{item.badge}</span>}
-                  </div>
-                  <p className="text-[14px] font-black text-[#0B1220]">{item.title}</p>
-                  <p className="text-[12px] text-[#64748B] mt-1 leading-snug">{item.desc}</p>
+            <div className="group bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 hover:bg-white hover:shadow-md hover:border-[#BFDBFE] transition-all">
+              <div className="h-16 rounded-2xl bg-[#EFF6FF] border border-[#BFDBFE] mb-4 p-3 flex items-end gap-1.5">
+                {[18, 26, 22, 34, 42].map((h, i) => <span key={i} style={{ height: `${h}px` }} className="w-3 rounded-t-md bg-[#2563EB]" />)}
+                <TrendingUp className="w-5 h-5 text-[#2563EB] ml-auto self-start" />
+              </div>
+              <p className="text-[14px] font-black text-[#0B1220]">Прозорі ставки</p>
+              <p className="text-[12px] text-[#64748B] mt-1 leading-snug">історія торгів видима для всіх</p>
+            </div>
+
+            <div className="group bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-5 hover:bg-white hover:shadow-md hover:border-[#CBD5E1] transition-all">
+              <div className="h-16 rounded-2xl bg-white border border-[#E2E8F0] mb-4 p-3 relative overflow-hidden">
+                <div className="absolute left-3 top-3 h-7 px-3 rounded-xl bg-[#0B1220] text-white text-[10px] font-black flex items-center">чат</div>
+                <div className="absolute right-3 bottom-3 h-7 px-3 rounded-xl bg-[#EFF6FF] text-[#2563EB] text-[10px] font-black flex items-center">статус</div>
+              </div>
+              <p className="text-[14px] font-black text-[#0B1220]">Чат і статуси</p>
+              <p className="text-[12px] text-[#64748B] mt-1 leading-snug">домовленості збережені в системі</p>
+            </div>
+
+            <div className="group bg-[#F8FAFC] border border-[#FECACA] rounded-2xl p-5 hover:bg-white hover:shadow-md hover:border-[#FB7185] transition-all">
+              <div className="h-16 rounded-2xl bg-[#FEF2F2] border border-[#FECACA] mb-4 p-3 relative overflow-hidden">
+                <div className="absolute top-3 left-3 h-5 px-1.5 rounded-md bg-[#E11D48] text-white text-[9px] font-black flex items-center">НП</div>
+                <svg viewBox="0 0 120 52" className="absolute right-2 bottom-1 w-[92px] h-[44px]" aria-hidden="true">
+                  <rect x="18" y="18" width="52" height="18" rx="4" fill="#E11D48" />
+                  <path d="M70 22h18l10 10v4H70z" fill="#FB7185" />
+                  <circle cx="34" cy="39" r="6" fill="#0B1220" />
+                  <circle cx="82" cy="39" r="6" fill="#0B1220" />
+                  <rect x="24" y="22" width="18" height="4" rx="2" fill="white" opacity="0.9" />
+                  <path d="M8 30h14M2 36h18" stroke="#E11D48" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+              </div>
+              <p className="text-[14px] font-black text-[#0B1220]">Нова Пошта</p>
+              <p className="text-[12px] text-[#64748B] mt-1 leading-snug">післяплата після огляду товару</p>
+            </div>
+
+            <div className="group bg-[#F8FAFC] border border-[#BBF7D0] rounded-2xl p-5 hover:bg-white hover:shadow-md hover:border-[#10B981] transition-all">
+              <div className="h-16 rounded-2xl bg-[#ECFDF5] border border-[#BBF7D0] mb-4 p-3 flex items-center justify-center">
+                <div className="w-11 h-11 rounded-2xl bg-white border border-[#BBF7D0] flex items-center justify-center shadow-sm">
+                  <ShieldCheck className="w-6 h-6 text-[#059669]" />
                 </div>
-              )
-            })}
+              </div>
+              <p className="text-[14px] font-black text-[#0B1220]">Модерація</p>
+              <p className="text-[12px] text-[#64748B] mt-1 leading-snug">скарги й ризики під контролем</p>
+            </div>
           </div>
         </div>
       </section>
