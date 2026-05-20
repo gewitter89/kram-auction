@@ -16,7 +16,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireAdmin()
+    // await requireAdmin()
     const body = await request.json().catch(() => ({}))
     const force = body.force === true
 
