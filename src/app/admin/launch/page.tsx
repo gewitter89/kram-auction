@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, XCircle, Rocket, Copy, Cloud, Mail, TimerReset, Database, ShieldCheck, ListChecks } from 'lucide-react'
+import { CheckCircle2, XCircle, Rocket, Copy, Cloud, Mail, TimerReset, Database, ShieldCheck, ListChecks, Activity, Inbox, AlertTriangle } from 'lucide-react'
 
 const REQUIRED_ENV = [
   'DATABASE_URL',
@@ -90,6 +90,40 @@ export default function LaunchPage() {
         </div>
       </div>
 
+
+      {stats && (
+        <section className="bg-white border border-[#E2E8F0] rounded-3xl p-6 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="w-5 h-5 text-[#2563EB]" />
+            <h2 className="text-[18px] font-bold text-[#0B1220]">Daily launch health</h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+            <HealthTile label="Нові користувачі 24h" value={stats.last24h?.users} />
+            <HealthTile label="Нові лоти 24h" value={stats.last24h?.lots} />
+            <HealthTile label="Ставки 24h" value={stats.last24h?.bids} />
+            <HealthTile label="Повідомлення 24h" value={stats.last24h?.messages} />
+            <HealthTile label="Угоди 24h" value={stats.last24h?.transactions} />
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <QueueTile label="Скарги" value={stats.queues?.pendingReports} href="/admin/reports" danger={stats.queues?.pendingReports > 0} />
+            <QueueTile label="Верифікації" value={stats.queues?.pendingVerificationRequests} href="/admin/verifications" danger={stats.queues?.pendingVerificationRequests > 0} />
+            <QueueTile label="Лоти на модерації" value={stats.queues?.pendingReviewLots} href="/admin/lots" danger={stats.queues?.pendingReviewLots > 0} />
+            <QueueTile label="Відкриті спори" value={stats.queues?.disputesOpen} href="/admin/disputes" danger={stats.queues?.disputesOpen > 0} />
+            <QueueTile label="Прострочені лоти" value={stats.queues?.expiredActiveLots} href="/admin" danger={stats.queues?.expiredActiveLots > 0} />
+          </div>
+          <div className="mt-5 grid sm:grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-[#E2E8F0] p-4 flex items-center justify-between">
+              <span className="text-[13px] font-semibold text-[#64748B]">Payments disabled</span>
+              {stats.health?.paymentsDisabled ? <CheckCircle2 className="w-5 h-5 text-[#10B981]" /> : <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
+            </div>
+            <div className="rounded-2xl border border-[#E2E8F0] p-4 flex items-center justify-between">
+              <span className="text-[13px] font-semibold text-[#64748B]">Saved searches</span>
+              <strong className="text-[#0B1220]">{stats.health?.savedSearchesActive ?? 0}</strong>
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-6 mb-8">
         <section className="bg-white border border-[#E2E8F0] rounded-3xl p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -164,4 +198,26 @@ function Stat({ label, value, danger }: { label: string; value: any; danger?: bo
 
 function ActionCard({ icon: Icon, title, text, href }: any) {
   return <Link href={href} className="bg-white border border-[#E2E8F0] rounded-3xl p-6 hover:border-[#2563EB]/40 transition-colors"><Icon className="w-7 h-7 text-[#2563EB] mb-3" /><h3 className="text-[16px] font-bold text-[#0B1220] mb-1">{title}</h3><p className="text-[13px] text-[#64748B]">{text}</p></Link>
+}
+
+
+function HealthTile({ label, value }: { label: string; value: any }) {
+  return (
+    <div className="rounded-2xl border border-[#E2E8F0] bg-[#FAFBFD] p-4">
+      <p className="text-[11px] text-[#94A3B8] font-bold uppercase tracking-wide">{label}</p>
+      <p className="text-[26px] font-black text-[#0B1220] mt-1">{value ?? 0}</p>
+    </div>
+  )
+}
+
+function QueueTile({ label, value, href, danger }: { label: string; value: any; href: string; danger?: boolean }) {
+  return (
+    <Link href={href} className={`rounded-2xl border p-4 flex items-center justify-between ${danger ? 'border-[#FECACA] bg-[#FEF2F2]' : 'border-[#E2E8F0] bg-white'}`}>
+      <div>
+        <p className="text-[11px] text-[#64748B] font-bold uppercase tracking-wide">{label}</p>
+        <p className={`text-[24px] font-black mt-1 ${danger ? 'text-[#EF4444]' : 'text-[#10B981]'}`}>{value ?? 0}</p>
+      </div>
+      <Inbox className={`w-5 h-5 ${danger ? 'text-[#EF4444]' : 'text-[#CBD5E1]'}`} />
+    </Link>
+  )
 }

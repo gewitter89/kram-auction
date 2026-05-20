@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/getCurrentUser'
-import { absoluteUrl } from '@/lib/site-url'
 
 export async function GET(request: Request) {
   try {
@@ -9,8 +8,9 @@ export async function GET(request: Request) {
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
-    const [users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun, lastEndingSoonRun, recentUsers] = await Promise.all([
+    const [users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun, lastEndingSoonRun, recentUsers, newUsers24h, newLots24h, bids24h, messages24h, transactions24h, pendingVerificationRequests, pendingReviewLots, disputesOpen, savedSearchesActive, paymentsDisabled] = await Promise.all([
       prisma.user.count(),
       prisma.listing.count({ where: { status: 'active' } }),
       prisma.bid.count({ where: { createdAt: { gte: today } } }),
@@ -31,7 +31,17 @@ export async function GET(request: Request) {
         take: 5,
         orderBy: { createdAt: 'desc' },
         select: { id: true, name: true, email: true, role: true }
-      })
+      }),
+      prisma.user.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.listing.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.bid.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.message.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.transaction.count({ where: { createdAt: { gte: last24h } } }),
+      prisma.report.count({ where: { reason: 'seller_verification_request', status: 'pending' } }),
+      prisma.listing.count({ where: { status: 'pending_review' } }),
+      prisma.transaction.count({ where: { status: 'DISPUTED' } }),
+      prisma.report.count({ where: { reason: 'saved_search', status: 'reviewed' } }),
+      Promise.resolve(process.env.PAYMENTS_ENABLED !== 'true'),
     ])
 
     let cron = null
@@ -45,7 +55,35 @@ export async function GET(request: Request) {
       catch { endingSoonCron = { action: lastEndingSoonRun.action, createdAt: lastEndingSoonRun.createdAt } }
     }
 
-    return NextResponse.json({ users, activeLots, bidsToday, completedDeals, pendingReports, expiredActiveLots, lastCronRun: cron, lastEndingSoonRun: endingSoonCron, recentUsers })
+    return NextResponse.json({
+      users,
+      activeLots,
+      bidsToday,
+      completedDeals,
+      pendingReports,
+      expiredActiveLots,
+      lastCronRun: cron,
+      lastEndingSoonRun: endingSoonCron,
+      recentUsers,
+      last24h: {
+        users: newUsers24h,
+        lots: newLots24h,
+        bids: bids24h,
+        messages: messages24h,
+        transactions: transactions24h,
+      },
+      queues: {
+        pendingReports,
+        pendingVerificationRequests,
+        pendingReviewLots,
+        disputesOpen,
+        expiredActiveLots,
+      },
+      health: {
+        paymentsDisabled,
+        savedSearchesActive,
+      },
+    })
   } catch (error) {
     if (error instanceof Error && (error.message === 'Unauthorized' || error.message === 'Forbidden')) {
       return NextResponse.json({ error: error.message }, { status: error.message === 'Unauthorized' ? 401 : 403 })
