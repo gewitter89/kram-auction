@@ -26,6 +26,30 @@ export async function sendTelegramMessage(chatId: string, text: string, options?
   }
 }
 
+
+export async function sendTelegramPhoto(chatId: string, photo: string, caption: string, options?: Record<string, unknown>) {
+  if (!BOT_TOKEN) {
+    console.warn('TELEGRAM_BOT_TOKEN not set')
+    return
+  }
+
+  try {
+    await fetch(`${TELEGRAM_API}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo,
+        caption,
+        parse_mode: 'HTML',
+        ...options
+      })
+    })
+  } catch (error) {
+    console.error('Failed to send Telegram photo:', error)
+  }
+}
+
 export async function notifyNewLot(listing: { title: string; startPrice: number; id: string }) {
   const subscribers = await prisma.telegramSubscription.findMany({
     where: { isActive: true }

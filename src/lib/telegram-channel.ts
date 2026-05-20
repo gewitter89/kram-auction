@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { absoluteUrl } from '@/lib/site-url'
-import { sendTelegramMessage } from '@/lib/telegram'
+import { sendTelegramMessage, sendTelegramPhoto } from '@/lib/telegram'
 
 export function getTelegramChannelId() {
   return process.env.TELEGRAM_CHANNEL_ID || process.env.NEXT_PUBLIC_TELEGRAM_CHANNEL_ID || ''
@@ -45,7 +45,11 @@ KRAM не приймає оплату — сторони домовляютьс�
 <a href="${absoluteUrl(`/lot/${listing.id}`)}">Переглянути лот →</a>
   `.trim()
 
-  await sendTelegramMessage(chatId, message, { disable_web_page_preview: Boolean(images[0]) })
+  if (images[0]) {
+    await sendTelegramPhoto(chatId, images[0], message)
+  } else {
+    await sendTelegramMessage(chatId, message, { disable_web_page_preview: false })
+  }
   await prisma.auditLog.create({
     data: {
       action: 'TELEGRAM_CHANNEL_LOT_POSTED',
