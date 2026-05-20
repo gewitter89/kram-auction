@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Baby, CheckCircle2, Clock3, Gamepad2, Hammer, Home, Laptop, PackageSearch, ShieldCheck, Shirt, Smartphone, TrendingUp } from 'lucide-react'
+import { ArrowRight, Baby, CheckCircle2, Clock3, Gamepad2, Hammer, Home, Laptop, PackageSearch, Search, ShieldCheck, Shirt, Smartphone, TrendingUp } from 'lucide-react'
 import { LotCard } from '@/components/lots/LotCard'
 
 type ApiLot = {
@@ -33,6 +33,14 @@ const categories = [
   { name: 'Ігри та консолі', slug: 'games', icon: Gamepad2 },
   { name: 'Інструменти', slug: 'tools', icon: Hammer },
   { name: 'Дім', slug: 'home', icon: Home },
+]
+
+const quickSearches = [
+  { label: 'Нові лоти', href: '/catalog?sort=new' },
+  { label: 'Завершуються скоро', href: '/catalog?sort=ending' },
+  { label: 'Дитячі товари', href: '/category/kids' },
+  { label: 'Телефони', href: '/category/phones' },
+  { label: 'Інструменти', href: '/category/tools' },
 ]
 
 const fallbackLots: ApiLot[] = [
@@ -186,14 +194,38 @@ export function MarketplaceShowcase() {
               <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,#2563EB_0,transparent_32%),radial-gradient(circle_at_90%_15%,#10B981_0,transparent_25%)]" />
               <div className="relative">
                 <div className="inline-flex items-center gap-2 h-8 px-3 bg-white/10 border border-white/10 rounded-full text-[12px] font-black text-[#BFDBFE] mb-5">
-                  Controlled launch · прямі домовленості
+                  Прямі домовленості · прозорі ставки
                 </div>
                 <h1 className="text-[34px] md:text-[52px] font-black tracking-[-0.055em] leading-[1.02] mb-5 max-w-[760px]">
-                  Українська платформа прозорих онлайн-торгів
+                  KRAM — аукціони та оголошення з відкритими ставками
                 </h1>
                 <p className="text-[15.5px] text-slate-300 leading-relaxed max-w-[640px] mb-7">
-                  Лоти з фото, відкриті ставки, чат між покупцем і продавцем та зрозумілий статус домовленості. Оплату й доставку сторони погоджують напряму.
+                  Шукайте лоти, робіть ставки або купуйте одразу. KRAM показує ціну, час до завершення, продавця й статус домовленості — без прийому оплат на платформі.
                 </p>
+                <form action="/catalog" className="bg-white rounded-2xl p-2 shadow-xl shadow-black/10 border border-white/10 mb-4 max-w-[620px]">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <label className="flex-1 h-12 px-4 bg-[#F8FAFC] rounded-xl flex items-center gap-2 text-[#0B1220]">
+                      <Search className="w-4 h-4 text-[#64748B]" />
+                      <input
+                        name="search"
+                        placeholder="Пошук: iPhone, кросівки, інструмент..."
+                        className="w-full bg-transparent outline-none text-[14px] font-semibold placeholder:text-[#94A3B8]"
+                      />
+                    </label>
+                    <button className="h-12 px-6 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[14px] font-black flex items-center justify-center gap-2">
+                      Знайти
+                    </button>
+                  </div>
+                </form>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {quickSearches.map(item => (
+                    <Link key={item.href} href={item.href} className="h-8 px-3 inline-flex items-center rounded-full bg-white/10 border border-white/10 text-[12px] font-bold text-slate-300 hover:bg-white/15 hover:text-white">
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/catalog" className="h-12 px-7 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-xl text-[14px] font-black flex items-center justify-center gap-2 shadow-lg shadow-[#2563EB]/20">
                     Переглянути каталог <ArrowRight className="w-4 h-4" />
@@ -213,8 +245,8 @@ export function MarketplaceShowcase() {
                   <p className="text-[11px] text-slate-400">комісії на старті</p>
                 </div>
                 <div className="bg-white/8 border border-white/10 rounded-2xl p-3">
-                  <p className="text-[22px] font-black">COD</p>
-                  <p className="text-[11px] text-slate-400">після огляду</p>
+                  <p className="text-[22px] font-black">НП</p>
+                  <p className="text-[11px] text-slate-400">післяплата</p>
                 </div>
               </div>
             </div>
@@ -230,7 +262,7 @@ export function MarketplaceShowcase() {
                     </div>
                   )}
                   <div className="absolute top-3 left-3 h-7 px-2.5 bg-white/95 rounded-lg text-[10px] font-black text-[#0B1220] flex items-center gap-1 shadow-sm">
-                    <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" /> Топ лот
+                    <TrendingUp className="w-3.5 h-3.5 text-[#2563EB]" /> Лот дня
                   </div>
                 </div>
                 <div className="p-5">
@@ -254,6 +286,13 @@ export function MarketplaceShowcase() {
       </section>
 
       <section className="max-w-[1320px] mx-auto px-4 py-8">
+        <div className="flex items-end justify-between gap-4 mb-4">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#2563EB] mb-1">Категорії</p>
+            <h2 className="text-[22px] md:text-[28px] font-black text-[#0B1220] tracking-[-0.03em]">Швидкий вхід у каталог</h2>
+          </div>
+          <Link href="/catalog" className="hidden sm:inline-flex text-[13px] font-black text-[#2563EB] hover:underline">Усі категорії →</Link>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
           {categories.map(cat => {
             const Icon = cat.icon
