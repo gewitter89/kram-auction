@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { analyzeListingRisk } from '@/lib/listing-risk'
 import { notifyNewLot } from '@/lib/telegram'
 import { notifySavedSearchMatches } from '@/lib/saved-searches'
+import { postListingToTelegramChannel } from '@/lib/telegram-channel'
 
 type ReviewOptions = {
   actorId?: string
@@ -98,6 +99,7 @@ export async function runListingModerationAutopilot(options: ReviewOptions = {})
 
       notifyNewLot({ title: lot.title, startPrice: lot.startPrice, id: lot.id }).catch(console.error)
       notifySavedSearchMatches(lot.id).catch(console.error)
+      postListingToTelegramChannel(lot.id).catch(console.error)
     } else {
       await prisma.report.updateMany({
         where: { listingId: lot.id, reason: 'listing_moderation_required', status: 'pending' },

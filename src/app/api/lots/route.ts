@@ -7,6 +7,7 @@ import { notifyNewLot } from '@/lib/telegram'
 import { publicActiveListingWhere } from '@/lib/public-listing-filters'
 import { analyzeListingRisk } from '@/lib/listing-risk'
 import { notifySavedSearchMatches } from '@/lib/saved-searches'
+import { postListingToTelegramChannel } from '@/lib/telegram-channel'
 import { assertUserAllowed, restrictionErrorMessage } from '@/lib/user-restrictions'
 
 export async function GET(request: Request) {
@@ -214,6 +215,7 @@ export async function POST(request: Request) {
     } else {
       notifyNewLot({ title: listing.title, startPrice: listing.startPrice, id: listing.id }).catch(console.error)
       notifySavedSearchMatches(listing.id).catch(console.error)
+      postListingToTelegramChannel(listing.id).catch(console.error)
     }
 
     return NextResponse.json({

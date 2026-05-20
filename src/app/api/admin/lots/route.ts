@@ -5,6 +5,7 @@ import { notifyNewLot } from '@/lib/telegram'
 import { sendSimpleEventEmail } from '@/lib/email'
 import { absoluteUrl } from '@/lib/site-url'
 import { notifySavedSearchMatches } from '@/lib/saved-searches'
+import { postListingToTelegramChannel } from '@/lib/telegram-channel'
 
 export async function GET(request: Request) {
   try {
@@ -79,6 +80,7 @@ export async function PATCH(request: Request) {
     if (action === 'approve') {
       notifyNewLot({ title: lot.title, startPrice: lot.startPrice, id: lot.id }).catch(console.error)
       notifySavedSearchMatches(lot.id).catch(console.error)
+      postListingToTelegramChannel(lot.id).catch(console.error)
       await prisma.notification.create({
         data: {
           userId: lot.sellerId,
