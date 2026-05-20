@@ -7,9 +7,13 @@ import { CheckCircle2, ExternalLink, Eye, Loader2, UploadCloud, XCircle } from '
 type PreviewResult = {
   ok: boolean
   olxUrl?: string
+  sourceUrl?: string
   error?: string
   item?: {
     olxUrl: string
+    sourceUrl?: string
+    sourceLabel?: string
+    provider?: string
     title: string
     price: number
     categoryName: string
@@ -23,6 +27,7 @@ type PreviewResult = {
 type ImportResult = {
   ok?: boolean
   olxUrl: string
+  sourceUrl?: string
   id?: string
   status?: string
   alreadyExists?: boolean
@@ -45,17 +50,17 @@ export function OlxImportBox() {
     e.preventDefault()
     setError('')
     setResults([])
-    const olxUrls = urlsFromText(olxText)
-    if (olxUrls.length === 0) {
+    const urls = urlsFromText(olxText)
+    if (urls.length === 0) {
       setError('Вставте хоча б одне OLX-посилання')
       return
     }
     setPreviewing(true)
     try {
-      const res = await fetch('/api/lots/import-olx/preview', {
+      const res = await fetch('/api/lots/import-url/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ olxUrls })
+        body: JSON.stringify({ urls })
       })
       const data = await res.json()
       if (!res.ok) {
@@ -75,15 +80,15 @@ export function OlxImportBox() {
   }
 
   async function importAll() {
-    const olxUrls = previews.filter(item => item.ok && item.item?.olxUrl).map(item => item.item!.olxUrl)
-    if (olxUrls.length === 0) return
+    const urls = previews.filter(item => item.ok && (item.item?.sourceUrl || item.item?.olxUrl)).map(item => item.item!.sourceUrl || item.item!.olxUrl)
+    if (urls.length === 0) return
     setImporting(true)
     setError('')
     try {
-      const res = await fetch('/api/lots/import-olx/bulk', {
+      const res = await fetch('/api/lots/import-url/bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ olxUrls })
+        body: JSON.stringify({ urls })
       })
       const data = await res.json()
       if (!res.ok) {
@@ -112,9 +117,9 @@ export function OlxImportBox() {
             <ExternalLink className="w-6 h-6 text-[#60A5FA]" />
           </div>
           <div>
-            <h2 className="text-[22px] font-black tracking-tight mb-2">Імпорт лотів з OLX</h2>
+            <h2 className="text-[22px] font-black tracking-tight mb-2">Імпорт лотів з маркетплейсів</h2>
             <p className="text-[13px] text-slate-300 leading-relaxed">
-              Вставте одне або кілька OLX-посилань. Спочатку KRAM покаже preview з ціною, фото й категорією; після підтвердження імпортує лоти. Підтверджені продавці публікують одразу, нові проходять модерацію.
+              Вставте одне або кілька посилань з OLX, Prom.ua або іншого сайту. KRAM покаже preview з ціною, фото й категорією; після підтвердження імпортує лоти. Для невідомих сайтів використаємо OpenGraph/schema.org дані, а ціну можна буде уточнити вручну.
             </p>
           </div>
         </div>
@@ -123,13 +128,13 @@ export function OlxImportBox() {
           <textarea
             value={olxText}
             onChange={e => setOlxText(e.target.value)}
-            placeholder={'https://www.olx.ua/d/uk/obyavlenie/...\nhttps://www.olx.ua/d/uk/obyavlenie/...'}
+            placeholder={'https://www.olx.ua/d/uk/obyavlenie/...\nhttps://prom.ua/ua/p...\nhttps://example.com/product/...'}
             className="w-full min-h-[96px] max-h-[180px] p-4 bg-white/10 border border-white/15 rounded-xl text-[14px] text-white placeholder:text-slate-500 outline-none focus:border-[#60A5FA] resize-y break-all"
           />
           <div className="flex flex-col sm:flex-row gap-3">
             <button disabled={previewing} className="h-12 px-6 bg-white text-[#0B1220] rounded-xl text-[14px] font-black hover:bg-slate-100 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
               {previewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
-              {previewing ? 'Читаємо OLX...' : 'Показати preview'}
+              {previewing ? 'Читаємо посилання...' : 'Показати preview'}
             </button>
             {goodPreviews.length > 0 && (
               <button type="button" onClick={importAll} disabled={importing} className="h-12 px-6 bg-[#2563EB] text-white rounded-xl text-[14px] font-black hover:bg-[#1D4ED8] disabled:opacity-60 transition-all flex items-center justify-center gap-2">
@@ -139,7 +144,7 @@ export function OlxImportBox() {
             )}
           </div>
           {error && <p className="text-[12px] text-red-300">{error}</p>}
-          <p className="text-[11px] text-slate-500">Максимум 10 посилань за раз. Потрібен вхід в акаунт.</p>
+          <p className="text-[11px] text-slate-500">Максимум 10 посилань за раз. Підтримка: OLX, Prom.ua, generic URL fallback. Потрібен вхід в акаунт.</p>
         </form>
 
         {previews.length > 0 && (
@@ -152,6 +157,7 @@ export function OlxImportBox() {
                 <div className="min-w-0 flex-1 overflow-hidden">
                   <p className="text-[13px] font-bold text-white line-clamp-2 break-words">{preview.item.title}</p>
                   <div className="mt-1 flex flex-wrap gap-1.5 text-[11px] text-slate-300">
+                    <span className="px-2 py-0.5 bg-[#2563EB]/30 rounded-full">{preview.item.sourceLabel || 'Marketplace'}</span>
                     <span className="px-2 py-0.5 bg-white/10 rounded-full">{preview.item.categoryName}</span>
                     <span className="px-2 py-0.5 bg-white/10 rounded-full">{preview.item.conditionLabel}</span>
                     <span className="px-2 py-0.5 bg-white/10 rounded-full">{preview.item.locationLabel}</span>
@@ -160,8 +166,8 @@ export function OlxImportBox() {
                 </div>
               </div>
             ) : (
-              <div key={`${preview.olxUrl}-${index}`} className="bg-red-500/10 border border-red-400/20 rounded-2xl p-3 flex items-start gap-2 text-[12px] text-red-200 min-w-0 overflow-hidden break-all">
-                <XCircle className="w-4 h-4" /> {preview.olxUrl}: {preview.error}
+              <div key={`${preview.sourceUrl || preview.olxUrl}-${index}`} className="bg-red-500/10 border border-red-400/20 rounded-2xl p-3 flex items-start gap-2 text-[12px] text-red-200 min-w-0 overflow-hidden break-all">
+                <XCircle className="w-4 h-4" /> {preview.sourceUrl || preview.olxUrl}: {preview.error}
               </div>
             ))}
           </div>
@@ -178,8 +184,8 @@ export function OlxImportBox() {
             </div>
             <div className="space-y-2">
               {results.map((result, index) => (
-                <div key={`${result.olxUrl}-${index}`} className="text-[12px] text-slate-200 flex items-center justify-between gap-3 border-t border-white/10 pt-2 min-w-0 overflow-hidden">
-                  <span className="min-w-0 break-all line-clamp-2">{result.olxUrl}</span>
+                <div key={`${result.sourceUrl || result.olxUrl}-${index}`} className="text-[12px] text-slate-200 flex items-center justify-between gap-3 border-t border-white/10 pt-2 min-w-0 overflow-hidden">
+                  <span className="min-w-0 break-all line-clamp-2">{result.sourceUrl || result.olxUrl}</span>
                   {result.id ? <Link href={`/lot/${result.id}`} className="text-emerald-200 hover:text-white underline shrink-0">{result.status}</Link> : <span className="text-red-200 shrink-0">{result.error}</span>}
                 </div>
               ))}
