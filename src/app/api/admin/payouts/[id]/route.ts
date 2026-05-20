@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
+import { paymentsDisabledResponse, paymentsEnabled } from '@/lib/payments-mode'
 import { markReleasePaid } from '@/lib/payment-release-service'
 
 export async function POST(
@@ -10,6 +11,10 @@ export async function POST(
     const session = await auth()
     if (!session?.user?.id || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!paymentsEnabled()) {
+      return NextResponse.json(paymentsDisabledResponse, { status: 410 })
     }
 
     const { id } = await params

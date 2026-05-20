@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
-import { markTransactionPaid } from '@/lib/transaction-service'
+import { markTransactionTermsAgreed } from '@/lib/transaction-service'
 
 // POST /api/transactions/[id]/mark-paid - Buyer confirms direct agreement terms
 export async function POST(
@@ -19,7 +19,7 @@ export async function POST(
     const ip = headers.get('x-forwarded-for') || undefined
     const userAgent = headers.get('user-agent') || undefined
 
-    const transaction = await markTransactionPaid(
+    const transaction = await markTransactionTermsAgreed(
       id,
       session.user.id,
       ip,
@@ -32,7 +32,7 @@ export async function POST(
       transaction 
     })
   } catch (error: any) {
-    console.error('Mark paid error:', error)
+    console.error('Terms agreed error:', error)
     
     if (error.message === 'TRANSACTION_NOT_FOUND') {
       return NextResponse.json({ error: 'Угоду не знайдено' }, { status: 404 })

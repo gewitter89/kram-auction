@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { paymentsDisabledResponse, paymentsEnabled } from '@/lib/payments-mode'
 import { prisma } from '@/lib/prisma'
 import { parseCallback } from '@/lib/liqpay-service'
 import { broadcast } from '@/lib/realtime-server'
@@ -6,6 +7,10 @@ import { createPendingRelease } from '@/lib/payment-release-service'
 
 // POST /api/liqpay/callback - Handle LiqPay payment callback
 export async function POST(request: Request) {
+  if (!paymentsEnabled()) {
+    return NextResponse.json(paymentsDisabledResponse, { status: 410 })
+  }
+
   try {
     const body = await request.formData()
     const data = body.get('data') as string

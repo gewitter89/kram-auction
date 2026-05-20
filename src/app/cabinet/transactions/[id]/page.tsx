@@ -70,7 +70,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   if (!tx) return null
 
   const steps = [
-    { id: 'PENDING_PAYMENT', label: 'Оплата', icon: CreditCard },
+    { id: 'PENDING_PAYMENT', label: 'Узгодження', icon: MessageSquare },
     { id: 'PAID_HELD', label: 'Підготовка', icon: Package },
     { id: 'SELLER_SHIPPED', label: 'Доставка', icon: Truck },
     { id: 'COMPLETED', label: 'Завершено', icon: CheckCircle },
@@ -79,7 +79,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
   const currentStepIndex = steps.findIndex(s => {
     if (tx.status === 'COMPLETED') return s.id === 'COMPLETED'
     if (tx.status === 'SELLER_SHIPPED') return s.id === 'SELLER_SHIPPED'
-    if (tx.status === 'PAID_HELD') return s.id === 'PAID_HELD'
+    if ((tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD')) return s.id === 'PAID_HELD'
     return s.id === 'PENDING_PAYMENT'
   })
 
@@ -142,10 +142,10 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     {tx.status === 'DISPUTED' ? 'Триває вирішення спору' : 'Поточний статус угоди'}
                   </h4>
                   <p className="text-[13px] text-[#64748B] mt-1 leading-relaxed">
-                    {tx.status === 'PENDING_PAYMENT' && 'Очікуємо оплату від покупця. Усі кошти підлягають безпечному утриманню в системі.'}
-                    {tx.status === 'PAID_HELD' && 'Оплата отримана! Продавець готує товар до відправлення.'}
+                    {tx.status === 'PENDING_PAYMENT' && 'Очікуємо, поки покупець і продавець узгодять спосіб оплати та доставки напряму. KRAM не приймає і не утримує кошти.'}
+                    {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD') && 'Умови домовленості підтверджено. Продавець готує товар до відправлення та має вказати ТТН.'}
                     {tx.status === 'SELLER_SHIPPED' && 'Товар успішно надіслано продавцем і він уже прямує до отримувача.'}
-                    {tx.status === 'COMPLETED' && 'Угоду успішно закрито. Кошти перераховані на користь продавця.'}
+                    {tx.status === 'COMPLETED' && 'Домовленість успішно закрито. KRAM зафіксував завершення угоди, але не проводив оплату.'}
                     {tx.status === 'DISPUTED' && 'Адміністратор KRAM перевіряє деталі угоди та надану інформацію для вирішення спору.'}
                   </p>
                 </div>
@@ -163,10 +163,10 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     {tx.status === 'PENDING_PAYMENT' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#475569]">
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2563EB]/15 text-[#2563EB] text-[11px] font-bold flex items-center justify-center">1</span>
-                        <p><strong>Здійсніть оплату</strong>. Ви можете зробити це у вашому кабінеті у вкладці «Покупки». Ми безпечно затримаємо кошти на транзитному рахунку.</p>
+                        <p><strong>Узгодьте умови напряму</strong>. Напишіть продавцю в чаті KRAM, погодьте оплату та доставку. Рекомендуємо післяплату при отриманні.</p>
                       </div>
                     )}
-                    {tx.status === 'PAID_HELD' && (
+                    {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD') && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#475569]">
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2563EB]/15 text-[#2563EB] text-[11px] font-bold flex items-center justify-center">2</span>
                         <p><strong>Очікуйте ТТН</strong>. Продавець зобов'язаний надіслати лот протягом 3 днів та вказати номер відправлення. Ви отримаєте сповіщення.</p>
@@ -176,7 +176,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                       <div className="flex flex-col gap-2 bg-white p-3.5 rounded-xl border border-[#E2E8F0] shadow-sm">
                         <div className="flex items-start gap-2.5 text-[13px] text-[#475569]">
                           <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/15 text-[#10B981] text-[11px] font-bold flex items-center justify-center">3</span>
-                          <p><strong>Отримайте та перевірте товар</strong> у відділенні Нової Пошти. Лише після огляду натисніть кнопку <strong>«Підтвердити отримання»</strong> в деталях угоди, щоб продавець отримав виплату.</p>
+                          <p><strong>Отримайте та перевірте товар</strong> у відділенні Нової Пошти. Лише після огляду натисніть кнопку <strong>«Підтвердити отримання»</strong>, щоб зафіксувати успішне завершення домовленості.</p>
                         </div>
                         <p className="text-[11px] text-[#EF4444] font-medium ml-7">
                           ⚠️ Не підтверджуйте отримання, якщо товар не відповідає опису або ви не забрали його!
@@ -186,7 +186,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     {tx.status === 'COMPLETED' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#10B981]">
                         <CheckCircle className="w-5 h-5 text-[#10B981] shrink-0" aria-hidden="true" />
-                        <p><strong>Дякуємо за покупку!</strong> Ваша угода захищена KRAM Safe Deal. Ви можете залишити відгук про продавця.</p>
+                        <p><strong>Дякуємо за покупку!</strong> Домовленість завершено та зафіксовано в KRAM. Ви можете залишити відгук про продавця.</p>
                       </div>
                     )}
                   </div>
@@ -196,10 +196,10 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     {tx.status === 'PENDING_PAYMENT' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#475569]">
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2563EB]/15 text-[#2563EB] text-[11px] font-bold flex items-center justify-center">1</span>
-                        <p><strong>Очікуйте оплати</strong>. Покупець має внести кошти. Тільки після підтвердження статусу «Оплачено» приступайте до відправки товару.</p>
+                        <p><strong>Очікуйте підтвердження домовленості</strong>. Узгодьте з покупцем оплату та доставку в чаті. KRAM не підтверджує оплату і не утримує кошти.</p>
                       </div>
                     )}
-                    {tx.status === 'PAID_HELD' && (
+                    {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD') && (
                       <div className="flex flex-col gap-2 bg-white p-3.5 rounded-xl border border-[#E2E8F0] shadow-sm">
                         <div className="flex items-start gap-2.5 text-[13px] text-[#475569]">
                           <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2563EB]/15 text-[#2563EB] text-[11px] font-bold flex items-center justify-center">2</span>
@@ -213,13 +213,13 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                     {tx.status === 'SELLER_SHIPPED' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#475569]">
                         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#2563EB]/15 text-[#2563EB] text-[11px] font-bold flex items-center justify-center">3</span>
-                        <p><strong>Відстеження посилки</strong>. Як тільки покупець перевірить та підтвердить отримання товару, заблокована сума автоматично стане доступною для виплати на вашу картку.</p>
+                        <p><strong>Відстеження посилки</strong>. Коли покупець перевірить товар і підтвердить отримання, угода буде закрита в KRAM.</p>
                       </div>
                     )}
                     {tx.status === 'COMPLETED' && (
                       <div className="flex items-start gap-2.5 text-[13px] text-[#10B981]">
                         <CheckCircle className="w-5 h-5 text-[#10B981] shrink-0" aria-hidden="true" />
-                        <p><strong>Угоду завершено!</strong> Кошти відправлено на виплату за вашими реквізитами. Дякуємо за продаж!</p>
+                        <p><strong>Угоду завершено!</strong> Покупець підтвердив отримання. Дякуємо за продаж!</p>
                       </div>
                     )}
                   </div>
@@ -227,7 +227,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
 
                 {tx.status === 'DISPUTED' && (
                   <div className="bg-red-50 p-3 rounded-xl border border-red-200 mt-2 text-[12px] text-red-800 leading-relaxed">
-                    🚨 <strong>Арбітраж KRAM Safe Deal</strong>: Очікуйте на розгляд спору. Кошти надійно утримуються на платформі до фінального рішення арбітра. Ви можете надіслати підтверджуючі матеріали (чек відправки, скріншоти діалогу) у нашу підтримку.
+                    🚨 <strong>Модерація KRAM</strong>: очікуйте на розгляд спору. KRAM не утримує кошти, але може перевірити докази, обмежити порушника та допомогти зафіксувати історію домовленості. Надішліть підтвердження (чек відправки, фото, скріншоти діалогу) у підтримку.
                   </div>
                 )}
               </div>
@@ -428,7 +428,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
                 </button>
               )}
 
-              {(tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
+              {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
                 <button
                   onClick={() => {
                     const reason = prompt('Вкажіть причину спору:')
@@ -443,7 +443,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
 
               {tx.status === 'PENDING_PAYMENT' && tx.buyerId === tx.currentUserId && (
                 <p className="text-[12px] text-center text-[#64748B] italic">
-                  Перейдіть до оплати у вкладці "Покупки"
+                  Підтвердити домовленість можна у вкладці "Покупки"
                 </p>
               )}
 
@@ -461,7 +461,7 @@ export default function TransactionDetailPage({ params }: { params: Promise<{ id
             <ShieldCheck className="w-8 h-8 mb-4 opacity-80" />
             <h4 className="text-[16px] font-bold mb-2">KRAM Safe</h4>
             <p className="text-[12px] text-white/80 leading-relaxed">
-              Ваша безпека — наш пріоритет. KRAM показує статус оплати, доставки, отримання та спору на кожному кроці.
+              Ваша безпека — наш пріоритет. KRAM фіксує статус домовленості, доставки, отримання та спору на кожному кроці.
             </p>
           </div>
         </div>

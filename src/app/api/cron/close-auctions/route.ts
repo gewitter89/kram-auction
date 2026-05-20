@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 
       if (winner) {
         try {
-          // Create transaction using Safe Deal service with idempotency
+          // Create a direct-agreement transaction with idempotency
           const idempotencyKey = `auction:${listing.id}:${winner.userId}:${new Date().toISOString().slice(0, 10)}`
           await createTransactionFromAuctionWin(
             listing.id,

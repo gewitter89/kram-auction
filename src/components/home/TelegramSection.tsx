@@ -314,7 +314,7 @@ export function HowItWorksSimple() {
         <div className="p-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-2xl max-w-3xl mx-auto flex items-start gap-3">
           <AlertTriangle className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
           <p className="text-[12.5px] text-[#1E40AF] leading-relaxed font-medium">
-            📢 <strong>Офіційне роз’яснення:</strong> KRAM не обробляє платежі, не приймає передплати, не забезпечує холдування (escrow) чи автоматичне повернення коштів. Усі фінансові та поштові питання сторони вирішують особисто та самостійно поза межами системи.
+            📢 <strong>Офіційне роз’яснення:</strong> KRAM не обробляє платежі, не приймає передплати, не утримує оплату та не виконує автоматичне повернення коштів. Усі фінансові та поштові питання сторони вирішують особисто та самостійно поза межами системи.
           </p>
         </div>
 

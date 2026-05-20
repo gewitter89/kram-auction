@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server'
 import { isLiqPayConfigured } from '@/lib/liqpay-service'
+import { paymentsEnabled } from '@/lib/payments-mode'
 
-// GET /api/liqpay/status - Check if LiqPay is configured
+// GET /api/liqpay/status - Check if LiqPay is enabled/configured
 export async function GET() {
+  const enabled = paymentsEnabled()
   return NextResponse.json({
-    configured: isLiqPayConfigured(),
-    sandbox: true, // Always sandbox for now
+    enabled,
+    configured: enabled && isLiqPayConfigured(),
+    sandbox: enabled ? process.env.LIQPAY_SANDBOX !== 'false' : null,
   })
 }

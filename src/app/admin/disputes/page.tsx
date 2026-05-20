@@ -41,9 +41,9 @@ export default function DisputesPage() {
     }
   }
 
-  async function handleResolve(id: string, action: 'REFUND_BUYER' | 'PAYOUT_SELLER') {
-    const actionText = action === 'REFUND_BUYER' ? 'Повернути кошти покупцю' : 'Виплатити продавцю'
-    if (!confirm(`Ви впевнені, що хочете: ${actionText}? Ця дія незворотня.`)) return
+  async function handleResolve(id: string, action: 'CANCEL_FOR_BUYER' | 'COMPLETE_FOR_SELLER') {
+    const actionText = action === 'CANCEL_FOR_BUYER' ? 'скасувати угоду на користь покупця' : 'завершити угоду на користь продавця'
+    if (!confirm(`Ви впевнені, що хочете ${actionText}? KRAM лише фіксує рішення спору і не проводить оплату/повернення коштів.`)) return
 
     setProcessingId(id)
     try {
@@ -75,9 +75,9 @@ export default function DisputesPage() {
         <div>
           <h1 className="text-[24px] font-bold text-[#0F172A] flex items-center gap-2">
             <Scale className="w-6 h-6 text-[#8B5CF6]" />
-            Арбітраж (Disputes)
+            Модерація спорів
           </h1>
-          <p className="text-[#64748B] text-[14px] mt-1">Вирішення проблемних угод між покупцями та продавцями</p>
+          <p className="text-[#64748B] text-[14px] mt-1">Фіксація рішень по проблемних прямих домовленостях. KRAM не проводить оплату чи повернення коштів.</p>
         </div>
         <button onClick={fetchDisputes} className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E2E8F0] rounded-xl text-[14px] font-semibold hover:bg-[#F8FAFC]">
           <RefreshCw className="w-4 h-4" /> Оновити
@@ -114,13 +114,13 @@ export default function DisputesPage() {
 
               <div className="grid grid-cols-2 gap-6 mb-6">
                 <div className="p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
-                  <h4 className="text-[12px] font-bold text-[#64748B] uppercase tracking-wider mb-2">👤 Покупець (Платив гроші)</h4>
+                  <h4 className="text-[12px] font-bold text-[#64748B] uppercase tracking-wider mb-2">👤 Покупець</h4>
                   <p className="text-[14px] font-medium text-[#0F172A]">{dispute.buyer.name}</p>
                   <p className="text-[13px] text-[#64748B]">{dispute.buyer.email}</p>
                   <p className="text-[13px] text-[#64748B]">{dispute.buyer.phone || 'Телефон не вказано'}</p>
                 </div>
                 <div className="p-4 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
-                  <h4 className="text-[12px] font-bold text-[#64748B] uppercase tracking-wider mb-2">📦 Продавець (Відправляв товар)</h4>
+                  <h4 className="text-[12px] font-bold text-[#64748B] uppercase tracking-wider mb-2">📦 Продавець</h4>
                   <p className="text-[14px] font-medium text-[#0F172A]">{dispute.seller.name}</p>
                   <p className="text-[13px] text-[#64748B]">{dispute.seller.email}</p>
                   <p className="text-[13px] text-[#64748B]">{dispute.seller.phone || 'Телефон не вказано'}</p>
@@ -140,18 +140,18 @@ export default function DisputesPage() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => handleResolve(dispute.id, 'REFUND_BUYER')}
+                  onClick={() => handleResolve(dispute.id, 'CANCEL_FOR_BUYER')}
                   disabled={processingId === dispute.id}
                   className="flex-1 flex items-center justify-center gap-2 h-11 bg-white border-2 border-[#EF4444] text-[#EF4444] rounded-xl text-[14px] font-semibold hover:bg-[#FEF2F2] transition-colors disabled:opacity-50"
                 >
-                  <XCircle className="w-4 h-4" /> Повернути кошти Покупцю
+                  <XCircle className="w-4 h-4" /> Скасувати на користь покупця
                 </button>
                 <button
-                  onClick={() => handleResolve(dispute.id, 'PAYOUT_SELLER')}
+                  onClick={() => handleResolve(dispute.id, 'COMPLETE_FOR_SELLER')}
                   disabled={processingId === dispute.id}
                   className="flex-1 flex items-center justify-center gap-2 h-11 bg-white border-2 border-[#10B981] text-[#10B981] rounded-xl text-[14px] font-semibold hover:bg-[#ECFDF5] transition-colors disabled:opacity-50"
                 >
-                  <CheckCircle className="w-4 h-4" /> Виплатити Продавцю
+                  <CheckCircle className="w-4 h-4" /> Завершити на користь продавця
                 </button>
               </div>
             </div>

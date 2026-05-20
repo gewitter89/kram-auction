@@ -1,13 +1,13 @@
 import { prisma } from './prisma'
 import { logAuditEvent } from './logger'
 import { sendTelegramMessage } from './telegram'
-import { makeFundsAvailable, createPendingRelease } from './payment-release-service'
 import { absoluteUrl } from './site-url'
 
 // Transaction Status Types
 export const TransactionStatus = {
   PENDING_PAYMENT: 'PENDING_PAYMENT',
-  PAID_HELD: 'PAID_HELD',
+  TERMS_AGREED: 'TERMS_AGREED',
+  PAID_HELD: 'PAID_HELD', // legacy/LiqPay status kept for older records
   SELLER_SHIPPED: 'SELLER_SHIPPED',
   BUYER_RECEIVED: 'BUYER_RECEIVED',
   COMPLETED: 'COMPLETED',
@@ -34,7 +34,8 @@ export const DeliveryStatus = {
 
 export const TransactionEventType = {
   TRANSACTION_CREATED: 'TRANSACTION_CREATED',
-  TRANSACTION_MARKED_PAID: 'TRANSACTION_MARKED_PAID',
+  TRANSACTION_TERMS_AGREED: 'TRANSACTION_TERMS_AGREED',
+  TRANSACTION_MARKED_PAID: 'TRANSACTION_MARKED_PAID', // legacy event name
   TRANSACTION_SHIPPED: 'TRANSACTION_SHIPPED',
   TRANSACTION_RECEIVED: 'TRANSACTION_RECEIVED',
   TRANSACTION_COMPLETED: 'TRANSACTION_COMPLETED',
@@ -401,8 +402,8 @@ export async function createTransactionFromAuctionWin(
   return transaction
 }
 
-// Mark transaction as paid (buyer action)
-export async function markTransactionPaid(
+// Buyer confirms that direct payment/delivery terms were agreed (no KRAM escrow/payment)
+export async function markTransactionTermsAgreed(
   transactionId: string,
   buyerId: string,
   ip?: string,
@@ -432,8 +433,8 @@ export async function markTransactionPaid(
   const updated = await prisma.transaction.update({
     where: { id: transactionId },
     data: {
-      status: TransactionStatus.PAID_HELD,
-      paymentStatus: PaymentStatus.HELD,
+      status: TransactionStatus.TERMS_AGREED,
+      paymentStatus: PaymentStatus.NOT_PAID,
       buyerConfirmedAt: new Date(),
     },
     include: {
@@ -447,10 +448,10 @@ export async function markTransactionPaid(
   try {
     await createTransactionEvent(
       transactionId,
-      TransactionEventType.TRANSACTION_MARKED_PAID,
+      TransactionEventType.TRANSACTION_TERMS_AGREED,
       buyerId,
       TransactionStatus.PENDING_PAYMENT,
-      TransactionStatus.PAID_HELD,
+      TransactionStatus.TERMS_AGREED,
       'Покупець підтвердив, що умови оплати й доставки узгоджено',
       { note: 'Пряма домовленість: KRAM не приймає оплату й не утримує кошти' }
     )
@@ -459,10 +460,10 @@ export async function markTransactionPaid(
   try {
     await logAuditEvent({
       userId: buyerId,
-      action: 'transaction_marked_paid',
+      action: 'transaction_terms_agreed',
       ip,
       userAgent,
-      metadata: { transactionId, fromStatus: TransactionStatus.PENDING_PAYMENT, toStatus: TransactionStatus.PAID_HELD },
+      metadata: { transactionId, fromStatus: TransactionStatus.PENDING_PAYMENT, toStatus: TransactionStatus.TERMS_AGREED },
     })
   } catch (e) { console.error('Audit log failed:', e) }
 
@@ -516,7 +517,7 @@ export async function shipTransaction(
     throw new Error('FORBIDDEN')
   }
 
-  if (transaction.status !== TransactionStatus.PAID_HELD) {
+  if (![TransactionStatus.TERMS_AGREED, TransactionStatus.PAID_HELD].includes(transaction.status as any)) {
     throw new Error('INVALID_STATUS')
   }
 
@@ -542,7 +543,7 @@ export async function shipTransaction(
       transactionId,
       TransactionEventType.TRANSACTION_SHIPPED,
       sellerId,
-      TransactionStatus.PAID_HELD,
+      transaction.status,
       TransactionStatus.SELLER_SHIPPED,
       `Продавець відправив товар через ${deliveryProvider}`,
       { trackingNumber, deliveryProvider }
@@ -611,7 +612,7 @@ export async function confirmTransactionReceived(
     where: { id: transactionId },
     data: {
       status: TransactionStatus.COMPLETED,
-      paymentStatus: PaymentStatus.RELEASED,
+      paymentStatus: PaymentStatus.NOT_PAID,
       deliveryStatus: DeliveryStatus.CONFIRMED,
       completedAt: new Date(),
     },
@@ -623,14 +624,6 @@ export async function confirmTransactionReceived(
   })
 
   // Side-effects: best-effort
-  // Make funds available to seller
-  try {
-    await makeFundsAvailable(transactionId)
-  } catch (e) {
-    console.error('Failed to make funds available:', e)
-    // Don't fail the transaction if release creation fails
-  }
-
   try {
     await createTransactionEvent(
       transactionId,
@@ -715,8 +708,8 @@ export async function openTransactionDispute(
     throw new Error('FORBIDDEN')
   }
 
-  // Can only dispute from PAID_HELD or SELLER_SHIPPED
-  const disputableStatuses: string[] = [TransactionStatus.PAID_HELD, TransactionStatus.SELLER_SHIPPED]
+  // Can only dispute after terms are agreed or shipment started
+  const disputableStatuses: string[] = [TransactionStatus.TERMS_AGREED, TransactionStatus.PAID_HELD, TransactionStatus.SELLER_SHIPPED]
   if (!disputableStatuses.includes(transaction.status)) {
     throw new Error('INVALID_STATUS')
   }
@@ -744,7 +737,7 @@ export async function openTransactionDispute(
       transactionId,
       TransactionEventType.TRANSACTION_DISPUTED,
       actorId,
-      isBuyer ? TransactionStatus.PAID_HELD : TransactionStatus.SELLER_SHIPPED,
+      transaction.status,
       TransactionStatus.DISPUTED,
       `${actorType} відкрив спір: ${reason}`,
       { reason, openedBy: isBuyer ? 'buyer' : 'seller' }
@@ -912,23 +905,23 @@ export async function resolveTransactionDispute(
       where: { id: transactionId },
       data: {
         status: TransactionStatus.COMPLETED,
-        paymentStatus: PaymentStatus.RELEASED,
+        paymentStatus: PaymentStatus.NOT_PAID,
         completedAt: new Date(),
       },
     })
     eventType = TransactionEventType.TRANSACTION_DISPUTE_RESOLVED_RELEASE
-    resolutionText = 'Спір вирішено: кошти перераховано продавцю'
+    resolutionText = 'Спір вирішено: домовленість завершено на користь продавця'
   } else if (resolution === 'REFUND') {
     updated = await prisma.transaction.update({
       where: { id: transactionId },
       data: {
         status: TransactionStatus.REFUNDED,
-        paymentStatus: PaymentStatus.REFUNDED,
+        paymentStatus: PaymentStatus.NOT_PAID,
         refundedAt: new Date(),
       },
     })
     eventType = TransactionEventType.TRANSACTION_DISPUTE_RESOLVED_REFUND
-    resolutionText = 'Спір вирішено: кошти повернуто покупцю'
+    resolutionText = 'Спір вирішено: угоду скасовано на користь покупця'
   } else {
     updated = await prisma.transaction.update({
       where: { id: transactionId },
@@ -1059,6 +1052,7 @@ export async function getTransactionWithDetails(transactionId: string, userId: s
 
   return {
     ...transaction,
+    currentUserId: userId,
     role: isBuyer ? 'buyer' : isSeller ? 'seller' : 'admin',
   }
 }

@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
 
         {/* Honest Notice */}
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-10 text-amber-900 text-[15px] leading-relaxed">
-          <strong>Чесний бета-запуск:</strong> Наша мета — створити прозорі та безпечні онлайн-торги в Україні. Зараз ми проводимо бета-тестування інтерфейсу та сповіщень. Реальна платіжна модель із заморожуванням коштів (Escrow) підключається окремим етапом. Усі транзакції на даному етапі координуються статусами та ручними підтвердженнями сторін.
+          <strong>Прямі домовленості:</strong> KRAM фіксує лоти, ставки, повідомлення, ТТН, підтвердження отримання та скарги. Платформа не приймає оплату, не утримує кошти та не є фінансовим посередником. Оплату й доставку сторони погоджують напряму; рекомендуємо післяплату після огляду товару у відділенні пошти.
         </div>
 
         <div className="space-y-12">
@@ -53,7 +53,7 @@ export default function HowItWorksPage() {
                 <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[13px] font-bold flex items-center justify-center shrink-0">3</div>
                 <div>
                   <h4 className="font-bold text-[#0F172A] text-[15px] mb-1">Додайте ТТН після підтвердження</h4>
-                  <p className="text-[#64748B] text-[14px]">Після завершення торгів та підтвердження отримання оплати покупцем надішліть товар через Нову Пошту та вкажіть трекінг-код у системі.</p>
+                  <p className="text-[#64748B] text-[14px]">Після завершення торгів узгодьте з покупцем оплату й доставку напряму, надішліть товар обраним перевізником та вкажіть трекінг-код у системі.</p>
                 </div>
               </div>
             </div>
@@ -76,8 +76,8 @@ export default function HowItWorksPage() {
               <div className="flex gap-4">
                 <div className="w-8 h-8 rounded-full bg-[#EFF6FF] text-[#2563EB] text-[13px] font-bold flex items-center justify-center shrink-0">2</div>
                 <div>
-                  <h4 className="font-bold text-[#0F172A] text-[15px] mb-1">Сплатіть лот у разі перемоги</h4>
-                  <p className="text-[#64748B] text-[14px]">Після закінчення аукціону переможець погоджує доставку та підтверджує безпечний платіж.</p>
+                  <h4 className="font-bold text-[#0F172A] text-[15px] mb-1">Узгодьте оплату й доставку</h4>
+                  <p className="text-[#64748B] text-[14px]">Після закінчення аукціону переможець списується з продавцем у чаті KRAM, погоджує спосіб оплати й доставки та підтверджує домовленість у кабінеті.</p>
                 </div>
               </div>
               <div className="flex gap-4">

@@ -1,7 +1,9 @@
+import { paymentsEnabled } from '@/lib/payments-mode'
+
 export const isClassifiedMode =
   process.env.KRAM_BETA_CLASSIFIED_MODE === 'true' ||
   process.env.NEXT_PUBLIC_KRAM_BETA_CLASSIFIED_MODE === 'true' ||
-  process.env.PAYMENTS_ENABLED === 'false'
+  !paymentsEnabled()
 
 export const platformFeeLabel = isClassifiedMode ? '0 ₴' : 'За тарифами KRAM'
 

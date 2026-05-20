@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test'
 
 const publicPages = ['/', '/catalog', '/fees', '/safety', '/rules', '/terms', '/privacy']
+const publicLaunchForbidden = /Beta|beta|демо|тестов|escrow|safe deal|liqpay|холдинг|заморожування коштів|платіжний холдинг|транзитному рахунку|безпечне утримання/i
 
 test.describe('public launch smoke', () => {
   for (const path of publicPages) {
-    test(`${path} renders without obvious demo/beta positioning`, async ({ page }) => {
+    test(`${path} renders without obvious demo/beta/escrow positioning`, async ({ page }) => {
       await page.goto(path)
       await expect(page.locator('body')).toBeVisible()
-      await expect(page.locator('body')).not.toContainText(/Beta|beta|демо|тестов/i)
+      await expect(page.locator('body')).not.toContainText(publicLaunchForbidden)
     })
   }
 

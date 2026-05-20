@@ -32,6 +32,7 @@ interface Transaction {
 
 const statusLabels: Record<string, { label: string; color: string; icon: LucideIcon }> = {
   PENDING_PAYMENT: { label: 'Очікує узгодження умов', color: 'bg-amber-100 text-amber-700', icon: Clock },
+  TERMS_AGREED: { label: 'Узгоджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
   PAID_HELD: { label: 'Узгоджено — очікує відправлення', color: 'bg-blue-100 text-blue-700', icon: Package },
   SELLER_SHIPPED: { label: 'Відправлено — очікує підтвердження отримання', color: 'bg-indigo-100 text-indigo-700', icon: Truck },
   BUYER_RECEIVED: { label: 'Отримано покупцем', color: 'bg-green-100 text-green-700', icon: CheckCircle },
@@ -45,6 +46,7 @@ function getNextAction(transaction: Transaction): { text: string; action?: strin
   switch (transaction.status) {
     case 'PENDING_PAYMENT':
       return { text: 'Узгодьте спосіб оплати та доставки з продавцем у чаті' }
+    case 'TERMS_AGREED':
     case 'PAID_HELD':
       return { text: 'Очікуємо відправлення лота від продавця' }
     case 'SELLER_SHIPPED':
@@ -272,7 +274,7 @@ export function PurchasesTab() {
                     </button>
                   )}
                   
-                  {(tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
+                  {(tx.status === 'TERMS_AGREED' || tx.status === 'PAID_HELD' || tx.status === 'SELLER_SHIPPED') && (
                     <button
                       onClick={() => openDispute(tx.id)}
                       disabled={processing === tx.id}

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth-config'
 import { prisma } from '@/lib/prisma'
 import { createTransactionEvent } from '@/lib/transaction-service'
-import { cancelRelease, createPendingRelease, makeFundsAvailable } from '@/lib/payment-release-service'
 
 export async function POST(
   request: Request,
@@ -17,55 +16,42 @@ export async function POST(
     const { id } = await params
     const { resolution, notes } = await request.json()
 
-    if (!['REFUND_BUYER', 'PAYOUT_SELLER'].includes(resolution)) {
+    if (!['CANCEL_FOR_BUYER', 'COMPLETE_FOR_SELLER'].includes(resolution)) {
       return NextResponse.json({ error: 'Invalid resolution action' }, { status: 400 })
     }
 
-    const transaction = await prisma.transaction.findUnique({
-      where: { id },
-      include: { payments: { orderBy: { createdAt: 'desc' }, take: 1 } }
-    })
+    const transaction = await prisma.transaction.findUnique({ where: { id } })
 
     if (!transaction || transaction.status !== 'DISPUTED') {
       return NextResponse.json({ error: 'Transaction not found or not disputed' }, { status: 404 })
     }
 
-    // Determine new status based on resolution
-    const newStatus = resolution === 'REFUND_BUYER' ? 'CANCELLED' : 'COMPLETED'
+    const newStatus = resolution === 'CANCEL_FOR_BUYER' ? 'CANCELLED' : 'COMPLETED'
+    const eventType = resolution === 'CANCEL_FOR_BUYER'
+      ? 'TRANSACTION_DISPUTE_RESOLVED_CANCEL'
+      : 'TRANSACTION_DISPUTE_RESOLVED_COMPLETE'
+    const resolutionText = resolution === 'CANCEL_FOR_BUYER'
+      ? 'спір закрито, угоду скасовано на користь покупця'
+      : 'спір закрито, домовленість завершено на користь продавця'
 
-    // Update transaction
     await prisma.transaction.update({
       where: { id },
-      data: { status: newStatus }
+      data: {
+        status: newStatus,
+        paymentStatus: 'NOT_PAID',
+        ...(newStatus === 'COMPLETED' ? { completedAt: new Date() } : { cancelledAt: new Date() }),
+      }
     })
 
-    // Log event
     await createTransactionEvent(
       id,
+      eventType,
       session.user.id,
-      resolution === 'REFUND_BUYER' ? 'TRANSACTION_DISPUTE_RESOLVED_REFUND' : 'TRANSACTION_DISPUTE_RESOLVED_RELEASE',
       'DISPUTED',
       newStatus,
-      `Адміністратор вирішив спір: ${resolution === 'REFUND_BUYER' ? 'Повернення коштів покупцю' : 'Виплата продавцю'}. Примітка: ${notes || 'Немає'}`
+      `Адміністратор вирішив спір: ${resolutionText}. Примітка: ${notes || 'Немає'}`,
+      { resolution, notes, noEscrow: true }
     )
-
-    // Handle money
-    if (resolution === 'REFUND_BUYER') {
-      // Cancel any pending releases
-      await cancelRelease(id, `Dispute resolved in favor of buyer: ${notes}`)
-      // In a real world, here we would also call LiqPay refund API
-    } else {
-      // Payout seller
-      // Since it was disputed, maybe funds are not yet 'APPROVED' for release
-      // Let's forcefully approve funds
-      const payment = transaction.payments[0]
-      if (payment) {
-        // Ensure pending release exists
-        await createPendingRelease(id, payment.id, transaction.sellerId, transaction.amount, 'UAH')
-        // Make funds available so it shows up in payouts panel
-        await makeFundsAvailable(id)
-      }
-    }
 
     return NextResponse.json({ success: true, status: newStatus })
   } catch (error: any) {
