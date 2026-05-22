@@ -9,29 +9,21 @@ import { apiService } from "@/lib/api-service";
 import { MockListing, MockTransaction } from "@/lib/db";
 import { 
   TrendingUp, 
-  Eye, 
   Gavel, 
   DollarSign, 
   Award, 
-  Clock, 
   CheckCircle, 
-  ShieldCheck, 
-  ChevronRight,
   Plus,
-  ArrowUpRight,
   Activity,
   UserCheck,
-  Zap,
-  MapPin,
-  Barcode
+  Zap
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
 
 export default function DashboardPage() {
-  const { user, updateBalance } = useAuth();
+  const { user, login, updateBalance } = useAuth();
   const [listings, setListings] = useState<MockListing[]>([]);
   const [transactions, setTransactions] = useState<MockTransaction[]>([]);
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
   // Состояния для верификации
   const [verificationStep, setVerificationStep] = useState(2); // 2 из 4 пройдено
@@ -43,11 +35,14 @@ export default function DashboardPage() {
       // Загружаем лоты текущего продавца
       const allListings = apiService.getListings();
       const myListings = allListings.filter(l => l.sellerId === user.id);
-      setListings(myListings);
-
+      
       // Загружаем транзакции
       const myTxs = apiService.getTransactions(user.id);
-      setTransactions(myTxs);
+
+      Promise.resolve().then(() => {
+        setListings(myListings);
+        setTransactions(myTxs);
+      });
     }
   }, [user]);
 
@@ -63,12 +58,12 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 soundService.playClick();
-                window.location.reload();
+                login("demo-seller@kram.ua");
               }}
               onMouseEnter={() => soundService.playHover()}
-              className="mt-2 w-full rounded-xl bg-emerald-500 py-3 text-xs font-bold text-white hover:bg-emerald-400 transition-colors"
+              className="w-full rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
             >
-              Увійти як Продавець (Демо)
+              Увійти як Продавець
             </button>
           </div>
         </main>
@@ -308,7 +303,7 @@ export default function DashboardPage() {
                   <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
                 </div>
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-emerald-400 font-semibold">✓ Прив'язати картку виплат</span>
+                  <span className="text-emerald-400 font-semibold">✓ Прив’язати картку виплат</span>
                   <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
                 </div>
                 <div className="flex items-center justify-between text-[10px]">

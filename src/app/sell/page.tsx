@@ -8,13 +8,6 @@ import { useAuth } from "@/lib/auth-context";
 import { apiService } from "@/lib/api-service";
 import { MockCategory } from "@/lib/db";
 import { 
-  Laptop, 
-  Gem, 
-  Watch, 
-  Car, 
-  Palette, 
-  Building,
-  Image as ImageIcon,
   Check,
   ChevronRight,
   ChevronLeft,
@@ -28,7 +21,10 @@ import { soundService } from "@/lib/sound-service";
 export default function SellPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [categories, setCategories] = useState<MockCategory[]>([]);
+  const [categories] = useState<MockCategory[]>(() => {
+    apiService.initialize();
+    return apiService.getCategories();
+  });
   const [step, setStep] = useState(1);
 
   // Стани полів форми
@@ -51,7 +47,6 @@ export default function SellPage() {
     if (!user) {
       router.push("/");
     }
-    setCategories(apiService.getCategories());
   }, [user, router]);
 
   const handleAddImageUrl = () => {
@@ -129,7 +124,7 @@ export default function SellPage() {
     // Формуємо дату завершення
     const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * parseInt(durationDays)).toISOString();
 
-    const newListing = apiService.createListing({
+    apiService.createListing({
       title,
       description,
       images,
@@ -372,7 +367,7 @@ export default function SellPage() {
                       onMouseEnter={() => soundService.playHover()}
                       onClick={() => {
                         soundService.playClick();
-                        setDealType(format.id as any);
+                        setDealType(format.id as "AUCTION" | "BUY_NOW" | "HYBRID");
                       }}
                       className={`text-left p-4 rounded-xl border flex flex-col justify-between transition-all ${
                         dealType === format.id

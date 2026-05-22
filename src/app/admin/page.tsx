@@ -6,21 +6,16 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { apiService } from "@/lib/api-service";
 import { 
-  Activity, 
   Terminal, 
   Cpu, 
   ShieldAlert, 
   RefreshCw, 
-  Play, 
-  Pause,
   AlertTriangle,
   Server,
   Zap,
   Globe,
   Database,
   ShieldCheck,
-  Radio,
-  Lock,
   Workflow
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
@@ -72,7 +67,7 @@ function RadarScanner() {
 }
 
 export default function AdminPage() {
-  const { user } = useAuth();
+  useAuth();
   
   // Системні ресурси
   const [cpuUsage, setCpuUsage] = useState(28);
@@ -328,7 +323,7 @@ export default function AdminPage() {
           <div className="glass-panel p-6 rounded-3xl border border-white/5 space-y-4">
             <div className="flex justify-between items-center text-xs">
               <span className="text-slate-400 font-bold flex items-center gap-1.5">
-                <Database className="h-4 w-4 text-violet-400" /> Пам'ять RAM
+                <Database className="h-4 w-4 text-violet-400" /> Пам’ять RAM
               </span>
               <span className={ramUsage > 80 ? "text-rose-400 animate-pulse font-black" : "text-violet-400"}>{ramUsage}%</span>
             </div>
@@ -359,7 +354,7 @@ export default function AdminPage() {
                 style={{ width: `${Math.min(100, trafficCount / 25)}%` }}
               />
             </div>
-            <p className="text-[9px] text-slate-500">Канал зв'язку: {ddosAlert ? "4.8 Gbps" : "18.5 Mbps"}</p>
+            <p className="text-[9px] text-slate-500">Канал зв’язку: {ddosAlert ? "4.8 Gbps" : "18.5 Mbps"}</p>
           </div>
 
           {/* Симулятор ботів */}

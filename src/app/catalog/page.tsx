@@ -27,16 +27,16 @@ export default function Catalog() {
   const [minPrice, setMinPrice] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("NEWEST"); // NEWEST, CHEAPEST, EXPENSIVE, BIDS_COUNT
 
-  const [filteredListings, setFilteredListings] = useState<MockListing[]>([]);
-
   useEffect(() => {
     apiService.initialize();
-    setListings(apiService.getListings());
-    setCategories(apiService.getCategories());
+    Promise.resolve().then(() => {
+      setListings(apiService.getListings());
+      setCategories(apiService.getCategories());
+    });
   }, []);
 
-  // Фільтр-ефект
-  useEffect(() => {
+  // Фільтрація товарів (обчислюється під час рендерингу)
+  const filteredListings = (() => {
     let result = [...listings];
 
     // Пошук
@@ -99,8 +99,8 @@ export default function Catalog() {
       result.sort((a, b) => b.bidsCount - a.bidsCount);
     }
 
-    setFilteredListings(result);
-  }, [searchQuery, selectedCategory, dealType, minPrice, maxPrice, sortBy, listings]);
+    return result;
+  })();
 
   const resetFilters = () => {
     setSearchQuery("");
@@ -115,7 +115,6 @@ export default function Catalog() {
     const total = Date.parse(endTimeStr) - Date.parse(new Date().toISOString());
     if (total <= 0) return "Завершено";
     
-    const seconds = Math.floor((total / 1000) % 60);
     const minutes = Math.floor((total / 1000 / 60) % 60);
     const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
     const days = Math.floor(total / (1000 * 60 * 60 * 24));

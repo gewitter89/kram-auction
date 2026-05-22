@@ -19,17 +19,13 @@ import {
   ShieldCheck, 
   Truck, 
   ArrowRight,
-  Filter,
   Plus,
-  Users,
-  Percent,
-  CheckCircle,
-  HelpCircle
+  Trophy
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
 
 // Маппінг іконок категорій для Lucide
-const categoryIcons: Record<string, React.ComponentType<any>> = {
+const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   Laptop,
   Gem,
   Watch,
@@ -71,7 +67,7 @@ function ConstellationCanvas() {
       });
     }
 
-    let mouse = { x: -1000, y: -1000 };
+    const mouse = { x: -1000, y: -1000 };
 
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -118,7 +114,9 @@ function ConstellationCanvas() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(16, 185, 129, 0.25)";
+        // Читаємо поточний колір теми через CSS-змінну на кожному кадрі
+        const rgb = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-rgb').trim() || '16, 185, 129';
+        ctx.fillStyle = `rgba(${rgb}, 0.25)`;
         ctx.fill();
       });
 
@@ -132,10 +130,11 @@ function ConstellationCanvas() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < 110) {
+            const rgb2 = getComputedStyle(document.documentElement).getPropertyValue('--primary-color-rgb').trim() || '16, 185, 129';
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(16, 185, 129, ${0.12 * (1 - dist / 110)})`;
+            ctx.strokeStyle = `rgba(${rgb2}, ${0.12 * (1 - dist / 110)})`;
             ctx.lineWidth = 0.6;
             ctx.stroke();
           }
@@ -175,6 +174,126 @@ function ConstellationCanvas() {
   }, []);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />;
+}
+
+const LOG_TEMPLATES = [
+  { text: () => `[WS] Bid event: lot#${Math.floor(Math.random()*9000+1000)} → ${(Math.random()*50000+5000).toFixed(0)} UAH`, type: 'bid' },
+  { text: () => `[NET] Peer ${Math.floor(Math.random()*200+1)} connected — ${(Math.random()*30+10).toFixed(0)}ms`, type: 'net' },
+  { text: () => `[WAF] Blocked IP ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.x.x — XSS probe`, type: 'warn' },
+  { text: () => `[CRYPTO] BidHash: sha256#${Math.random().toString(36).slice(2,12).toUpperCase()}...`, type: 'crypto' },
+  { text: () => `[WS] User @u${Math.floor(Math.random()*9999)} placed bid on lot#${Math.floor(Math.random()*9000+1000)}`, type: 'bid' },
+  { text: () => `[SYS] Lot #${Math.floor(Math.random()*9000+1000)} countdown: ${Math.floor(Math.random()*59)+1}s left`, type: 'sys' },
+  { text: () => `[ESCROW] Funds locked: ${(Math.random()*80000+5000).toFixed(0)} UAH for lot#${Math.floor(Math.random()*9000+1000)}`, type: 'escrow' },
+  { text: () => `[WAF] SQL-injection attempt blocked — rule R-204`, type: 'warn' },
+  { text: () => `[NET] WebSocket ping → ${(Math.random()*20+5).toFixed(0)}ms`, type: 'net' },
+  { text: () => `[KRAM] Anti-fraud score: ${(Math.random()*10+88).toFixed(1)}/100`, type: 'sys' },
+];
+
+// Плаваюча Cyber-HUD Консоль безпеки та активності
+function CyberHUD() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [logs, setLogs] = useState<Array<{id: number; text: string; type: string; ts: string}>>([]);
+  const [ping, setPing] = useState(12);
+  const logRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef(0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const tick = setInterval(() => {
+      counterRef.current++;
+      const template = LOG_TEMPLATES[counterRef.current % LOG_TEMPLATES.length];
+      const now = new Date();
+      const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}.${now.getMilliseconds().toString().padStart(3,'0')}`;
+      const newLog = { id: counterRef.current, text: template.text(), type: template.type, ts };
+      setLogs(prev => [...prev.slice(-60), newLog]);
+      soundService.playConsoleTick();
+      // Реальне вимірювання пінгу
+      const t0 = performance.now();
+      fetch('/', { method: 'HEAD', cache: 'no-store' }).then(() => {
+        setPing(Math.round(performance.now() - t0));
+      }).catch(() => setPing(Math.floor(Math.random()*20+8)));
+    }, 900);
+    return () => clearInterval(tick);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [logs]);
+
+  const LOG_COLOR: Record<string, string> = {
+    bid: 'text-brand-primary',
+    net: 'text-blue-400',
+    warn: 'text-rose-400',
+    crypto: 'text-violet-400',
+    sys: 'text-slate-300',
+    escrow: 'text-amber-400',
+  };
+
+  return (
+    <>
+      {/* Плаваюча кнопка HUD */}
+      <button
+        onClick={() => {
+          setIsOpen(v => !v);
+          soundService.playConsoleOpen();
+        }}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-2xl border border-brand-primary/30 bg-slate-950/90 px-4 py-3 text-xs font-bold uppercase tracking-widest text-brand-primary backdrop-blur-xl shadow-[0_0_20px_var(--primary-glow)] hover:shadow-[0_0_30px_var(--primary-glow)] hover:border-brand-primary/60 transition-all group pulse-neon-emerald"
+        title="KRAM Cyber-HUD"
+      >
+        <span className="inline-block w-2 h-2 rounded-full bg-brand-primary animate-pulse" />
+        <span>Cyber-HUD</span>
+        <span className="text-slate-600 font-mono text-[10px]">v1.4</span>
+      </button>
+
+      {/* Плаваюча консоль */}
+      {isOpen && (
+        <div className="fixed bottom-20 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] rounded-2xl border border-brand-primary/25 bg-slate-950/95 shadow-[0_0_40px_var(--primary-glow)] backdrop-blur-2xl overflow-hidden animate-slide-up">
+          {/* Заголовок терміналу */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-slate-900/80">
+            <div className="flex items-center gap-2">
+              <div className="flex gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-rose-500" />
+                <span className="w-3 h-3 rounded-full bg-amber-400" />
+                <span className="w-3 h-3 rounded-full bg-brand-primary" />
+              </div>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-brand-primary ml-2">KRAM :: CYBER-HUD</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-mono text-slate-500">
+                PING: <span className={ping < 50 ? 'text-brand-primary' : ping < 150 ? 'text-amber-400' : 'text-rose-400'}>{ping}ms</span>
+              </span>
+              <button onClick={() => { setIsOpen(false); soundService.playClick(); }} className="text-slate-500 hover:text-white transition-colors text-xs">✕</button>
+            </div>
+          </div>
+
+          {/* Логи */}
+          <div ref={logRef} className="h-64 overflow-y-auto px-4 py-3 space-y-1 font-mono text-[11px] matrix-terminal">
+            {logs.length === 0 && (
+              <p className="text-slate-600 animate-pulse">&gt; Ініціалізація KRAM Security Monitor...</p>
+            )}
+            {logs.map(log => (
+              <div key={log.id} className="flex gap-2 items-start animate-fade-in">
+                <span className="text-slate-600 shrink-0">{log.ts}</span>
+                <span className={LOG_COLOR[log.type] || 'text-slate-400'}>{log.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Статус-бар */}
+          <div className="px-4 py-2 border-t border-white/5 bg-slate-900/60 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
+              <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest">LIVE</span>
+            </div>
+            <span className="text-[9px] text-slate-600 font-mono">{logs.length} events</span>
+            <button onClick={() => setLogs([])} className="text-[9px] text-slate-600 hover:text-rose-400 transition-colors">clear</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
 
 // Рухома стрічка подій KRAM Live
@@ -362,38 +481,34 @@ export default function Home() {
   const [categories, setCategories] = useState<MockCategory[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [filteredListings, setFilteredListings] = useState<MockListing[]>([]);
 
   useEffect(() => {
     apiService.initialize();
-    setListings(apiService.getListings());
-    setCategories(apiService.getCategories());
+    Promise.resolve().then(() => {
+      setListings(apiService.getListings());
+      setCategories(apiService.getCategories());
+    });
   }, []);
 
-  // Фільтрація товарів по пошуку і категорії
-  useEffect(() => {
-    let result = listings;
-    
-    if (selectedCategory) {
-      result = result.filter(l => l.categoryId === selectedCategory);
+  // Фільтрація товарів по пошуку і категорії (обчислюється під час рендерингу)
+  const filteredListings = listings.filter(l => {
+    if (selectedCategory && l.categoryId !== selectedCategory) {
+      return false;
     }
-    
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
-      result = result.filter(l => 
+      return (
         l.title.toLowerCase().includes(q) || 
         l.description.toLowerCase().includes(q)
       );
     }
-    
-    setFilteredListings(result);
-  }, [searchQuery, selectedCategory, listings]);
+    return true;
+  });
 
   const getTimeRemaining = (endTimeStr: string) => {
     const total = Date.parse(endTimeStr) - Date.parse(new Date().toISOString());
     if (total <= 0) return "Завершено";
     
-    const seconds = Math.floor((total / 1000) % 60);
     const minutes = Math.floor((total / 1000 / 60) % 60);
     const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
     const days = Math.floor(total / (1000 * 60 * 60 * 24));
@@ -460,7 +575,7 @@ export default function Home() {
                 href="#lots-catalog"
                 onClick={() => soundService.playClick()}
                 onMouseEnter={() => soundService.playHover()}
-                className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 px-8 py-4 text-sm font-bold text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.35)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] active:scale-95 text-center"
+                className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 hover:brightness-110 px-8 py-4 text-sm font-bold text-white transition-all shadow-[0_0_20px_var(--primary-glow)] hover:shadow-[0_0_30px_var(--primary-glow)] active:scale-95 text-center"
               >
                 Дослідити лоти
               </a>
@@ -482,7 +597,7 @@ export default function Home() {
                 <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mt-1">Активних учасників</p>
               </div>
               <div>
-                <p className="text-xl sm:text-2xl font-black text-emerald-400 font-mono text-glow-emerald">34,921</p>
+                <p className="text-xl sm:text-2xl font-black text-brand-primary font-mono text-glow-emerald">34,921</p>
                 <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider mt-1">Ставок за сьогодні</p>
               </div>
               <div>
@@ -725,6 +840,102 @@ export default function Home() {
           )}
         </section>
 
+        {/* ===== LEADERBOARD PREVIEW ===== */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-extrabold tracking-widest text-brand-primary bg-brand-primary/10 px-2.5 py-1 rounded-lg border border-brand-primary/25 mb-2">
+                <Trophy className="h-3 w-3" /> Лідерборд
+              </span>
+              <h2 className="text-2xl font-bold tracking-tight text-white font-display">Топ учасників KRAM</h2>
+              <p className="text-xs text-slate-400 mt-1">Найактивніші бідери платформи цього тижня</p>
+            </div>
+            <Link
+              href="/leaderboard"
+              onClick={() => soundService.playClick()}
+              onMouseEnter={() => soundService.playHover()}
+              className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:text-brand-primary-hover transition-colors"
+            >
+              Повний рейтинг
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[
+              { rank: 1, username: "@platinum_king", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=platinum_king", xp: 98200, badge: "👑 Платиновий VIP", totalUAH: 4_280_000, bids: 1842, color: "from-amber-400/20 to-transparent", border: "border-amber-400/30", glow: "shadow-[0_0_30px_rgba(251,191,36,0.15)]", icon: "👑" },
+              { rank: 2, username: "@diamond_wolf", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=diamond_wolf", xp: 87500, badge: "💎 Діамантовий", totalUAH: 2_940_000, bids: 1456, color: "from-slate-400/10 to-transparent", border: "border-slate-400/20", glow: "shadow-[0_0_20px_rgba(148,163,184,0.1)]", icon: "🥈" },
+              { rank: 3, username: "@crypto_falcon", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=crypto_falcon", xp: 72000, badge: "💎 Діамантовий", totalUAH: 2_150_000, bids: 1203, color: "from-orange-400/10 to-transparent", border: "border-orange-400/20", glow: "shadow-[0_0_20px_rgba(251,146,60,0.1)]", icon: "🥉" },
+            ].map((entry) => {
+              const xpPct = Math.min(100, Math.round((entry.xp / 100000) * 100));
+              return (
+                <div
+                  key={entry.rank}
+                  className={`glass-panel rounded-3xl border ${entry.border} ${entry.glow} bg-gradient-to-br ${entry.color} p-6 flex flex-col items-center text-center transition-all hover:scale-[1.02] duration-300`}
+                  onMouseEnter={() => soundService.playHover()}
+                >
+                  {/* Rank icon */}
+                  <div className="text-2xl mb-3">{entry.icon}</div>
+
+                  {/* Avatar */}
+                  <div className={`rounded-2xl p-[2px] mb-4 ${entry.rank === 1 ? "bg-gradient-to-br from-amber-300 to-amber-600" : entry.rank === 2 ? "bg-gradient-to-br from-slate-300 to-slate-500" : "bg-gradient-to-br from-orange-400 to-amber-600"}`}>
+                    <img
+                      src={entry.avatar}
+                      alt={entry.username}
+                      className="w-16 h-16 rounded-xl object-cover bg-slate-900"
+                    />
+                  </div>
+
+                  <p className="text-sm font-bold text-white">{entry.username}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5 mb-4">{entry.badge}</p>
+
+                  {/* XP bar */}
+                  <div className="w-full space-y-1 mb-4">
+                    <div className="flex justify-between text-[9px] text-slate-600">
+                      <span>XP</span>
+                      <span>{entry.xp.toLocaleString()} / 100К</span>
+                    </div>
+                    <div className="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden border border-white/5">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-brand-primary to-teal-400 transition-all duration-1000"
+                        style={{ width: `${xpPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-2 w-full">
+                    <div className="rounded-xl bg-white/[0.03] border border-white/5 py-2">
+                      <p className="text-sm font-extrabold text-brand-primary font-mono">
+                        {entry.totalUAH >= 1_000_000
+                          ? `${(entry.totalUAH / 1_000_000).toFixed(1)}М`
+                          : `${Math.round(entry.totalUAH / 1000)}К`}
+                      </p>
+                      <p className="text-[9px] text-slate-600 uppercase tracking-wider">UAH</p>
+                    </div>
+                    <div className="rounded-xl bg-white/[0.03] border border-white/5 py-2">
+                      <p className="text-sm font-extrabold text-violet-400 font-mono">{entry.bids}</p>
+                      <p className="text-[9px] text-slate-600 uppercase tracking-wider">Ставок</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 text-center sm:hidden">
+            <Link
+              href="/leaderboard"
+              onClick={() => soundService.playClick()}
+              onMouseEnter={() => soundService.playHover()}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:text-brand-primary-hover transition-colors"
+            >
+              Переглянути повний рейтинг
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </section>
+
         {/* Калькулятор вигоди */}
         <section className="py-16 px-4 sm:px-6 lg:px-8 mx-auto max-w-7xl">
           <KramCalculator />
@@ -788,6 +999,9 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      {/* Плаваюча Cyber-HUD консоль */}
+      <CyberHUD />
 
       {/* Підвал */}
       <Footer />

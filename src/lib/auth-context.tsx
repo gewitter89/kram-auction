@@ -24,60 +24,69 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+// Список доступных аккаунтов для быстрого тестирования и переключения
+const demoUsers: Record<string, User> = {
+  BUYER: {
+    id: "user-buyer",
+    email: "demo-buyer@kram.ua",
+    name: "Владимир (KRAM Buyer)",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+    role: "BUYER",
+    rating: 5.0,
+    verified: true,
+    balance: 150000
+  },
+  SELLER: {
+    id: "user-seller",
+    email: "demo-seller@kram.ua",
+    name: "Александр (KRAM Seller)",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+    role: "SELLER",
+    rating: 4.9,
+    verified: true,
+    balance: 250000
+  },
+  ADMIN: {
+    id: "user-admin",
+    email: "admin@kram.ua",
+    name: "Главный Администратор",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
+    role: "ADMIN",
+    rating: 5.0,
+    verified: true,
+    balance: 1000000
+  }
+};
 
-  // Список доступных аккаунтов для быстрого тестирования и переключения
-  const demoUsers: Record<string, User> = {
-    BUYER: {
-      id: "user-buyer",
-      email: "demo-buyer@kram.ua",
-      name: "Владимир (KRAM Buyer)",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-      role: "BUYER",
-      rating: 5.0,
-      verified: true,
-      balance: 150000
-    },
-    SELLER: {
-      id: "user-seller",
-      email: "demo-seller@kram.ua",
-      name: "Александр (KRAM Seller)",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-      role: "SELLER",
-      rating: 4.9,
-      verified: true,
-      balance: 250000
-    },
-    ADMIN: {
-      id: "user-admin",
-      email: "admin@kram.ua",
-      name: "Главный Администратор",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
-      role: "ADMIN",
-      rating: 5.0,
-      verified: true,
-      balance: 1000000
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("kram_current_user");
+      if (savedUser) {
+        try {
+          return JSON.parse(savedUser);
+        } catch {
+          return demoUsers.BUYER;
+        }
+      }
+      return demoUsers.BUYER;
     }
-  };
+    return null;
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Восстанавливаем сохраненного пользователя при загрузке страницы
-    const savedUser = localStorage.getItem("kram_current_user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        setUser(demoUsers.BUYER);
+    if (typeof window !== "undefined") {
+      const savedUser = localStorage.getItem("kram_current_user");
+      if (!savedUser && user) {
+        localStorage.setItem("kram_current_user", JSON.stringify(user));
       }
-    } else {
-      // По умолчанию входим как Покупатель
-      setUser(demoUsers.BUYER);
-      localStorage.setItem("kram_current_user", JSON.stringify(demoUsers.BUYER));
     }
-    setLoading(false);
-  }, []);
+    Promise.resolve().then(() => {
+      setLoading(false);
+    });
+  }, [user]);
 
   const login = async (email: string): Promise<boolean> => {
     setLoading(true);

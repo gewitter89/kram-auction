@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -12,10 +12,6 @@ import {
   Send, 
   ShieldAlert, 
   MessageSquare,
-  Sparkles,
-  Info,
-  CheckCircle,
-  Gem,
   AlertTriangle
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
@@ -36,27 +32,18 @@ export default function MessagesPage() {
   const [typedMessage, setTypedMessage] = useState("");
   const [localWarning, setLocalWarning] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/");
-      return;
-    }
-    apiService.initialize();
-    loadConversations();
-  }, [user]);
-
-  // Скролл вниз при загрузке или отправке сообщения
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeConvIdx, conversations]);
-
-  const loadConversations = () => {
+  const loadConversations = useCallback(() => {
     if (!user) return;
     const listings = apiService.getListings();
     
     // Группируем сообщения по связке (listingId, sellerId/buyerId)
     // В прототипе у нас есть демо-сообщения между user-buyer и user-seller по лоту list-1
-    const convs: typeof conversations = [];
+    const convs: {
+      listing: MockListing;
+      messages: MockMessage[];
+      otherUserId: string;
+      otherUserName: string;
+    }[] = [];
 
     listings.forEach(listing => {
       const msgs = apiService.getMessages(listing.id, "user-buyer", "user-seller");
@@ -74,11 +61,25 @@ export default function MessagesPage() {
       }
     });
 
-    setConversations(convs);
-    if (convs.length > 0 && activeConvIdx === -1) {
-      setActiveConvIdx(0);
+    Promise.resolve().then(() => {
+      setConversations(convs);
+      setActiveConvIdx(prev => prev === -1 && convs.length > 0 ? 0 : prev);
+    });
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/");
+      return;
     }
-  };
+    apiService.initialize();
+    loadConversations();
+  }, [user, router, loadConversations]);
+
+  // Скролл вниз при загрузке або відправці повідомлення
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [activeConvIdx, conversations]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Gem, ShieldCheck, Truck, Scale, LifeBuoy } from "lucide-react";
+import { Gem, ShieldCheck, Truck, Scale } from "lucide-react";
 
 export default function Footer() {
   return (

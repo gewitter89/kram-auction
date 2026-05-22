@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import React, { useState, useEffect, use, useRef } from "react";
+import React, { useState, useEffect, use, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -26,9 +26,7 @@ import {
   Printer,
   Sparkles,
   Award,
-  ChevronRight,
-  TrendingUp,
-  Info
+  TrendingUp
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { soundService } from "@/lib/sound-service";
@@ -65,7 +63,7 @@ function SvgQRCode() {
   ];
 
   const isAnchor = (x: number, y: number) => {
-    for (let a of anchors) {
+    for (const a of anchors) {
       if (x >= a.x && x < a.x + 7 && y >= a.y && y < a.y + 7) {
         const dx = x - a.x;
         const dy = y - a.y;
@@ -192,6 +190,378 @@ function BidVelocityChart({ bids }: { bids: MockBid[] }) {
   );
 }
 
+// ── SVG Графік цінової активності (Task 2) ────────────────────────────────
+function PriceHistoryChart({ basePrice }: { basePrice: number }) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  // 14 mock data points — gradually increasing with volatility
+  const rawData = [
+    0, 2, -1, 4, 1, 6, 3, 8, 5, 10, 7, 12, 9, 15
+  ];
+  const prices = rawData.map((delta) => Math.round(basePrice * (1 + delta * 0.008)));
+  const times = [
+    "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+    "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+    "15:00", "15:30"
+  ];
+
+  const W = 500, H = 160;
+  const padL = 60, padR = 20, padT = 16, padB = 36;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+
+  const minP = Math.min(...prices);
+  const maxP = Math.max(...prices);
+  const priceRange = maxP - minP || 1;
+
+  const pts = prices.map((p, i) => ({
+    x: padL + (i / (prices.length - 1)) * innerW,
+    y: padT + innerH - ((p - minP) / priceRange) * innerH,
+    price: p,
+    time: times[i],
+  }));
+
+  const lineD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+  const areaD = `${lineD} L${pts[pts.length - 1].x},${padT + innerH} L${padL},${padT + innerH} Z`;
+
+  // estimate stroke length for dasharray animation
+  const totalLen = pts.reduce((acc, p, i) => {
+    if (i === 0) return 0;
+    const prev = pts[i - 1];
+    return acc + Math.hypot(p.x - prev.x, p.y - prev.y);
+  }, 0);
+
+  const gridPrices = [minP, Math.round((minP + maxP) / 2), maxP];
+
+  return (
+    <div className="glass-panel p-6 rounded-3xl border border-white/5 space-y-3 shadow-xl relative overflow-hidden">
+      <style>{`
+        @keyframes drawLine {
+          from { stroke-dashoffset: ${Math.ceil(totalLen + 20)}; }
+          to { stroke-dashoffset: 0; }
+        }
+        .price-line-draw {
+          stroke-dasharray: ${Math.ceil(totalLen + 20)};
+          animation: drawLine 2s cubic-bezier(0.4,0,0.2,1) forwards;
+        }
+        @keyframes fadeArea {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .area-fade { animation: fadeArea 1.5s 0.5s ease forwards; opacity: 0; }
+      `}</style>
+
+      <div className="absolute top-0 right-0 w-40 h-40 bg-brand-primary/[0.04] rounded-full blur-2xl pointer-events-none" />
+
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-white font-display flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-brand-primary" />
+          Графік цінової активності
+        </h3>
+        <span className="text-[10px] font-bold text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-2.5 py-1 rounded-lg">
+          +{(((prices[prices.length - 1] - prices[0]) / prices[0]) * 100).toFixed(1)}% за сесію
+        </span>
+      </div>
+
+      <div className="relative w-full overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full"
+          style={{ minWidth: "280px" }}
+          onMouseLeave={() => setHoveredIdx(null)}
+        >
+          <defs>
+            <linearGradient id="priceAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="var(--primary-color)" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="var(--primary-color)" stopOpacity="0" />
+            </linearGradient>
+            <filter id="lineGlow">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+
+          {/* Grid lines */}
+          {gridPrices.map((_, gi) => {
+            const gy = padT + innerH - (gi / 2) * innerH;
+            return (
+              <line
+                key={gi}
+                x1={padL} y1={gy} x2={W - padR} y2={gy}
+                stroke="rgba(255,255,255,0.05)" strokeWidth="1"
+              />
+            );
+          })}
+          {/* Vertical grid lines */}
+          {[0, 3, 6, 9, 13].map((idx) => (
+            <line
+              key={idx}
+              x1={pts[idx].x} y1={padT} x2={pts[idx].x} y2={padT + innerH}
+              stroke="rgba(255,255,255,0.04)" strokeWidth="1"
+            />
+          ))}
+
+          {/* Y-axis labels */}
+          {gridPrices.map((gp, gi) => {
+            const gy = padT + innerH - (gi / 2) * innerH;
+            return (
+              <text
+                key={gi}
+                x={padL - 6} y={gy + 4}
+                textAnchor="end"
+                fontSize="9"
+                fill="rgba(148,163,184,0.7)"
+                fontFamily="monospace"
+              >
+                {(gp / 1000).toFixed(0)}K
+              </text>
+            );
+          })}
+
+          {/* X-axis labels */}
+          {[0, 3, 6, 9, 13].map((idx) => (
+            <text
+              key={idx}
+              x={pts[idx].x} y={H - 6}
+              textAnchor="middle"
+              fontSize="9"
+              fill="rgba(148,163,184,0.5)"
+            >
+              {times[idx]}
+            </text>
+          ))}
+
+          {/* Area fill */}
+          <path d={areaD} fill="url(#priceAreaGrad)" className="area-fade" />
+
+          {/* Price line */}
+          <path
+            d={lineD}
+            fill="none"
+            stroke="var(--primary-color)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#lineGlow)"
+            className="price-line-draw"
+          />
+
+          {/* Data points + hover zones */}
+          {pts.map((p, i) => (
+            <g key={i}>
+              <circle
+                cx={p.x} cy={p.y}
+                r={hoveredIdx === i ? 6 : 3.5}
+                fill={hoveredIdx === i ? "var(--primary-color)" : "#020408"}
+                stroke="var(--primary-color)"
+                strokeWidth={hoveredIdx === i ? 2.5 : 2}
+                style={{ transition: "r 0.15s, fill 0.15s" }}
+              />
+              {/* invisible larger hit area */}
+              <circle
+                cx={p.x} cy={p.y} r="12"
+                fill="transparent"
+                onMouseEnter={() => setHoveredIdx(i)}
+              />
+              {/* Tooltip */}
+              {hoveredIdx === i && (
+                <foreignObject
+                  x={Math.min(p.x - 44, W - padR - 90)}
+                  y={Math.max(p.y - 46, padT)}
+                  width="90"
+                  height="38"
+                >
+                  <div
+                    style={{
+                      background: "rgba(9,14,26,0.95)",
+                      border: "1px solid rgba(var(--primary-color-rgb),0.4)",
+                      borderRadius: "8px",
+                      padding: "4px 8px",
+                      fontSize: "10px",
+                      color: "#f8fafc",
+                      fontFamily: "monospace",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <div style={{ color: "var(--primary-color)", fontWeight: 800 }}>
+                      {p.price.toLocaleString()} UAH
+                    </div>
+                    <div style={{ color: "rgba(148,163,184,0.7)", fontSize: "9px" }}>{p.time}</div>
+                  </div>
+                </foreignObject>
+              )}
+            </g>
+          ))}
+
+          {/* Latest price pulse */}
+          <circle
+            cx={pts[pts.length - 1].x}
+            cy={pts[pts.length - 1].y}
+            r="8"
+            fill="none"
+            stroke="var(--primary-color)"
+            strokeWidth="1"
+            className="radar-pulse-dot"
+          />
+        </svg>
+      </div>
+
+      <div className="flex items-center justify-between text-[10px] text-slate-500 border-t border-white/5 pt-3">
+        <span>Старт: <span className="text-slate-300 font-mono font-bold">{prices[0].toLocaleString()} UAH</span></span>
+        <span>Зараз: <span className="text-brand-primary font-mono font-bold">{prices[prices.length - 1].toLocaleString()} UAH</span></span>
+      </div>
+    </div>
+  );
+}
+
+// ── AI Price Predictor (Task 4) ────────────────────────────────────────────
+function AiPredictor({ currentPrice, category }: { currentPrice: number; category: string }) {
+  const [loading, setLoading] = useState(true);
+  const [thinking, setThinking] = useState(false);
+  const [prediction, setPrediction] = useState({
+    minPrice: 0,
+    maxPrice: 0,
+    confidence: 0,
+  });
+
+  const generatePrediction = () => {
+    const spread = 0.08 + Math.random() * 0.12;
+    const midMult = 1.1 + Math.random() * 0.25;
+    const mid = Math.round(currentPrice * midMult);
+    const min = Math.round(mid * (1 - spread));
+    const max = Math.round(mid * (1 + spread));
+    const confidence = Math.round(72 + Math.random() * 22);
+    return { minPrice: min, maxPrice: max, confidence };
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setPrediction(generatePrediction());
+      setLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    const interval = setInterval(() => {
+      setThinking(true);
+      setTimeout(() => {
+        setPrediction(generatePrediction());
+        setThinking(false);
+      }, 1200);
+    }, 15000);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, currentPrice]);
+
+  const factors = [
+    { label: "Швидкість ставок", value: "Висока", positive: true },
+    { label: "Час до закінчення", value: "12г 45хв", positive: true },
+    { label: `Попит (${category || "Категорія"})`, value: "Дуже активний", positive: true },
+    { label: "Іст. дані схожих лотів", value: "+18% сезонний пік", positive: true },
+  ];
+
+  return (
+    <div className="glass-panel p-6 rounded-3xl border border-brand-primary/20 space-y-5 shadow-xl relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-brand-primary/[0.03] rounded-full blur-2xl pointer-events-none" />
+
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-white font-display flex items-center gap-2">
+          <span className="text-lg">🤖</span>
+          AI Прогноз ціни
+          <span className="text-[10px] text-brand-primary font-bold bg-brand-primary/10 border border-brand-primary/20 px-2 py-0.5 rounded-lg">KRAM Intelligence</span>
+        </h3>
+        {!loading && (
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                thinking ? "bg-amber-400 animate-pulse" : "bg-brand-primary"
+              }`}
+            />
+            <span className="text-[9px] text-slate-500 font-semibold">
+              {thinking ? "Аналіз..." : "Оновлено"}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="space-y-4 py-2">
+          {/* Shimmer loading */}
+          <div className="shimmer-skeleton h-10 rounded-2xl w-full" />
+          <div className="shimmer-skeleton h-6 rounded-xl w-3/4" />
+          <div className="shimmer-skeleton h-6 rounded-xl w-1/2" />
+          <div className="shimmer-skeleton h-24 rounded-2xl w-full" />
+          <div className="flex items-center gap-2 text-xs text-slate-500 mt-2">
+            <span className="w-3 h-3 rounded-full border-2 border-brand-primary border-t-transparent animate-spin block" />
+            Завантаження нейромережі KRAM AI...
+          </div>
+        </div>
+      ) : (
+        <div className={`space-y-4 transition-opacity duration-500 ${thinking ? "opacity-50" : "opacity-100"}`}>
+          {/* Price Range */}
+          <div
+            className="rounded-2xl p-4 space-y-1"
+            style={{
+              background: "linear-gradient(135deg, rgba(var(--primary-color-rgb),0.08), rgba(var(--primary-color-rgb),0.03))",
+              border: "1px solid rgba(var(--primary-color-rgb),0.2)",
+            }}
+          >
+            <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Прогнозований діапазон</p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-xl font-black text-white font-mono">
+                {prediction.minPrice.toLocaleString()}
+              </span>
+              <span className="text-slate-500 text-xs">—</span>
+              <span className="text-2xl font-black text-brand-primary font-mono">
+                {prediction.maxPrice.toLocaleString()}
+              </span>
+              <span className="text-sm text-slate-400 font-semibold">UAH</span>
+            </div>
+          </div>
+
+          {/* Confidence */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-[11px]">
+              <span className="text-slate-400 font-semibold">Достовірність прогнозу:</span>
+              <span className="text-brand-primary font-black">{prediction.confidence}%</span>
+            </div>
+            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${prediction.confidence}%`,
+                  background: `linear-gradient(90deg, var(--primary-color), var(--primary-color-hover))`,
+                  boxShadow: "0 0 8px var(--primary-glow)",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Factors */}
+          <div className="space-y-2">
+            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Аналітичні фактори:</p>
+            {factors.map((f, i) => (
+              <div key={i} className="flex items-center justify-between text-[11px]">
+                <span className="text-slate-400">{f.label}</span>
+                <span className={`font-bold ${
+                  f.positive ? "text-brand-primary" : "text-red-400"
+                }`}>{f.value}</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[9px] text-slate-600 leading-relaxed border-t border-white/5 pt-3">
+            ⚠️ Прогноз формується алгоритмами KRAM Intelligence на основі ринкових даних. Не є фінансовою порадою.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Калькулятор прогнозу вигоди та страхування лоту
 function ProfitCalculator({ currentPrice }: { currentPrice: number }) {
   const [targetSellPrice, setTargetSellPrice] = useState(Math.round(currentPrice * 1.3));
@@ -298,10 +668,26 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
+  const loadListingData = useCallback(() => {
+    const item = apiService.getListingById(id);
+    if (item) {
+      Promise.resolve().then(() => {
+        setListing(item);
+        setBids(apiService.getBids(id));
+        
+        if (user) {
+          const txs = apiService.getTransactions(user.id);
+          const existingTx = txs.find(t => t.listingId === id);
+          if (existingTx) setTransaction(existingTx);
+        }
+      });
+    }
+  }, [id, user]);
+
   useEffect(() => {
     apiService.initialize();
     loadListingData();
-  }, [id]);
+  }, [loadListingData]);
 
   // Симулятор ставок ботів (імітація тиску покупців)
   useEffect(() => {
@@ -354,21 +740,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
     const botTimer = setInterval(triggerBotBid, randomInterval);
 
     return () => clearInterval(botTimer);
-  }, [listing, botsActive, user]);
-
-  const loadListingData = () => {
-    const item = apiService.getListingById(id);
-    if (item) {
-      setListing(item);
-      setBids(apiService.getBids(id));
-      
-      if (user) {
-        const txs = apiService.getTransactions(user.id);
-        const existingTx = txs.find(t => t.listingId === id);
-        if (existingTx) setTransaction(existingTx);
-      }
-    }
-  };
+  }, [listing, botsActive, user, loadListingData]);
 
   const handlePlaceBid = (e: React.FormEvent) => {
     e.preventDefault();
@@ -695,7 +1067,28 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
             {/* Дії учасника */}
             {listing.status === "ACTIVE" && (
               <div className="space-y-4">
-                
+
+                {/* LIVE Auction Button */}
+                {listing.type !== "BUY_NOW" && (
+                  <Link
+                    href={`/auction/${id}`}
+                    onClick={() => soundService.playClick()}
+                    onMouseEnter={() => soundService.playHover()}
+                    className="w-full flex items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-black text-white transition-all shadow-[0_0_25px_rgba(239,68,68,0.25)] border border-red-500/30 relative overflow-hidden group"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05))",
+                    }}
+                  >
+                    <div className="absolute inset-0 bg-red-500/[0.04] group-hover:bg-red-500/[0.08] transition-all" />
+                    <span className="relative flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping absolute" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-400 relative" />
+                      <span className="text-red-400 font-black tracking-wide">🔴 LIVE Торги</span>
+                    </span>
+                    <span className="relative text-red-300 text-xs font-semibold">— Увійти до кімнати</span>
+                  </Link>
+                )}
+
                 {listing.type !== "BUY_NOW" && (
                   <form onSubmit={handlePlaceBid} className="flex gap-2">
                     <div className="flex-grow relative rounded-2xl border border-white/10 bg-slate-950/80 p-3.5 flex items-center">
@@ -985,6 +1378,9 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
             {/* Прогноз вигоди */}
             <ProfitCalculator currentPrice={listing.currentPrice} />
+
+            {/* AI Прогноз ціни (Task 4) */}
+            <AiPredictor currentPrice={listing.currentPrice} category={listing.categoryId} />
           </div>
 
           {/* Права панель: Ставки (стакан) та чат */}
@@ -993,7 +1389,10 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
             {/* Графік швидкості та Біржовий Стакан ставок */}
             {listing.type !== "BUY_NOW" && (
               <div className="space-y-6">
-                
+
+                {/* SVG Графік цінової активності (Task 2) */}
+                <PriceHistoryChart basePrice={listing.startPrice} />
+
                 {/* Графік швидкості ставок */}
                 <BidVelocityChart bids={bids} />
 

@@ -16,7 +16,7 @@ class SoundService {
   private initCtx() {
     if (!this.ctx && typeof window !== "undefined") {
       // Инициализируем аудио-контекст по требованию (после жеста пользователя)
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioCtx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }
@@ -185,6 +185,112 @@ class SoundService {
 
     hit(now);
     hit(now + 0.15);
+  }
+
+  // Космічний перелив при зміні теми (Theme Change)
+  playThemeChange() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.35);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.03, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.37);
+  }
+
+  // Космічний гліч при відкритті консолі
+  playConsoleOpen() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.linearRampToValueAtTime(600, now + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.25);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.02, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.27);
+  }
+
+  // Мікро-клік для імітації консольного виводу
+  playConsoleTick() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1000, now);
+    osc.frequency.setValueAtTime(200, now + 0.005);
+
+    gain.gain.setValueAtTime(0.008, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.01);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.015);
+  }
+
+  // Низькочастотний удар серця при гарячих торгах
+  playHeartbeat() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    const beat = (time: number, vol: number) => {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(65, time);
+      osc.frequency.exponentialRampToValueAtTime(25, time + 0.15);
+
+      gain.gain.setValueAtTime(vol, time);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.15);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(time);
+      osc.stop(time + 0.16);
+    };
+
+    beat(now, 0.08);
+    beat(now + 0.18, 0.06);
   }
 }
 
