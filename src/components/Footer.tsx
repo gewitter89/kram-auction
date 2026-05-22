@@ -35,7 +35,7 @@ export default function Footer() {
               <li><Link href="/info/security" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🛡️ Правила безпечної домовленості</Link></li>
               <li><Link href="/info/moderation" className="hover:text-emerald-400 transition-colors flex items-center gap-2">💬 Чат-модерація контактів</Link></li>
               <li><Link href="/info/verified-sellers" className="hover:text-emerald-400 transition-colors flex items-center gap-2">⭐ Перевірені продавці</Link></li>
-              <li><Link href="/info/escrow" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🔒 Депонування коштів</Link></li>
+              <li><Link href="/info/direct" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🔒 Без платежів через KRAM</Link></li>
             </ul>
           </div>
 

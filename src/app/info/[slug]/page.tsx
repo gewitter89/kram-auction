@@ -7,7 +7,7 @@ import { ShieldCheck, Scale, Truck, AlertCircle, ArrowLeft } from "lucide-react"
 
 const DIRECT_NOTICE = (
   <p className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-200">
-    KRAM.UA — безкоштовна інформаційна платформа. Ми не приймаємо оплату, не утримуємо кошти, не є продавцем, покупцем, escrow-сервісом, банком, брокером або платіжним/фінансовим посередником.
+    KRAM.UA — безкоштовна інформаційна платформа. Ми не приймаємо оплату, не утримуємо кошти, не є продавцем, покупцем, сервісом утримання коштів, банком, брокером або платіжним/фінансовим посередником.
   </p>
 );
 
@@ -53,7 +53,7 @@ const CONTENT_MAP: Record<string, { title: string; icon: any; content: React.Rea
       </div>
     )
   },
-  "escrow": {
+  "direct": {
     title: "Без платежів через KRAM",
     icon: ShieldCheck,
     content: (

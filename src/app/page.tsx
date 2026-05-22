@@ -227,7 +227,7 @@ function CyberHUD() {
     warn: 'text-rose-400',
     crypto: 'text-violet-400',
     sys: 'text-slate-300',
-    escrow: 'text-amber-400',
+    direct: 'text-amber-400',
   };
 
   return (
@@ -634,7 +634,7 @@ function KramOnboardingWidget() {
 // 📚 ДОВІДКОВИЙ ЦЕНТР ТА FAQ KRAM.UA
 // ==========================================
 function KramFaqSection() {
-  const [activeTab, setActiveTab] = useState<"buy" | "sell" | "escrow" | "delivery">("buy");
+  const [activeTab, setActiveTab] = useState<"buy" | "sell" | "safety" | "delivery">("buy");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const tabs = [
@@ -677,7 +677,7 @@ function KramFaqSection() {
         a: "Система імпорту дозволяє переносити оголошення лише після підтвердження володіння (наприклад, перевірки імені продавця або унікального коду в описі). Ми суворо блокуємо спроби виставлення чужих товарів."
       }
     ],
-    escrow: [
+    safety: [
       {
         q: "Як KRAM допомагає безпечним домовленостям?",
         a: "KRAM — це інформаційна платформа для оголошень, ставок і контакту сторін. Ми не приймаємо оплату і не утримуємо кошти. Для безпеки домовляйтеся в чаті, перевіряйте товар до оплати, використовуйте післяплату та зберігайте докази домовленостей."
@@ -707,7 +707,7 @@ function KramFaqSection() {
     ]
   };
 
-  const handleTabChange = (tab: "buy" | "sell" | "escrow" | "delivery") => {
+  const handleTabChange = (tab: "buy" | "sell" | "safety" | "delivery") => {
     soundService.playClick();
     setActiveTab(tab);
     setOpenFaq(null);
@@ -754,7 +754,7 @@ function KramFaqSection() {
                     }`}>
                       {tab.id === "buy" && <Trophy className="h-4 w-4" />}
                       {tab.id === "sell" && <Plus className="h-4 w-4" />}
-                      {tab.id === "escrow" && <ShieldCheck className="h-4 w-4" />}
+                      {tab.id === "safety" && <ShieldCheck className="h-4 w-4" />}
                       {tab.id === "delivery" && <Truck className="h-4 w-4" />}
                     </div>
                     <div>
