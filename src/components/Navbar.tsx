@@ -30,6 +30,10 @@ import { soundService } from "@/lib/sound-service";
 
 export default function Navbar() {
   const { user, login, logout, switchUser } = useAuth();
+  const handleGoogleLogin = () => {
+    soundService.playClick();
+    window.location.href = "/api/auth/google";
+  };
   const pathname = usePathname();
   const [notifications, setNotifications] = useState<MockNotification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -368,16 +372,26 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <button
-                onClick={() => {
-                  soundService.playClick();
-                  login("demo-buyer@kram.ua");
-                }}
-                onMouseEnter={() => soundService.playHover()}
-                className="hidden sm:flex rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_15px_var(--primary-glow)] hover:brightness-110 active:scale-95 transition-all"
-              >
-                Увійти
-              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <button
+                  onClick={handleGoogleLogin}
+                  onMouseEnter={() => soundService.playHover()}
+                  className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-950 shadow-[0_0_15px_rgba(255,255,255,0.12)] hover:brightness-110 active:scale-95 transition-all"
+                >
+                  <span className="text-sm font-black">G</span>
+                  Google
+                </button>
+                <button
+                  onClick={() => {
+                    soundService.playClick();
+                    login("demo-buyer@kram.ua");
+                  }}
+                  onMouseEnter={() => soundService.playHover()}
+                  className="rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_15px_var(--primary-glow)] hover:brightness-110 active:scale-95 transition-all"
+                >
+                  Demo
+                </button>
+              </div>
             )}
 
             {/* Кнопка "Додати лот" */}
@@ -479,12 +493,21 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="mx-4 mt-4 mb-2">
-            <button
-              onClick={() => { soundService.playClick(); login("demo-buyer@kram.ua"); setMobileOpen(false); }}
-              className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 py-3 text-sm font-bold text-white shadow-[0_0_20px_var(--primary-glow)] hover:brightness-110 active:scale-95 transition-all"
-            >
-              Увійти в акаунт
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={() => { handleGoogleLogin(); setMobileOpen(false); }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-bold text-slate-950 shadow-[0_0_20px_rgba(255,255,255,0.12)] hover:brightness-110 active:scale-95 transition-all"
+              >
+                <span className="text-sm font-black">G</span>
+                Увійти через Google
+              </button>
+              <button
+                onClick={() => { soundService.playClick(); login("demo-buyer@kram.ua"); setMobileOpen(false); }}
+                className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 py-3 text-sm font-bold text-white shadow-[0_0_20px_var(--primary-glow)] hover:brightness-110 active:scale-95 transition-all"
+              >
+                Demo-вхід
+              </button>
+            </div>
           </div>
         )}
 
