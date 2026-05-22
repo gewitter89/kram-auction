@@ -712,7 +712,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   const [deliveryProvider, setDeliveryProvider] = useState("NOVA_POSHTA");
   const [novaPoshtaCity, setNovaPoshtaCity] = useState("Київ");
   const [novaPoshtaBranch, setNovaPoshtaBranch] = useState("Відділення №1 (вул. Пирогова, 2)");
-  const [paymentMethod, setPaymentMethod] = useState<"DIRECT">("DIRECT");
+  const [paymentMethod] = useState<"DIRECT">("DIRECT");
   const [showCardPaymentModal, setShowCardPaymentModal] = useState(false);
   const [cardPaymentStep, setCardPaymentStep] = useState(0); // 0: Form, 1: Loading, 2: OTP, 3: Success
   const [cardNumber, setCardNumber] = useState("");
@@ -727,7 +727,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   
   const [transaction, setTransaction] = useState<| null>(null);
 
-  const [botsActive, setBotsActive] = useState(true);
+  const [botsActive] = useState(false);
   const [botNotification, setBotNotification] = useState<{ text: string; amount: number; bidder: string } | null>(null);
 
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -818,35 +818,10 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
     };
   }, [id, user, loadListingData]);
 
-  // Симулятор ставок ботів (імітація тиску покупців)
+  // Production-facing mode: no simulated bot bids or fake market activity.
   useEffect(() => {
-    if (!listing || listing.status !== "ACTIVE" || listing.type === "BUY_NOW" || !botsActive) return;
-
-    const botNames = [
-      "Odesa_Collector",
-      "Lviv_Dandy",
-      "Kyiv_Capitalist",
-      "VIP_Dealer_UA",
-      "Kharkiv_Retro",
-      "Antikvar_Kyiv",
-      "Dnipro_Elite_Trader"
-    ];
-
-    const triggerBotBid = async () => {
-      if (user && user.id === listing.sellerId) return;
-
-      const randomBot = botNames[Math.floor(Math.random() * botNames.length)];
-      const increment = listing.bidStep + (Math.floor(Math.random() * 2) * (listing.bidStep / 2));
-      const newPrice = listing.currentPrice + increment;
-
-      await apiService.placeBid(listing.id, `bot-${randomBot}`, randomBot, newPrice);
-    };
-
-    const randomInterval = Math.floor(Math.random() * 14000) + 12000;
-    const botTimer = setInterval(triggerBotBid, randomInterval);
-
-    return () => clearInterval(botTimer);
-  }, [listing, botsActive, user]);
+    return;
+  }, []);
 
   const handlePlaceBid = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -884,12 +859,8 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   };
 
   const triggerManualBotBid = async () => {
-    if (!listing) return;
-    const botNames = ["VIP_Dealer_UA", "Odesa_Collector", "Kyiv_Capitalist"];
-    const randomBot = botNames[Math.floor(Math.random() * botNames.length)];
-    const newPrice = listing.currentPrice + listing.bidStep;
-
-    await apiService.placeBid(listing.id, `bot-${randomBot}`, randomBot, newPrice);
+    // Disabled: KRAM must never create fake bids or fake market activity.
+    return;
   };
 
   const formatCardNumber = (value: string) => {
@@ -911,7 +882,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
     return v;
   };
 
-  const fillDemoCard = (type: "MONO" | "LIQPAY") => {
+  const fillExampleCard = (type: "MONO" | "LIQPAY") => {
     soundService.playImportSuccess();
     if (type === "MONO") {
       setCardNumber("4441 1111 2222 3333");
@@ -978,7 +949,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       }, 2500);
     } else {
       soundService.playWarning();
-      alert(res.error || "Помилка проведення транзакції");
+      alert(res.error || "Помилка фіксації домовленості");
       setCardPaymentStep(0);
     }
   };
@@ -1317,34 +1288,9 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   </button>
                 )}
 
-                {/* Симулятор ботів контролер */}
                 {listing.type !== "BUY_NOW" && (
-                  <div className="glass-panel p-3 rounded-2xl border border-white/5 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className={`h-2.5 w-2.5 rounded-full ${botsActive ? "bg-emerald-500 pulse-neon-emerald" : "bg-slate-500"}`} />
-                      <span className="text-slate-400">Симулятор ставок</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={triggerManualBotBid}
-                        className="rounded-lg bg-slate-850 hover:bg-slate-850/80 text-slate-300 px-2.5 py-1 text-[10px] font-semibold border border-white/5 transition-colors"
-                      >
-                        Спровокувати ставку бота
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          soundService.playClick();
-                          setBotsActive(!botsActive);
-                        }}
-                        className={`rounded-lg px-2 py-1 text-[10px] font-bold border transition-colors ${
-                          botsActive ? "border-amber-500/20 bg-amber-500/10 text-amber-400" : "border-white/5 bg-slate-800 text-slate-400"
-                        }`}
-                      >
-                        {botsActive ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-                      </button>
-                    </div>
+                  <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-3 text-xs text-slate-400 leading-relaxed">
+                    На KRAM показуються тільки реальні ставки користувачів. Жодних ботів, фейкового ажіотажу чи підставної активності.
                   </div>
                 )}
 
@@ -1577,7 +1523,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                       <p className="text-center py-8 text-xs text-slate-500 font-medium">Ставок поки що немає. Зробіть першу ставку!</p>
                     ) : (
                       bids.map((b, idx) => {
-                        const isBot = b.bidderId.startsWith("bot-");
+                        const isBot = false;
                         return (
                           <div 
                             key={b.id} 
@@ -1590,7 +1536,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                             <div>
                               <span className="font-bold text-slate-200 flex items-center gap-1.5">
                                 {b.bidderName}
-                                {isBot && <span className="text-[8px] bg-violet-600/10 text-violet-400 border border-violet-500/20 rounded px-1">БОТ</span>}
+
                                 {idx === 0 && <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded px-1">ЛІДЕР</span>}
                               </span>
                               <span className="text-[9px] text-slate-500">
@@ -1794,39 +1740,8 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                 )}
               </div>
 
-              {/* Спосіб оплати */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Формат домовленості</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundService.playClick();
-                      setPaymentMethod("DIRECT");
-                    }}
-                    className={`text-xs p-3 rounded-xl border text-center transition-all ${
-                      paymentMethod === "DIRECT"
-                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold"
-                        : "border-white/5 bg-slate-950 text-slate-400 hover:bg-white/5"
-                    }`}
-                  >
-                    Домовитися напряму
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundService.playClick();
-                      setPaymentMethod("DIRECT");
-                    }}
-                    className={`text-xs p-3 rounded-xl border text-center transition-all ${
-                      paymentMethod === "DIRECT"
-                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold"
-                        : "border-white/5 bg-slate-950 text-slate-400 hover:bg-white/5"
-                    }`}
-                  >
-                    Без оплати через KRAM
-                  </button>
-                </div>
+              <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-4 text-xs text-slate-300 leading-relaxed">
+                <strong className="text-emerald-400">Безкоштовна beta:</strong> KRAM не приймає оплату, не блокує кошти та не виступає посередником. Натискаючи кнопку, ви лише фіксуєте намір домовитися і можете перейти до чату з продавцем.
               </div>
 
               {/* Розрахунок чеку */}
@@ -1911,18 +1826,18 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                 {/* Form fields */}
                 <form onSubmit={handleCardPaymentSubmit} className="lg:col-span-7 space-y-4">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2">Швидкі демо-картки</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2">Приклад банківської картки — не використовується для оплати через KRAM</span>
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => fillDemoCard("MONO")}
+                        onClick={() => fillExampleCard("MONO")}
                         className="flex-1 rounded-xl bg-[#ffe600]/10 hover:bg-[#ffe600]/20 border border-[#ffe600]/30 text-xs font-bold text-[#ffe600] py-2 transition-all"
                       >
                         🐈 monobank (Visa)
                       </button>
                       <button
                         type="button"
-                        onClick={() => fillDemoCard("LIQPAY")}
+                        onClick={() => fillExampleCard("LIQPAY")}
                         className="flex-1 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-bold text-emerald-400 py-2 transition-all"
                       >
                         💚 LiqPay (MC)

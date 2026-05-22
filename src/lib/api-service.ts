@@ -110,21 +110,8 @@ export const apiService = {
     }
   },
 
-  async createCheckoutSession(listingId: string, buyerId: string, deliveryProvider: string, amount: number): Promise<{ url?: string; error?: string }> {
-    try {
-      const res = await fetch("/api/checkout_session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listingId, buyerId, deliveryProvider, amount }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        return { error: data.error || "Помилка створення сесії" };
-      }
-      return { url: data.url };
-    } catch (e) {
-      return { error: String(e) };
-    }
+  async createCheckoutSession(_listingId: string, _buyerId: string, _deliveryProvider: string, _amount: number): Promise<{ url?: string; error?: string }> {
+    return { error: "KRAM не обробляє платежі. Домовляйтеся про оплату напряму з продавцем." };
   },
 
   async getMessages(listingId: string, user1: string, user2: string): Promise<any[]> {

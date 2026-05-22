@@ -151,7 +151,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-4">
               <p className="text-2xl font-black text-white font-display">0 UAH</p>
-              <span className="text-[9px] text-slate-500 block mt-1">KRAM не веде баланс і не виводить кошти</span>
+              <span className="text-[9px] text-slate-500 block mt-1">KRAM не веде баланс і не обробляє платежі</span>
             </div>
           </div>
 

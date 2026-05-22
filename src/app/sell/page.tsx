@@ -768,7 +768,7 @@ export default function SellPage() {
 
                 {/* Швидкі пресети */}
                 <div className="space-y-2">
-                  <span className="text-[10px] text-slate-500 block">Швидкі демо-зображення (оберіть одне для тесту):</span>
+                  <span className="text-[10px] text-slate-500 block">Приклади стилю зображень (опційно для чернетки):</span>
                   <div className="flex flex-wrap gap-1.5">
                     {imagePresets.map((preset, pIdx) => (
                       <button
