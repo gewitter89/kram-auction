@@ -180,16 +180,12 @@ function ConstellationCanvas() {
 }
 
 const LOG_TEMPLATES = [
-  { text: () => `[WS] Bid event: lot#${Math.floor(Math.random()*9000+1000)} → ${(Math.random()*50000+5000).toFixed(0)} UAH`, type: 'bid' },
-  { text: () => `[NET] Peer ${Math.floor(Math.random()*200+1)} connected — ${(Math.random()*30+10).toFixed(0)}ms`, type: 'net' },
-  { text: () => `[WAF] Blocked IP ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.x.x — XSS probe`, type: 'warn' },
-  { text: () => `[CRYPTO] BidHash: sha256#${Math.random().toString(36).slice(2,12).toUpperCase()}...`, type: 'crypto' },
-  { text: () => `[WS] User @u${Math.floor(Math.random()*9999)} placed bid on lot#${Math.floor(Math.random()*9000+1000)}`, type: 'bid' },
-  { text: () => `[SYS] Lot #${Math.floor(Math.random()*9000+1000)} countdown: ${Math.floor(Math.random()*59)+1}s left`, type: 'sys' },
-  { text: () => `[ESCROW] Funds locked: ${(Math.random()*80000+5000).toFixed(0)} UAH for lot#${Math.floor(Math.random()*9000+1000)}`, type: 'escrow' },
-  { text: () => `[WAF] SQL-injection attempt blocked — rule R-204`, type: 'warn' },
-  { text: () => `[NET] WebSocket ping → ${(Math.random()*20+5).toFixed(0)}ms`, type: 'net' },
-  { text: () => `[KRAM] Anti-fraud score: ${(Math.random()*10+88).toFixed(1)}/100`, type: 'sys' },
+  { text: () => `[SYS] Free beta mode active — no KRAM payments`, type: 'sys' },
+  { text: () => `[NET] Marketplace API heartbeat OK`, type: 'net' },
+  { text: () => `[WAF] Security filters active`, type: 'warn' },
+  { text: () => `[DIRECT] Users arrange payment and delivery directly`, type: 'bid' },
+  { text: () => `[KRAM] Empty states show only real user listings`, type: 'sys' },
+  { text: () => `[SAFE] No internal balance, custody or platform commission`, type: 'crypto' },
 ];
 
 // Плаваюча Cyber-HUD Консоль безпеки та активності
@@ -302,14 +298,12 @@ function CyberHUD() {
 // Рухома стрічка подій KRAM Live
 function LiveEventTape() {
   const liveEvents = [
-    "⚡ Користувач @v***d зробив ставку 45,000 UAH на Rolex Submariner",
-    "🛡️ Безпечна угода KRAM: лот #8392 застраховано на 120,000 UAH",
-    "🎉 Лот 'MacBook Pro M3 Max' успішно продано за 98,000 UAH",
-    "🔥 Активність: 14 ставок за останню хвилину в категорії 'Електроніка'",
-    "📦 Нова Пошта: Згенеровано автоматичну ТТН для відправки лоту #2938",
-    "💎 Система: Новий продавець @premium_art пройшов верифікацію",
-    "🚀 WAF статус: Система під надійним захистом, 0 активних загроз",
-    "💰 Гарантійний фонд платформи збільшено до 5,000,000 UAH",
+    "🤝 KRAM — безкоштовна beta-платформа для прямих домовленостей",
+    "🛡️ Порада: перевіряйте товар до оплати та зберігайте історію чату",
+    "💬 Ставка на KRAM — це намір домовитися, а не списання коштів",
+    "📦 Доставку, післяплату та огляд сторони погоджують напряму",
+    "✅ KRAM не приймає, не блокує і не переказує гроші користувачів",
+    "🌑 Premium dark marketplace без фейкових лотів і штучної активності",
   ];
   const events = [...liveEvents, ...liveEvents]; // дублюємо для неперервності
   
@@ -364,7 +358,7 @@ function KramCalculator() {
               Інтерактивний калькулятор вигоди та страхування
             </h3>
             <p className="text-xs text-slate-400">
-              Розрахуйте витрати на страхування транзиту та порівняйте з комісіями класичних посередників
+              Оцініть орієнтир ціни та домовляйтеся напряму без платежів через KRAM
             </p>
           </div>
 
@@ -507,7 +501,7 @@ function KramOnboardingWidget() {
             Все дуже просто!
           </h2>
           <p className="text-sm text-slate-400 mt-2">
-            KRAM.UA — це місце, де ви можете безпечно купувати речі дешевше та продавати швидше.
+            KRAM.UA — це місце, де можна красиво виставляти лоти, робити ставки та домовлятися напряму без платежів через платформу.
           </p>
         </div>
 
@@ -557,7 +551,7 @@ function KramOnboardingWidget() {
                 <ul className="space-y-2 mt-4 text-slate-300 text-sm">
                   <li className="flex items-center gap-2">✅ Ви самі вирішуєте, скільки готові заплатити.</li>
                   <li className="flex items-center gap-2">✅ Є кнопка "Купити зараз" для миттєвої покупки.</li>
-                  <li className="flex items-center gap-2">✅ Жодних прихованих комісій для покупців.</li>
+                  <li className="flex items-center gap-2">✅ Жодних комісій KRAM для покупців і продавців у безкоштовній beta.</li>
                 </ul>
               </div>
               <div className="bg-slate-950/60 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
@@ -618,7 +612,7 @@ function KramOnboardingWidget() {
                     <span className="font-bold text-amber-400 text-sm">Крок 2.</span> <span className="text-sm text-slate-300">Продавець відправляє вам посилку Новою Поштою.</span>
                   </div>
                   <div className="bg-white/[0.03] border border-white/5 p-3 rounded-xl">
-                    <span className="font-bold text-amber-400 text-sm">Крок 3.</span> <span className="text-sm text-slate-300">Ви оглядаєте товар. Якщо все добре — продавець отримує гроші. Якщо ні — гроші повертаються вам.</span>
+                    <span className="font-bold text-amber-400 text-sm">Крок 3.</span> <span className="text-sm text-slate-300">Ви оглядаєте товар і лише після цього самостійно завершуєте оплату способом, погодженим із продавцем.</span>
                   </div>
                 </div>
               </div>
@@ -646,7 +640,7 @@ function KramFaqSection() {
   const tabs = [
     { id: "buy", name: "Купівля та ставки", desc: "Усе про торги, бліц-ціни та зв’язок" },
     { id: "sell", name: "Продаж та імпорт", desc: "Створення лотів, AI та імпорт з OLX" },
-    { id: "escrow", name: "Безпека Escrow", desc: "Холдування коштів та захист угод" },
+    { id: "safety", name: "Безпечні домовленості", desc: "Правила прямої угоди без посередника" },
     { id: "delivery", name: "Доставка та пошта", desc: "Логістика, ТТН та регламент часу" },
   ] as const;
 
@@ -685,26 +679,26 @@ function KramFaqSection() {
     ],
     escrow: [
       {
-        q: "Що таке KRAM Escrow та як це захищає мене?",
-        a: "KRAM Escrow — це система безпечних розрахунків. Коли покупець оплачує лот, гроші не йдуть продавцю одразу, а надійно блокуються на транзитному рахунку. Продавець отримає платіж лише після того, як покупець забере посилку з пошти."
+        q: "Як KRAM допомагає безпечним домовленостям?",
+        a: "KRAM — це інформаційна платформа для оголошень, ставок і контакту сторін. Ми не приймаємо оплату і не утримуємо кошти. Для безпеки домовляйтеся в чаті, перевіряйте товар до оплати, використовуйте післяплату та зберігайте докази домовленостей."
       },
       {
         q: "Що буде, якщо товар виявиться неякісним?",
         a: "Якщо під час огляду у відділенні пошти ви виявите невідповідність опису, ви можете відмовитися від посилки. Угода скасовується, а кошти автоматично повертаються на вашу картку або баланс."
       },
       {
-        q: "Яка комісія за безпечну угоду?",
-        a: "Для покупця послуга Escrow є абсолютно безкоштовною. Комісія платформи становить лише 1.5% від фінальної вартості лота і стягується з продавця тільки в разі успішного продажу."
+        q: "Скільки коштує користування KRAM?",
+        a: "Зараз KRAM працює як безкоштовна beta-платформа: 0 UAH комісії для покупців і продавців. Платежі, доставка та передача товару погоджуються між користувачами напряму."
       }
     ],
     delivery: [
       {
         q: "Як працює інтеграція з Новою Поштою?",
-        a: "Усі процеси автоматизовані. При купівлі лота покупець обирає відділення прямо на сайті. Для продавця миттєво генерується готова експрес-накладна (ТТН). Достатньо показати її на пошті при відправці."
+        a: "KRAM може зберігати бажаний спосіб доставки. Умови відправлення, післяплати, огляду та оплати послуг перевізника сторони погоджують напряму."
       },
       {
         q: "Скільки часу є у продавця на відправку товару?",
-        a: "За регламентом KRAM, продавець зобов’язаний відправити лот протягом 72 годин після оплати. Якщо товар не буде відправлено вчасно, угода автоматично скасовується, а кошти повертаються покупцю."
+        a: "Терміни відправлення покупець і продавець погоджують у чаті. KRAM не приймає оплату і не може автоматично повертати кошти, тому фіксуйте домовленості письмово."
       },
       {
         q: "Які ще способи доставки підтримуються?",
@@ -783,7 +777,7 @@ function KramFaqSection() {
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
             <h5 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider mb-2">Швидка порада</h5>
             <p className="text-[11.5px] text-slate-400 leading-relaxed">
-              Усі транзакції на нашій платформі є автоматизованими та проходять трирівневу верифікацію. Купувати та продавати тут безпечніше, ніж при особистій зустрічі!
+              KRAM дає преміальний інтерфейс для лотів і комунікації, але користувачі самостійно відповідають за оплату, доставку та перевірку товару.
             </p>
           </div>
         </div>
@@ -1635,9 +1629,9 @@ export default function Home() {
                 <div className="mx-auto h-12 w-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6">
                   <ShieldCheck className="h-6 w-6" />
                 </div>
-                <h3 className="text-base font-bold text-white mb-2 font-display">Безпечна угода</h3>
+                <h3 className="text-base font-bold text-white mb-2 font-display">Пряма домовленість</h3>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Кошти покупця депонуються на транзитному рахунку і перераховуються продавцю тільки після успішної перевірки та отримання товару у відділенні пошти.
+                  KRAM не бере участі у розрахунках. Покупець і продавець напряму погоджують оплату, доставку та перевірку товару.
                 </p>
               </div>
 

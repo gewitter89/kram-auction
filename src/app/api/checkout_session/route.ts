@@ -1,53 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import Stripe from "stripe";
-import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
 
-function createStripeClient() {
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-  if (!stripeSecretKey) return null;
-  return new Stripe(stripeSecretKey, {
-    apiVersion: "2024-04-10" as any, // fallback for typescript compilation
-  });
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const stripe = createStripeClient();
-    if (!stripe) {
-      return NextResponse.json({ error: "Stripe is not configured. Add STRIPE_SECRET_KEY in Vercel Environment Variables." }, { status: 503 });
-    }
-
-    const { listingId, buyerId, deliveryProvider, amount } = await req.json();
-
-    const origin = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin;
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      mode: "payment",
-      line_items: [
-        {
-          price_data: {
-            currency: "uah",
-            product_data: {
-              name: `Лот #${listingId}`,
-            },
-            unit_amount: amount * 100, // in kopecks
-          },
-          quantity: 1,
-        },
-      ],
-      success_url: `${origin}/lot/${listingId}?checkout_success=true&session_id={CHECKOUT_SESSION_ID}&buyerId=${buyerId}&delivery=${deliveryProvider}`,
-      cancel_url: `${origin}/lot/${listingId}?checkout_canceled=true`,
-      metadata: {
-        listingId,
-        buyerId,
-        deliveryProvider,
-      },
-    });
-
-    return NextResponse.json({ url: session.url });
-  } catch (error: any) {
-    console.error("Stripe error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+export async function POST() {
+  return NextResponse.json(
+    {
+      error:
+        "Онлайн-оплата через KRAM вимкнена. KRAM.UA є безкоштовною інформаційною платформою та не приймає, не утримує і не переказує кошти користувачів.",
+    },
+    { status: 410 }
+  );
 }

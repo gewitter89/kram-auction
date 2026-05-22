@@ -612,7 +612,7 @@ function ProfitCalculator({ currentPrice }: { currentPrice: number }) {
 
       <div className="flex items-center justify-between p-3 rounded-2xl bg-white/[0.02] border border-white/5">
         <div className="space-y-0.5">
-          <span className="text-xs font-semibold text-slate-200">Посилена Escrow-гарантія</span>
+          <span className="text-xs font-semibold text-slate-200">Прямий контакт сторін</span>
           <p className="text-[9px] text-slate-500">100% покриття від будь-яких логістичних форс-мажорів</p>
         </div>
         <button
@@ -697,9 +697,9 @@ const NOVA_POSHTA_DATA: Record<string, string[]> = {
 
 export default function LotPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { user, updateBalance } = useAuth();
+  const { user } = useAuth();
   
-  const [listing, setListing] = useState<| null>(null);
+  const [listing, setListing] = useState<Listing | null>(null);
   const [bids, setBids] = useState<any[]>([]);
   
   const [bidAmount, setBidAmount] = useState<string>("");
@@ -712,7 +712,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   const [deliveryProvider, setDeliveryProvider] = useState("NOVA_POSHTA");
   const [novaPoshtaCity, setNovaPoshtaCity] = useState("Київ");
   const [novaPoshtaBranch, setNovaPoshtaBranch] = useState("Відділення №1 (вул. Пирогова, 2)");
-  const [paymentMethod, setPaymentMethod] = useState<"BALANCE" | "CARD">("CARD");
+  const [paymentMethod, setPaymentMethod] = useState<"DIRECT">("DIRECT");
   const [showCardPaymentModal, setShowCardPaymentModal] = useState(false);
   const [cardPaymentStep, setCardPaymentStep] = useState(0); // 0: Form, 1: Loading, 2: OTP, 3: Success
   const [cardNumber, setCardNumber] = useState("");
@@ -753,7 +753,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   }, [loadListingData]);
 
   useEffect(() => {
-    // Handle Stripe redirect
+    // Direct-deal mode: KRAM does not process platform payments.
     if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get("checkout_success") === "true") {
@@ -762,7 +762,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
         const dp = urlParams.get("delivery");
         
         if (bId && dp && listing && !transaction) {
-          // Stripe checkout successful, create the actual transaction in KRAM DB
+          // Legacy redirect fallback: mark only a direct agreement, not a payment.
           apiService.buyNow(listing.id, bId, dp).then((res) => {
             if (res.success) {
               soundService.playSuccess();
@@ -868,12 +868,6 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       return;
     }
 
-    if (user.balance < amount) {
-      soundService.playWarning();
-      alert("Недостатньо коштів на балансі для здійснення цієї ставки!");
-      return;
-    }
-
     const res = await apiService.placeBid(listing!.id, user.id, user.name, amount);
     if (res.success) {
       soundService.playSuccess();
@@ -932,38 +926,14 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !listing) return;
-    if (user.id === listing.sellerId) {
-      soundService.playWarning();
-      alert("Ви не можете викупити власний лот!");
-      return;
-    }
-
-    if (paymentMethod === "BALANCE") {
-      if (!listing.buyNowPrice) return;
-      if (user.balance < listing.buyNowPrice) {
-        soundService.playWarning();
-        alert("Недостатньо коштів на вашому балансі!");
-        return;
-      }
-      handleBuyNowSubmit(e);
-    } else {
-      soundService.playClick();
-      const otp = generateOtpCode();
-      setGeneratedOtp(otp);
-      setOtpCode("");
-      setOtpError(null);
-      setCardPaymentStep(0);
-      setShowCardPaymentModal(true);
-      setShowBuyModal(false);
-    }
+    handleBuyNowSubmit(e);
   };
 
   const handleCardPaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     soundService.playClick();
     setCardPaymentStep(1);
-    setPaymentLoadingText("Перенаправлення на безпечний платіжний шлюз Stripe...");
+    setPaymentLoadingText("KRAM не обробляє оплату — фіксуємо домовленість сторін...");
     
     if (!listing || !user) return;
 
@@ -974,7 +944,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       window.location.href = res.url;
     } else {
       soundService.playWarning();
-      alert("Помилка ініціалізації Stripe: " + res.error);
+      alert("Онлайн-оплата через KRAM вимкнена: " + res.error);
       setCardPaymentStep(0);
     }
   };
@@ -989,7 +959,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
     setOtpError(null);
     setCardPaymentStep(1);
-    setPaymentLoadingText("Завершення транзакції банку та випуск ТТН...");
+    setPaymentLoadingText("Фіксуємо домовленість сторін...");
 
     const res = await apiService.buyNow(listing!.id, user!.id, deliveryProvider);
     if (res.success) {
@@ -1018,34 +988,24 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
     if (!user || !listing) return;
     if (user.id === listing.sellerId) {
       soundService.playWarning();
-      alert("Ви не можете викупити власний лот!");
+      alert("Ви не можете оформити домовленість щодо власного лота!");
       return;
     }
     if (!listing.buyNowPrice) return;
-    if (user.balance < listing.buyNowPrice) {
-      soundService.playWarning();
-      alert("Недостатньо коштів на вашому балансі!");
-      return;
-    }
 
     const res = await apiService.buyNow(listing.id, user.id, deliveryProvider);
     if (res.success) {
       soundService.playSuccess();
-      await updateBalance(-listing.buyNowPrice);
-      
-      confetti({
-        particleCount: 180,
-        spread: 90,
-        origin: { y: 0.5 }
-      });
-
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 } });
       setShowBuyModal(false);
       if (res.transaction) setTransaction(res.transaction);
+      alert("Домовленість зафіксована. KRAM не приймав оплату і не утримував кошти — зв’яжіться з продавцем у чаті та погодьте оплату/доставку напряму.");
     } else {
       soundService.playWarning();
-      alert(res.error || "Помилка при купівлі лота");
+      alert(res.error || "Помилка при фіксації домовленості");
     }
   };
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1353,7 +1313,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                     className="w-full flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 py-4 text-xs font-black text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] border border-emerald-400/20 uppercase tracking-wider"
                   >
                     <ShoppingBag className="h-4 w-4" />
-                    Купити за Безпечною Угодою ({listing.buyNowPrice?.toLocaleString()} UAH)
+                    Домовитися щодо лота ({listing.buyNowPrice?.toLocaleString()} UAH)
                   </button>
                 )}
 
@@ -1395,7 +1355,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
             <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] p-4 text-[11px] text-slate-400 flex items-start gap-2.5 leading-relaxed">
               <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
               <span>
-                <strong>Безпечна угода KRAM:</strong> Кошти за лот депонуються на транзитному рахунку KRAM Escrow. Продавець отримає гроші тільки після того, як ви оглянете та заберете посилку у відділенні пошти.
+                <strong>Безпечна домовленість:</strong> KRAM не приймає оплату і не утримує кошти. Домовляйтеся з продавцем напряму, перевіряйте товар до оплати та використовуйте післяплату/огляд у перевізника.
               </span>
             </div>
 
@@ -1523,7 +1483,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
               <div className="flex flex-col items-center text-center p-3 border-r border-white/5 last:border-0">
                 <CheckCircle className="h-6 w-6 text-emerald-400 mb-2" />
                 <span className="text-xs font-semibold text-white">Угода оформлена</span>
-                <span className="text-[10px] text-slate-500 mt-1">Платіж заблоковано в Escrow</span>
+                <span className="text-[10px] text-slate-500 mt-1">Оплату погоджують сторони напряму</span>
               </div>
               
               <div className="flex flex-col items-center text-center p-3 border-r border-white/5 last:border-0">
@@ -1702,9 +1662,9 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/95 p-6 shadow-2xl animate-slide-up relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
             
-            <h3 className="text-xl font-black text-white mb-2 font-display">Оформлення Безпечної Угоди</h3>
+            <h3 className="text-xl font-black text-white mb-2 font-display">Домовленість між покупцем і продавцем</h3>
             <p className="text-xs text-slate-400 mb-5 leading-relaxed">
-              Ви купуєте лот <strong className="text-emerald-400">{listing.title}</strong>. Кошти депонуються на рахунку KRAM Escrow до перевірки товару.
+              Ви хочете домовитися щодо лота <strong className="text-emerald-400">{listing.title}</strong>. KRAM не приймає оплату, не утримує кошти та не є стороною угоди.
             </p>
 
             <form onSubmit={handleCheckoutSubmit} className="space-y-4">
@@ -1836,35 +1796,35 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
               {/* Спосіб оплати */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Спосіб оплати Escrow</label>
+                <label className="text-xs font-semibold text-slate-400">Формат домовленості</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       soundService.playClick();
-                      setPaymentMethod("CARD");
+                      setPaymentMethod("DIRECT");
                     }}
                     className={`text-xs p-3 rounded-xl border text-center transition-all ${
-                      paymentMethod === "CARD"
+                      paymentMethod === "DIRECT"
                         ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold"
                         : "border-white/5 bg-slate-950 text-slate-400 hover:bg-white/5"
                     }`}
                   >
-                    💳 Карткою (Mono / LiqPay)
+                    Домовитися напряму
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       soundService.playClick();
-                      setPaymentMethod("BALANCE");
+                      setPaymentMethod("DIRECT");
                     }}
                     className={`text-xs p-3 rounded-xl border text-center transition-all ${
-                      paymentMethod === "BALANCE"
+                      paymentMethod === "DIRECT"
                         ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold"
                         : "border-white/5 bg-slate-950 text-slate-400 hover:bg-white/5"
                     }`}
                   >
-                    💰 Баланс ({user?.balance?.toLocaleString()} UAH)
+                    Без оплати через KRAM
                   </button>
                 </div>
               </div>
@@ -1876,12 +1836,12 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   <span className="text-white font-semibold">{listing.buyNowPrice.toLocaleString()} UAH</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Комісія депонування:</span>
-                  <span className="text-emerald-400 font-semibold">0 UAH (Акція)</span>
+                  <span className="text-slate-400">Комісія KRAM:</span>
+                  <span className="text-emerald-400 font-semibold">0 UAH — платформа безкоштовна</span>
                 </div>
                 <div className="h-[1px] bg-white/5 my-2" />
                 <div className="flex justify-between text-sm font-bold">
-                  <span className="text-white">До сплати:</span>
+                  <span className="text-white">Орієнтир ціни:</span>
                   <span className="text-emerald-400 font-black">{listing.buyNowPrice.toLocaleString()} UAH</span>
                 </div>
               </div>
@@ -1902,7 +1862,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   type="submit"
                   className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-400 py-3 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                 >
-                  {paymentMethod === "CARD" ? "Перейти до оплати 💳" : `Оплатити ${listing.buyNowPrice.toLocaleString()} UAH`}
+                  Зафіксувати домовленість
                 </button>
               </div>
 
@@ -1911,7 +1871,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
         </div>
       )}
 
-      {/* НОВИЙ МОНОБАНК / LIQPAY КІБЕР-ПЛАТІЖНИЙ ШЛЮЗ */}
+      {/* Legacy payment modal is not opened in Direct Agreement mode. */}
       {showCardPaymentModal && listing.buyNowPrice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-fade-in">
           <div className="w-full max-w-2xl bg-slate-900/95 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative animate-slide-up overflow-hidden">
@@ -1937,10 +1897,10 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
               <span className="text-xl">🔐</span>
               <div>
                 <h3 className="text-sm font-black tracking-widest text-white uppercase font-display">
-                  KRAM Escrow Secure Gateway
+                  KRAM Direct Agreement
                 </h3>
                 <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
-                  Транзитне депонування • {deliveryProvider === "NOVA_POSHTA" ? "Нова Пошта" : "Укрпошта"}
+                  Без оплати через KRAM • {deliveryProvider === "NOVA_POSHTA" ? "Нова Пошта" : "Укрпошта"}
                 </p>
               </div>
             </div>
@@ -2014,14 +1974,14 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   </div>
 
                   <div className="rounded-xl bg-slate-950/60 border border-white/5 p-3.5 text-[10px] text-slate-400 leading-relaxed">
-                    🛡️ <strong>KRAM Escrow Protocol:</strong> Кошти будуть списані з вашої картки, але залишаться заблокованими на рахунку ескроу-гарантії. Продавець отримає виплату тільки після вашого підтвердження огляду посилки.
+                    🛡️ <strong>KRAM Direct Protocol:</strong> KRAM не списує кошти з картки. Оплату, доставку та передачу товару сторони погоджують самостійно.
                   </div>
 
                   <button
                     type="submit"
                     className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 py-3.5 text-xs font-black text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.25)] border border-emerald-400/20 uppercase tracking-widest"
                   >
-                    Заблокувати {listing.buyNowPrice.toLocaleString()} UAH
+                    Продовжити без платежу через KRAM
                   </button>
                 </form>
 
@@ -2094,7 +2054,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   </div>
                   <h4 className="text-sm font-bold text-white">Верифікація безпеки 3D-Secure</h4>
                   <p className="text-xs text-slate-400 leading-normal">
-                    Введіть одноразовий код безпеки, надісланий банком-емітентом для підтвердження депонування {listing.buyNowPrice.toLocaleString()} UAH.
+                    Підтвердіть намір зв’язатися з продавцем і погодити умови напряму. Це не платіж і не блокування коштів.
                   </p>
                 </div>
 
@@ -2137,7 +2097,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                     type="submit"
                     className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-3 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(139,92,246,0.2)] border border-violet-500/20"
                   >
-                    Підтвердити платіж
+                    Підтвердити домовленість
                   </button>
                 </div>
               </form>
@@ -2150,9 +2110,9 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   ✓
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-lg font-black text-white">🎉 Оплата Успішна!</h4>
+                  <h4 className="text-lg font-black text-white">🎉 Домовленість зафіксована!</h4>
                   <p className="text-xs text-emerald-400 font-semibold font-mono">
-                    Сума {listing.buyNowPrice.toLocaleString()} UAH депонована у KRAM Escrow
+                    KRAM не отримував і не утримував кошти
                   </p>
                   <p className="text-[10px] text-slate-400 max-w-sm leading-relaxed mx-auto pt-2">
                     Поштова накладна згенерована. Повідомлення про відправку надіслано дилеру. Ви можете перевірити статус ТТН на сторінці лоту.
@@ -2188,7 +2148,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   <h2 className="text-2xl font-black tracking-tight text-red-600 font-display flex items-center">
                     НОВА ПОШТА
                   </h2>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-extrabold mt-0.5">Експрес-накладна (Escrow)</p>
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-extrabold mt-0.5">Експрес-накладна</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-black text-slate-900">№ {transaction.ttn}</p>
@@ -2244,11 +2204,11 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
               {/* Печатки безпеки та підписи */}
               <div className="flex justify-between items-center pt-4">
                 <div className="text-[10px] text-slate-500 max-w-xs leading-relaxed">
-                  *Доставка за тарифами перевізника Нова Пошта. Безпеку фінансового супроводу угоди гарантовано платформою KRAM Escrow.
+                  *Доставка за тарифами перевізника Нова Пошта. KRAM не є фінансовим посередником і не гарантує оплату; сторони погоджують умови самостійно.
                 </div>
                 <div className="relative flex items-center justify-center h-20 w-20 border-2 border-emerald-500 rounded-full rotate-12 bg-emerald-50/10">
                   <span className="text-[8px] font-black text-emerald-600 text-center uppercase tracking-wider leading-tight">
-                    KRAM.UA<br />Escrow<br />ОДОБРЕНО
+                    KRAM.UA<br />DIRECT<br />INFO
                   </span>
                 </div>
               </div>

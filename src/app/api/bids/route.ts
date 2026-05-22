@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
     if (!bidder) return NextResponse.json({ error: "Користувача не знайдено" }, { status: 404 });
     if (!listing) return NextResponse.json({ error: "Лот не знайдено" }, { status: 404 });
     if (bidder.id === listing.sellerId) return NextResponse.json({ error: "Ви не можете робити ставки на свій власний лот!" }, { status: 400 });
-    if (bidder.balance < numericAmount) return NextResponse.json({ error: "Недостатньо коштів на балансі для здійснення цієї ставки!" }, { status: 400 });
     if (numericAmount <= listing.currentPrice) return NextResponse.json({ error: `Ставка повинна бути вищою за поточну ціну (${listing.currentPrice} UAH)` }, { status: 400 });
     
     const result = await prisma.$transaction(async (tx) => {

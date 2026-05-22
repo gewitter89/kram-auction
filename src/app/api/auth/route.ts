@@ -11,7 +11,7 @@ function publicUser(user: any) {
     role: user.role,
     rating: user.rating,
     verified: user.verified,
-    balance: user.balance,
+    balance: 0,
   };
 }
 
@@ -64,19 +64,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "update_balance") {
-      const { amount } = body;
-      const cookie = req.cookies.get(COOKIE_NAME)?.value;
-      const signedUser = readSessionToken(cookie);
-      if (signedUser) {
-        const dbUser = await prisma.user.update({
-          where: { id: signedUser.id },
-          data: { balance: { increment: parseFloat(amount) } }
-        });
-        const pub = publicUser(dbUser);
-        return setSession(NextResponse.json({ success: true, user: pub }), dbUser);
-      }
-      return NextResponse.json({ error: "Неавторизовано" }, { status: 401 });
+      return NextResponse.json({ error: "KRAM не веде внутрішні баланси користувачів." }, { status: 410 });
     }
+
 
     if (!email) return NextResponse.json({ error: "Email обов’язковий" }, { status: 400 });
 

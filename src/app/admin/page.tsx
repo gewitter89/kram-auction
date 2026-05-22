@@ -81,7 +81,7 @@ export default function AdminPage() {
 
   // Стани підсистем платформи
   const [firewallActive, setFirewallActive] = useState(true);
-  const [escrowActive, setEscrowActive] = useState(true);
+  const [directModeActive, setDirectModeActive] = useState(true);
   const [wsActive, setWsActive] = useState(true);
   const [npSyncActive, setNpSyncActive] = useState(true);
 
@@ -168,8 +168,8 @@ export default function AdminPage() {
       if (!firewallActive && Math.random() > 0.85) {
         newLog = `[${time}] ⚠️ WARNING: Firewall/WAF вимкнено! Сервер відкритий до вразливостей.`;
       }
-      if (!escrowActive && Math.random() > 0.85) {
-        newLog = `[${time}] ⚠️ WARNING: Депонування Escrow призупинено! Фінансовий шлюз незахищений.`;
+      if (!directModeActive && Math.random() > 0.85) {
+        newLog = `[${time}] ⚠️ WARNING: Direct-mode вимкнено! Перевірте, що платежі через KRAM не активні.`;
       }
 
       if (newLog) {
@@ -179,7 +179,7 @@ export default function AdminPage() {
     }, 1500);
 
     return () => clearInterval(interval);
-  }, [ddosAlert, sqliAlert, trafficCount, firewallActive, escrowActive]);
+  }, [ddosAlert, sqliAlert, trafficCount, firewallActive, directModeActive]);
 
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -465,19 +465,19 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              {/* Escrow */}
+              {/* Direct mode */}
               <div className="flex justify-between items-center p-2 rounded-xl bg-slate-950 border border-white/5">
-                <span className="text-[11px] text-slate-300">Депонування Escrow</span>
+                <span className="text-[11px] text-slate-300">Direct-mode без платежів</span>
                 <button
                   onClick={() => {
                     soundService.playClick();
-                    setEscrowActive(!escrowActive);
+                    setDirectModeActive(!directModeActive);
                     const time = new Date().toLocaleTimeString();
-                    setLogs(prev => [...prev, `[${time}] SYSTEM: Escrow депонування ${!escrowActive ? 'УВІМКНЕНО' : 'ВИМКНЕНО'}`]);
+                    setLogs(prev => [...prev, `[${time}] SYSTEM: Direct-mode ${!directModeActive ? 'УВІМКНЕНО' : 'ВИМКНЕНО'}`]);
                   }}
-                  className={`h-4 w-8 rounded-full relative transition-colors ${escrowActive ? 'bg-emerald-500' : 'bg-slate-800'}`}
+                  className={`h-4 w-8 rounded-full relative transition-colors ${directModeActive ? 'bg-emerald-500' : 'bg-slate-800'}`}
                 >
-                  <div className={`h-3 w-3 rounded-full bg-white absolute top-0.5 transition-all ${escrowActive ? 'left-4.5' : 'left-0.5'}`} />
+                  <div className={`h-3 w-3 rounded-full bg-white absolute top-0.5 transition-all ${directModeActive ? 'left-4.5' : 'left-0.5'}`} />
                 </button>
               </div>
 

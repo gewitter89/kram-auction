@@ -18,7 +18,7 @@ model User {
   rating           Float          @default(5.0)
   verified         Boolean        @default(false)
   verificationStep Int            @default(0)
-  balance          Float          @default(10000.0)
+  balance          Float          @default(0.0)
   listings         Listing[]      @relation("SellerListings")
   bids             Bid[]          @relation("UserBids")
   sentMessages     Message[]      @relation("SentMessages")
@@ -97,7 +97,7 @@ model Transaction {
   deliveryProvider String   // "NOVA_POSHTA", "UKR_POSHTA", "MEEST", "COURIER"
   deliveryStatus   String   @default("PENDING") // "PENDING", "SENT", "DELIVERED", "RECEIVED"
   ttn              String?
-  paymentStatus    String   @default("PENDING") // "PENDING", "PAID", "REFUNDED"
+  paymentStatus    String   @default("DIRECT_AGREEMENT") // KRAM does not process or custody payments
   createdAt        DateTime @default(now())
 }
 

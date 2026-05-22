@@ -31,11 +31,16 @@ function generateRandomCode() {
 }
 
 export default function DashboardPage() {
-  const { user, login, updateBalance, setVerificationStep } = useAuth();
+  const { user, setVerificationStep } = useAuth();
   const [listings, setListings] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
 
   const [boostingStatus, setBoostingStatus] = useState<string | null>(null);
+
+  const handleGoogleLogin = () => {
+    soundService.playClick();
+    window.location.href = "/api/auth/google";
+  };
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -64,7 +69,7 @@ export default function DashboardPage() {
             <button
               onClick={() => {
                 soundService.playClick();
-                login("demo-seller@kram.ua");
+                handleGoogleLogin();
               }}
               onMouseEnter={() => soundService.playHover()}
               className="w-full rounded-2xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
@@ -80,7 +85,7 @@ export default function DashboardPage() {
 
   // Розрахунок статистики
   const totalRevenue = transactions
-    .filter(t => t.sellerId === user.id && t.paymentStatus === "PAID")
+    .filter(t => t.sellerId === user.id && t.paymentStatus === "DIRECT_AGREEMENT")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const activeAuctionsCount = listings.filter(l => l.status === "ACTIVE" && l.type !== "BUY_NOW").length;
@@ -94,10 +99,7 @@ export default function DashboardPage() {
     }, 1200);
   };
 
-  const addFakeFunds = () => {
-    updateBalance(50000);
-    alert("💳 Тестовий баланс поповнено на 50,000 UAH!");
-  };
+
 
   const verificationStep = user?.verificationStep || 0;
 
@@ -122,20 +124,9 @@ export default function DashboardPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-black text-white font-display tracking-tight leading-none">Панель аналітики продавця</h1>
-            <p className="text-xs text-slate-400 mt-1.5">Керуйте угодами, відстежуйте прибуток та стежте за логістикою посилок.</p>
+            <p className="text-xs text-slate-400 mt-1.5">Керуйте лотами, домовленостями та комунікацією з покупцями.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => {
-                soundService.playClick();
-                addFakeFunds();
-              }}
-              onMouseEnter={() => soundService.playHover()}
-              className="rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-xs font-bold text-slate-200 px-4 py-2.5 transition-all flex items-center gap-1.5"
-            >
-              <Zap className="h-4 w-4 text-amber-400" />
-              Тест: +50k UAH
-            </button>
             <Link
               href="/sell"
               onMouseEnter={() => soundService.playHover()}
@@ -151,24 +142,24 @@ export default function DashboardPage() {
         {/* Сетка Ключевых Метрик */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           
-          {/* Баланс */}
+          {/* Безкоштовний режим */}
           <div className="glass-panel p-6 rounded-3xl border border-white/5 relative overflow-hidden flex flex-col justify-between min-h-[140px]">
             <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 rounded-full blur-lg pointer-events-none" />
             <div className="flex justify-between items-start">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Поточний баланс</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Режим платформи</span>
               <DollarSign className="h-5 w-5 text-emerald-400" />
             </div>
             <div className="mt-4">
-              <p className="text-2xl font-black text-white font-display">{user.balance.toLocaleString()} UAH</p>
-              <span className="text-[9px] text-slate-500 block mt-1">Доступно для миттєвого виведення</span>
+              <p className="text-2xl font-black text-white font-display">0 UAH</p>
+              <span className="text-[9px] text-slate-500 block mt-1">KRAM не веде баланс і не виводить кошти</span>
             </div>
           </div>
 
-          {/* Доход с Escrow */}
+          {/* Статистика прямих домовленостей */}
           <div className="glass-panel p-6 rounded-3xl border border-white/5 relative overflow-hidden flex flex-col justify-between min-h-[140px]">
             <div className="absolute top-0 right-0 w-20 h-20 bg-violet-600/5 rounded-full blur-lg pointer-events-none" />
             <div className="flex justify-between items-start">
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Зароблено (Escrow)</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Орієнтовна сума домовленостей</span>
               <TrendingUp className="h-5 w-5 text-violet-400" />
             </div>
             <div className="mt-4">
@@ -295,7 +286,7 @@ export default function DashboardPage() {
                 <Award className="h-5 w-5 text-emerald-400" />
                 <h3 className="text-base font-bold text-white font-display">Статус продавця: Золотий</h3>
               </div>
-              <p className="text-[10px] text-slate-400 leading-normal">Пройдіть кроки верифікації, щоб підняти ліміт угод до 1,000,000 UAH та прибрати комісію.</p>
+              <p className="text-[10px] text-slate-400 leading-normal">Пройдіть кроки верифікації, щоб іншим користувачам було легше довіряти вашому профілю. KRAM не встановлює фінансових лімітів і не бере комісію.</p>
               
               {/* Прогресс-бар */}
               <div className="space-y-1.5 pt-2">

@@ -32,7 +32,7 @@ export default function Footer() {
               Безпека
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link href="/info/security" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🛡️ Безпечна угода KRAM</Link></li>
+              <li><Link href="/info/security" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🛡️ Правила безпечної домовленості</Link></li>
               <li><Link href="/info/moderation" className="hover:text-emerald-400 transition-colors flex items-center gap-2">💬 Чат-модерація контактів</Link></li>
               <li><Link href="/info/verified-sellers" className="hover:text-emerald-400 transition-colors flex items-center gap-2">⭐ Перевірені продавці</Link></li>
               <li><Link href="/info/escrow" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🔒 Депонування коштів</Link></li>
@@ -62,7 +62,7 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li><Link href="/info/terms" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📜 Угода користувача</Link></li>
               <li><Link href="/info/bidding" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🔨 Правила проведення торгів</Link></li>
-              <li><Link href="/info/fees" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📊 Тарифи та комісії майданчика</Link></li>
+              <li><Link href="/info/fees" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📊 Безкоштовна beta</Link></li>
               <li><Link href="/info/support" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📞 Служба підтримки (24/7)</Link></li>
             </ul>
           </div>

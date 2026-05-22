@@ -10,7 +10,6 @@ import {
   MessageSquare, 
   Plus, 
   ChevronDown, 
-  Wallet, 
   LogOut, 
   CheckCircle,
   Gem,
@@ -209,17 +208,7 @@ export default function Navbar() {
               {isMuted ? <VolumeX className="h-4 w-4 text-slate-500" /> : <Volume2 className="h-4 w-4 text-brand-primary animate-pulse" />}
             </button>
 
-            {/* Баланс користувача */}
-            {user && (
-              <div className="hidden sm:flex items-center gap-2 rounded-xl bg-white/5 px-3 py-1.5 border border-white/10 shadow-inner">
-                <Wallet className="h-4 w-4 text-brand-primary" />
-                <span className="text-[10px] uppercase font-bold text-slate-500">Баланс:</span>
-                <span className="text-xs font-extrabold text-brand-primary">
-                  {user.balance.toLocaleString()} UAH
-                </span>
-              </div>
-            )}
-
+            {/* KRAM is free: no internal balances or payments. */}
             {/* Сповіщення */}
             {user && (
               <div className="relative hidden sm:block">
@@ -382,16 +371,6 @@ export default function Navbar() {
                   <span className="text-sm font-black">G</span>
                   Google
                 </button>
-                <button
-                  onClick={() => {
-                    soundService.playClick();
-                    login("demo-buyer@kram.ua");
-                  }}
-                  onMouseEnter={() => soundService.playHover()}
-                  className="rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 px-4 py-2 text-xs font-bold text-white shadow-[0_0_15px_var(--primary-glow)] hover:brightness-110 active:scale-95 transition-all"
-                >
-                  Demo
-                </button>
               </div>
             )}
 
@@ -486,11 +465,6 @@ export default function Navbar() {
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-xl bg-slate-950/60 border border-white/5 px-3 py-2">
-              <Wallet className="h-4 w-4 text-brand-primary shrink-0" />
-              <span className="text-[10px] uppercase font-bold text-slate-500">Баланс:</span>
-              <span className="text-sm font-extrabold text-brand-primary ml-auto">{user.balance.toLocaleString()} UAH</span>
-            </div>
           </div>
         ) : (
           <div className="mx-4 mt-4 mb-2">
@@ -501,12 +475,6 @@ export default function Navbar() {
               >
                 <span className="text-sm font-black">G</span>
                 Увійти через Google
-              </button>
-              <button
-                onClick={() => { soundService.playClick(); login("demo-buyer@kram.ua"); setMobileOpen(false); }}
-                className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-teal-600 py-3 text-sm font-bold text-white shadow-[0_0_20px_var(--primary-glow)] hover:brightness-110 active:scale-95 transition-all"
-              >
-                Demo-вхід
               </button>
             </div>
           </div>

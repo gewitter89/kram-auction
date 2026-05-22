@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { PUBLIC_CATEGORIES } from "@/lib/public-data";
 
 function formatListing(l: any) {
   let images: string[] = [];
@@ -32,9 +33,10 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     });
     const categories = await prisma.category.findMany();
-    return NextResponse.json({ listings: listings.map(formatListing), categories });
+    return NextResponse.json({ listings: listings.map(formatListing), categories: categories.length ? categories : PUBLIC_CATEGORIES });
   } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    console.warn("Listings DB unavailable; returning empty real marketplace state:", error);
+    return NextResponse.json({ listings: [], categories: PUBLIC_CATEGORIES, source: "empty-no-database" });
   }
 }
 

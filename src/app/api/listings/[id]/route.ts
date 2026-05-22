@@ -8,18 +8,18 @@ export async function GET(
   const { id } = params;
 
   try {
-    const listing = await prisma.listing.findUnique({
-      where: { id }
-    });
-    
-    if (!listing) {
-      return NextResponse.json({ error: "Лот не знайдено" }, { status: 404 });
-    }
+    const listing = await prisma.listing.findUnique({ where: { id } });
+    if (!listing) return NextResponse.json({ error: "Лот не знайдено" }, { status: 404 });
 
-    return NextResponse.json({ 
-      listing: { ...listing, createdAt: listing.createdAt.toISOString() } 
+    return NextResponse.json({
+      listing: {
+        ...listing,
+        createdAt: listing.createdAt.toISOString(),
+        endDate: listing.endDate?.toISOString?.() ?? listing.endDate,
+      },
     });
   } catch (error) {
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    console.warn("Listing DB unavailable:", error);
+    return NextResponse.json({ error: "Лот не знайдено або база даних тимчасово недоступна" }, { status: 404 });
   }
 }

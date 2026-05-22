@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
       role: "BUYER",
       rating: 5,
       verified: Boolean(profile.email_verified),
-      balance: 10000,
+      balance: 0,
     };
 
     try {

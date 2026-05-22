@@ -38,17 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await res.json();
           if (data.user) {
             setUser(data.user);
-          } else {
-            // Демо-авторизація покупця за замовчуванням, якщо сесія порожня
-            const loginRes = await fetch("/api/auth", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email: "demo-buyer@kram.ua" }),
-            });
-            if (loginRes.ok) {
-              const loginData = await loginRes.json();
-              setUser(loginData.user);
-            }
           }
         }
       } catch (e) {
@@ -96,20 +85,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(false);
   };
 
-  const updateBalance = async (amount: number) => {
-    try {
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "update_balance", amount }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data.user);
-      }
-    } catch (e) {
-      console.error("Помилка оновлення балансу:", e);
-    }
+  const updateBalance = async (_amount: number) => {
+    // KRAM is now a free information platform and does not maintain user balances.
+    return;
   };
 
   const setVerificationStep = (step: number) => {
