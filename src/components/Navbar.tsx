@@ -86,14 +86,13 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    apiService.initialize();
     if (user) {
-      const load = () => {
-        setNotifications(apiService.getNotifications(user.id));
+      const load = async () => {
+        const nots = await apiService.getNotifications(user.id);
+        setNotifications(nots);
       };
       
-      // Load asynchronously to avoid synchronous setState warning
-      Promise.resolve().then(load);
+      load();
       
       const timer = setInterval(load, 5000);
       return () => clearInterval(timer);
@@ -102,10 +101,11 @@ export default function Navbar() {
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  const handleMarkAsRead = () => {
+  const handleMarkAsRead = async () => {
     if (user) {
-      apiService.markNotificationsAsRead(user.id);
-      setNotifications(apiService.getNotifications(user.id));
+      await apiService.markNotificationsAsRead(user.id);
+      const nots = await apiService.getNotifications(user.id);
+      setNotifications(nots);
     }
   };
 

@@ -359,9 +359,89 @@ function LeaderRow({ entry, index }: { entry: LeaderEntry; index: number }) {
 }
 
 // ===================== MAIN PAGE =====================
+// ===================== BADGE DETAILS FOR INTERACTIVE MODALS =====================
+const BADGE_DETAILS = [
+  {
+    icon: "👑",
+    title: "Платиновий VIP",
+    desc: "Топ-1 глобального рейтингу KRAM",
+    requirements: [
+      "Посісти 1-ше місце в загальному рейтингу активності KRAM.UA",
+      "Сумарний обсяг ставок понад 3 000 000 UAH",
+      "Підтверджений рівень профілю 90+"
+    ],
+    perks: [
+      "🔥 0% комісії на всі транзакції та продажі лотів",
+      "🌟 Унікальна золота анімована аура навколо вашого аватара",
+      "💬 Пріоритетне відображення повідомлень у чатах підтримки",
+      "👨‍💼 Персональний VIP-менеджер супроводу угод 24/7"
+    ],
+    color: "border-amber-500/30 bg-amber-500/5 hover:border-amber-400 hover:bg-amber-400/10",
+    glow: "shadow-[0_0_30px_rgba(251,191,36,0.2)] border-amber-400",
+    textColor: "text-amber-400"
+  },
+  {
+    icon: "💎",
+    title: "Діамантовий",
+    desc: "Топ 2-3 у рейтингу KRAM",
+    requirements: [
+      "Посісти 2-ге або 3-тє місце в загальному рейтингу",
+      "Сумарний обсяг ставок понад 1 500 000 UAH",
+      "Рівень профілю 70+"
+    ],
+    perks: [
+      "⚡ Знижена комісія майданчика (всього 0.5% замість 1.5%)",
+      "💎 Стильна діамантова рамка навколо аватара профілю",
+      "🚀 Доступ до ексклюзивних лотів на 1 годину раніше за інших",
+      "📞 Пріоритетна лінія підтримки користувачів"
+    ],
+    color: "border-sky-500/30 bg-sky-500/5 hover:border-sky-400 hover:bg-sky-400/10",
+    glow: "shadow-[0_0_30px_rgba(56,189,248,0.2)] border-sky-400",
+    textColor: "text-sky-400"
+  },
+  {
+    icon: "🔥",
+    title: "Гарячий Бідер",
+    desc: "Топ 4-6 у рейтингу KRAM",
+    requirements: [
+      "Посісти 4-6 місце в загальному рейтингу активності",
+      "Зробити понад 100 успішних ставок за останній місяць",
+      "Рівень профілю 40+"
+    ],
+    perks: [
+      "🔥 Знижена комісія майданчика (всього 1.0%)",
+      "🍊 Вогняний шильдик активності біля імені користувача",
+      "📈 Доступ до інтелектуальної аналітики цін та попиту"
+    ],
+    color: "border-orange-500/30 bg-orange-500/5 hover:border-orange-400 hover:bg-orange-400/10",
+    glow: "shadow-[0_0_30px_rgba(251,146,60,0.2)] border-orange-400",
+    textColor: "text-orange-400"
+  },
+  {
+    icon: "⚡",
+    title: "Снайпер",
+    desc: "Топ 7-10 у рейтингу або майстер точних ставок",
+    requirements: [
+      "Посісти 7-10 місце в загальному рейтингу",
+      "Виграти щонайменше 5 аукціонів ставкою на останній хвилині",
+      "Рівень профілю 15+"
+    ],
+    perks: [
+      "⚡ Унікальний значок блискавки біля імені в чатах та лотах",
+      "👁️ Доступ до закритих лотів за 5 хвилин до їх публікації",
+      "🛡️ Безкоштовне страхування перших 3 створених лотів"
+    ],
+    color: "border-violet-500/30 bg-violet-500/5 hover:border-violet-400 hover:bg-violet-400/10",
+    glow: "shadow-[0_0_30px_rgba(167,139,250,0.2)] border-violet-400",
+    textColor: "text-violet-400"
+  }
+];
+
+// ===================== MAIN PAGE =====================
 export default function LeaderboardPage() {
   const [tab, setTab] = useState<"all-time" | "weekly" | "monthly">("all-time");
   const [headerVisible, setHeaderVisible] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState<typeof BADGE_DETAILS[0] | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setHeaderVisible(true), 50);
@@ -370,6 +450,16 @@ export default function LeaderboardPage() {
 
   const top3 = LEADERBOARD.slice(0, 3);
   const rest = LEADERBOARD.slice(3);
+
+  const handleBadgeClick = (badge: typeof BADGE_DETAILS[0]) => {
+    soundService.playConsoleOpen();
+    setSelectedBadge(badge);
+  };
+
+  const handleCloseModal = () => {
+    soundService.playClick();
+    setSelectedBadge(null);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#020408]">
@@ -403,7 +493,7 @@ export default function LeaderboardPage() {
               KRAM
             </h1>
             <p className="text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
-              Найактивніші та найуспішніші учасники аукціонної платформи. Беріть участь — піднімайтесь у рейтингу, здобувайте бейджі та ексклюзивні привілеї.
+              Найактивніші та найуспішніші учасники аукціонної платформи. Беріть участь — піднімайтесь у рейтингу, здобувайте бейджі та отримуйте ексклюзивні привілеї.
             </p>
 
             {/* Period tabs */}
@@ -520,27 +610,95 @@ export default function LeaderboardPage() {
 
         {/* Badge legend */}
         <section className="py-12 px-4 sm:px-6 lg:px-8 mx-auto max-w-4xl border-t border-white/5">
-          <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Система бейджів</h3>
+          <h3 className="text-sm font-bold text-white mb-2 uppercase tracking-wider">Система бейджів</h3>
+          <p className="text-xs text-slate-500 mb-6">Натисніть на будь-який бейдж, щоб дізнатися вимоги для його отримання та привілеї.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { icon: "👑", title: "Платиновий VIP", desc: "Топ-1 платформи", color: "border-amber-400/30 bg-amber-400/5" },
-              { icon: "💎", title: "Діамантовий", desc: "Топ 2–3", color: "border-sky-400/30 bg-sky-400/5" },
-              { icon: "🔥", title: "Гарячий Бідер", desc: "Топ 4–6", color: "border-orange-400/30 bg-orange-400/5" },
-              { icon: "⚡", title: "Снайпер", desc: "Топ 7–10", color: "border-violet-400/30 bg-violet-400/5" },
-            ].map((b) => (
-              <div
+            {BADGE_DETAILS.map((b) => (
+              <button
+                type="button"
                 key={b.title}
-                className={`rounded-2xl border ${b.color} p-4 text-center`}
+                onClick={() => handleBadgeClick(b)}
+                className={`rounded-2xl border ${b.color} p-4 text-center transition-all active:scale-95 text-left focus:outline-none`}
                 onMouseEnter={() => soundService.playHover()}
               >
                 <div className="text-2xl mb-2">{b.icon}</div>
                 <p className="text-xs font-bold text-white">{b.title}</p>
                 <p className="text-[10px] text-slate-500 mt-0.5">{b.desc}</p>
-              </div>
+              </button>
             ))}
           </div>
         </section>
       </main>
+
+      {/* Interactive Badge Modal */}
+      {selectedBadge && (
+        <div 
+          onClick={handleCloseModal}
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className={`glass-panel max-w-md w-full border ${selectedBadge.glow} rounded-3xl p-6 space-y-5 shadow-2xl relative animate-scaleUp`}
+          >
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold"
+            >
+              &times;
+            </button>
+
+            <div className="text-center space-y-1">
+              <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 border border-white/10 text-3xl">
+                {selectedBadge.icon}
+              </span>
+              <h3 className={`text-base font-bold uppercase tracking-wider font-display ${selectedBadge.textColor}`}>
+                Бейдж: {selectedBadge.title}
+              </h3>
+              <p className="text-[11px] text-slate-400 leading-normal">{selectedBadge.desc}</p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Requirements */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                  📋 Вимоги для отримання:
+                </h4>
+                <ul className="space-y-1">
+                  {selectedBadge.requirements.map((req, index) => (
+                    <li key={index} className="text-xs text-slate-300 flex items-start gap-1.5">
+                      <span className="text-emerald-400 shrink-0">•</span>
+                      <span>{req}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Perks */}
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                  💎 Ексклюзивні привілеї:
+                </h4>
+                <ul className="space-y-1">
+                  {selectedBadge.perks.map((perk, index) => (
+                    <li key={index} className="text-xs text-slate-300 flex items-start gap-1.5">
+                      <span>{perk}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className={`w-full rounded-xl py-3 text-xs font-bold transition-all ${selectedBadge.textColor} border border-white/10 bg-slate-900 hover:bg-slate-800`}
+            >
+              Зрозуміло
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

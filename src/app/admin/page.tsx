@@ -87,7 +87,7 @@ export default function AdminPage() {
 
   // Журнал логів
   const [logs, setLogs] = useState<string[]>([
-    "[12:40:02] SECURE: SSH-з'єднання з 192.168.1.45 підтверджено (Розробник).",
+    "[12:40:02] SECURE: SSH-з’єднання з 192.168.1.45 підтверджено (Розробник).",
     "[12:40:15] BOT_ENGINE: Ініціалізовано симуляцію ставок ботів (завантажено 7 ботів).",
     "[12:41:03] GATEWAY: Ендпоінт вебхуків Нової Пошти готовий [Статус: 200 OK].",
     "[12:41:20] ESCROW: Сховище транзитних коштів заблоковано. Ротація ключів проведена.",
@@ -132,7 +132,7 @@ export default function AdminPage() {
       const warningLogs = [
         "SECURITY_WARNING: Спроба неавторизованого входу заблокована з IP 45.12.38.109.",
         "BOT_ENGINE: Активовано компенсацію затримки потоку ставок.",
-        "GATEWAY: Виявлено високу затримку зв'язку з логістичним шлюзом.",
+        "GATEWAY: Виявлено високу затримку зв’язку з логістичним шлюзом.",
         "ESCROW: Завершено перевірку контрольної суми транзакцій."
       ];
       const ddosLogs = [
@@ -142,9 +142,9 @@ export default function AdminPage() {
         "WAF: Синхронізація блокування SYN-флуду. Перенаправлення через Cloudflare Warp."
       ];
       const sqliLogs = [
-        "WAF_BLOCK: Виявлено SQL-ін'єкцію в параметрі пошуку 'OR 1=1'. Запит відхилено.",
+        "WAF_BLOCK: Виявлено SQL-ін’єкцію в параметрі пошуку 'OR 1=1'. Запит відхилено.",
         "SECURITY_ALERT: Порушення структури запиту в /api/listings. Джерело ізольовано.",
-        "DATABASE: Заблоковано спробу ін'єкції у таблицю користувачів. Сесія анульована.",
+        "DATABASE: Заблоковано спробу ін’єкції у таблицю користувачів. Сесія анульована.",
         "WAF: Сигнатура SQL-атаки співпала з шаблоном OWASP Top 10. IP заблоковано."
       ];
 
@@ -209,15 +209,15 @@ export default function AdminPage() {
     if (!sqliAlert) {
       setLogs(prev => [...prev, `[${time}] ⚠️ WARNING: Запущено симуляцію SQL Injection атаки на базу даних.`]);
     } else {
-      setLogs(prev => [...prev, `[${time}] SECURE: Сигнатуру SQLi ліквідовано. Усі вразливі з'єднання закриті.`]);
+      setLogs(prev => [...prev, `[${time}] SECURE: Сигнатуру SQLi ліквідовано. Усі вразливі з’єднання закриті.`]);
     }
   };
 
-  const handleClearAllData = () => {
+  const handleClearAllData = async () => {
     soundService.playClick();
     if (confirm("Ви впевнені, що хочете скинути всі дані платформи KRAM.UA? Це очистить історію ставок, створені лоти та баланси.")) {
       localStorage.clear();
-      apiService.initialize();
+      await apiService.initialize();
       alert("🧹 Локальне сховище очищено! Сторінку буде перезавантажено.");
       window.location.reload();
     }

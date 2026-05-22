@@ -28,11 +28,15 @@ export default function Catalog() {
   const [sortBy, setSortBy] = useState<string>("NEWEST"); // NEWEST, CHEAPEST, EXPENSIVE, BIDS_COUNT
 
   useEffect(() => {
-    apiService.initialize();
-    Promise.resolve().then(() => {
-      setListings(apiService.getListings());
-      setCategories(apiService.getCategories());
-    });
+    async function loadData() {
+      const [allListings, allCategories] = await Promise.all([
+        apiService.getListings(),
+        apiService.getCategories()
+      ]);
+      setListings(allListings);
+      setCategories(allCategories);
+    }
+    loadData();
   }, []);
 
   // Фільтрація товарів (обчислюється під час рендерингу)

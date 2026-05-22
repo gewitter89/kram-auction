@@ -292,6 +292,60 @@ class SoundService {
     beat(now, 0.08);
     beat(now + 0.18, 0.06);
   }
+
+  // Звук роботи ІІ (AI Thinking / Typing)
+  playAITyping() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    
+    // Серія швидких високочастотних імпульсів (глитч-ефект)
+    for (let i = 0; i < 8; i++) {
+      const t = now + i * 0.06;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800 + Math.random() * 600, t);
+      
+      gain.gain.setValueAtTime(0.006, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.05);
+    }
+  }
+
+  // Успішний імпорт даних
+  playImportSuccess() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.linearRampToValueAtTime(880, now + 0.15);
+    osc.frequency.linearRampToValueAtTime(1320, now + 0.3);
+
+    gain.gain.setValueAtTime(0.0, now);
+    gain.gain.linearRampToValueAtTime(0.03, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.32);
+  }
 }
 
 export const soundService = new SoundService();

@@ -1,247 +1,184 @@
 "use client";
 
-// Сервис API, работающий поверх LocalStorage с полной реактивностью.
-// Позволяет делать ставки, покупать лоты, переписываться и получать
-// ТТН Новой Почты в реальном времени с полной симуляцией бэкенда.
+// Сервіс API, що працює поверх серверних Next.js Route Handlers з повною реактивністю.
+// Дозволяє робити ставки, купувати лоти, переписуватись та отримувати
+// ТТН Нової Пошти в реальному часі через SQLite БД.
 
-import { mockDb, MockListing, MockBid, MockMessage, MockNotification, MockTransaction, MockCategory } from "./db";
+import { MockListing, MockBid, MockMessage, MockNotification, MockTransaction, MockCategory } from "./db";
 
-// Инициализация локального хранилища на клиенте
-const IS_SERVER = typeof window === "undefined";
-
-function getStorageItem<T>(key: string, defaultValue: T): T {
-  if (IS_SERVER) return defaultValue;
-  const item = localStorage.getItem(key);
-  if (!item) {
-    localStorage.setItem(key, JSON.stringify(defaultValue));
-    return defaultValue;
-  }
-  try {
-    return JSON.parse(item);
-  } catch {
-    return defaultValue;
-  }
-}
-
-function setStorageItem<T>(key: string, value: T) {
-  if (IS_SERVER) return;
-  localStorage.setItem(key, JSON.stringify(value));
-}
-
-// Загрузка списков с сервера в LocalStorage при первом входе
 export const apiService = {
   initialize() {
-    if (IS_SERVER) return;
-    getStorageItem("kram_categories", mockDb.getCategories());
-    getStorageItem("kram_listings", mockDb.getListings());
-    getStorageItem("kram_bids", mockDb.getBids());
-    getStorageItem("kram_messages", mockDb.getMessages("list-1", "user-buyer", "user-seller"));
-    getStorageItem("kram_notifications", mockDb.getNotifications("user-buyer"));
-    getStorageItem("kram_transactions", []);
+    // Більше не потрібно ініціалізувати localStorage,
+    // база даних SQLite ініціалізується на сервері за допомогою Prisma
   },
 
-  getCategories(): MockCategory[] {
-    return getStorageItem("kram_categories", mockDb.getCategories());
-  },
-
-  getListings(): MockListing[] {
-    return getStorageItem("kram_listings", mockDb.getListings());
-  },
-
-  getListingById(id: string): MockListing | null {
-    const listings = this.getListings();
-    return listings.find(l => l.id === id) || null;
-  },
-
-  createListing(listingData: Omit<MockListing, "id" | "currentPrice" | "status" | "createdAt" | "bidsCount">): MockListing {
-    const listings = this.getListings();
-    const newListing: MockListing = {
-      ...listingData,
-      id: `list-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      currentPrice: listingData.startPrice,
-      status: "ACTIVE",
-      createdAt: new Date().toISOString(),
-      bidsCount: 0
-    };
-    listings.unshift(newListing);
-    setStorageItem("kram_listings", listings);
-    return newListing;
-  },
-
-  getBids(listingId: string): MockBid[] {
-    const bids = getStorageItem<MockBid[]>("kram_bids", mockDb.getBids());
-    return bids
-      .filter(b => b.listingId === listingId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  },
-
-  placeBid(listingId: string, bidderId: string, bidderName: string, amount: number): { success: boolean; error?: string; bid?: MockBid } {
-    const listings = this.getListings();
-    const listingIndex = listings.findIndex(l => l.id === listingId);
-    if (listingIndex === -1) return { success: false, error: "Лот не найден" };
-    
-    const listing = listings[listingIndex];
-    if (amount <= listing.currentPrice) {
-      return { success: false, error: `Ставка должна быть выше текущей цены (${listing.currentPrice} UAH)` };
+  async getCategories(): Promise<MockCategory[]> {
+    try {
+      const res = await fetch("/api/listings");
+      if (!res.ok) throw new Error("Помилка завантаження категорій");
+      const data = await res.json();
+      return data.categories || [];
+    } catch (e) {
+      console.error(e);
+      return [];
     }
+  },
 
-    // Создаем ставку
-    const bids = getStorageItem<MockBid[]>("kram_bids", mockDb.getBids());
-    const newBid: MockBid = {
-      id: `bid-${Date.now()}`,
-      amount,
-      bidderId,
-      listingId,
-      createdAt: new Date().toISOString(),
-      bidderName
-    };
-    bids.push(newBid);
-    setStorageItem("kram_bids", bids);
+  async getListings(): Promise<MockListing[]> {
+    try {
+      const res = await fetch("/api/listings");
+      if (!res.ok) throw new Error("Помилка завантаження лотів");
+      const data = await res.json();
+      return data.listings || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
 
-    // Обновляем лот
-    listing.currentPrice = amount;
-    listing.bidsCount += 1;
-    listings[listingIndex] = listing;
-    setStorageItem("kram_listings", listings);
+  async getListingById(id: string): Promise<MockListing | null> {
+    try {
+      const res = await fetch(`/api/listings/${id}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.listing || null;
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  },
 
-    // Добавляем уведомление продавцу
-    this.addNotification(
-      listing.sellerId,
-      `Новая ставка на ваш лот "${listing.title}": ${amount.toLocaleString()} UAH`,
-      "BID"
-    );
-
-    // Уведомляем предыдущих участников
-    const previousBidders = Array.from(new Set(bids.filter(b => b.listingId === listingId && b.bidderId !== bidderId && b.bidderId !== listing.sellerId).map(b => b.bidderId)));
-    previousBidders.forEach(pId => {
-      this.addNotification(
-        pId,
-        `Вашу ставку на лот "${listing.title}" перебили! Новая ставка: ${amount.toLocaleString()} UAH`,
-        "OUTBID"
-      );
+  async createListing(listingData: Omit<MockListing, "id" | "currentPrice" | "status" | "createdAt" | "bidsCount">): Promise<MockListing> {
+    const res = await fetch("/api/listings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(listingData),
     });
-
-    return { success: true, bid: newBid };
-  },
-
-  buyNow(listingId: string, buyerId: string, deliveryProvider: string): { success: boolean; error?: string; transaction?: MockTransaction } {
-    const listings = this.getListings();
-    const listingIndex = listings.findIndex(l => l.id === listingId);
-    if (listingIndex === -1) return { success: false, error: "Лот не найден" };
-    
-    const listing = listings[listingIndex];
-    if (!listing.buyNowPrice) return { success: false, error: "У лота нет блиц-цены" };
-
-    // Помечаем лот завершенным
-    listing.status = "COMPLETED";
-    listings[listingIndex] = listing;
-    setStorageItem("kram_listings", listings);
-
-    // Генерируем ТТН Новой Почты / Укрпочты
-    const ttn = deliveryProvider === "NOVA_POSHTA" 
-      ? `204500${Math.floor(100000 + Math.random() * 900000)}` 
-      : `UA${Math.floor(100000000 + Math.random() * 900000000)}`;
-
-    // Создаем транзакцию
-    const transactions = getStorageItem<MockTransaction[]>("kram_transactions", []);
-    const newTx: MockTransaction = {
-      id: `tx-${Date.now()}`,
-      amount: listing.buyNowPrice,
-      listingId,
-      buyerId,
-      sellerId: listing.sellerId,
-      deliveryProvider,
-      deliveryStatus: "PENDING",
-      paymentStatus: "PAID",
-      ttn,
-      createdAt: new Date().toISOString()
-    };
-    transactions.push(newTx);
-    setStorageItem("kram_transactions", transactions);
-
-    // Добавляем уведомления
-    this.addNotification(
-      buyerId,
-      `Поздравляем! Вы выкупили лот "${listing.title}" за ${listing.buyNowPrice.toLocaleString()} UAH. Доставка: ${deliveryProvider}, ТТН: ${ttn}`,
-      "WON"
-    );
-    this.addNotification(
-      listing.sellerId,
-      `Ваш лот "${listing.title}" выкуплен за ${listing.buyNowPrice.toLocaleString()} UAH. ТТН для отправки: ${ttn}`,
-      "SOLD"
-    );
-
-    return { success: true, transaction: newTx };
-  },
-
-  // Чат и сообщения с проверкой на контактные данные (Anti-Fraud)
-  getMessages(listingId: string, user1: string, user2: string): MockMessage[] {
-    const allMessages = getStorageItem<MockMessage[]>("kram_messages", mockDb.getMessages(listingId, user1, user2));
-    return allMessages.filter(
-      m => m.listingId === listingId && 
-      ((m.senderId === user1 && m.receiverId === user2) || 
-       (m.senderId === user2 && m.receiverId === user1))
-    ).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  },
-
-  sendMessage(listingId: string, senderId: string, receiverId: string, text: string): { message: MockMessage; warning?: string } {
-    const allMessages = getStorageItem<MockMessage[]>("kram_messages", []);
-    const newMsg: MockMessage = {
-      id: `msg-${Date.now()}`,
-      text,
-      senderId,
-      receiverId,
-      listingId,
-      isRead: false,
-      createdAt: new Date().toISOString()
-    };
-    
-    allMessages.push(newMsg);
-    setStorageItem("kram_messages", allMessages);
-
-    // Проверка на спам/мошенничество (телефоны, телеграм, ссылки)
-    // Шаблоны: номера телефонов, ссылки типа t.me, @username, или http
-    const phonePattern = /(?:\+?\d{1,3}[- ]?)?\(?\d{3}\)?[- ]?\d{3}[- ]?\d{2}[- ]?\d{2}/g;
-    const linksPattern = /(?:https?:\/\/)?(?:t\.me|viber|instagram|facebook|olx|vk)\.[a-z]{2,6}\b/i;
-    const telegramUsernamePattern = /@[a-zA-Z0-9_]{5,32}/;
-
-    let warning = undefined;
-    if (phonePattern.test(text) || linksPattern.test(text) || telegramUsernamePattern.test(text)) {
-      warning = "⚠️ Система безопасности KRAM: Обнаружены контактные данные. Настоятельно рекомендуем проводить все сделки исключительно внутри чата платформы через Безопасную Сделку. Обход платформы лишает вас защиты от мошенничества!";
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Помилка створення лоту");
     }
-
-    return { message: newMsg, warning };
+    const data = await res.json();
+    return data.listing;
   },
 
-  // Уведомления
-  getNotifications(userId: string): MockNotification[] {
-    const notifications = getStorageItem<MockNotification[]>("kram_notifications", []);
-    return notifications.filter(n => n.userId === userId).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  async getBids(listingId: string): Promise<MockBid[]> {
+    try {
+      const res = await fetch(`/api/bids?listingId=${listingId}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.bids || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
   },
 
-  addNotification(userId: string, text: string, type: MockNotification["type"] = "INFO"): MockNotification {
-    const notifications = getStorageItem<MockNotification[]>("kram_notifications", []);
-    const newNot: MockNotification = {
-      id: `not-${Date.now()}`,
-      userId,
-      text,
-      type,
-      isRead: false,
-      createdAt: new Date().toISOString()
-    };
-    notifications.unshift(newNot);
-    setStorageItem("kram_notifications", notifications);
-    return newNot;
+  async placeBid(listingId: string, bidderId: string, bidderName: string, amount: number): Promise<{ success: boolean; error?: string; bid?: MockBid }> {
+    try {
+      const res = await fetch("/api/bids", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId, bidderId, amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || "Помилка здійснення ставки" };
+      }
+      return { success: true, bid: data.bid };
+    } catch (e) {
+      return { success: false, error: String(e) };
+    }
   },
 
-  markNotificationsAsRead(userId: string) {
-    const notifications = getStorageItem<MockNotification[]>("kram_notifications", []);
-    const updated = notifications.map(n => n.userId === userId ? { ...n, isRead: true } : n);
-    setStorageItem("kram_notifications", updated);
+  async buyNow(listingId: string, buyerId: string, deliveryProvider: string): Promise<{ success: boolean; error?: string; transaction?: MockTransaction }> {
+    try {
+      const res = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId, buyerId, deliveryProvider }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || "Помилка викупу лоту" };
+      }
+      return { success: true, transaction: data.transaction };
+    } catch (e) {
+      return { success: false, error: String(e) };
+    }
   },
 
-  getTransactions(userId: string): MockTransaction[] {
-    const transactions = getStorageItem<MockTransaction[]>("kram_transactions", []);
-    return transactions.filter(t => t.buyerId === userId || t.sellerId === userId);
+  async getMessages(listingId: string, user1: string, user2: string): Promise<MockMessage[]> {
+    try {
+      const res = await fetch(`/api/messages?listingId=${listingId}&user1=${user1}&user2=${user2}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.messages || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  async sendMessage(listingId: string, senderId: string, receiverId: string, text: string): Promise<{ message: MockMessage; warning?: string }> {
+    const res = await fetch("/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listingId, senderId, receiverId, text }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Помилка надсилання повідомлення");
+    }
+    return { message: data.message, warning: data.warning };
+  },
+
+  async getNotifications(userId: string): Promise<MockNotification[]> {
+    try {
+      const res = await fetch(`/api/notifications?userId=${userId}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.notifications || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  async addNotification(userId: string, text: string, type: MockNotification["type"] = "INFO"): Promise<MockNotification> {
+    const res = await fetch("/api/notifications", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, text, type }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Помилка додавання сповіщення");
+    }
+    return data.notification;
+  },
+
+  async markNotificationsAsRead(userId: string): Promise<void> {
+    try {
+      await fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  },
+
+  async getTransactions(userId: string): Promise<MockTransaction[]> {
+    try {
+      const res = await fetch(`/api/transactions?userId=${userId}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.transactions || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
   }
 };

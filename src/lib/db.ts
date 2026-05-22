@@ -12,11 +12,11 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // ==========================================
-// МАКЕТНАЯ ИН-МЕМОРИ БАЗА ДАННЫХ ДЛЯ ОТКАТА
+// МАКЕТНА REAKTIVNA IN-MEMORY БАЗА ДАНИХ
 // ==========================================
-// Если реальная база данных не настроена или выдает ошибку,
-// приложение прозрачно переключится на этот реактивный in-memory слой,
-// гарантируя 100% работоспособность демо-версии.
+// Якщо реальну базу даних не налаштовано або вона видає помилку,
+// додаток прозоро перемкнеться на цей реактивний in-memory шар,
+// гарантуючи 100% працездатність демо-версії.
 
 export interface MockUser {
   id: string;
@@ -96,21 +96,21 @@ export interface MockNotification {
   createdAt: string;
 }
 
-// Загрузка начальных данных
+// Завантаження початкових даних
 const initialCategories: MockCategory[] = [
-  { id: "cat-1", name: "Электроника и Гаджеты", slug: "electronics", icon: "Laptop" },
-  { id: "cat-2", name: "Антиквариат и Коллекции", slug: "antiques", icon: "Gem" },
-  { id: "cat-3", name: "Часы и Аксессуары", slug: "watches", icon: "Watch" },
-  { id: "cat-4", name: "Авто и Запчасти", slug: "auto", icon: "Car" },
-  { id: "cat-5", name: "Искусство и Живопись", slug: "art", icon: "Palette" },
-  { id: "cat-6", name: "Недвижимость", slug: "realty", icon: "Building" }
+  { id: "cat-1", name: "Електроніка та Гаджети", slug: "electronics", icon: "Laptop" },
+  { id: "cat-2", name: "Антикваріат та Колекції", slug: "antiques", icon: "Gem" },
+  { id: "cat-3", name: "Годинники та Аксесуари", slug: "watches", icon: "Watch" },
+  { id: "cat-4", name: "Авто та Запчастини", slug: "auto", icon: "Car" },
+  { id: "cat-5", name: "Мистецтво та Живопис", slug: "art", icon: "Palette" },
+  { id: "cat-6", name: "Нерухомість", slug: "realty", icon: "Building" }
 ];
 
 const initialUsers: MockUser[] = [
   {
     id: "user-seller",
     email: "demo-seller@kram.ua",
-    name: "Александр (KRAM Seller)",
+    name: "Олександр (KRAM Seller)",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
     role: "SELLER",
     rating: 4.9,
@@ -120,7 +120,7 @@ const initialUsers: MockUser[] = [
   {
     id: "user-buyer",
     email: "demo-buyer@kram.ua",
-    name: "Владимир (KRAM Buyer)",
+    name: "Володимир (KRAM Buyer)",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
     role: "BUYER",
     rating: 5.0,
@@ -130,7 +130,7 @@ const initialUsers: MockUser[] = [
   {
     id: "user-admin",
     email: "admin@kram.ua",
-    name: "Главный Администратор",
+    name: "Головний Адміністратор",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150",
     role: "ADMIN",
     rating: 5.0,
@@ -143,7 +143,7 @@ const initialListings: MockListing[] = [
   {
     id: "list-1",
     title: "Rolex Submariner Date Black Dial (2023)",
-    description: "Эксклюзивные швейцарские часы в идеальном состоянии. Полный комплект: оригинальная коробка, гарантийная карта, чек покупки. Корпус из нержавеющей стали Oystersteel, керамический безель Cerachrom. Запас хода 70 часов. Любые проверки в авторизованном сервисе приветствуются.",
+    description: "Ексклюзивний швейцарський годинник в ідеальному стані. Повний комплект: оригінальна коробка, гарантійна карта, чек про купівлю. Корпус із нержавіючої сталі Oystersteel, керамічний безель Cerachrom. Запас ходу 70 годин. Будь-які перевірки в авторизованому сервісі вітаються.",
     images: [
       "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=800",
       "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800"
@@ -156,7 +156,7 @@ const initialListings: MockListing[] = [
     buyNowPrice: 580000,
     bidStep: 5000,
     status: "ACTIVE",
-    endDate: new Date(Date.now() + 1000 * 60 * 60 * 8).toISOString(), // 8 часов осталось
+    endDate: new Date(Date.now() + 1000 * 60 * 60 * 8).toISOString(), // 8 годин залишилося
     deliveryOptions: ["NOVA_POSHTA", "MEEST"],
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     bidsCount: 8
@@ -164,7 +164,7 @@ const initialListings: MockListing[] = [
   {
     id: "list-2",
     title: "Apple iPhone 15 Pro Max 512GB Natural Titanium",
-    description: "Официальный телефон, купленный в Украине. Состояние нового, без единой микроцарапины. Емкость аккумулятора 98%. Наклеено дорогое защитное стекло Spigen, в подарок два оригинальных чехла FineWoven. Гарантия действует еще 5 месяцев.",
+    description: "Офіційний телефон, куплений в Україні. Стан нового, без жодної мікроподряпини. Ємність акумулятора 98%. Наклеєне дороге захисне скло Spigen, у подарунок два оригінальні чохли FineWoven. Гарантія діє ще 5 місяців.",
     images: [
       "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800",
       "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=800"
@@ -184,8 +184,8 @@ const initialListings: MockListing[] = [
   },
   {
     id: "list-3",
-    title: "Золотая монета Николай II 10 рублей (1899 г.)",
-    description: "Редкая золотая монета времен царской России. Вес: 8.6 грамм. Проба золота: 900. Состояние Excellent/UNC, отличный штемпельный блеск, минимальный износ. Идеальный предмет в коллекцию или для инвестиций. Оригинальность гарантирована.",
+    title: "Золота монета Микола II 10 рублів (1899 р.)",
+    description: "Рідкісна золота монета часів царської Росії. Вага: 8.6 грама. Проба золота: 900. Стан Excellent/UNC, чудовий штемпельний блиск, мінімальний знос. Ідеальний предмет для колекції або інвестицій. Оригінальність гарантована.",
     images: [
       "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=800",
       "https://images.unsplash.com/photo-1589758438368-0ad531db3366?w=800"
@@ -197,20 +197,20 @@ const initialListings: MockListing[] = [
     currentPrice: 22600,
     bidStep: 200,
     status: "ACTIVE",
-    endDate: new Date(Date.now() + 1000 * 60 * 60 * 3).toISOString(), // 3 часа осталось
+    endDate: new Date(Date.now() + 1000 * 60 * 60 * 3).toISOString(), // 3 години залишилося
     deliveryOptions: ["NOVA_POSHTA", "UKR_POSHTA"],
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
     bidsCount: 23
   },
   {
     id: "list-4",
-    title: "Портативная приставка Steam Deck OLED 1TB",
-    description: "Новейшая версия консоли с ярким OLED экраном 90 Гц. Батарея держит дольше оригинальной версии. Использовалась крайне редко. Установлено защитное стекло с матовым антибликовым покрытием. В комплекте идет премиум кейс, зарядное устройство и оригинальная коробка.",
+    title: "Портативна приставка Steam Deck OLED 1TB",
+    description: "Найновіша версія консолі з яскравим OLED екраном 90 Гц. Батарея тримає довше за оригінальну версію. Використовувалася вкрай рідко. Встановлено захисне скло з матовим антивідблисковим покриттям. У комплекті йде преміум кейс, зарядний пристрій та оригінальна коробка.",
     images: [
       "https://images.unsplash.com/photo-1605901309584-818e25960a8f?w=800"
     ],
     categoryId: "cat-1",
-    sellerId: "user-buyer", // другой продавец
+    sellerId: "user-buyer", // інший продавець
     type: "HYBRID",
     startPrice: 26000,
     currentPrice: 28000,
@@ -224,8 +224,8 @@ const initialListings: MockListing[] = [
   },
   {
     id: "list-5",
-    title: "Картина маслом «Утренний туман на Днепре»",
-    description: "Холст, масло, оформлена в дорогой деревянный багет. Размер холста 60х80 см. Работа известного украинского художника-пейзажиста. Написана в 2018 году. Прекрасный глубокий колорит, успокаивающая атмосфера. Живописный мазок.",
+    title: "Картина олією «Ранковий туман на Дніпрі»",
+    description: "Полотно, олія, оформлена в дорогий дерев’яний багет. Розмір полотна 60х80 см. Робота відомого українського художника-пейзажиста. Написана у 2018 році. Прекрасний глибокий колорит, заспокійлива атмосфера. Живописний мазок.",
     images: [
       "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800",
       "https://images.unsplash.com/photo-1579783928621-7a13d66a62d1?w=800"
@@ -245,25 +245,25 @@ const initialListings: MockListing[] = [
 ];
 
 const initialBids: MockBid[] = [
-  { id: "bid-1", amount: 430000, bidderId: "user-buyer", listingId: "list-1", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), bidderName: "Владимир (KRAM Buyer)" },
-  { id: "bid-2", amount: 440000, bidderId: "user-admin", listingId: "list-1", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), bidderName: "Главный Администратор" },
-  { id: "bid-3", amount: 460000, bidderId: "user-buyer", listingId: "list-1", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(), bidderName: "Владимир (KRAM Buyer)" },
-  { id: "bid-4", amount: 21000, bidderId: "user-buyer", listingId: "list-3", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(), bidderName: "Владимир (KRAM Buyer)" },
-  { id: "bid-5", amount: 22600, bidderId: "user-admin", listingId: "list-3", createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), bidderName: "Главный Администратор" }
+  { id: "bid-1", amount: 430000, bidderId: "user-buyer", listingId: "list-1", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), bidderName: "Володимир (KRAM Buyer)" },
+  { id: "bid-2", amount: 440000, bidderId: "user-admin", listingId: "list-1", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), bidderName: "Головний Адміністратор" },
+  { id: "bid-3", amount: 460000, bidderId: "user-buyer", listingId: "list-1", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(), bidderName: "Володимир (KRAM Buyer)" },
+  { id: "bid-4", amount: 21000, bidderId: "user-buyer", listingId: "list-3", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 10).toISOString(), bidderName: "Володимир (KRAM Buyer)" },
+  { id: "bid-5", amount: 22600, bidderId: "user-admin", listingId: "list-3", createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), bidderName: "Головний Адміністратор" }
 ];
 
 const initialMessages: MockMessage[] = [
-  { id: "msg-1", text: "Здравствуйте! Хочу уточнить, часы на официальной гарантии в Украине?", senderId: "user-buyer", receiverId: "user-seller", listingId: "list-1", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
-  { id: "msg-2", text: "Приветствую! Да, официальная международная гарантия Rolex, часы куплены в Женеве в октябре 2023.", senderId: "user-seller", receiverId: "user-buyer", listingId: "list-1", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString() },
-  { id: "msg-3", text: "Супер. Я сделал ставку на аукционе, если что — готов забрать по блиц-цене, но попробую побороться.", senderId: "user-buyer", receiverId: "user-seller", listingId: "list-1", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() }
+  { id: "msg-1", text: "Вітаю! Хочу уточнити, чи годинник на офіційній гарантії в Україні?", senderId: "user-buyer", receiverId: "user-seller", listingId: "list-1", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
+  { id: "msg-2", text: "Вітання! Так, офіційна міжнародна гарантія Rolex, годинник куплений у Женеві в жовтні 2023 року.", senderId: "user-seller", receiverId: "user-buyer", listingId: "list-1", isRead: true, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString() },
+  { id: "msg-3", text: "Супер. Я зробив ставку на аукціоні, якщо що — готовий забрати за бліц-ціною, але спробую поборотися.", senderId: "user-buyer", receiverId: "user-seller", listingId: "list-1", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString() }
 ];
 
 const initialNotifications: MockNotification[] = [
-  { id: "not-1", userId: "user-buyer", text: "Ваша ставка на лот Rolex Submariner была принята!", type: "BID", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString() },
-  { id: "not-2", userId: "user-seller", text: "Новое сообщение по вашему лоту Rolex Submariner от пользователя Владимир.", type: "INFO", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() }
+  { id: "not-1", userId: "user-buyer", text: "Вашу ставку на лот Rolex Submariner прийнято!", type: "BID", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString() },
+  { id: "not-2", userId: "user-seller", text: "Нове повідомлення щодо вашого лота Rolex Submariner від користувача Володимир.", type: "INFO", isRead: false, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() }
 ];
 
-// Локальное реактивное хранилище (в памяти сервера)
+// Локальне реактивне сховище (у пам’яті сервера)
 class MemoryDatabase {
   users: MockUser[] = [...initialUsers];
   categories: MockCategory[] = [...initialCategories];
@@ -273,7 +273,7 @@ class MemoryDatabase {
   transactions: MockTransaction[] = [];
   notifications: MockNotification[] = [...initialNotifications];
 
-  // Методы доступа
+  // Методи доступу
   getUsers() { return this.users; }
   getUserById(id: string) { return this.users.find(u => u.id === id); }
   getUserByEmail(email: string) { return this.users.find(u => u.email.toLowerCase() === email.toLowerCase()); }
@@ -293,9 +293,9 @@ class MemoryDatabase {
     const bidder = this.getUserById(bidderId);
     if (!listing || !bidder) return null;
     
-    // Проверка лимитов баланса
+    // Перевірка лімітів балансу
     if (bidder.balance < amount) {
-      throw new Error("Недостаточно средств на балансе!");
+      throw new Error("Недостатньо коштів на балансі!");
     }
 
     const newBid: MockBid = {
@@ -309,14 +309,14 @@ class MemoryDatabase {
     
     this.bids.push(newBid);
     
-    // Обновляем текущую цену лота
+    // Оновлюємо поточну ціну лота
     listing.currentPrice = amount;
     listing.bidsCount += 1;
     
-    // Оповещаем продавца
+    // Сповіщаємо продавця
     this.addNotification(
       listing.sellerId,
-      `Новая ставка на ваш лот "${listing.title}": ${amount.toLocaleString()} UAH`,
+      `Нова ставка на ваш лот "${listing.title}": ${amount.toLocaleString()} UAH`,
       "BID"
     );
 
@@ -339,19 +339,19 @@ class MemoryDatabase {
   buyListingNow(listingId: string, buyerId: string, deliveryProvider: string) {
     const listing = this.getListingById(listingId);
     const buyer = this.getUserById(buyerId);
-    if (!listing || !buyer) throw new Error("Товар или покупатель не найден");
-    if (!listing.buyNowPrice) throw new Error("У этого товара нет фиксированной цены Блиц");
-    if (buyer.balance < listing.buyNowPrice) throw new Error("Недостаточно средств на балансе");
+    if (!listing || !buyer) throw new Error("Товар або покупця не знайдено");
+    if (!listing.buyNowPrice) throw new Error("Цей товар не має фіксованої ціни Бліц");
+    if (buyer.balance < listing.buyNowPrice) throw new Error("Недостатньо коштів на балансі");
 
-    // Вычитаем баланс покупателя и зачисляем продавцу
+    // Віднімаємо баланс покупця та зараховуємо продавцю
     buyer.balance -= listing.buyNowPrice;
     const seller = this.getUserById(listing.sellerId);
     if (seller) seller.balance += listing.buyNowPrice;
 
-    // Закрываем лот
+    // Закриваємо лот
     listing.status = "COMPLETED";
 
-    // Создаем транзакцию с Новой Почтой / Доставкой
+    // Створюємо транзакцію з Новою Поштою / Доставкою
     const newTx: MockTransaction = {
       id: `tx-${Date.now()}`,
       amount: listing.buyNowPrice,
@@ -366,15 +366,15 @@ class MemoryDatabase {
     };
     this.transactions.push(newTx);
 
-    // Уведомления
+    // Сповіщення
     this.addNotification(
       buyerId,
-      `Вы успешно купили лот "${listing.title}" за ${listing.buyNowPrice.toLocaleString()} UAH! Оформлена доставка через ${deliveryProvider}. ТТН: ${newTx.ttn}`,
+      `Ви успішно придбали лот "${listing.title}" за ${listing.buyNowPrice.toLocaleString()} UAH! Оформлено доставку через ${deliveryProvider}. ТТН: ${newTx.ttn}`,
       "WON"
     );
     this.addNotification(
       listing.sellerId,
-      `Ваш лот "${listing.title}" выкуплен по блиц-цене за ${listing.buyNowPrice.toLocaleString()} UAH! Отправьте посылку. ТТН: ${newTx.ttn}`,
+      `Ваш лот "${listing.title}" викуплено за бліц-ціною за ${listing.buyNowPrice.toLocaleString()} UAH! Надішліть посилку. ТТН: ${newTx.ttn}`,
       "SOLD"
     );
 
@@ -425,7 +425,7 @@ class MemoryDatabase {
   }
 }
 
-// Создаем единственный синглтон-объект в глобальной области видимости для серверов Next.js
+// Створюємо єдиний синглтон-об’єкт у глобальній області видимості для серверів Next.js
 const globalForMockDb = globalThis as unknown as {
   mockDb: MemoryDatabase | undefined;
 };

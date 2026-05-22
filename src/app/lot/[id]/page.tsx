@@ -31,6 +31,11 @@ import {
 import confetti from "canvas-confetti";
 import { soundService } from "@/lib/sound-service";
 
+// Генератор OTP для захисту чистоти рендеру React 19
+function generateOtpCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
 // SVG Штрихкод для ТТН
 function SvgBarcode({ value }: { value: string }) {
   const bars = [];
@@ -643,6 +648,52 @@ function ProfitCalculator({ currentPrice }: { currentPrice: number }) {
   );
 }
 
+const NOVA_POSHTA_DATA: Record<string, string[]> = {
+  "Київ": [
+    "Відділення №1 (вул. Пирогова, 2)",
+    "Відділення №15 (вул. Хрещатик, 21)",
+    "Відділення №42 (просп. Перемоги, 89)",
+    "Поштомат №4432 (вул. Богдана Хмельницького, 4)",
+    "Відділення №90 (вул. Григорія Сковороди, 1)",
+    "Поштомат №1205 (вул. Велика Васильківська, 32)"
+  ],
+  "Харків": [
+    "Відділення №1 (вул. Польова, 67)",
+    "Відділення №12 (вул. Сумська, 128)",
+    "Поштомат №8731 (просп. Науки, 12)",
+    "Відділення №45 (вул. Полтавський Шлях, 144)"
+  ],
+  "Одеса": [
+    "Відділення №1 (вул. Дальницька, 23/4)",
+    "Відділення №8 (вул. Дерибасівська, 10)",
+    "Поштомат №5512 (вул. Генуезька, 24)",
+    "Відділення №29 (вул. Академіка Корольова, 33)"
+  ],
+  "Дніпро": [
+    "Відділення №1 (вул. Маршала Малиновського, 114)",
+    "Відділення №14 (просп. Дмитра Яворницького, 65)",
+    "Поштомат №6618 (вул. Робоча, 152)",
+    "Відділення №33 (вул. Слобожанська, 40)"
+  ],
+  "Львів": [
+    "Відділення №1 (вул. Городоцька, 359)",
+    "Відділення №5 (вул. Данила Апостола, 16)",
+    "Відділення №22 (вул. Шевченка, 317)",
+    "Поштомат №9911 (просп. Свободи, 28)",
+    "Відділення №50 (вул. Зелена, 149)"
+  ],
+  "Запоріжжя": [
+    "Відділення №1 (вул. Авіаційна, 56)",
+    "Відділення №10 (просп. Соборний, 147)",
+    "Поштомат №7702 (вул. Перемоги, 61)"
+  ],
+  "Івано-Франківськ": [
+    "Відділення №1 (вул. Мазепи, 175)",
+    "Відділення №7 (вул. Галицька, 34)",
+    "Поштомат №4401 (вул. Незалежності, 12)"
+  ]
+};
+
 export default function LotPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { user, updateBalance } = useAuth();
@@ -660,6 +711,18 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   const [deliveryProvider, setDeliveryProvider] = useState("NOVA_POSHTA");
   const [novaPoshtaCity, setNovaPoshtaCity] = useState("Київ");
   const [novaPoshtaBranch, setNovaPoshtaBranch] = useState("Відділення №1 (вул. Пирогова, 2)");
+  const [paymentMethod, setPaymentMethod] = useState<"BALANCE" | "CARD">("CARD");
+  const [showCardPaymentModal, setShowCardPaymentModal] = useState(false);
+  const [cardPaymentStep, setCardPaymentStep] = useState(0); // 0: Form, 1: Loading, 2: OTP, 3: Success
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+  const [otpCode, setOtpCode] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [citySearchQuery, setCitySearchQuery] = useState("Київ");
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [paymentLoadingText, setPaymentLoadingText] = useState("Встановлення захищеного з’єднання...");
   
   const [transaction, setTransaction] = useState<MockTransaction | null>(null);
 
@@ -668,26 +731,62 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
-  const loadListingData = useCallback(() => {
-    const item = apiService.getListingById(id);
+  const loadListingData = useCallback(async () => {
+    const item = await apiService.getListingById(id);
     if (item) {
-      Promise.resolve().then(() => {
-        setListing(item);
-        setBids(apiService.getBids(id));
-        
-        if (user) {
-          const txs = apiService.getTransactions(user.id);
-          const existingTx = txs.find(t => t.listingId === id);
-          if (existingTx) setTransaction(existingTx);
-        }
-      });
+      setListing(item);
+      const bidsData = await apiService.getBids(id);
+      setBids(bidsData);
+      
+      if (user) {
+        const txs = await apiService.getTransactions(user.id);
+        const existingTx = txs.find(t => t.listingId === id);
+        if (existingTx) setTransaction(existingTx);
+      }
     }
   }, [id, user]);
 
   useEffect(() => {
-    apiService.initialize();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadListingData();
   }, [loadListingData]);
+
+  // Real-time Server-Sent Events (SSE) Listener for bids and checkout events
+  useEffect(() => {
+    const eventSource = new EventSource("/api/events");
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.listingId === id) {
+          if (data.type === "BID") {
+            setListing(prev => prev ? { ...prev, currentPrice: data.currentPrice } : null);
+            soundService.playGavel();
+            setPriceFlashed(true);
+            setTimeout(() => setPriceFlashed(false), 1200);
+
+            if (data.bid && (!user || data.bid.bidderId !== user.id)) {
+              setBotNotification({
+                text: `Нова ставка від учасника ${data.bid.bidderName}!`,
+                amount: data.currentPrice,
+                bidder: data.bid.bidderName
+              });
+              setTimeout(() => setBotNotification(null), 5000);
+            }
+            loadListingData();
+          } else if (data.type === "BUY_NOW") {
+            loadListingData();
+          }
+        }
+      } catch (e) {
+        console.error("SSE parsing error:", e);
+      }
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [id, user, loadListingData]);
 
   // Симулятор ставок ботів (імітація тиску покупців)
   useEffect(() => {
@@ -703,46 +802,23 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       "Dnipro_Elite_Trader"
     ];
 
-    const triggerBotBid = () => {
+    const triggerBotBid = async () => {
       if (user && user.id === listing.sellerId) return;
 
       const randomBot = botNames[Math.floor(Math.random() * botNames.length)];
       const increment = listing.bidStep + (Math.floor(Math.random() * 2) * (listing.bidStep / 2));
       const newPrice = listing.currentPrice + increment;
 
-      const res = apiService.placeBid(listing.id, `bot-${randomBot}`, randomBot, newPrice);
-      if (res.success) {
-        soundService.playGavel();
-        setPriceFlashed(true);
-        setTimeout(() => setPriceFlashed(false), 1200);
-
-        setBotNotification({
-          text: `Нова ставка від учасника ${randomBot}!`,
-          amount: newPrice,
-          bidder: randomBot
-        });
-        setTimeout(() => setBotNotification(null), 5000);
-
-        if (increment >= listing.bidStep * 1.5) {
-          confetti({
-            particleCount: 25,
-            spread: 25,
-            origin: { y: 0.8 },
-            colors: ["#8b5cf6", "#f59e0b"]
-          });
-        }
-
-        loadListingData();
-      }
+      await apiService.placeBid(listing.id, `bot-${randomBot}`, randomBot, newPrice);
     };
 
     const randomInterval = Math.floor(Math.random() * 14000) + 12000;
     const botTimer = setInterval(triggerBotBid, randomInterval);
 
     return () => clearInterval(botTimer);
-  }, [listing, botsActive, user, loadListingData]);
+  }, [listing, botsActive, user]);
 
-  const handlePlaceBid = (e: React.FormEvent) => {
+  const handlePlaceBid = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
       soundService.playWarning();
@@ -768,7 +844,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       return;
     }
 
-    const res = apiService.placeBid(listing!.id, user.id, user.name, amount);
+    const res = await apiService.placeBid(listing!.id, user.id, user.name, amount);
     if (res.success) {
       soundService.playSuccess();
       confetti({
@@ -777,38 +853,143 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
         colors: ["#10b981", "#34d399", "#60a5fa"]
       });
       setBidAmount("");
-      setPriceFlashed(true);
-      setTimeout(() => setPriceFlashed(false), 1200);
-
-      loadListingData();
     } else {
       soundService.playWarning();
       alert(res.error || "Помилка при розміщенні ставки");
     }
   };
 
-  const triggerManualBotBid = () => {
+  const triggerManualBotBid = async () => {
     if (!listing) return;
     const botNames = ["VIP_Dealer_UA", "Odesa_Collector", "Kyiv_Capitalist"];
     const randomBot = botNames[Math.floor(Math.random() * botNames.length)];
     const newPrice = listing.currentPrice + listing.bidStep;
 
-    const res = apiService.placeBid(listing.id, `bot-${randomBot}`, randomBot, newPrice);
-    if (res.success) {
-      soundService.playGavel();
-      setPriceFlashed(true);
-      setTimeout(() => setPriceFlashed(false), 1200);
-      setBotNotification({
-        text: `⚡ Ставку спровоковано вручну!`,
-        amount: newPrice,
-        bidder: randomBot
-      });
-      setTimeout(() => setBotNotification(null), 4000);
-      loadListingData();
+    await apiService.placeBid(listing.id, `bot-${randomBot}`, randomBot, newPrice);
+  };
+
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    return parts.length > 0 ? parts.join(" ") : v;
+  };
+
+  const formatExpiry = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    if (v.length >= 2) {
+      return `${v.substring(0, 2)}/${v.substring(2, 4)}`;
+    }
+    return v;
+  };
+
+  const fillDemoCard = (type: "MONO" | "LIQPAY") => {
+    soundService.playImportSuccess();
+    if (type === "MONO") {
+      setCardNumber("4441 1111 2222 3333");
+      setCardExpiry("12/28");
+      setCardCvv("777");
+    } else {
+      setCardNumber("5168 1111 2222 3333");
+      setCardExpiry("10/29");
+      setCardCvv("888");
     }
   };
 
-  const handleBuyNowSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !listing) return;
+    if (user.id === listing.sellerId) {
+      soundService.playWarning();
+      alert("Ви не можете викупити власний лот!");
+      return;
+    }
+
+    if (paymentMethod === "BALANCE") {
+      if (!listing.buyNowPrice) return;
+      if (user.balance < listing.buyNowPrice) {
+        soundService.playWarning();
+        alert("Недостатньо коштів на вашому балансі!");
+        return;
+      }
+      handleBuyNowSubmit(e);
+    } else {
+      soundService.playClick();
+      const otp = generateOtpCode();
+      setGeneratedOtp(otp);
+      setOtpCode("");
+      setOtpError(null);
+      setCardPaymentStep(0);
+      setShowCardPaymentModal(true);
+      setShowBuyModal(false);
+    }
+  };
+
+  const handleCardPaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (cardNumber.replace(/\s/g, "").length < 16 || cardExpiry.length < 5 || cardCvv.length < 3) {
+      soundService.playWarning();
+      alert("Будь ласка, заповніть коректні реквізити картки!");
+      return;
+    }
+
+    soundService.playClick();
+    setCardPaymentStep(1);
+    setPaymentLoadingText("Встановлення захищеного з’єднання SSL...");
+    
+    setTimeout(() => {
+      setPaymentLoadingText("Авторизація 3D-Secure банку...");
+      soundService.playAITyping();
+    }, 1000);
+
+    setTimeout(() => {
+      setPaymentLoadingText("Депонування коштів у KRAM Escrow...");
+    }, 2200);
+
+    setTimeout(() => {
+      setCardPaymentStep(2);
+    }, 3200);
+  };
+
+  const handleOtpVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpCode !== generatedOtp) {
+      soundService.playWarning();
+      setOtpError("Невірний код безпеки! Спробуйте ще раз.");
+      return;
+    }
+
+    setOtpError(null);
+    setCardPaymentStep(1);
+    setPaymentLoadingText("Завершення транзакції банку та випуск ТТН...");
+
+    const res = await apiService.buyNow(listing!.id, user!.id, deliveryProvider);
+    if (res.success) {
+      soundService.playSuccess();
+      confetti({
+        particleCount: 180,
+        spread: 100,
+        origin: { y: 0.5 }
+      });
+
+      if (res.transaction) setTransaction(res.transaction);
+      setCardPaymentStep(3);
+      
+      setTimeout(() => {
+        setShowCardPaymentModal(false);
+      }, 2500);
+    } else {
+      soundService.playWarning();
+      alert(res.error || "Помилка проведення транзакції");
+      setCardPaymentStep(0);
+    }
+  };
+
+  const handleBuyNowSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !listing) return;
     if (user.id === listing.sellerId) {
@@ -823,10 +1004,10 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       return;
     }
 
-    const res = apiService.buyNow(listing.id, user.id, deliveryProvider);
+    const res = await apiService.buyNow(listing.id, user.id, deliveryProvider);
     if (res.success) {
       soundService.playSuccess();
-      updateBalance(-listing.buyNowPrice);
+      await updateBalance(-listing.buyNowPrice);
       
       confetti({
         particleCount: 180,
@@ -835,19 +1016,18 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
       });
 
       setShowBuyModal(false);
-      loadListingData();
       if (res.transaction) setTransaction(res.transaction);
     } else {
       soundService.playWarning();
-      alert(res.error || "Помилка при покупці лоту");
+      alert(res.error || "Помилка при купівлі лота");
     }
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || chatMessage.trim() === "" || !listing) return;
 
-    const res = apiService.sendMessage(listing.id, user.id, listing.sellerId, chatMessage);
+    const res = await apiService.sendMessage(listing.id, user.id, listing.sellerId, chatMessage);
     
     if (res.warning) {
       soundService.playWarning();
@@ -1369,7 +1549,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                       {opt === "NOVA_POSHTA" && "📦 Нова Почта"}
                       {opt === "UKR_POSHTA" && "📬 Укрпошта Експрес"}
                       {opt === "MEEST" && "⚡ Meest Пошта"}
-                      {opt === "COURIER" && "📍 Кур'єр / Самовивіз Київ"}
+                      {opt === "COURIER" && "📍 Кур’єр / Самовивіз Київ"}
                     </span>
                   ))}
                 </div>
@@ -1492,18 +1672,20 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
       </main>
 
-      {/* МОДАЛЬНЕ ВІКНО ПОКУПКИ (БЕЗОПАСНАЯ СДЕЛКА) */}
+      {/* МОДАЛЬНЕ ВІКНО КУПІВЛІ (БЕЗПЕЧНА УГОДА) */}
       {showBuyModal && listing.buyNowPrice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-900/95 p-6 shadow-2xl animate-slide-up relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none" />
             
             <h3 className="text-xl font-black text-white mb-2 font-display">Оформлення Безпечної Угоди</h3>
-            <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-              Ви викуповуєте лот <strong>{listing.title}</strong> за фіксованою ціною. Кошти депонуються в гарантійному фонді KRAM.
+            <p className="text-xs text-slate-400 mb-5 leading-relaxed">
+              Ви купуєте лот <strong className="text-emerald-400">{listing.title}</strong>. Кошти депонуються на рахунку KRAM Escrow до перевірки товару.
             </p>
 
-            <form onSubmit={handleBuyNowSubmit} className="space-y-4">
+            <form onSubmit={handleCheckoutSubmit} className="space-y-4">
               
+              {/* Вибір поштової служби */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-slate-400">Поштова служба доставки</label>
                 <div className="grid grid-cols-2 gap-2">
@@ -1538,44 +1720,149 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                 </div>
               </div>
 
-              <div className="space-y-2">
+              {/* Місто доставки (Нова Пошта Autocomplete Sandbox) */}
+              <div className="space-y-2 relative">
                 <label className="text-xs font-semibold text-slate-400">Місто доставки</label>
-                <input
-                  type="text"
-                  className="w-full glass-input rounded-xl text-xs p-3"
-                  value={novaPoshtaCity}
-                  onChange={(e) => setNovaPoshtaCity(e.target.value)}
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    className="w-full glass-input rounded-xl text-xs p-3 pr-10 focus:ring-1 focus:ring-emerald-500/30"
+                    placeholder="Введіть місто (наприклад, Київ, Львів...)"
+                    value={citySearchQuery}
+                    onChange={(e) => {
+                      const query = e.target.value;
+                      setCitySearchQuery(query);
+                      setShowCitySuggestions(true);
+                      soundService.playHover();
+                      
+                      const matchedCity = Object.keys(NOVA_POSHTA_DATA).find(
+                        c => c.toLowerCase() === query.trim().toLowerCase()
+                      );
+                      if (matchedCity) {
+                        setNovaPoshtaCity(matchedCity);
+                        setNovaPoshtaBranch(NOVA_POSHTA_DATA[matchedCity][0]);
+                      }
+                    }}
+                    onFocus={() => setShowCitySuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                    required
+                  />
+                  <MapPin className="absolute right-3 top-3 h-4 w-4 text-slate-500" />
+                </div>
+                
+                {/* Suggestions drop */}
+                {showCitySuggestions && (
+                  <div className="absolute z-50 left-0 right-0 mt-1 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-slate-950 shadow-2xl p-1.5 space-y-0.5 scrollbar-thin">
+                    {Object.keys(NOVA_POSHTA_DATA)
+                      .filter(city => city.toLowerCase().includes(citySearchQuery.toLowerCase()))
+                      .map(city => (
+                        <button
+                          key={city}
+                          type="button"
+                          onClick={() => {
+                            soundService.playClick();
+                            setNovaPoshtaCity(city);
+                            setCitySearchQuery(city);
+                            setNovaPoshtaBranch(NOVA_POSHTA_DATA[city][0]);
+                            setShowCitySuggestions(false);
+                          }}
+                          className="w-full text-left text-xs text-slate-300 hover:text-white hover:bg-emerald-500/10 px-3 py-2 rounded-lg transition-colors font-medium"
+                        >
+                          📍 {city}
+                        </button>
+                      ))}
+                    {Object.keys(NOVA_POSHTA_DATA).filter(city => city.toLowerCase().includes(citySearchQuery.toLowerCase())).length === 0 && (
+                      <div className="text-[10px] text-slate-500 p-2 text-center">
+                        Інше місто (спробуйте Київ, Харків, Одеса, Дніпро, Львів)
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
+              {/* Відділення пошти */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Відділення пошти</label>
-                <input
-                  type="text"
-                  className="w-full glass-input rounded-xl text-xs p-3"
-                  value={novaPoshtaBranch}
-                  onChange={(e) => setNovaPoshtaBranch(e.target.value)}
-                  required
-                />
+                <label className="text-xs font-semibold text-slate-400 font-display">Відділення служби доставки</label>
+                {NOVA_POSHTA_DATA[novaPoshtaCity] ? (
+                  <select
+                    className="w-full glass-input rounded-xl text-xs p-3 bg-slate-950 text-slate-300 border border-white/10 focus:ring-1 focus:ring-emerald-500/30"
+                    value={novaPoshtaBranch}
+                    onChange={(e) => {
+                      soundService.playClick();
+                      setNovaPoshtaBranch(e.target.value);
+                    }}
+                    required
+                  >
+                    {NOVA_POSHTA_DATA[novaPoshtaCity].map((branch) => (
+                      <option key={branch} value={branch} className="bg-slate-950 text-slate-300">
+                        {branch}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    className="w-full glass-input rounded-xl text-xs p-3"
+                    value={novaPoshtaBranch}
+                    onChange={(e) => setNovaPoshtaBranch(e.target.value)}
+                    required
+                  />
+                )}
               </div>
 
+              {/* Спосіб оплати */}
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-400">Спосіб оплати Escrow</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundService.playClick();
+                      setPaymentMethod("CARD");
+                    }}
+                    className={`text-xs p-3 rounded-xl border text-center transition-all ${
+                      paymentMethod === "CARD"
+                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold"
+                        : "border-white/5 bg-slate-950 text-slate-400 hover:bg-white/5"
+                    }`}
+                  >
+                    💳 Карткою (Mono / LiqPay)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundService.playClick();
+                      setPaymentMethod("BALANCE");
+                    }}
+                    className={`text-xs p-3 rounded-xl border text-center transition-all ${
+                      paymentMethod === "BALANCE"
+                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-400 font-bold"
+                        : "border-white/5 bg-slate-950 text-slate-400 hover:bg-white/5"
+                    }`}
+                  >
+                    💰 Баланс ({user?.balance?.toLocaleString()} UAH)
+                  </button>
+                </div>
+              </div>
+
+              {/* Розрахунок чеку */}
               <div className="rounded-2xl border border-white/5 bg-slate-950/80 p-4 space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Вартість товару:</span>
                   <span className="text-white font-semibold">{listing.buyNowPrice.toLocaleString()} UAH</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Комісія угоди:</span>
+                  <span className="text-slate-400">Комісія депонування:</span>
                   <span className="text-emerald-400 font-semibold">0 UAH (Акція)</span>
                 </div>
                 <div className="h-[1px] bg-white/5 my-2" />
                 <div className="flex justify-between text-sm font-bold">
-                  <span className="text-white">До сплати з балансу:</span>
+                  <span className="text-white">До сплати:</span>
                   <span className="text-emerald-400 font-black">{listing.buyNowPrice.toLocaleString()} UAH</span>
                 </div>
               </div>
 
+              {/* Дії */}
               <div className="flex gap-2 pt-2">
                 <button
                   type="button"
@@ -1591,11 +1878,265 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
                   type="submit"
                   className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-400 py-3 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                 >
-                  Оплатити {listing.buyNowPrice.toLocaleString()} UAH
+                  {paymentMethod === "CARD" ? "Перейти до оплати 💳" : `Оплатити ${listing.buyNowPrice.toLocaleString()} UAH`}
                 </button>
               </div>
 
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* НОВИЙ МОНОБАНК / LIQPAY КІБЕР-ПЛАТІЖНИЙ ШЛЮЗ */}
+      {showCardPaymentModal && listing.buyNowPrice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-fade-in">
+          <div className="w-full max-w-2xl bg-slate-900/95 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative animate-slide-up overflow-hidden">
+            {/* Background cyber grid */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-[80px] pointer-events-none" />
+            
+            {/* Close */}
+            {cardPaymentStep !== 1 && cardPaymentStep !== 3 && (
+              <button
+                onClick={() => {
+                  soundService.playClick();
+                  setShowCardPaymentModal(false);
+                }}
+                className="absolute top-4 right-4 text-xs font-semibold bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-xl px-3 py-1.5 transition-all"
+              >
+                Скасувати
+              </button>
+            )}
+
+            {/* HEADER */}
+            <div className="flex items-center gap-3 border-b border-white/5 pb-4 mb-6">
+              <span className="text-xl">🔐</span>
+              <div>
+                <h3 className="text-sm font-black tracking-widest text-white uppercase font-display">
+                  KRAM Escrow Secure Gateway
+                </h3>
+                <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">
+                  Транзитне депонування • {deliveryProvider === "NOVA_POSHTA" ? "Нова Пошта" : "Укрпошта"}
+                </p>
+              </div>
+            </div>
+
+            {/* STEP 0: CARD DETAILS FORM */}
+            {cardPaymentStep === 0 && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                {/* Form fields */}
+                <form onSubmit={handleCardPaymentSubmit} className="lg:col-span-7 space-y-4">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-2">Швидкі демо-картки</span>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fillDemoCard("MONO")}
+                        className="flex-1 rounded-xl bg-[#ffe600]/10 hover:bg-[#ffe600]/20 border border-[#ffe600]/30 text-xs font-bold text-[#ffe600] py-2 transition-all"
+                      >
+                        🐈 monobank (Visa)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fillDemoCard("LIQPAY")}
+                        className="flex-1 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-bold text-emerald-400 py-2 transition-all"
+                      >
+                        💚 LiqPay (MC)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-400">Номер кредитної картки</label>
+                    <input
+                      type="text"
+                      className="w-full glass-input rounded-xl text-sm p-3 font-mono font-bold tracking-widest text-white focus:ring-1 focus:ring-emerald-500/30"
+                      placeholder="4441 1111 2222 3333"
+                      value={cardNumber}
+                      onChange={(e) => {
+                        soundService.playHover();
+                        setCardNumber(formatCardNumber(e.target.value));
+                      }}
+                      maxLength={19}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400">Термін дії</label>
+                      <input
+                        type="text"
+                        className="w-full glass-input rounded-xl text-sm p-3 text-center font-mono font-bold text-white focus:ring-1 focus:ring-emerald-500/30"
+                        placeholder="MM/YY"
+                        value={cardExpiry}
+                        onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                        maxLength={5}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-400">CVV-код</label>
+                      <input
+                        type="password"
+                        className="w-full glass-input rounded-xl text-sm p-3 text-center font-mono font-bold text-white focus:ring-1 focus:ring-emerald-500/30"
+                        placeholder="***"
+                        value={cardCvv}
+                        onChange={(e) => setCardCvv(e.target.value.replace(/[^0-9]/g, ""))}
+                        maxLength={3}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-slate-950/60 border border-white/5 p-3.5 text-[10px] text-slate-400 leading-relaxed">
+                    🛡️ <strong>KRAM Escrow Protocol:</strong> Кошти будуть списані з вашої картки, але залишаться заблокованими на рахунку ескроу-гарантії. Продавець отримає виплату тільки після вашого підтвердження огляду посилки.
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 py-3.5 text-xs font-black text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.25)] border border-emerald-400/20 uppercase tracking-widest"
+                  >
+                    Заблокувати {listing.buyNowPrice.toLocaleString()} UAH
+                  </button>
+                </form>
+
+                {/* Cyber Card Mockup */}
+                <div className="lg:col-span-5 hidden lg:block">
+                  <div className="w-full aspect-[1.58/1] rounded-2xl p-6 bg-gradient-to-br from-slate-950 to-slate-900 border border-white/10 relative overflow-hidden flex flex-col justify-between shadow-2xl group hover:border-emerald-500/30 hover:scale-[1.02] transition-all duration-300">
+                    {/* Gloss element */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-full blur-xl pointer-events-none" />
+                    <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-[#ffe600]/[0.02] rounded-full blur-xl pointer-events-none" />
+
+                    <div className="flex justify-between items-start">
+                      <span className="text-[9px] font-black text-emerald-400 font-mono tracking-widest uppercase">KRAM PLATINUM</span>
+                      {cardNumber.startsWith("4") ? (
+                        <span className="text-xs font-black text-[#ffe600] font-mono">🐈 monobank</span>
+                      ) : cardNumber.startsWith("5") ? (
+                        <span className="text-xs font-black text-emerald-400 font-mono">💚 LiqPay</span>
+                      ) : (
+                        <span className="text-xs font-black text-slate-500 font-mono">BANK CARD</span>
+                      )}
+                    </div>
+
+                    {/* Chip */}
+                    <div className="w-8 h-6 bg-amber-400/20 border border-amber-400/30 rounded-md flex items-center justify-center">
+                      <span className="text-[10px]">📟</span>
+                    </div>
+
+                    {/* Number */}
+                    <div className="text-sm font-mono font-bold tracking-widest text-slate-100 text-center py-2">
+                      {cardNumber || "•••• •••• •••• ••••"}
+                    </div>
+
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <span className="text-[8px] text-slate-600 block uppercase font-bold">Власник</span>
+                        <span className="text-[10px] font-mono font-bold text-slate-300">{user?.name || "KRAM BUYER"}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[8px] text-slate-600 block uppercase font-bold">Діє до</span>
+                        <span className="text-[10px] font-mono font-bold text-slate-300">{cardExpiry || "MM/YY"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center text-[10px] text-slate-500 font-medium mt-3">
+                    3D-Secure 2.0 • Захищено шифруванням SHA-256
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 1: LOADING SPINNER */}
+            {cardPaymentStep === 1 && (
+              <div className="py-12 flex flex-col items-center justify-center space-y-6">
+                <div className="relative w-16 h-16 flex items-center justify-center">
+                  <span className="w-16 h-16 rounded-full border-4 border-emerald-500/10 border-t-emerald-400 animate-spin absolute" />
+                  <span className="w-10 h-10 rounded-full bg-emerald-500/5 animate-pulse" />
+                </div>
+                <div className="text-center space-y-1.5">
+                  <p className="text-sm font-bold text-white animate-pulse">{paymentLoadingText}</p>
+                  <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Будь ласка, не закривайте вікно...</p>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: 3D SECURE OTP CODE */}
+            {cardPaymentStep === 2 && (
+              <form onSubmit={handleOtpVerify} className="max-w-sm mx-auto py-4 space-y-6">
+                <div className="text-center space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-violet-600/20 text-violet-400 flex items-center justify-center mx-auto text-xl font-bold animate-bounce">
+                    🛡️
+                  </div>
+                  <h4 className="text-sm font-bold text-white">Верифікація безпеки 3D-Secure</h4>
+                  <p className="text-xs text-slate-400 leading-normal">
+                    Введіть одноразовий код безпеки, надісланий банком-емітентом для підтвердження депонування {listing.buyNowPrice.toLocaleString()} UAH.
+                  </p>
+                </div>
+
+                {/* Test code suggestion box */}
+                <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 text-center text-xs">
+                  <span className="text-slate-400">Тестовий SMS/Push код: </span>
+                  <strong className="text-violet-400 font-mono text-sm tracking-widest">{generatedOtp}</strong>
+                </div>
+
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    className="w-full glass-input rounded-xl text-lg p-3.5 text-center font-mono font-black tracking-[0.6em] focus:ring-1 focus:ring-violet-500/30"
+                    placeholder="----"
+                    value={otpCode}
+                    onChange={(e) => {
+                      soundService.playHover();
+                      setOtpCode(e.target.value.replace(/[^0-9]/g, ""));
+                    }}
+                    maxLength={4}
+                    required
+                  />
+                  {otpError && (
+                    <p className="text-[10px] font-bold text-red-400 text-center animate-shake">{otpError}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundService.playClick();
+                      setCardPaymentStep(0);
+                    }}
+                    className="flex-1 rounded-xl border border-white/10 py-3 text-xs font-semibold text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+                  >
+                    Назад
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-500 py-3 text-xs font-bold text-white transition-all shadow-[0_0_15px_rgba(139,92,246,0.2)] border border-violet-500/20"
+                  >
+                    Підтвердити платіж
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* STEP 3: SUCCESS STATE */}
+            {cardPaymentStep === 3 && (
+              <div className="py-8 flex flex-col items-center justify-center space-y-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-3xl animate-scale-up text-glow-emerald">
+                  ✓
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-lg font-black text-white">🎉 Оплата Успішна!</h4>
+                  <p className="text-xs text-emerald-400 font-semibold font-mono">
+                    Сума {listing.buyNowPrice.toLocaleString()} UAH депонована у KRAM Escrow
+                  </p>
+                  <p className="text-[10px] text-slate-400 max-w-sm leading-relaxed mx-auto pt-2">
+                    Поштова накладна згенерована. Повідомлення про відправку надіслано дилеру. Ви можете перевірити статус ТТН на сторінці лоту.
+                  </p>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}

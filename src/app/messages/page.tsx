@@ -32,12 +32,12 @@ export default function MessagesPage() {
   const [typedMessage, setTypedMessage] = useState("");
   const [localWarning, setLocalWarning] = useState<string | null>(null);
 
-  const loadConversations = useCallback(() => {
+  const loadConversations = useCallback(async () => {
     if (!user) return;
-    const listings = apiService.getListings();
+    const listings = await apiService.getListings();
     
-    // Группируем сообщения по связке (listingId, sellerId/buyerId)
-    // В прототипе у нас есть демо-сообщения между user-buyer и user-seller по лоту list-1
+    // Групуємо повідомлення за зв'язкою (listingId, sellerId/buyerId)
+    // У прототипі є демо-повідомлення між user-buyer та user-seller по лоту list-1
     const convs: {
       listing: MockListing;
       messages: MockMessage[];
@@ -45,8 +45,8 @@ export default function MessagesPage() {
       otherUserName: string;
     }[] = [];
 
-    listings.forEach(listing => {
-      const msgs = apiService.getMessages(listing.id, "user-buyer", "user-seller");
+    for (const listing of listings) {
+      const msgs = await apiService.getMessages(listing.id, "user-buyer", "user-seller");
       if (msgs.length > 0) {
         const isSeller = user.id === listing.sellerId;
         const otherUserId = isSeller ? "user-buyer" : "user-seller";
@@ -59,12 +59,10 @@ export default function MessagesPage() {
           otherUserName
         });
       }
-    });
+    }
 
-    Promise.resolve().then(() => {
-      setConversations(convs);
-      setActiveConvIdx(prev => prev === -1 && convs.length > 0 ? 0 : prev);
-    });
+    setConversations(convs);
+    setActiveConvIdx(prev => prev === -1 && convs.length > 0 ? 0 : prev);
   }, [user]);
 
   useEffect(() => {
@@ -72,23 +70,23 @@ export default function MessagesPage() {
       router.push("/");
       return;
     }
-    apiService.initialize();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadConversations();
   }, [user, router, loadConversations]);
 
-  // Скролл вниз при загрузке або відправці повідомлення
+  // Скролл вниз при завантаженні або відправці повідомлення
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeConvIdx, conversations]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || activeConvIdx === -1 || typedMessage.trim() === "") return;
 
     const activeConv = conversations[activeConvIdx];
     
     // Відправляємо
-    const res = apiService.sendMessage(
+    const res = await apiService.sendMessage(
       activeConv.listing.id,
       user.id,
       activeConv.otherUserId,
@@ -107,7 +105,7 @@ export default function MessagesPage() {
     setTypedMessage("");
     
     // Перезавантажуємо повідомлення
-    loadConversations();
+    await loadConversations();
   };
 
   if (!user) return null;
@@ -229,14 +227,14 @@ export default function MessagesPage() {
                         className={`flex ${isMe ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`rounded-2xl px-4 py-2.5 max-w-[70%] text-xs leading-relaxed ${
+                          className={`rounded-2xl px-4 py-3 max-w-[75%] text-sm leading-relaxed ${
                             isMe
-                              ? "bg-emerald-500 text-white rounded-br-none shadow-[0_4px_12px_rgba(16,185,129,0.15)]"
-                              : "bg-white/5 text-slate-200 border border-white/10 rounded-bl-none"
+                              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-100 rounded-br-none shadow-[0_0_20px_rgba(16,185,129,0.08)]"
+                              : "bg-slate-900/75 text-slate-100 border border-white/10 rounded-bl-none shadow-[0_0_15px_rgba(255,255,255,0.01)]"
                           }`}
                         >
-                          <p className="whitespace-pre-line">{msg.text}</p>
-                          <span className={`text-[8px] block text-right mt-1.5 ${isMe ? "text-emerald-200" : "text-slate-500"}`}>
+                          <p className="whitespace-pre-line font-medium">{msg.text}</p>
+                          <span className={`text-[9px] block text-right mt-2 font-mono ${isMe ? "text-emerald-400/60" : "text-slate-400/60"}`}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </div>
