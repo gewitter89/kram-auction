@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KRAM.UA — Премиальный Гибридный Маркетплейс и Аукционы 💎
 
-## Getting Started
+Премиальная торговая площадка нового поколения, объединяющая классическую доску объявлений (OLX/Prom) и открытые аукционы (Violity/eBay) с изысканным визуальным стилем («бюджет на десятки тысяч долларов»).
 
-First, run the development server:
+Разработано на современном стеке **Next.js 15 + React 19 + TypeScript + Tailwind CSS v4**.
 
+---
+
+## ✨ Основные Преимущества и Функционал
+
+1. **Дорогой визуальный стиль (Premium Dark Mode):**
+   - Угольно-темная космическая цветовая палитра с неоновым изумрудным и фиолетовым свечением.
+   - Элементы матового стекла (Glassmorphism) с эффектом размытия заднего плана (`backdrop-blur`).
+   - Плавные микро-анимации, 3D-эффекты наведения (hover-glow) для карточек лотов.
+   - Премиальная типографика с использованием Google Fonts (шрифт *Outfit* для заголовков и *Inter* для текста).
+
+2. **Гибридный Формат Продаж:**
+   - **🔨 Аукцион:** классические открытые торги с автоматическими таймерами, шагом ставки и полной историей участников.
+   - **⚡ Купить сейчас:** мгновенный выкуп по фиксированной цене.
+   - **💎 Гибридный лот:** лот участвует в аукционе, но его можно мгновенно выкупить без ожидания по блиц-цене.
+
+3. **Безопасная Сделка и Авто-Логистика (Новая Почта):**
+   - Интерактивный процесс оформления покупки с указанием отделения.
+   - Генерация реального штрихкода ТТН и пошаговый статус-трекер доставки на странице лота.
+   - Депонирование средств покупателя на балансе до подтверждения получения посылки.
+
+4. **Анти-Фрод Система в Чате:**
+   - Чат между покупателем и продавцом снабжен роботом-модератором.
+   - При попытке отправить номера телефонов, ссылки или названия сторонних мессенджеров (Telegram, Viber) система безопасности выводит предупреждение и советует проводить сделку только внутри площадки.
+
+5. **Реактивные Живые Уведомления:**
+   - Выпадающая панель уведомлений с колокольчиком и счетчиком непрочитанных событий.
+   - Уведомления о принятых ставках, перебитых ставках, завершенных сделках и отправках посылок.
+
+6. **Панель быстрых тестов (User Switcher):**
+   - В правом углу меню профиля встроена кнопка «Смена роли». Она позволяет в 1 клик переключиться между покупателем (Владимир), продавцом (Александр) и администратором KRAM без необходимости регистрировать новые аккаунты. Идеально подходит для демонстрации торгов с самим собой!
+
+---
+
+## 🛠️ Технологический Стек
+
+- **Framework:** Next.js 15 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **Database:** Prisma ORM + SQLite (для быстрой локальной работы)
+- **Library:** canvas-confetti (эффекты праздничного конфетти при ставках и покупке)
+
+---
+
+## 🚀 Быстрый старт (Локально)
+
+### 1. Установка зависимостей
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Подготовка базы данных
+Сгенерируйте клиент Prisma (локальная база SQLite `dev.db` настроена автоматически):
+```bash
+npx prisma generate
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Запуск dev-сервера
+Запустите локальный сервер разработки:
+```bash
+npm run dev
+```
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📦 Как выложить этот проект на свой GitHub
 
-To learn more about Next.js, take a look at the following resources:
+Чтобы опубликовать этот код в свой репозиторий, выполните следующие шаги:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Создайте новый пустой репозиторий на GitHub** (без README, .gitignore и лицензии).
+2. **Получите ссылку на ваш репозиторий** (формата `https://github.com/ВАШ_ЛОГИН/НАЗВАНИЕ_РЕПОЗИТОРИЯ.git`).
+3. **Выполните команды в терминале проекта:**
+   ```bash
+   # Добавить удаленный репозиторий GitHub
+   git remote add origin https://github.com/ВАШ_ЛОГИН/НАЗВАНИЕ_РЕПОЗИТОРИЯ.git
+   
+   # Запушить код в ветку main
+   git push -u origin main
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*После этого весь проект будет опубликован на вашем аккаунте GitHub в открытом доступе.*
