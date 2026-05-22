@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, mockDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { globalEmitter } from "@/lib/events";
 
 function fraudWarning(text: string) {
@@ -21,8 +21,7 @@ export async function GET(req: NextRequest) {
     const messages = await prisma.message.findMany({ where: { listingId, OR: [{ senderId: user1, receiverId: user2 }, { senderId: user2, receiverId: user1 }] }, orderBy: { createdAt: "asc" } });
     return NextResponse.json({ messages: messages.map((m) => ({ ...m, createdAt: m.createdAt.toISOString() })) });
   } catch (error) {
-    console.warn("Prisma messages unavailable, using memory fallback:", error);
-    return NextResponse.json({ messages: mockDb.getMessages(listingId, user1, user2), source: "memory-fallback" });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
 
@@ -30,17 +29,10 @@ export async function POST(req: NextRequest) {
   try {
     const { listingId, senderId, receiverId, text } = await req.json();
     if (!listingId || !senderId || !receiverId || !text) return NextResponse.json({ error: "Відсутні обов’язкові поля" }, { status: 400 });
-    try {
-      const newMessage = await prisma.message.create({ data: { text, senderId, receiverId, listingId, isRead: false } });
-      const message = { ...newMessage, createdAt: newMessage.createdAt.toISOString() };
-      globalEmitter.emit("update", { type: "MESSAGE", listingId, message });
-      return NextResponse.json({ success: true, message, warning: fraudWarning(text) });
-    } catch (error) {
-      console.warn("Prisma send message unavailable, using memory fallback:", error);
-      const message = mockDb.addMessage(listingId, senderId, receiverId, text);
-      globalEmitter.emit("update", { type: "MESSAGE", listingId, message });
-      return NextResponse.json({ success: true, message, warning: fraudWarning(text), source: "memory-fallback" });
-    }
+    const newMessage = await prisma.message.create({ data: { text, senderId, receiverId, listingId, isRead: false } });
+    const message = { ...newMessage, createdAt: newMessage.createdAt.toISOString() };
+    globalEmitter.emit("update", { type: "MESSAGE", listingId, message });
+    return NextResponse.json({ success: true, message, warning: fraudWarning(text) });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

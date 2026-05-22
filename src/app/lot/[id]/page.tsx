@@ -8,7 +8,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { apiService } from "@/lib/api-service";
-import { MockListing, MockBid, MockTransaction } from "@/lib/db";
 import { 
   Clock, 
   ShieldCheck, 
@@ -30,6 +29,8 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { soundService } from "@/lib/sound-service";
+import { Listing, Bid, Transaction } from "@prisma/client";
+
 
 // Генератор OTP для захисту чистоти рендеру React 19
 function generateOtpCode() {
@@ -101,7 +102,7 @@ function SvgQRCode() {
 }
 
 // Біржовий графік швидкості ставок (Bid Velocity Graph)
-function BidVelocityChart({ bids }: { bids: MockBid[] }) {
+function BidVelocityChart({ bids }: { bids: [] }) {
   if (bids.length === 0) {
     return (
       <div className="h-44 rounded-2xl bg-slate-950/40 border border-white/5 flex flex-col items-center justify-center text-xs text-slate-500 font-semibold p-4">
@@ -698,8 +699,8 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   const { id } = use(params);
   const { user, updateBalance } = useAuth();
   
-  const [listing, setListing] = useState<MockListing | null>(null);
-  const [bids, setBids] = useState<MockBid[]>([]);
+  const [listing, setListing] = useState<| null>(null);
+  const [bids, setBids] = useState<any[]>([]);
   
   const [bidAmount, setBidAmount] = useState<string>("");
   const [priceFlashed, setPriceFlashed] = useState(false);
@@ -724,7 +725,7 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [paymentLoadingText, setPaymentLoadingText] = useState("Встановлення захищеного з’єднання...");
   
-  const [transaction, setTransaction] = useState<MockTransaction | null>(null);
+  const [transaction, setTransaction] = useState<| null>(null);
 
   const [botsActive, setBotsActive] = useState(true);
   const [botNotification, setBotNotification] = useState<{ text: string; amount: number; bidder: string } | null>(null);
@@ -750,6 +751,35 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadListingData();
   }, [loadListingData]);
+
+  useEffect(() => {
+    // Handle Stripe redirect
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("checkout_success") === "true") {
+        const sid = urlParams.get("session_id");
+        const bId = urlParams.get("buyerId");
+        const dp = urlParams.get("delivery");
+        
+        if (bId && dp && listing && !transaction) {
+          // Stripe checkout successful, create the actual transaction in KRAM DB
+          apiService.buyNow(listing.id, bId, dp).then((res) => {
+            if (res.success) {
+              soundService.playSuccess();
+              confetti({ particleCount: 180, spread: 100, origin: { y: 0.5 } });
+              if (res.transaction) setTransaction(res.transaction);
+              // Clean up URL
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          });
+        }
+      } else if (urlParams.get("checkout_canceled") === "true") {
+        soundService.playWarning();
+        alert("Оплату скасовано.");
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, [listing, transaction]);
 
   // Real-time Server-Sent Events (SSE) Listener for bids and checkout events
   useEffect(() => {
@@ -931,28 +961,22 @@ export default function LotPage({ params }: { params: Promise<{ id: string }> })
 
   const handleCardPaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (cardNumber.replace(/\s/g, "").length < 16 || cardExpiry.length < 5 || cardCvv.length < 3) {
-      soundService.playWarning();
-      alert("Будь ласка, заповніть коректні реквізити картки!");
-      return;
-    }
-
     soundService.playClick();
     setCardPaymentStep(1);
-    setPaymentLoadingText("Встановлення захищеного з’єднання SSL...");
+    setPaymentLoadingText("Перенаправлення на безпечний платіжний шлюз Stripe...");
     
-    setTimeout(() => {
-      setPaymentLoadingText("Авторизація 3D-Secure банку...");
-      soundService.playAITyping();
-    }, 1000);
+    if (!listing || !user) return;
 
-    setTimeout(() => {
-      setPaymentLoadingText("Депонування коштів у KRAM Escrow...");
-    }, 2200);
-
-    setTimeout(() => {
-      setCardPaymentStep(2);
-    }, 3200);
+    const amount = listing.buyNowPrice || listing.currentPrice;
+    const res = await apiService.createCheckoutSession(listing.id, user.id, deliveryProvider, amount);
+    
+    if (res.url) {
+      window.location.href = res.url;
+    } else {
+      soundService.playWarning();
+      alert("Помилка ініціалізації Stripe: " + res.error);
+      setCardPaymentStep(0);
+    }
   };
 
   const handleOtpVerify = async (e: React.FormEvent) => {

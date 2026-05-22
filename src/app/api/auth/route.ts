@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, mockDb, MockUser } from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { COOKIE_NAME, createSessionToken, readSessionToken, sessionCookieOptions } from "@/lib/session";
 
-function publicUser(user: MockUser) {
+function publicUser(user: any) {
   return {
     id: user.id,
     email: user.email,
@@ -15,39 +15,24 @@ function publicUser(user: MockUser) {
   };
 }
 
-function setSession(response: NextResponse, user: MockUser) {
+function setSession(response: NextResponse, user: any) {
   response.cookies.set(COOKIE_NAME, createSessionToken(publicUser(user)), sessionCookieOptions());
   return response;
 }
 
 async function findUserById(id: string) {
-  try {
-    const user = await prisma.user.findUnique({ where: { id } });
-    if (user) return publicUser(user as MockUser);
-  } catch (error) {
-    console.warn("Prisma unavailable, using memory auth fallback:", error);
-  }
-  return mockDb.getUserById(id) || null;
+  const user = await prisma.user.findUnique({ where: { id } });
+  return user ? publicUser(user) : null;
 }
 
 async function findUserByEmail(email: string) {
-  try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (user) return publicUser(user as MockUser);
-  } catch (error) {
-    console.warn("Prisma unavailable, using memory auth fallback:", error);
-  }
-  return mockDb.getUserByEmail(email) || null;
+  const user = await prisma.user.findUnique({ where: { email } });
+  return user ? publicUser(user) : null;
 }
 
 async function findUserByRole(role: string) {
-  try {
-    const user = await prisma.user.findFirst({ where: { role } });
-    if (user) return publicUser(user as MockUser);
-  } catch (error) {
-    console.warn("Prisma unavailable, using memory auth fallback:", error);
-  }
-  return mockDb.getUsers().find((u) => u.role === role) || null;
+  const user = await prisma.user.findFirst({ where: { role } });
+  return user ? publicUser(user) : null;
 }
 
 export async function GET(req: NextRequest) {
@@ -55,7 +40,6 @@ export async function GET(req: NextRequest) {
   const signedUser = readSessionToken(cookie);
   if (signedUser) return NextResponse.json({ user: signedUser });
 
-  // Legacy support for old sessions that stored only the user id.
   if (!cookie) return NextResponse.json({ user: null });
 
   const user = await findUserById(cookie);
@@ -84,8 +68,12 @@ export async function POST(req: NextRequest) {
       const cookie = req.cookies.get(COOKIE_NAME)?.value;
       const signedUser = readSessionToken(cookie);
       if (signedUser) {
-        const updated = { ...signedUser, balance: signedUser.balance + parseFloat(amount) };
-        return setSession(NextResponse.json({ success: true, user: updated }), updated);
+        const dbUser = await prisma.user.update({
+          where: { id: signedUser.id },
+          data: { balance: { increment: parseFloat(amount) } }
+        });
+        const pub = publicUser(dbUser);
+        return setSession(NextResponse.json({ success: true, user: pub }), dbUser);
       }
       return NextResponse.json({ error: "Неавторизовано" }, { status: 401 });
     }

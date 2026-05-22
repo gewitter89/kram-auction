@@ -10,6 +10,7 @@ export interface User {
   role: "BUYER" | "SELLER" | "ADMIN";
   rating: number;
   verified: boolean;
+  verificationStep: number;
   balance: number;
 }
 
@@ -18,6 +19,7 @@ interface AuthContextType {
   login: (email: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateBalance: (amount: number) => Promise<void>;
+  setVerificationStep: (step: number) => void;
   switchUser: (role: "BUYER" | "SELLER" | "ADMIN") => Promise<void>;
   loading: boolean;
 }
@@ -110,6 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setVerificationStep = (step: number) => {
+    if (user) {
+      setUser({ ...user, verificationStep: step });
+    }
+  };
+
   const switchUser = async (role: "BUYER" | "SELLER" | "ADMIN") => {
     setLoading(true);
     try {
@@ -132,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, logout, updateBalance, switchUser, loading }}
+      value={{ user, login, logout, updateBalance, setVerificationStep, switchUser, loading }}
     >
       {children}
     </AuthContext.Provider>

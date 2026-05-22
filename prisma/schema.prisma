@@ -13,9 +13,11 @@ model User {
   password         String
   name             String
   avatar           String?
+  telegramChatId   String?
   role             String         @default("BUYER") // "BUYER", "SELLER", "ADMIN"
   rating           Float          @default(5.0)
   verified         Boolean        @default(false)
+  verificationStep Int            @default(0)
   balance          Float          @default(10000.0)
   listings         Listing[]      @relation("SellerListings")
   bids             Bid[]          @relation("UserBids")

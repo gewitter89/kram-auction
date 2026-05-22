@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, MockUser } from "@/lib/db";
+import { prisma, } from "@/lib/db";
 import { COOKIE_NAME, createSessionToken, sessionCookieOptions } from "@/lib/session";
+import { User } from "@prisma/client";
+
 
 function errorPage(message: string, status = 400) {
   return new NextResponse(`<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;background:#020617;color:white;padding:40px"><h1>Google login error</h1><p>${message}</p><p><a style="color:#10b981" href="/">Повернутися на KRAM</a></p></body>`, {
@@ -52,7 +54,7 @@ export async function GET(req: NextRequest) {
     const token = await exchangeCode(code, redirectUri);
     const profile = await getGoogleUser(token.access_token);
 
-    const user: MockUser = {
+    const user: any = {
       id: `google-${profile.sub}`,
       email: profile.email,
       name: profile.name || profile.email,

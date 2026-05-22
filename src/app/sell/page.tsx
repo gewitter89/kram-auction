@@ -6,7 +6,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { apiService } from "@/lib/api-service";
-import { MockCategory } from "@/lib/db";
 import { 
   Check,
   ChevronRight,
@@ -23,6 +22,8 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { soundService } from "@/lib/sound-service";
+import { Category } from "@prisma/client";
+
 
 function calculateEndDate(durationDays: string): string {
   return new Date(Date.now() + 1000 * 60 * 60 * 24 * parseInt(durationDays)).toISOString();
@@ -31,7 +32,7 @@ function calculateEndDate(durationDays: string): string {
 export default function SellPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [categories, setCategories] = useState<MockCategory[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadCats() {
@@ -383,6 +384,11 @@ export default function SellPage() {
       if (dealType === "HYBRID" && parseFloat(buyNowPrice) <= parseFloat(startPrice)) {
         soundService.playWarning();
         alert("Ціна миттєвого викупу (Бліц) повинна бути вищою за стартову ціну аукціону!");
+        return;
+      }
+      if ((startPrice && parseFloat(startPrice) <= 0) || (buyNowPrice && parseFloat(buyNowPrice) <= 0) || (bidStep && parseFloat(bidStep) <= 0)) {
+        soundService.playWarning();
+        alert("Ціна та крок ставки повинні бути більшими за нуль!");
         return;
       }
     }

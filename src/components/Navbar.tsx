@@ -25,8 +25,9 @@ import {
   Home,
   BookOpen
 } from "lucide-react";
-import { MockNotification } from "@/lib/db";
 import { soundService } from "@/lib/sound-service";
+import { Notification } from "@prisma/client";
+
 
 export default function Navbar() {
   const { user, login, logout, switchUser } = useAuth();
@@ -35,7 +36,7 @@ export default function Navbar() {
     window.location.href = "/api/auth/google";
   };
   const pathname = usePathname();
-  const [notifications, setNotifications] = useState<MockNotification[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showSwitcher, setShowSwitcher] = useState(false);

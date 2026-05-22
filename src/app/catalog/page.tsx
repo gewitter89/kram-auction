@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { apiService } from "@/lib/api-service";
-import { MockListing, MockCategory } from "@/lib/db";
 import Link from "next/link";
 import { 
   Search, 
@@ -14,10 +13,13 @@ import {
   Plus
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
+import { Category, Listing } from "@prisma/client";
+
 
 export default function Catalog() {
-  const [listings, setListings] = useState<MockListing[]>([]);
-  const [categories, setCategories] = useState<MockCategory[]>([]);
+  const [listings, setListings] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Стани фільтрації
   const [searchQuery, setSearchQuery] = useState("");
@@ -29,12 +31,17 @@ export default function Catalog() {
 
   useEffect(() => {
     async function loadData() {
-      const [allListings, allCategories] = await Promise.all([
-        apiService.getListings(),
-        apiService.getCategories()
-      ]);
-      setListings(allListings);
-      setCategories(allCategories);
+      setIsLoading(true);
+      try {
+        const [allListings, allCategories] = await Promise.all([
+          apiService.getListings(),
+          apiService.getCategories()
+        ]);
+        setListings(allListings);
+        setCategories(allCategories);
+      } finally {
+        setIsLoading(false);
+      }
     }
     loadData();
   }, []);
@@ -306,7 +313,27 @@ export default function Catalog() {
 
           {/* Сітка товарів (Listings Grid) */}
           <div className="lg:col-span-3">
-            {filteredListings.length === 0 ? (
+            {isLoading ? (
+              <div className="glass-panel rounded-3xl p-16 text-center border border-white/5 flex flex-col items-center justify-center">
+                <div className="h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-slate-400 text-sm font-display">Завантаження лотів...</p>
+              </div>
+            ) : listings.length === 0 ? (
+              <div className="glass-panel rounded-3xl p-16 text-center border border-white/5 flex flex-col items-center justify-center">
+                <div className="text-4xl mb-4">📦</div>
+                <h3 className="text-lg font-bold text-white mb-2 font-display">Каталог порожній</h3>
+                <p className="text-slate-400 text-sm mb-6 max-w-sm">Наразі немає активних лотів. Станьте першим, хто виставить свій товар на продаж!</p>
+                <Link
+                  href="/sell"
+                  onMouseEnter={() => soundService.playHover()}
+                  onClick={() => soundService.playClick()}
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-6 py-3 text-sm font-bold text-white shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all"
+                >
+                  <Plus className="h-4 w-4" />
+                  Створити перший лот
+                </Link>
+              </div>
+            ) : filteredListings.length === 0 ? (
               <div className="glass-panel rounded-3xl p-16 text-center border border-white/5">
                 <p className="text-slate-400 text-sm">Не знайдено лотів, що відповідають обраним фільтрам.</p>
                 <button

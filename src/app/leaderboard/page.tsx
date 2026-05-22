@@ -13,176 +13,22 @@ import {
   ArrowRight,
   Medal,
 } from "lucide-react";
+import { apiService } from "@/lib/api-service";
 
-// ===================== MOCK DATA =====================
 interface LeaderEntry {
+  id: string;
   rank: number;
   username: string;
   avatar: string;
   totalBids: number;
   totalUAH: number;
-  xp: number;
-  xpToNext: number;
+  points: number;
   badge: string;
   badgeIcon: string;
-  level: number;
   winRate: number;
   streak: number;
   verified: boolean;
 }
-
-const LEADERBOARD: LeaderEntry[] = [
-  {
-    rank: 1,
-    username: "@platinum_king",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=platinum_king",
-    totalBids: 1842,
-    totalUAH: 4_280_000,
-    xp: 98200,
-    xpToNext: 100000,
-    badge: "Платиновий VIP",
-    badgeIcon: "👑",
-    level: 98,
-    winRate: 71,
-    streak: 24,
-    verified: true,
-  },
-  {
-    rank: 2,
-    username: "@diamond_wolf",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=diamond_wolf",
-    totalBids: 1456,
-    totalUAH: 2_940_000,
-    xp: 87500,
-    xpToNext: 100000,
-    badge: "Діамантовий",
-    badgeIcon: "💎",
-    level: 87,
-    winRate: 64,
-    streak: 18,
-    verified: true,
-  },
-  {
-    rank: 3,
-    username: "@crypto_falcon",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=crypto_falcon",
-    totalBids: 1203,
-    totalUAH: 2_150_000,
-    xp: 72000,
-    xpToNext: 100000,
-    badge: "Діамантовий",
-    badgeIcon: "💎",
-    level: 72,
-    winRate: 59,
-    streak: 12,
-    verified: true,
-  },
-  {
-    rank: 4,
-    username: "@fire_bidder_ua",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=fire_bidder_ua",
-    totalBids: 987,
-    totalUAH: 1_450_000,
-    xp: 58000,
-    xpToNext: 70000,
-    badge: "Гарячий Бідер",
-    badgeIcon: "🔥",
-    level: 58,
-    winRate: 52,
-    streak: 9,
-    verified: true,
-  },
-  {
-    rank: 5,
-    username: "@kyiv_collector",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=kyiv_collector",
-    totalBids: 834,
-    totalUAH: 1_120_000,
-    xp: 49500,
-    xpToNext: 70000,
-    badge: "Гарячий Бідер",
-    badgeIcon: "🔥",
-    level: 49,
-    winRate: 48,
-    streak: 7,
-    verified: false,
-  },
-  {
-    rank: 6,
-    username: "@art_hunter",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=art_hunter",
-    totalBids: 712,
-    totalUAH: 895_000,
-    xp: 42000,
-    xpToNext: 70000,
-    badge: "Гарячий Бідер",
-    badgeIcon: "🔥",
-    level: 42,
-    winRate: 43,
-    streak: 5,
-    verified: true,
-  },
-  {
-    rank: 7,
-    username: "@sniper_max",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=sniper_max",
-    totalBids: 621,
-    totalUAH: 740_000,
-    xp: 35000,
-    xpToNext: 50000,
-    badge: "Снайпер",
-    badgeIcon: "⚡",
-    level: 35,
-    winRate: 61,
-    streak: 3,
-    verified: false,
-  },
-  {
-    rank: 8,
-    username: "@last_second_ua",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=last_second_ua",
-    totalBids: 542,
-    totalUAH: 620_000,
-    xp: 29500,
-    xpToNext: 50000,
-    badge: "Снайпер",
-    badgeIcon: "⚡",
-    level: 29,
-    winRate: 57,
-    streak: 4,
-    verified: false,
-  },
-  {
-    rank: 9,
-    username: "@watch_king",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=watch_king",
-    totalBids: 478,
-    totalUAH: 530_000,
-    xp: 24000,
-    xpToNext: 50000,
-    badge: "Снайпер",
-    badgeIcon: "⚡",
-    level: 24,
-    winRate: 53,
-    streak: 2,
-    verified: true,
-  },
-  {
-    rank: 10,
-    username: "@tech_phoenix",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=tech_phoenix",
-    totalBids: 401,
-    totalUAH: 460_000,
-    xp: 19800,
-    xpToNext: 50000,
-    badge: "Снайпер",
-    badgeIcon: "⚡",
-    level: 19,
-    winRate: 49,
-    streak: 1,
-    verified: false,
-  },
-];
 
 // ===================== HELPERS =====================
 function getRankDisplay(rank: number) {
@@ -202,7 +48,6 @@ function formatUAH(n: number) {
 
 function TopThreeCard({ entry }: { entry: LeaderEntry }) {
   const rd = getRankDisplay(entry.rank);
-  const xpPct = Math.min(100, Math.round((entry.xp / entry.xpToNext) * 100));
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -249,16 +94,15 @@ function TopThreeCard({ entry }: { entry: LeaderEntry }) {
       <p className="text-sm font-bold text-white mt-2 text-center">{entry.username}</p>
       <p className="text-[10px] text-slate-500 mt-0.5">{entry.badge}</p>
 
-      {/* XP bar */}
+      {/* Points bar */}
       <div className="w-full mt-3 space-y-1">
-        <div className="flex justify-between text-[9px] text-slate-600">
-          <span>XP {entry.xp.toLocaleString()}</span>
-          <span>Рівень {entry.level}</span>
+        <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-wider">
+          <span>{entry.points.toLocaleString()} Балів</span>
         </div>
         <div className="w-full bg-slate-900 rounded-full h-1 overflow-hidden border border-white/5">
           <div
             className="h-full rounded-full bg-gradient-to-r from-brand-primary to-teal-400 transition-all duration-1000"
-            style={{ width: `${xpPct}%` }}
+            style={{ width: `100%` }}
           />
         </div>
       </div>
@@ -280,7 +124,6 @@ function TopThreeCard({ entry }: { entry: LeaderEntry }) {
 
 function LeaderRow({ entry, index }: { entry: LeaderEntry; index: number }) {
   const rd = getRankDisplay(entry.rank);
-  const xpPct = Math.min(100, Math.round((entry.xp / entry.xpToNext) * 100));
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -324,16 +167,15 @@ function LeaderRow({ entry, index }: { entry: LeaderEntry; index: number }) {
           )}
         </div>
 
-        {/* XP Progress bar */}
+        {/* Points Progress bar */}
         <div className="mt-2 space-y-1">
-          <div className="flex justify-between text-[9px] text-slate-600">
-            <span>Рівень {entry.level} · {entry.xp.toLocaleString()} XP</span>
-            <span>{xpPct}%</span>
+          <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-wider">
+            <span>{entry.points.toLocaleString()} Балів Активності</span>
           </div>
           <div className="w-full bg-slate-900/80 rounded-full h-1 overflow-hidden border border-white/5">
             <div
               className="h-full rounded-full bg-gradient-to-r from-brand-primary via-teal-400 to-brand-primary bg-[length:200%_100%] transition-all duration-1000 group-hover:animate-pulse"
-              style={{ width: `${xpPct}%` }}
+              style={{ width: `100%` }}
             />
           </div>
         </div>
@@ -442,14 +284,26 @@ export default function LeaderboardPage() {
   const [tab, setTab] = useState<"all-time" | "weekly" | "monthly">("all-time");
   const [headerVisible, setHeaderVisible] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<typeof BADGE_DETAILS[0] | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const t = setTimeout(() => setHeaderVisible(true), 50);
     return () => clearTimeout(t);
   }, []);
 
-  const top3 = LEADERBOARD.slice(0, 3);
-  const rest = LEADERBOARD.slice(3);
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      setIsLoading(true);
+      const data = await apiService.getLeaderboard();
+      setLeaderboard(data);
+      setIsLoading(false);
+    };
+    fetchLeaderboard();
+  }, []);
+
+  const top3 = leaderboard.slice(0, 3);
+  const rest = leaderboard.slice(3);
 
   const handleBadgeClick = (badge: typeof BADGE_DETAILS[0]) => {
     soundService.playConsoleOpen();
@@ -546,23 +400,30 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Podium — reordered: 2, 1, 3 for visual podium effect */}
-          <div className="grid grid-cols-3 gap-6 md:gap-10 max-w-2xl mx-auto">
-            {/* Silver — 2nd */}
-            <div className="pt-8">
-              <TopThreeCard entry={top3[1]} />
+          {isLoading ? (
+            <div className="py-20 text-center text-brand-primary animate-pulse font-display">
+              Оновлення рейтингу...
             </div>
-            {/* Gold — 1st (taller) */}
-            <div>
-              <TopThreeCard entry={top3[0]} />
+          ) : (
+            <div className="grid grid-cols-3 gap-6 md:gap-10 max-w-2xl mx-auto">
+              {/* Silver — 2nd */}
+              <div className="pt-8">
+                {top3[1] && <TopThreeCard entry={top3[1]} />}
+              </div>
+              {/* Gold — 1st (taller) */}
+              <div>
+                {top3[0] && <TopThreeCard entry={top3[0]} />}
+              </div>
+              {/* Bronze — 3rd */}
+              <div className="pt-14">
+                {top3[2] && <TopThreeCard entry={top3[2]} />}
+              </div>
             </div>
-            {/* Bronze — 3rd */}
-            <div className="pt-14">
-              <TopThreeCard entry={top3[2]} />
-            </div>
-          </div>
+          )}
         </section>
 
         {/* Full leaderboard rows 4-10 */}
+        {!isLoading && rest.length > 0 && (
         <section className="py-8 px-4 sm:px-6 lg:px-8 mx-auto max-w-4xl">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-white font-display flex items-center gap-2">
@@ -584,7 +445,7 @@ export default function LeaderboardPage() {
 
           <div className="space-y-3">
             {rest.map((entry, i) => (
-              <LeaderRow key={entry.rank} entry={entry} index={i} />
+              <LeaderRow key={entry.id} entry={entry} index={i} />
             ))}
           </div>
 
@@ -607,6 +468,7 @@ export default function LeaderboardPage() {
             </Link>
           </div>
         </section>
+        )}
 
         {/* Badge legend */}
         <section className="py-12 px-4 sm:px-6 lg:px-8 mx-auto max-w-4xl border-t border-white/5">

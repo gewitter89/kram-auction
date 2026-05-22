@@ -5,7 +5,6 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { apiService } from "@/lib/api-service";
-import { MockListing, MockCategory } from "@/lib/db";
 import { 
   Search, 
   Laptop, 
@@ -25,6 +24,8 @@ import {
   HelpCircle
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
+import { Category, Listing } from "@prisma/client";
+
 
 // Маппінг іконок категорій для Lucide
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -481,12 +482,11 @@ function KramCalculator() {
 // ==========================================
 // 🕹️ ІНТЕРАКТИВНИЙ ГІД ДЛЯ НОВАЧКІВ
 // ==========================================
+// ==========================================
+// 🕹️ ПРОСТИЙ ГІД ДЛЯ НОВАЧКІВ
+// ==========================================
 function KramOnboardingWidget() {
   const [activeTab, setActiveTab] = useState<'buyer' | 'seller' | 'security'>('buyer');
-  const [sliderValue, setSliderValue] = useState(60000); // 60,000 UAH market price
-  
-  const estimatedBid = Math.round(sliderValue * 0.45);
-  const savings = sliderValue - estimatedBid;
   
   const handleTabChange = (tab: 'buyer' | 'seller' | 'security') => {
     setActiveTab(tab);
@@ -501,13 +501,13 @@ function KramOnboardingWidget() {
       <div className="relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-8">
           <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-extrabold tracking-widest text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/25 mb-4">
-            🕹️ Інтерактивний Гід
+            ❓ Як це працює?
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white font-display">
-            Випадково тут? Відкрийте світ смарт-аукціонів KRAM
+            Все дуже просто!
           </h2>
-          <p className="text-xs text-slate-400 mt-2">
-            Дізнайтеся, як купувати речі з неймовірною знижкою або продавати свої лоти без жодних ризиків
+          <p className="text-sm text-slate-400 mt-2">
+            KRAM.UA — це місце, де ви можете безпечно купувати речі дешевше та продавати швидше.
           </p>
         </div>
 
@@ -521,7 +521,7 @@ function KramOnboardingWidget() {
                 : 'text-slate-500 hover:text-slate-300'
             }`}
           >
-            🎮 Купуй як у грі
+            🛒 Як купувати
           </button>
           <button
             onClick={() => handleTabChange('seller')}
@@ -531,7 +531,7 @@ function KramOnboardingWidget() {
                 : 'text-slate-500 hover:text-slate-300'
             }`}
           >
-            💰 Миттєвий Кеш
+            💰 Як продавати
           </button>
           <button
             onClick={() => handleTabChange('security')}
@@ -548,126 +548,86 @@ function KramOnboardingWidget() {
         {/* Контент табів */}
         <div className="min-h-[220px]">
           {activeTab === 'buyer' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <h3 className="text-xl font-bold text-white font-display">Торги як захоплююча гра з високою вигодою</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Аукціон — це не просто купівля, а азарт і стратегія. Користувачі змагаються ставками в реальному часі. Ви можете виграти преміум-товари (техніку, прикраси, колекційні речі) за долі їхньої вартості, якщо ваша ставка втримається до кінця таймера.
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-white font-display">Купуйте дешевше, ніж у магазині</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Продавці виставляють товари за низькою стартовою ціною. Ви робите ставку — пропонуєте свою ціну. Якщо до кінця часу ніхто не запропонує більше, товар ваш!
                 </p>
-                <div className="flex gap-4 pt-2">
-                  <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/5 border border-emerald-500/10 px-3 py-2 rounded-xl">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Без переплат посередникам
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/5 border border-emerald-500/10 px-3 py-2 rounded-xl">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Лише перевірені продавці
-                  </div>
-                </div>
+                <ul className="space-y-2 mt-4 text-slate-300 text-sm">
+                  <li className="flex items-center gap-2">✅ Ви самі вирішуєте, скільки готові заплатити.</li>
+                  <li className="flex items-center gap-2">✅ Є кнопка "Купити зараз" для миттєвої покупки.</li>
+                  <li className="flex items-center gap-2">✅ Жодних прихованих комісій для покупців.</li>
+                </ul>
               </div>
-              <div className="lg:col-span-5 bg-slate-950/60 border border-white/5 rounded-2xl p-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center text-xs font-semibold text-slate-300">
-                    <span>Ринкова ціна товару</span>
-                    <span className="font-mono text-white">{sliderValue.toLocaleString()} UAH</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="10000"
-                    max="300000"
-                    step="5000"
-                    value={sliderValue}
-                    onChange={(e) => {
-                      soundService.playHover();
-                      setSliderValue(Number(e.target.value));
-                    }}
-                    className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                  />
-                  <div className="h-[1px] bg-white/5 my-2" />
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-slate-400">
-                      <span>Виграшна ставка (сер. -55%):</span>
-                      <span className="font-mono font-bold text-emerald-400">{estimatedBid.toLocaleString()} UAH</span>
-                    </div>
-                    <div className="flex justify-between text-xs text-slate-400">
-                      <span>Чиста вигода:</span>
-                      <span className="font-mono font-extrabold text-teal-400">+{savings.toLocaleString()} UAH</span>
-                    </div>
-                  </div>
-                  <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-3 text-center">
-                    <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">
-                      🔥 Ви заощаджуєте {savings.toLocaleString()} UAH!
-                    </span>
-                  </div>
+              <div className="bg-slate-950/60 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mb-4 border border-emerald-500/30">
+                  <span className="text-3xl">🛒</span>
                 </div>
+                <h4 className="text-lg font-bold text-emerald-400 mb-2">Економія до 50%</h4>
+                <p className="text-sm text-slate-400">На аукціонах часто можна "зловити" круту річ за копійки, якщо конкурентів мало.</p>
               </div>
             </div>
           )}
 
           {activeTab === 'seller' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <h3 className="text-xl font-bold text-white font-display">Перетворіть свої речі на живий кеш за пару кліків</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Маєте вживану техніку, годинник чи колекційні речі? Виставте їх на торги! Завдяки азарту покупців та конкуренції, ваш лот буде викуплено набагато швидше, ніж на стандартних дошках оголошень.
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-white font-display">Продавайте швидко та без зайвих питань</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Не хочете тижнями чекати покупця? Створіть аукціон! Завдяки азарту люди самі піднімуть ціну до ринкової, а вам залишиться лише відправити товар.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <div className="flex items-center gap-2 text-xs text-violet-400 bg-violet-500/5 border border-violet-500/10 px-3 py-2 rounded-xl">
-                    ⚡ Імпорт з OLX/Prom за 10 сек
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-violet-400 bg-violet-500/5 border border-violet-500/10 px-3 py-2 rounded-xl">
-                    🪄 AI-копірайтер описів
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-violet-400 bg-violet-500/5 border border-violet-500/10 px-3 py-2 rounded-xl">
-                    📈 Захист від демпінгу
-                  </div>
-                </div>
+                <ul className="space-y-2 mt-4 text-slate-300 text-sm">
+                  <li className="flex items-center gap-2">✅ Швидкий продаж — аукціон триває від кількох годин.</li>
+                  <li className="flex items-center gap-2">✅ Захист від шахраїв — ми контролюємо оплату.</li>
+                  <li className="flex items-center gap-2">✅ Зручне додавання — просто вставте посилання з OLX.</li>
+                </ul>
               </div>
-              <div className="lg:col-span-5 bg-slate-950/60 border border-white/5 rounded-2xl p-6 text-center space-y-4">
-                <p className="text-xs text-slate-300">
-                  Вже маєте активне оголошення на OLX чи Prom? Скористайтеся нашим автоматичним імпортером.
+              <div className="bg-slate-950/60 border border-white/5 rounded-2xl p-6 text-center space-y-4 flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-violet-500/20 rounded-full flex items-center justify-center border border-violet-500/30">
+                  <span className="text-3xl">🚀</span>
+                </div>
+                <h4 className="text-lg font-bold text-violet-400">Швидкий старт</h4>
+                <p className="text-sm text-slate-400 mb-4">
+                  Натисніть кнопку нижче і ваш товар побачать тисячі покупців.
                 </p>
                 <Link
                   href="/sell"
                   onClick={() => soundService.playClick()}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 px-6 py-3.5 rounded-xl text-xs font-bold text-white shadow-[0_0_20px_rgba(139,92,246,0.35)] transition-all active:scale-95"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all active:scale-95 shadow-[0_0_15px_rgba(139,92,246,0.3)]"
                 >
                   <Plus className="h-4 w-4" />
-                  Спробувати Швидкий Імпорт
+                  Виставити товар
                 </Link>
               </div>
             </div>
           )}
 
           {activeTab === 'security' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <h3 className="text-xl font-bold text-white font-display">100% Захист угод за протоколом KRAM Escrow</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Жодних передоплат на особисті картки продавців! Кошти покупця безпечно блокуються на Escrow-рахунку. Продавець отримує гроші лише тоді, коли покупець оглянув та забрав товар у відділенні пошти. Якщо товар не відповідає опису — гроші автоматично повертаються покупцю.
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4">
+                <h3 className="text-xl font-bold text-white font-display">Ми гарантуємо безпеку кожної копійки</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Забудьте про передоплати на картку невідомим людям! Ваші гроші під надійним захистом KRAM.
                 </p>
-                <div className="flex gap-4 pt-2">
-                  <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/5 border border-amber-500/10 px-3 py-2 rounded-xl">
-                    📦 Автоматичні ТТН Нової Пошти
+                <div className="space-y-3 mt-4">
+                  <div className="bg-white/[0.03] border border-white/5 p-3 rounded-xl">
+                    <span className="font-bold text-amber-400 text-sm">Крок 1.</span> <span className="text-sm text-slate-300">Ви оплачуєте товар на сайті (гроші зберігаються у нас).</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-500/5 border border-amber-500/10 px-3 py-2 rounded-xl">
-                    🛡️ Гарантійний фонд 5 млн UAH
+                  <div className="bg-white/[0.03] border border-white/5 p-3 rounded-xl">
+                    <span className="font-bold text-amber-400 text-sm">Крок 2.</span> <span className="text-sm text-slate-300">Продавець відправляє вам посилку Новою Поштою.</span>
+                  </div>
+                  <div className="bg-white/[0.03] border border-white/5 p-3 rounded-xl">
+                    <span className="font-bold text-amber-400 text-sm">Крок 3.</span> <span className="text-sm text-slate-300">Ви оглядаєте товар. Якщо все добре — продавець отримує гроші. Якщо ні — гроші повертаються вам.</span>
                   </div>
                 </div>
               </div>
-              <div className="lg:col-span-5 bg-slate-950/60 border border-white/5 rounded-2xl p-6 space-y-3">
-                <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2.5 rounded-xl">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs">1</span>
-                  <span className="text-[11px] text-slate-300">Покупець вносить гроші в Escrow сейф</span>
+              <div className="bg-slate-950/60 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+                <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mb-4 border border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
+                  <span className="text-4xl text-amber-400">🛡️</span>
                 </div>
-                <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2.5 rounded-xl">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-500/10 text-violet-400 flex items-center justify-center font-bold text-xs">2</span>
-                  <span className="text-[11px] text-slate-300">Продавець відправляє товар по авто-ТТН</span>
-                </div>
-                <div className="flex items-center gap-3 bg-white/[0.02] border border-white/5 p-2.5 rounded-xl">
-                  <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-xs">3</span>
-                  <span className="text-[11px] text-slate-300">Успішна доставка → Виплата продавцю</span>
-                </div>
+                <h4 className="text-xl font-bold text-amber-400 mb-2">100% Захист</h4>
+                <p className="text-sm text-slate-400">Всі угоди захищені гарантійним фондом платформи.</p>
               </div>
             </div>
           )}
@@ -676,7 +636,6 @@ function KramOnboardingWidget() {
     </div>
   );
 }
-
 // ==========================================
 // 📚 ДОВІДКОВИЙ ЦЕНТР ТА FAQ KRAM.UA
 // ==========================================
@@ -898,276 +857,54 @@ function KramFaqSection() {
 // 🎮 СИМУЛЯТОР АУКЦІОНУ (SANDBOX GAME)
 // ==========================================
 // ==========================================
-const botNames = ["@cyber_lord", "@hack_pro", "@matrix_runner", "@crypto_ninja", "@kram_master", "@digital_nomad"];
-
+// ==========================================
+// 📱 ТЕЛЕГРАМ КАНАЛ ТА СПОВІЩЕННЯ (Замість симулятора)
+// ==========================================
 function KramCyberArena() {
-  const [currentPrice, setCurrentPrice] = useState(34000);
-  const [timeLeft, setTimeLeft] = useState(25);
-  const [userIsLeading, setUserIsLeading] = useState(false);
-  const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
-  const [history, setHistory] = useState<Array<{ id: number; text: string; time: string; type: string }>>([
-    { id: 1, text: "🤖 Бот @cyber_samurai зробив ставку 34,000 UAH", time: "10с тому", type: 'bot' },
-    { id: 2, text: "🤖 Бот @neon_biker зробив ставку 29,000 UAH", time: "25с тому", type: 'bot' },
-    { id: 3, text: "🛡️ Початок торгів. Стартова ціна: 20,000 UAH", time: "1хв тому", type: 'sys' },
-  ]);
-
-  // Ефект таймера
-  useEffect(() => {
-    if (gameStatus !== 'playing') return;
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          if (userIsLeading) {
-            setGameStatus('won');
-            soundService.playSuccess();
-          } else {
-            setGameStatus('lost');
-            soundService.playWarning();
-          }
-          return 0;
-        }
-        
-        if (prev <= 6) {
-          soundService.playHeartbeat();
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [gameStatus, userIsLeading]);
-
-  // Ефект автоматичних ставок ботів
-  useEffect(() => {
-    if (gameStatus !== 'playing') return;
-    if (!userIsLeading) return;
-
-    const botTimer = setTimeout(() => {
-      const bidIncrease = Math.floor(Math.random() * 3 + 1) * 2000;
-      const botName = botNames[Math.floor(Math.random() * botNames.length)];
-      const newPrice = currentPrice + bidIncrease;
-      
-      setCurrentPrice(newPrice);
-      setUserIsLeading(false);
-      setTimeLeft(prev => Math.max(prev, 8));
-      
-      soundService.playGavel();
-      soundService.playConsoleTick();
-
-      const now = new Date();
-      const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-      
-      setHistory(prev => [
-        {
-          id: Date.now(),
-          text: `🤖 Бот ${botName} перебив вашу ставку: ${newPrice.toLocaleString()} UAH`,
-          time: ts,
-          type: 'bot'
-        },
-        ...prev
-      ]);
-    }, Math.random() * 3000 + 4000); // 4-7 секунд
-
-    return () => clearTimeout(botTimer);
-  }, [gameStatus, userIsLeading, currentPrice]);
-
-  const handleUserBid = () => {
-    if (gameStatus !== 'playing') return;
-    soundService.playGavel();
-    soundService.playSuccess();
-    
-    const newPrice = currentPrice + 5000;
-    setCurrentPrice(newPrice);
-    setUserIsLeading(true);
-    setTimeLeft(prev => Math.max(prev, 10));
-
-    const now = new Date();
-    const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-
-    setHistory(prev => [
-      {
-        id: Date.now(),
-        text: `🔥 Ви зробили ставку: ${newPrice.toLocaleString()} UAH`,
-        time: ts,
-        type: 'user'
-      },
-      ...prev
-    ]);
-  };
-
-  const handleUserBlitz = () => {
-    if (gameStatus !== 'playing') return;
-    soundService.playSuccess();
-    setCurrentPrice(120000);
-    setUserIsLeading(true);
-    setGameStatus('won');
-
-    const now = new Date();
-    const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-
-    setHistory(prev => [
-      {
-        id: Date.now(),
-        text: `⚡ Ви викупили лот за Бліц-ціною 120,000 UAH!`,
-        time: ts,
-        type: 'user'
-      },
-      ...prev
-    ]);
-  };
-
-  const handleReset = () => {
-    setCurrentPrice(34000);
-    setTimeLeft(25);
-    setUserIsLeading(false);
-    setGameStatus('playing');
-    soundService.playClick();
-    setHistory([
-      { id: Date.now() + 1, text: "🤖 Бот @cyber_samurai зробив ставку 34,000 UAH", time: "Щойно", type: 'bot' },
-      { id: Date.now() + 2, text: "🛡️ Початок торгів. Стартова ціна: 20,000 UAH", time: "Щойно", type: 'sys' }
-    ]);
-  };
-
   return (
-    <div className="glass-panel p-6 rounded-3xl border border-white/5 bg-slate-950/40 relative overflow-hidden flex flex-col h-full min-h-[460px] justify-between">
-      <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/5 rounded-full blur-2xl pointer-events-none" />
+    <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-[#229ED9]/30 bg-gradient-to-br from-[#229ED9]/10 to-slate-950/80 relative overflow-hidden flex flex-col h-full min-h-[460px] justify-center items-center text-center group transition-all duration-500 hover:border-[#229ED9]/50 hover:shadow-[0_0_40px_rgba(34,158,217,0.15)]">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#229ED9]/20 rounded-full blur-[80px] pointer-events-none group-hover:bg-[#229ED9]/30 transition-all duration-700" />
       
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-violet-400 bg-violet-500/10 px-2.5 py-1 rounded-lg border border-violet-500/25">
-            🎮 Симулятор Торгів
-          </span>
-          <span className="text-[10px] text-slate-500 font-mono">Sandbox v1.2</span>
+      <div className="relative z-10 w-full max-w-sm mx-auto flex flex-col items-center">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-b from-[#2AA1DF] to-[#1E8AC0] flex items-center justify-center shadow-[0_10px_30px_rgba(34,158,217,0.4)] mb-6 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+          <svg className="h-10 w-10 text-white fill-current ml-[-4px] mt-[2px]" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 8.24l-1.85 8.7c-.14.63-.51.79-1.04.49l-2.82-2.08-1.36 1.31c-.15.15-.28.28-.57.28l.2-2.85 5.19-4.69c.23-.2-.05-.31-.35-.11l-6.42 4.04-2.76-.86c-.6-.19-.61-.6.13-.89l10.78-4.16c.5-.18.94.12.78.92z"/>
+          </svg>
         </div>
 
-        <h3 className="text-lg font-bold text-white font-display mb-1">KRAM Cyber-Arena</h3>
-        <p className="text-[11px] text-slate-400 mb-4 leading-normal">
-          Спробуйте перебити ставки ботів та забрати унікальний лот! Відчуйте динаміку реальних торгів.
+        <h3 className="text-2xl font-bold text-white font-display mb-3 tracking-tight">
+          Приєднуйтесь до нашого <span className="text-[#2AA1DF]">Telegram!</span>
+        </h3>
+        
+        <p className="text-sm text-slate-300 mb-8 leading-relaxed px-4">
+          Слідкуйте за найгарячішими лотами, отримуйте миттєві сповіщення про перебиті ставки та беріть участь в ексклюзивних розіграшах.
         </p>
 
-        {/* Поле лоту */}
-        <div className="bg-slate-900/60 border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-center mb-4">
-          <img
-            src="https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?w=400"
-            alt="Neural Interface"
-            className="w-20 h-20 rounded-xl object-cover border border-white/10 animate-pulse"
-          />
-          <div className="flex-1 text-center sm:text-left">
-            <h4 className="text-xs font-bold text-white">Нейроінтерфейс KRAM Cyber-Link v1.2</h4>
-            <p className="text-[9px] text-slate-500 mt-0.5">Оціночна ціна: 140,000 UAH</p>
-            
-            <div className="flex justify-between items-center mt-2 bg-slate-950/80 px-2.5 py-1.5 rounded-lg border border-white/5">
-              <div>
-                <p className="text-[7px] uppercase tracking-wider text-slate-500 font-semibold">Поточна ставка</p>
-                <p className="text-xs font-extrabold text-violet-400 font-mono">{currentPrice.toLocaleString()} UAH</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[7px] uppercase tracking-wider text-slate-500 font-semibold">Бліц-ціна</p>
-                <p className="text-xs font-extrabold text-emerald-400 font-mono">120,000 UAH</p>
-              </div>
-            </div>
+        <div className="space-y-3 w-full">
+          <a
+            href="https://t.me/kram_auction_bot"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => soundService.playSuccess()}
+            className="flex items-center justify-center gap-3 w-full bg-[#229ED9] hover:bg-[#2AA1DF] text-white font-bold text-sm py-4 rounded-2xl transition-all shadow-[0_5px_20px_rgba(34,158,217,0.3)] hover:shadow-[0_10px_25px_rgba(34,158,217,0.5)] active:scale-95"
+          >
+            <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 8.24l-1.85 8.7c-.14.63-.51.79-1.04.49l-2.82-2.08-1.36 1.31c-.15.15-.28.28-.57.28l.2-2.85 5.19-4.69c.23-.2-.05-.31-.35-.11l-6.42 4.04-2.76-.86c-.6-.19-.61-.6.13-.89l10.78-4.16c.5-.18.94.12.78.92z"/>
+            </svg>
+            Перейти в Telegram
+          </a>
+          
+          <div className="flex justify-center gap-2 pt-2">
+            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-bold text-[#2AA1DF] bg-[#229ED9]/10 px-3 py-1.5 rounded-lg border border-[#229ED9]/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2AA1DF] animate-pulse" />
+              12,450+ Учасників
+            </span>
           </div>
-        </div>
-
-        {/* Статус-бар */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-slate-900/40 border border-white/5 rounded-xl p-2.5 text-center flex flex-col justify-center">
-            <p className="text-[8px] uppercase tracking-wider text-slate-500 mb-0.5">Час до завершення</p>
-            <p className={`text-sm font-black font-mono ${timeLeft <= 5 ? "text-rose-500 animate-pulse text-glow-rose" : "text-white"}`}>
-              {timeLeft} секунд
-            </p>
-          </div>
-          <div className="bg-slate-900/40 border border-white/5 rounded-xl p-2.5 text-center flex flex-col justify-center">
-            <p className="text-[8px] uppercase tracking-wider text-slate-500 mb-0.5">Ваш статус</p>
-            {userIsLeading ? (
-              <p className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest animate-pulse">
-                🛡️ Ви лідируєте!
-              </p>
-            ) : (
-              <p className="text-[10px] font-extrabold text-rose-400 uppercase tracking-widest animate-pulse">
-                ⚠️ Вас перебили!
-              </p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Результати / Управління */}
-      <div className="space-y-3">
-        {gameStatus === 'won' && (
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-center animate-scale-up">
-            <h4 className="text-xs font-bold text-emerald-400 mb-1">🎉 ВІТАЄМО З ПЕРЕМОГОЮ!</h4>
-            <p className="text-[10px] text-slate-300 leading-normal mb-3">
-              Ви успішно виграли цей лот у симуляторі! Готові спробувати по-справжньому та заробляти XP?
-            </p>
-            <div className="flex gap-2 justify-center">
-              <Link
-                href="/sell"
-                onClick={() => soundService.playClick()}
-                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-[10px] px-3.5 py-2 rounded-lg transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse"
-              >
-                Створити свій лот
-              </Link>
-              <button
-                onClick={handleReset}
-                className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[10px] px-3.5 py-2 rounded-lg border border-white/5"
-              >
-                Ще раз 🔄
-              </button>
-            </div>
-          </div>
-        )}
-
-        {gameStatus === 'lost' && (
-          <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-4 text-center animate-scale-up">
-            <h4 className="text-xs font-bold text-rose-400 mb-1">😢 ЧАС ЗАВЕРШИВСЯ!</h4>
-            <p className="text-[10px] text-slate-300 leading-normal mb-3">
-              Інший учасник встиг зробити фінальну ставку перед гонгом. Спробуйте ще раз та будьте швидшими!
-            </p>
-            <button
-              onClick={handleReset}
-              className="w-full bg-rose-500 hover:bg-rose-400 text-white font-bold text-[10px] py-2 rounded-lg transition-all active:scale-95 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
-            >
-              Спробувати знову 🔄
-            </button>
-          </div>
-        )}
-
-        {gameStatus === 'playing' && (
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={handleUserBid}
-              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs py-3 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(139,92,246,0.25)] border border-violet-500/20 hover:scale-[1.02] duration-300"
-            >
-              🔨 Ставка +5,000 UAH
-            </button>
-            <button
-              onClick={handleUserBlitz}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-bold text-xs py-3 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.25)] border border-emerald-500/20 hover:scale-[1.02] duration-300"
-            >
-              ⚡ Бліц-викуп 120К
-            </button>
-          </div>
-        )}
-
-        {/* Логи консолі */}
-        <div className="bg-slate-950/80 border border-white/5 rounded-xl p-2.5 font-mono text-[8px] text-slate-400 space-y-1 overflow-y-auto max-h-[85px] scrollbar-thin">
-          {history.map((h) => (
-            <div key={h.id} className="flex justify-between items-start gap-2">
-              <span className={h.type === 'user' ? 'text-emerald-400 font-semibold' : h.type === 'bot' ? 'text-violet-400' : 'text-slate-500'}>
-                {h.text}
-              </span>
-              <span className="text-slate-600 flex-shrink-0 font-mono text-[7px]">{h.time}</span>
-            </div>
-          ))}
         </div>
       </div>
     </div>
   );
 }
-
 // ==========================================
 // 🔮 AI ОЦІНЮВАЧ ЛОТІВ ДЛЯ ГОСТЕЙ
 // ==========================================
@@ -1393,8 +1130,8 @@ function KramAIEvaluator() {
 }
 
 export default function Home() {
-  const [listings, setListings] = useState<MockListing[]>([]);
-  const [categories, setCategories] = useState<MockCategory[]>([]);
+  const [listings, setListings] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 

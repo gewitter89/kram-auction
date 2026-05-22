@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, mockDb } from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 function formatListing(l: any) {
   let images: string[] = [];
@@ -34,11 +34,7 @@ export async function GET(req: NextRequest) {
     const categories = await prisma.category.findMany();
     return NextResponse.json({ listings: listings.map(formatListing), categories });
   } catch (error) {
-    console.warn("Prisma listings unavailable, using memory fallback:", error);
-    let listings = mockDb.getListings();
-    if (categoryId) listings = listings.filter((l) => l.categoryId === categoryId);
-    if (sellerId) listings = listings.filter((l) => l.sellerId === sellerId);
-    return NextResponse.json({ listings, categories: mockDb.getCategories(), source: "memory-fallback" });
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
 
@@ -47,42 +43,32 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { title, description, images, categoryId, sellerId, type, startPrice, buyNowPrice, bidStep, endDate, deliveryOptions } = body;
 
-    try {
-      const newListing = await prisma.listing.create({
-        data: {
-          title,
-          description,
-          images: JSON.stringify(images || []),
-          categoryId,
-          sellerId,
-          type,
-          startPrice: parseFloat(startPrice),
-          currentPrice: parseFloat(startPrice),
-          buyNowPrice: buyNowPrice ? parseFloat(buyNowPrice) : null,
-          bidStep: parseFloat(bidStep || 50),
-          endDate: new Date(endDate),
-          deliveryOptions: JSON.stringify(deliveryOptions || []),
-          status: "ACTIVE",
-        },
-      });
-      return NextResponse.json({ success: true, listing: formatListing(newListing) });
-    } catch (error) {
-      console.warn("Prisma create listing unavailable, using memory fallback:", error);
-      const listing = mockDb.addListing({
+    const parsedStartPrice = parseFloat(startPrice);
+    const parsedBuyNowPrice = buyNowPrice ? parseFloat(buyNowPrice) : null;
+    const parsedBidStep = parseFloat(bidStep || 50);
+
+    if (parsedStartPrice <= 0 || (parsedBuyNowPrice && parsedBuyNowPrice <= 0) || parsedBidStep <= 0) {
+      return NextResponse.json({ error: "Ціна та крок ставки повинні бути більшими за нуль" }, { status: 400 });
+    }
+
+    const newListing = await prisma.listing.create({
+      data: {
         title,
         description,
-        images: images || [],
+        images: JSON.stringify(images || []),
         categoryId,
         sellerId,
         type,
-        startPrice: parseFloat(startPrice),
-        buyNowPrice: buyNowPrice ? parseFloat(buyNowPrice) : undefined,
-        bidStep: parseFloat(bidStep || 50),
-        endDate,
-        deliveryOptions: deliveryOptions || [],
-      });
-      return NextResponse.json({ success: true, listing, source: "memory-fallback" });
-    }
+        startPrice: parsedStartPrice,
+        currentPrice: parsedStartPrice,
+        buyNowPrice: parsedBuyNowPrice,
+        bidStep: parsedBidStep,
+        endDate: new Date(endDate),
+        deliveryOptions: JSON.stringify(deliveryOptions || []),
+        status: "ACTIVE",
+      },
+    });
+    return NextResponse.json({ success: true, listing: formatListing(newListing) });
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }

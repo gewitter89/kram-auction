@@ -7,7 +7,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { apiService } from "@/lib/api-service";
-import { MockMessage, MockListing } from "@/lib/db";
 import { 
   Send, 
   ShieldAlert, 
@@ -15,6 +14,8 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
+import { Listing, Message } from "@prisma/client";
+
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -22,8 +23,8 @@ export default function MessagesPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const [conversations, setConversations] = useState<{
-    listing: MockListing;
-    messages: MockMessage[];
+    listing: Listing;
+    messages: Message[];
     otherUserId: string;
     otherUserName: string;
   }[]>([]);
@@ -39,8 +40,8 @@ export default function MessagesPage() {
     // Групуємо повідомлення за зв'язкою (listingId, sellerId/buyerId)
     // У прототипі є демо-повідомлення між user-buyer та user-seller по лоту list-1
     const convs: {
-      listing: MockListing;
-      messages: MockMessage[];
+      listing: Listing;
+      messages: Message[];
       otherUserId: string;
       otherUserName: string;
     }[] = [];

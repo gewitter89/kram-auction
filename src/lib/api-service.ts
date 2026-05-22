@@ -4,7 +4,9 @@
 // Дозволяє робити ставки, купувати лоти, переписуватись та отримувати
 // ТТН Нової Пошти в реальному часі через SQLite БД.
 
-import { MockListing, MockBid, MockMessage, MockNotification, MockTransaction, MockCategory } from "./db";
+import { } from "./db";
+import { Category, Listing, Bid, Message, Transaction, Notification } from "@prisma/client";
+
 
 export const apiService = {
   initialize() {
@@ -12,7 +14,7 @@ export const apiService = {
     // база даних SQLite ініціалізується на сервері за допомогою Prisma
   },
 
-  async getCategories(): Promise<MockCategory[]> {
+  async getCategories(): Promise<any[]> {
     try {
       const res = await fetch("/api/listings");
       if (!res.ok) throw new Error("Помилка завантаження категорій");
@@ -24,7 +26,7 @@ export const apiService = {
     }
   },
 
-  async getListings(): Promise<MockListing[]> {
+  async getListings(): Promise<any[]> {
     try {
       const res = await fetch("/api/listings");
       if (!res.ok) throw new Error("Помилка завантаження лотів");
@@ -36,7 +38,7 @@ export const apiService = {
     }
   },
 
-  async getListingById(id: string): Promise<MockListing | null> {
+  async getListingById(id: string): Promise<| null> {
     try {
       const res = await fetch(`/api/listings/${id}`);
       if (!res.ok) return null;
@@ -48,7 +50,7 @@ export const apiService = {
     }
   },
 
-  async createListing(listingData: Omit<MockListing, "id" | "currentPrice" | "status" | "createdAt" | "bidsCount">): Promise<MockListing> {
+  async createListing(listingData: Omit<"id" | "currentPrice" | "status" | "createdAt" | "bidsCount">): Promise<any> {
     const res = await fetch("/api/listings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -62,7 +64,7 @@ export const apiService = {
     return data.listing;
   },
 
-  async getBids(listingId: string): Promise<MockBid[]> {
+  async getBids(listingId: string): Promise<any[]> {
     try {
       const res = await fetch(`/api/bids?listingId=${listingId}`);
       if (!res.ok) return [];
@@ -74,7 +76,7 @@ export const apiService = {
     }
   },
 
-  async placeBid(listingId: string, bidderId: string, bidderName: string, amount: number): Promise<{ success: boolean; error?: string; bid?: MockBid }> {
+  async placeBid(listingId: string, bidderId: string, bidderName: string, amount: number): Promise<{ success: boolean; error?: string; bid?: Bid }> {
     try {
       const res = await fetch("/api/bids", {
         method: "POST",
@@ -91,7 +93,7 @@ export const apiService = {
     }
   },
 
-  async buyNow(listingId: string, buyerId: string, deliveryProvider: string): Promise<{ success: boolean; error?: string; transaction?: MockTransaction }> {
+  async buyNow(listingId: string, buyerId: string, deliveryProvider: string): Promise<{ success: boolean; error?: string; transaction?: Transaction }> {
     try {
       const res = await fetch("/api/transactions", {
         method: "POST",
@@ -108,7 +110,24 @@ export const apiService = {
     }
   },
 
-  async getMessages(listingId: string, user1: string, user2: string): Promise<MockMessage[]> {
+  async createCheckoutSession(listingId: string, buyerId: string, deliveryProvider: string, amount: number): Promise<{ url?: string; error?: string }> {
+    try {
+      const res = await fetch("/api/checkout_session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listingId, buyerId, deliveryProvider, amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { error: data.error || "Помилка створення сесії" };
+      }
+      return { url: data.url };
+    } catch (e) {
+      return { error: String(e) };
+    }
+  },
+
+  async getMessages(listingId: string, user1: string, user2: string): Promise<any[]> {
     try {
       const res = await fetch(`/api/messages?listingId=${listingId}&user1=${user1}&user2=${user2}`);
       if (!res.ok) return [];
@@ -120,7 +139,7 @@ export const apiService = {
     }
   },
 
-  async sendMessage(listingId: string, senderId: string, receiverId: string, text: string): Promise<{ message: MockMessage; warning?: string }> {
+  async sendMessage(listingId: string, senderId: string, receiverId: string, text: string): Promise<{ message: Message; warning?: string }> {
     const res = await fetch("/api/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -133,7 +152,7 @@ export const apiService = {
     return { message: data.message, warning: data.warning };
   },
 
-  async getNotifications(userId: string): Promise<MockNotification[]> {
+  async getNotifications(userId: string): Promise<any[]> {
     try {
       const res = await fetch(`/api/notifications?userId=${userId}`);
       if (!res.ok) return [];
@@ -145,7 +164,7 @@ export const apiService = {
     }
   },
 
-  async addNotification(userId: string, text: string, type: MockNotification["type"] = "INFO"): Promise<MockNotification> {
+  async addNotification(userId: string, text: string, type: ["type"] = "INFO"): Promise<any> {
     const res = await fetch("/api/notifications", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -170,7 +189,7 @@ export const apiService = {
     }
   },
 
-  async getTransactions(userId: string): Promise<MockTransaction[]> {
+  async getTransactions(userId: string): Promise<any[]> {
     try {
       const res = await fetch(`/api/transactions?userId=${userId}`);
       if (!res.ok) return [];
@@ -179,6 +198,32 @@ export const apiService = {
     } catch (e) {
       console.error(e);
       return [];
+    }
+  },
+
+  async getLeaderboard(): Promise<any[]> {
+    try {
+      const res = await fetch("/api/leaderboard");
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.leaderboard || [];
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  },
+
+  async updateVerificationStep(userId: string, step: number): Promise<boolean> {
+    try {
+      const res = await fetch("/api/users/verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, step }),
+      });
+      return res.ok;
+    } catch (e) {
+      console.error(e);
+      return false;
     }
   }
 };

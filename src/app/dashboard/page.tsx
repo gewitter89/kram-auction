@@ -6,7 +6,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth-context";
 import { apiService } from "@/lib/api-service";
-import { MockListing, MockTransaction } from "@/lib/db";
 import { 
   TrendingUp, 
   Gavel, 
@@ -19,9 +18,12 @@ import {
   Zap,
   Smartphone,
   Bell,
-  Send
+  Send,
+  ArrowRight
 } from "lucide-react";
 import { soundService } from "@/lib/sound-service";
+import { Listing, Transaction } from "@prisma/client";
+
 
 // Допоміжна функція генерації коду для забезпечення чистоти рендеру React 19
 function generateRandomCode() {
@@ -29,26 +31,11 @@ function generateRandomCode() {
 }
 
 export default function DashboardPage() {
-  const { user, login, updateBalance } = useAuth();
-  const [listings, setListings] = useState<MockListing[]>([]);
-  const [transactions, setTransactions] = useState<MockTransaction[]>([]);
+  const { user, login, updateBalance, setVerificationStep } = useAuth();
+  const [listings, setListings] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<any[]>([]);
 
-  // Состояния для верификации
-  const [verificationStep, setVerificationStep] = useState(2); // 2 из 4 пройдено
   const [boostingStatus, setBoostingStatus] = useState<string | null>(null);
-
-  // Telegram Simulator States
-  const [telegramConnected, setTelegramConnected] = useState(false);
-  const [syncCode, setSyncCode] = useState("");
-  const [syncInputCode, setSyncInputCode] = useState("");
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [phoneNotification, setPhoneNotification] = useState<{
-    title: string;
-    body: string;
-    time: string;
-    type: "bid" | "escrow";
-  } | null>(null);
-  const [showFloatingPush, setShowFloatingPush] = useState(false);
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -112,54 +99,13 @@ export default function DashboardPage() {
     alert("💳 Тестовий баланс поповнено на 50,000 UAH!");
   };
 
-  const generateSyncCode = () => {
-    soundService.playClick();
-    const code = generateRandomCode();
-    setSyncCode(code);
-  };
+  const verificationStep = user?.verificationStep || 0;
 
-  const verifySyncCode = () => {
+  const handleVerifyStep = async (step: number) => {
     soundService.playClick();
-    if (!syncInputCode) return;
-    if (syncInputCode === syncCode) {
-      setIsSyncing(true);
-      setTimeout(() => {
-        setIsSyncing(false);
-        setTelegramConnected(true);
-        soundService.playImportSuccess();
-      }, 1000);
-    } else {
-      alert("❌ Неправильний код синхронізації. Спробуйте ще раз!");
-    }
-  };
-
-  const simulateNotification = (type: "bid" | "escrow") => {
-    soundService.playClick();
-    
-    let title = "";
-    let body = "";
-    if (type === "bid") {
-      title = "🔨 KRAM UA: Нова ставка!";
-      body = "На ваш лот 'Cyberpunk HUD' зроблено ставку 42,000 UAH від @neon_rider!";
-    } else {
-      title = "⚡ KRAM UA: Escrow Викуп!";
-      body = "Лот 'Monobank Escrow Key' викуплено за 150,000 UAH! Кошти заблоковано.";
-    }
-
-    setPhoneNotification({
-      title,
-      body,
-      time: "Зараз",
-      type
-    });
-    
-    soundService.playSuccess();
-    
-    setShowFloatingPush(true);
-    
-    setTimeout(() => {
-      setShowFloatingPush(false);
-    }, 5000);
+    if (!user) return;
+    setVerificationStep(step);
+    await apiService.updateVerificationStep(user.id, step);
   };
 
   return (
@@ -368,25 +314,44 @@ export default function DashboardPage() {
               {/* Список шагов */}
               <div className="space-y-2.5 pt-4">
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-emerald-400 font-semibold">✓ Підтвердити номер телефону</span>
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className={verificationStep >= 1 ? "text-emerald-400 font-semibold" : "text-slate-400"}>
+                    {verificationStep >= 1 ? "✓ Номер підтверджено" : "1. Підтвердити номер телефону"}
+                  </span>
+                  <button 
+                    onClick={() => handleVerifyStep(1)}
+                    onMouseEnter={() => soundService.playHover()}
+                    className={`rounded px-1.5 py-0.5 text-[8px] font-bold ${
+                      verificationStep >= 1 ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500 text-white hover:bg-emerald-400"
+                    }`}
+                  >
+                    {verificationStep >= 1 ? "Готово" : "Виконати"}
+                  </button>
                 </div>
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-emerald-400 font-semibold">✓ Прив’язати картку виплат</span>
-                  <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className={verificationStep >= 2 ? "text-emerald-400 font-semibold" : "text-slate-400"}>
+                    {verificationStep >= 2 ? "✓ Картку прив'язано" : "2. Прив’язати картку виплат"}
+                  </span>
+                  <button 
+                    onClick={() => handleVerifyStep(2)}
+                    disabled={verificationStep < 1}
+                    onMouseEnter={() => soundService.playHover()}
+                    className={`rounded px-1.5 py-0.5 text-[8px] font-bold disabled:opacity-50 ${
+                      verificationStep >= 2 ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500 text-white hover:bg-emerald-400"
+                    }`}
+                  >
+                    {verificationStep >= 2 ? "Готово" : "Виконати"}
+                  </button>
                 </div>
                 <div className="flex items-center justify-between text-[10px]">
                   <span className={verificationStep >= 3 ? "text-emerald-400 font-semibold" : "text-slate-400"}>
                     {verificationStep >= 3 ? "✓ Документи завантажено" : "3. Завантажити скан паспорта / ID"}
                   </span>
                   <button 
-                    onClick={() => {
-                      soundService.playClick();
-                      setVerificationStep(Math.max(3, verificationStep));
-                    }}
+                    onClick={() => handleVerifyStep(3)}
+                    disabled={verificationStep < 2}
                     onMouseEnter={() => soundService.playHover()}
-                    className={`rounded px-1.5 py-0.5 text-[8px] font-bold ${
-                      verificationStep >= 3 ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500 text-white"
+                    className={`rounded px-1.5 py-0.5 text-[8px] font-bold disabled:opacity-50 ${
+                      verificationStep >= 3 ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500 text-white hover:bg-emerald-400"
                     }`}
                   >
                     {verificationStep >= 3 ? "Готово" : "Завантажити"}
@@ -397,13 +362,11 @@ export default function DashboardPage() {
                     {verificationStep >= 4 ? "✓ 5 угод пройдено" : "4. Провести 5 безпечних угод"}
                   </span>
                   <button
-                    onClick={() => {
-                      soundService.playClick();
-                      setVerificationStep(4);
-                    }}
+                    onClick={() => handleVerifyStep(4)}
+                    disabled={verificationStep < 3}
                     onMouseEnter={() => soundService.playHover()}
-                    className={`rounded px-1.5 py-0.5 text-[8px] font-bold ${
-                      verificationStep >= 4 ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500 text-white"
+                    className={`rounded px-1.5 py-0.5 text-[8px] font-bold disabled:opacity-50 ${
+                      verificationStep >= 4 ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-500 text-white hover:bg-emerald-400"
                     }`}
                   >
                     {verificationStep >= 4 ? "Готово" : "Виконати"}
@@ -419,217 +382,45 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* Telegram Notification System Simulator */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {/* Блок налаштування / синхронізації */}
-          <div className="lg:col-span-1 glass-panel p-6 rounded-3xl border border-white/5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-sky-500/5 rounded-full blur-xl pointer-events-none" />
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-sky-400" />
-                <h3 className="text-base font-bold text-white font-display">Сповіщення в Telegram</h3>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-normal">
-                Отримуйте миттєві пуш-повідомлення про нові ставки, викупи та статус доставки прямо на свій смартфон через офіційного бота.
-              </p>
-
-              {!telegramConnected ? (
-                <div className="space-y-4 pt-2">
-                  <div className="bg-slate-950/60 rounded-2xl p-4 border border-white/5 space-y-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Крок 1: Отримайте код</span>
-                    <p className="text-[10px] text-slate-500">Натисніть кнопку, щоб згенерувати одноразовий код авторизації для зв’язку з ботом.</p>
-                    {syncCode ? (
-                      <div className="bg-slate-900 border border-white/10 p-2.5 rounded-xl flex items-center justify-between">
-                        <code className="text-xs font-mono text-sky-400 font-bold">/start sync-{syncCode}</code>
-                        <span className="text-[8px] bg-sky-500/10 text-sky-400 px-1.5 py-0.5 rounded font-bold uppercase">Код активний</span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={generateSyncCode}
-                        className="w-full rounded-xl bg-slate-900 border border-white/10 hover:bg-slate-800 text-[10px] font-bold text-slate-200 py-2 transition-all cursor-pointer"
-                      >
-                        Згенерувати код
-                      </button>
-                    )}
-                  </div>
-
-                  {syncCode && (
-                    <div className="bg-slate-950/60 rounded-2xl p-4 border border-white/5 space-y-3">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Крок 2: Підтвердіть синхронізацію</span>
-                      <p className="text-[10px] text-slate-500">
-                        Надішліть цей код боту <a href="https://t.me/kram_auction_bot" target="_blank" rel="noreferrer" className="text-sky-400 underline font-medium">@kram_auction_bot</a>, а потім введіть отриманий код перевірки сюди:
-                      </p>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="Введіть 4-значний код"
-                          value={syncInputCode}
-                          onChange={(e) => setSyncInputCode(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                          className="flex-grow bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-sky-500/50"
-                        />
-                        <button
-                          onClick={verifySyncCode}
-                          disabled={isSyncing || syncInputCode.length !== 4}
-                          className="rounded-xl bg-sky-500 hover:bg-sky-400 disabled:bg-slate-800 disabled:text-slate-600 disabled:hover:bg-slate-800 text-xs font-bold text-white px-4 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                        >
-                          {isSyncing ? (
-                            <span className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            <Send className="h-3.5 w-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-4 pt-2">
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-emerald-400" />
-                      <span className="text-[11px] font-bold text-emerald-400">Синхронізація успішна!</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400">Ваш профіль підключено до Telegram-акаунту. Спробуйте надіслати тестові сповіщення нижче.</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Тест-Симуляція повідомлень:</span>
-                    <button
-                      onClick={() => simulateNotification("bid")}
-                      className="w-full rounded-xl bg-slate-900 border border-white/5 hover:border-violet-500/30 hover:bg-slate-800/80 text-[10px] font-bold text-slate-300 py-2.5 px-3 transition-all flex items-center justify-between cursor-pointer"
-                    >
-                      <span>🔨 Нова ставка від покупця</span>
-                      <span className="text-violet-400 text-[8px] uppercase tracking-wider font-bold">Симулювати</span>
-                    </button>
-                    <button
-                      onClick={() => simulateNotification("escrow")}
-                      className="w-full rounded-xl bg-slate-900 border border-white/5 hover:border-emerald-500/30 hover:bg-slate-800/80 text-[10px] font-bold text-slate-300 py-2.5 px-3 transition-all flex items-center justify-between cursor-pointer"
-                    >
-                      <span>⚡ Товар викуплено (Escrow)</span>
-                      <span className="text-emerald-400 text-[8px] uppercase tracking-wider font-bold">Симулювати</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+        <section className="grid grid-cols-1 gap-8 items-stretch">
+          <div className="glass-panel p-8 rounded-3xl border border-sky-500/20 bg-gradient-to-r from-sky-500/5 to-blue-600/5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
             
-            <div className="text-[9px] text-slate-500 border-t border-white/5 pt-4 text-center mt-6">
-              🤖 Telegram Bot SDK v2.4 (Simulated)
-            </div>
-          </div>
-
-          {/* Інтерактивний телефон (Мокап смартфона) */}
-          <div className="lg:col-span-2 glass-panel p-6 rounded-3xl border border-white/5 flex flex-col justify-between shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-violet-600/5 rounded-full blur-xl pointer-events-none" />
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-base font-bold text-white font-display flex items-center gap-2">
-                  <Smartphone className="h-4 w-4 text-violet-400" />
-                  Мобільний симулятор (Смартфон)
-                </h3>
-                <p className="text-[10px] text-slate-400">Спостерігайте за сповіщеннями на екрані блокування</p>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+              <div className="space-y-4 max-w-xl text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3">
+                  <div className="bg-sky-500/20 p-2.5 rounded-2xl border border-sky-500/30">
+                    <Send className="h-6 w-6 text-sky-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white font-display">Приєднуйтесь до нас у Telegram</h3>
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed">
+                  Отримуйте миттєві сповіщення про нові ставки на ваші лоти, статуси доставки та найгарячіші аукціони прямо у вашому смартфоні. Ніякого спаму — тільки важливе.
+                </p>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs font-bold text-sky-400">
+                  <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Миттєві пуші</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Закриті торги</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Підтримка 24/7</span>
+                </div>
               </div>
-              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider bg-slate-950 px-2 py-1 rounded border border-white/5">
-                Екран блокування
-              </span>
-            </div>
-
-            {/* Корпус телефона */}
-            <div className="flex items-center justify-center py-4 bg-slate-950/40 rounded-2xl border border-white/5 relative overflow-hidden min-h-[300px]">
-              {/* Світіння навколо телефону */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-violet-500/5 pointer-events-none" />
-
-              {/* Телефон */}
-              <div className="relative w-[280px] h-[400px] bg-[#0c0f16] rounded-[36px] border-[6px] border-slate-800 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),0_0_40px_rgba(139,92,246,0.15)] overflow-hidden flex flex-col justify-between p-3 select-none">
-                
-                {/* Чілка телефону (Динамічний острів) */}
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-4 bg-black rounded-full z-20 flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-slate-900 rounded-full mr-2" />
-                  <div className="w-1 h-1 bg-blue-900 rounded-full" />
-                </div>
-
-                {/* Верхній статус бар */}
-                <div className="flex justify-between items-center text-[8px] font-bold text-slate-400 px-3 pt-1.5 z-10">
-                  <span>14:40</span>
-                  <div className="flex items-center gap-1">
-                    <span>5G</span>
-                    <div className="w-3.5 h-2 bg-slate-700 rounded-sm p-0.5">
-                      <div className="h-full w-2/3 bg-emerald-400 rounded-2xs" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Центр екрану (Годинник та Шпалери) */}
-                <div className="flex-grow flex flex-col items-center justify-start pt-6 relative z-10">
-                  {/* Годинник */}
-                  <span className="text-3xl font-light text-white tracking-tight leading-none font-display">14:40</span>
-                  <span className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-widest">П’ятниця, 22 травня</span>
-
-                  {/* Контейнер для пуш-повідомлення */}
-                  <div className="w-full mt-8 px-1 space-y-2">
-                    {phoneNotification ? (
-                      <div className="bg-slate-950/95 border border-violet-500/30 rounded-2xl p-2.5 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-phone-slide-down relative overflow-hidden">
-                        {/* Бокова смужка типу повідомлення */}
-                        <div className={`absolute top-0 left-0 bottom-0 w-1 ${
-                          phoneNotification.type === 'bid' ? 'bg-violet-500' : 'bg-emerald-500'
-                        }`} />
-
-                        <div className="pl-1.5">
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[9px] font-bold text-white">Telegram</span>
-                              <span className="w-1 h-1 bg-slate-500 rounded-full" />
-                              <span className="text-[7px] text-slate-500">{phoneNotification.time}</span>
-                            </div>
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setPhoneNotification(null);
-                              }}
-                              className="text-slate-500 hover:text-slate-300 text-[8px] font-bold px-1 cursor-pointer"
-                            >
-                              ✕
-                            </button>
-                          </div>
-                          <p className="text-[8px] font-black text-slate-200 mt-1 leading-tight">{phoneNotification.title}</p>
-                          <p className="text-[8px] text-slate-400 mt-0.5 leading-normal">{phoneNotification.body}</p>
-                          
-                          {/* Швидкі дії в пуші */}
-                          <div className="flex gap-1.5 mt-2 border-t border-white/5 pt-1.5">
-                            <button 
-                              onClick={() => {
-                                soundService.playClick();
-                                alert(`Перехід до деталей сповіщення: ${phoneNotification.title}`);
-                              }}
-                              className="flex-grow text-[7px] font-bold text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 py-1 rounded transition-colors text-center cursor-pointer"
-                            >
-                              Переглянути
-                            </button>
-                            <button 
-                              onClick={() => {
-                                soundService.playClick();
-                                setPhoneNotification(null);
-                              }}
-                              className="text-[7px] font-bold text-slate-400 hover:text-slate-200 py-1 px-2 transition-colors cursor-pointer"
-                            >
-                              Закрити
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-6 text-slate-600 text-[9px] select-none">
-                        🔔 Немає нових сповіщень. Надішліть тест через панель ліворуч.
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Нижня полоска розблокування */}
-                <div className="flex flex-col items-center gap-1 pb-1 z-10">
-                  <div className="w-20 h-1 bg-white/40 rounded-full animate-pulse" />
-                  <span className="text-[7px] text-slate-500 font-bold tracking-wider uppercase">Вгору для розблокування</span>
-                </div>
+              
+              <div className="shrink-0 w-full md:w-auto space-y-3">
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(`/link ${user.email}`);
+                    soundService.playClick();
+                    window.open(process.env.NEXT_PUBLIC_TELEGRAM_URL || "https://t.me/kram_auction", "_blank");
+                  }}
+                  onMouseEnter={() => soundService.playHover()}
+                  className="group relative w-full md:w-auto inline-flex items-center justify-center gap-3 rounded-2xl bg-sky-500 hover:bg-sky-400 px-8 py-4 text-sm font-bold text-white shadow-[0_0_30px_rgba(14,165,233,0.3)] transition-all hover:scale-105 active:scale-95"
+                >
+                  Прив'язати (Скопіювати команду)
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  <div className="absolute inset-0 rounded-2xl bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+                <p className="text-[10px] text-sky-400/70 text-center font-mono">
+                  /link {user.email}
+                </p>
               </div>
             </div>
           </div>
@@ -729,26 +520,7 @@ export default function DashboardPage() {
       <Footer />
 
       {/* Floating Cyber Toast Notification */}
-      {showFloatingPush && phoneNotification && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-[#070a13]/95 border border-sky-500/30 rounded-2xl p-4 shadow-[0_15px_40px_rgba(14,165,233,0.15)] backdrop-blur-md animate-fade-in flex gap-3.5">
-          <div className="h-10 w-10 bg-sky-500/10 border border-sky-500/20 rounded-xl flex items-center justify-center shrink-0">
-            <Bell className="h-5 w-5 text-sky-400 animate-bounce" />
-          </div>
-          <div className="flex-grow space-y-1">
-            <div className="flex justify-between items-start">
-              <span className="text-[10px] font-bold text-sky-400 uppercase tracking-wider">Нове сповіщення</span>
-              <button 
-                onClick={() => setShowFloatingPush(false)}
-                className="text-slate-500 hover:text-slate-300 text-xs cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-            <h4 className="text-xs font-bold text-white">{phoneNotification.title}</h4>
-            <p className="text-[11px] text-slate-400 leading-normal">{phoneNotification.body}</p>
-          </div>
-        </div>
-      )}
+      {/* (removed phone simulator push code) */}
     </div>
   );
 }

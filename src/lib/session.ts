@@ -1,10 +1,11 @@
 import crypto from "crypto";
-import { MockUser } from "@/lib/db";
+import { User } from "@prisma/client";
+
 
 const COOKIE_NAME = "kram_session";
 const SESSION_PREFIX = "v1";
 
-export type SessionUser = MockUser;
+export type SessionUser = User;
 
 function secret() {
   return process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "kram-dev-session-secret-change-in-production";
