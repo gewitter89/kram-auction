@@ -32,10 +32,10 @@ export default function Footer() {
               Безпека
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>🛡️ Безпечна угода KRAM</li>
-              <li>💬 Чат-модерація контактів</li>
-              <li>⭐ Перевірені продавці</li>
-              <li>🔒 Депонування коштів</li>
+              <li><Link href="/info/security" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🛡️ Безпечна угода KRAM</Link></li>
+              <li><Link href="/info/moderation" className="hover:text-emerald-400 transition-colors flex items-center gap-2">💬 Чат-модерація контактів</Link></li>
+              <li><Link href="/info/verified-sellers" className="hover:text-emerald-400 transition-colors flex items-center gap-2">⭐ Перевірені продавці</Link></li>
+              <li><Link href="/info/escrow" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🔒 Депонування коштів</Link></li>
             </ul>
           </div>
 
@@ -46,10 +46,10 @@ export default function Footer() {
               Логістика
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>📦 Нова Пошта (Авто-ТТН)</li>
-              <li>📬 Укрпошта Експрес</li>
-              <li>⚡ Meest ПОШТА</li>
-              <li>📍 Пункти самовивозу</li>
+              <li><Link href="/info/nova-poshta" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📦 Нова Пошта (Авто-ТТН)</Link></li>
+              <li><Link href="/info/ukrposhta" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📬 Укрпошта Експрес</Link></li>
+              <li><Link href="/info/meest" className="hover:text-emerald-400 transition-colors flex items-center gap-2">⚡ Meest ПОШТА</Link></li>
+              <li><Link href="/info/pickup" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📍 Пункти самовивозу</Link></li>
             </ul>
           </div>
 
@@ -60,10 +60,10 @@ export default function Footer() {
               Правила
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>📜 Угода користувача</li>
-              <li>🔨 Правила проведення торгів</li>
-              <li>📊 Тарифи та комісії майданчика</li>
-              <li>📞 Служба підтримки (24/7)</li>
+              <li><Link href="/info/terms" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📜 Угода користувача</Link></li>
+              <li><Link href="/info/bidding" className="hover:text-emerald-400 transition-colors flex items-center gap-2">🔨 Правила проведення торгів</Link></li>
+              <li><Link href="/info/fees" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📊 Тарифи та комісії майданчика</Link></li>
+              <li><Link href="/info/support" className="hover:text-emerald-400 transition-colors flex items-center gap-2">📞 Служба підтримки (24/7)</Link></li>
             </ul>
           </div>
 
