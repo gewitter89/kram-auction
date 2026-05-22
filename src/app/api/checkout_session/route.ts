@@ -2,16 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/db";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "sk_test_...";
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2024-04-10" as any, // fallback for typescript compilation
-});
+function createStripeClient() {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeSecretKey) return null;
+  return new Stripe(stripeSecretKey, {
+    apiVersion: "2024-04-10" as any, // fallback for typescript compilation
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
+    const stripe = createStripeClient();
+    if (!stripe) {
+      return NextResponse.json({ error: "Stripe is not configured. Add STRIPE_SECRET_KEY in Vercel Environment Variables." }, { status: 503 });
+    }
+
     const { listingId, buyerId, deliveryProvider, amount } = await req.json();
 
-    const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+    const origin = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin;
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],

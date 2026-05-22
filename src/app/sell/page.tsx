@@ -18,7 +18,8 @@ import {
   ShieldAlert,
   FileText,
   Coins,
-  Cpu
+  Cpu,
+  UploadCloud
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { soundService } from "@/lib/sound-service";
@@ -144,6 +145,17 @@ export default function SellPage() {
     }
   };
 
+  const requestAiAssist = async () => {
+    const res = await fetch("/api/ai/assist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, condition: "used", description }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "AI помічник тимчасово недоступний");
+    return data;
+  };
+
   const handleAiGenerateDescription = async () => {
     if (!title.trim()) {
       soundService.playWarning();
@@ -153,52 +165,39 @@ export default function SellPage() {
     setAiLoading(true);
     setAiAction("generate");
     soundService.playAITyping();
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    const generated = `🔥 **Ексклюзивний лот: ${title}**\n\n` +
-      `Пропоную вашій увазі високоякісний товар у чудовому стані. Лот повністю відповідає всім стандартам якості та пройшов попередню перевірку перед виставленням.\n\n` +
-      `📌 **Основні переваги та характеристики:**\n` +
-      `- Оригінальний брендовий виріб\n` +
-      `- Повний комплект (коробка, документація, аксесуари)\n` +
-      `- Преміальні матеріали виконання\n` +
-      `- Мінімальний термін використання\n\n` +
-      `💎 **Умови угоди:**\n` +
-      `Швидка доставка через Нову Пошту (активовано послугу безпечної угоди KRAM). Можливий як викуп по фіксованій бліц-ціні, так і участь в аукціоні. Запитуйте додаткові фото в чаті!`;
-
-    setDescription(generated);
-    setAiLoading(false);
-    setAiAction(null);
-    soundService.playSuccess();
+    try {
+      const data = await requestAiAssist();
+      if (data.description) setDescription(data.description);
+      soundService.playSuccess();
+    } catch (error) {
+      soundService.playWarning();
+      alert(String(error instanceof Error ? error.message : error));
+    } finally {
+      setAiLoading(false);
+      setAiAction(null);
+    }
   };
 
   const handleAiEnhanceDescription = async () => {
-    if (!description.trim()) {
+    if (!description.trim() && !title.trim()) {
       soundService.playWarning();
-      alert("Напишіть хоча б кілька слів в описі, щоб AI міг його покращити!");
+      alert("Напишіть хоча б кілька слів в описі або назві, щоб AI міг його покращити!");
       return;
     }
     setAiLoading(true);
     setAiAction("enhance");
     soundService.playAITyping();
-
-    await new Promise((resolve) => setTimeout(resolve, 1800));
-
-    const enhanced = `💎 **PREMIUM LOT: ${title || "Товар KRAM"}**\n\n` +
-      `⚡ *Професійне оновлення опису штучним інтелектом KRAM AI:*\n\n` +
-      `${description.replace(/^[•*\-]/gm, "")}\n\n` +
-      `--- \n` +
-      `🛠️ **СТАН ТА ДІАГНОСТИКА:**\n` +
-      `- Зовнішній вигляд: Ідеальний (9.8/10)\n` +
-      `- Працездатність: 100% протестовано\n` +
-      `- Наявність дефектів: відсутні\n\n` +
-      `📦 **ДЕТАЛІ ДОСТАВКИ:**\n` +
-      `Відправка в день замовлення. Усі витрати на страхування вантажу на суму до 50 000 грн покриваються платформою KRAM.UA.`;
-
-    setDescription(enhanced);
-    setAiLoading(false);
-    setAiAction(null);
-    soundService.playSuccess();
+    try {
+      const data = await requestAiAssist();
+      if (data.description) setDescription(data.description);
+      soundService.playSuccess();
+    } catch (error) {
+      soundService.playWarning();
+      alert(String(error instanceof Error ? error.message : error));
+    } finally {
+      setAiLoading(false);
+      setAiAction(null);
+    }
   };
 
   const handleAiAnalyzePrice = async () => {
@@ -210,45 +209,25 @@ export default function SellPage() {
     setAiLoading(true);
     setAiAction("price");
     soundService.playAITyping();
-
-    await new Promise((resolve) => setTimeout(resolve, 2200));
-
-    const titleLower = title.toLowerCase();
-    let start = 1500;
-    let buy = 2200;
-    let stepVal = 100;
-    let demandStr = "Середній (72%)";
-    let scoreVal = 85;
-    let adviceStr = "Цей товар користується стабільним попитом. Рекомендується ставити тип продажу 'Гібрид', щоб підігріти інтерес аукціоном та дати можливість купити одразу.";
-
-    if (titleLower.includes("iphone") || titleLower.includes("apple")) {
-      start = 38000;
-      buy = 44000;
-      stepVal = 500;
-      demandStr = "Дуже Високий (96%)";
-      scoreVal = 98;
-      adviceStr = "Попит на техніку Apple на піку. Аукціон привабить багато учасників. Стартуйте з 38 000 грн і ставте крок 500 грн для динамічності торгу.";
-    } else if (titleLower.includes("rolex") || titleLower.includes("tissot") || titleLower.includes("watch")) {
-      start = 240000;
-      buy = 295000;
-      stepVal = 2000;
-      demandStr = "Високий (84%)";
-      scoreVal = 91;
-      adviceStr = "Елітні годинники купують поціновувачі. Гібридний аукціон ідеальний. Не занижуйте крок ставки менше ніж 1000-2000 грн.";
+    try {
+      const data = await requestAiAssist();
+      const price = data.price;
+      setAiPriceAnalysis({
+        recommendedStart: price?.suggestedStart || 1500,
+        recommendedBuyNow: price?.suggestedBuyNow || 2200,
+        recommendedStep: Math.max(50, Math.round((price?.suggestedStart || 1500) * 0.03 / 50) * 50),
+        demand: price?.confidence === "high" ? "Високий" : price?.confidence === "medium" ? "Середній" : "Орієнтовний",
+        score: price?.confidence === "high" ? 92 : price?.confidence === "medium" ? 78 : 62,
+        advice: price?.hint || "AI підготував орієнтовну оцінку на основі назви та опису лота.",
+      });
+      soundService.playSuccess();
+    } catch (error) {
+      soundService.playWarning();
+      alert(String(error instanceof Error ? error.message : error));
+    } finally {
+      setAiLoading(false);
+      setAiAction(null);
     }
-
-    setAiPriceAnalysis({
-      recommendedStart: start,
-      recommendedBuyNow: buy,
-      recommendedStep: stepVal,
-      demand: demandStr,
-      score: scoreVal,
-      advice: adviceStr
-    });
-
-    setAiLoading(false);
-    setAiAction(null);
-    soundService.playSuccess();
   };
 
   const applyAiPrices = () => {
@@ -266,6 +245,7 @@ export default function SellPage() {
   const [categoryId, setCategoryId] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [imageInput, setImageInput] = useState("");
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   const [dealType, setDealType] = useState<"AUCTION" | "BUY_NOW" | "HYBRID">("HYBRID");
   const [startPrice, setStartPrice] = useState("");
@@ -344,6 +324,28 @@ export default function SellPage() {
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
     soundService.playClick();
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => formData.append("files", file));
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Помилка завантаження фото");
+      setImages((prev) => [...prev, ...(data.urls || [])]);
+      soundService.playSuccess();
+    } catch (error) {
+      soundService.playWarning();
+      alert(String(error instanceof Error ? error.message : error));
+    } finally {
+      setUploadingImages(false);
+      event.target.value = "";
+    }
   };
 
   const toggleDelivery = (opt: string) => {
@@ -729,6 +731,20 @@ export default function SellPage() {
                     ))}
                   </div>
                 )}
+
+                {/* Завантажити файли */}
+                <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-xs font-semibold text-emerald-300 transition-all hover:border-emerald-400 hover:bg-emerald-500/10">
+                  {uploadingImages ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+                  {uploadingImages ? "Завантаження..." : "Завантажити фото з пристрою"}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    className="hidden"
+                    disabled={uploadingImages}
+                    onChange={handleImageUpload}
+                  />
+                </label>
 
                 {/* Додати URL */}
                 <div className="flex gap-2">
