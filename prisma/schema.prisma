@@ -1,0 +1,110 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String         @id @default(uuid())
+  email            String         @unique
+  password         String
+  name             String
+  avatar           String?
+  role             String         @default("BUYER") // "BUYER", "SELLER", "ADMIN"
+  rating           Float          @default(5.0)
+  verified         Boolean        @default(false)
+  balance          Float          @default(10000.0)
+  listings         Listing[]      @relation("SellerListings")
+  bids             Bid[]          @relation("UserBids")
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  purchases        Transaction[]  @relation("BuyerTransactions")
+  sales            Transaction[]  @relation("SellerTransactions")
+  notifications    Notification[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  slug     String    @unique
+  icon     String    // Name of lucide icon
+  listings Listing[]
+}
+
+model Listing {
+  id              String        @id @default(uuid())
+  title           String
+  description     String
+  images          String        // JSON string of images array
+  category        Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId      String
+  seller          User          @relation("SellerListings", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId        String
+  type            String        // "AUCTION", "BUY_NOW", "HYBRID"
+  startPrice      Float
+  currentPrice    Float
+  buyNowPrice     Float?
+  bidStep         Float         @default(50.0)
+  status          String        @default("ACTIVE") // "ACTIVE", "COMPLETED", "CANCELLED"
+  endDate         DateTime
+  deliveryOptions String        // JSON string of string[] e.g. ["NOVA_POSHTA", "UKR_POSHTA"]
+  bids            Bid[]
+  messages        Message[]
+  transactions    Transaction[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Bid {
+  id        String   @id @default(uuid())
+  amount    Float
+  bidder    User     @relation("UserBids", fields: [bidderId], references: [id], onDelete: Cascade)
+  bidderId  String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId String
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  text       String
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId   String
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+  listing    Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId  String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Transaction {
+  id               String   @id @default(uuid())
+  amount           Float
+  listing          Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  listingId        String
+  buyer            User     @relation("BuyerTransactions", fields: [buyerId], references: [id], onDelete: Cascade)
+  buyerId          String
+  seller           User     @relation("SellerTransactions", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId         String
+  deliveryProvider String   // "NOVA_POSHTA", "UKR_POSHTA", "MEEST", "COURIER"
+  deliveryStatus   String   @default("PENDING") // "PENDING", "SENT", "DELIVERED", "RECEIVED"
+  ttn              String?
+  paymentStatus    String   @default("PENDING") // "PENDING", "PAID", "REFUNDED"
+  createdAt        DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  text      String
+  type      String   @default("INFO") // "INFO", "BID", "OUTBID", "WON", "SOLD", "SHIPMENT"
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
