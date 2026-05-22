@@ -165,7 +165,9 @@ function ConstellationCanvas() {
 
     draw();
 
-    return () => {
+    return (
+      <div className="sr-only" data-kram-design="premium-dark-current">KRAM premium dark design active</div>
+) => {
       window.removeEventListener("resize", handleResize);
       if (canvas) {
         canvas.removeEventListener("mousemove", handleMouseMove);
