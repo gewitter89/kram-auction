@@ -2,12 +2,12 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientId = (process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID);
   if (!clientId) {
     return NextResponse.json({ error: "GOOGLE_CLIENT_ID is not configured in Vercel" }, { status: 500 });
   }
 
-  const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+  const origin = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || process.env.AUTH_URL || process.env.NEXTAUTH_URL || req.nextUrl.origin;
   const redirectUri = `${origin}/api/auth/google/callback`;
   const state = crypto.randomBytes(24).toString("base64url");
 

@@ -15,8 +15,8 @@ async function exchangeCode(code: string, redirectUri: string) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
       code,
-      client_id: process.env.GOOGLE_CLIENT_ID || "",
-      client_secret: process.env.GOOGLE_CLIENT_SECRET || "",
+      client_id: (process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID) || "",
+      client_secret: (process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET) || "",
       redirect_uri: redirectUri,
       grant_type: "authorization_code",
     }),
@@ -34,8 +34,8 @@ async function getGoogleUser(accessToken: string) {
 }
 
 export async function GET(req: NextRequest) {
-  const clientId = process.env.GOOGLE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientId = (process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID);
+  const clientSecret = (process.env.GOOGLE_CLIENT_SECRET || process.env.AUTH_GOOGLE_SECRET);
   if (!clientId || !clientSecret) {
     return errorPage("GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET не додані в Vercel Environment Variables.", 500);
   }
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   if (!state || !savedState || state !== savedState) return errorPage("OAuth state не співпав. Спробуйте ще раз.");
 
   try {
-    const origin = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+    const origin = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || process.env.AUTH_URL || process.env.NEXTAUTH_URL || req.nextUrl.origin;
     const redirectUri = `${origin}/api/auth/google/callback`;
     const token = await exchangeCode(code, redirectUri);
     const profile = await getGoogleUser(token.access_token);
