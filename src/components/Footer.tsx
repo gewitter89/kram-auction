@@ -21,21 +21,21 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Первая в Украине премиальная торговая площадка, совмещающая скорость объявлений и азарт открытых аукционов.
+              Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.
             </p>
           </div>
 
-          {/* Безопасность */}
+          {/* Безпека */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              Безопасность
+              Безпека
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>🛡️ Безопасная сделка KRAM</li>
-              <li>💬 Чат-модерация контактов</li>
-              <li>⭐ Проверенные продавцы</li>
-              <li>🔒 Депонирование средств</li>
+              <li>🛡️ Безпечна угода KRAM</li>
+              <li>💬 Чат-модерація контактів</li>
+              <li>⭐ Перевірені продавці</li>
+              <li>🔒 Депонування коштів</li>
             </ul>
           </div>
 
@@ -43,13 +43,13 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-1.5">
               <Truck className="h-4 w-4 text-emerald-400" />
-              Логистика
+              Логістика
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>📦 Новая Почта (Авто-ТТН)</li>
-              <li>📬 Укрпочта Экспресс</li>
+              <li>📦 Нова Пошта (Авто-ТТН)</li>
+              <li>📬 Укрпошта Експрес</li>
               <li>⚡ Meest ПОШТА</li>
-              <li>📍 Пункты самовывоза</li>
+              <li>📍 Пункти самовивозу</li>
             </ul>
           </div>
 
@@ -60,10 +60,10 @@ export default function Footer() {
               Правила
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li>📜 Пользовательское соглашение</li>
-              <li>🔨 Правила проведения торгов</li>
-              <li>📊 Тарифы и комиссии площадки</li>
-              <li>📞 Служба поддержки (24/7)</li>
+              <li>📜 Угода користувача</li>
+              <li>🔨 Правила проведення торгів</li>
+              <li>📊 Тарифи та комісії майданчика</li>
+              <li>📞 Служба підтримки (24/7)</li>
             </ul>
           </div>
 
@@ -71,7 +71,7 @@ export default function Footer() {
 
         <div className="border-t border-white/5 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-[11px] text-slate-500">
-            &copy; {new Date().getFullYear()} KRAM.UA. Разработано с использованием передовых технологий. Все права защищены.
+            &copy; {new Date().getFullYear()} KRAM.UA. Розроблено з використанням передових технологій. Всі права захищені.
           </p>
           <div className="flex gap-4 text-[11px] text-slate-500">
             <span className="hover:text-slate-300 cursor-pointer">UA</span>

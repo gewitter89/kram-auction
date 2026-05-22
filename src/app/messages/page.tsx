@@ -18,6 +18,7 @@ import {
   Gem,
   AlertTriangle
 } from "lucide-react";
+import { soundService } from "@/lib/sound-service";
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function MessagesPage() {
       if (msgs.length > 0) {
         const isSeller = user.id === listing.sellerId;
         const otherUserId = isSeller ? "user-buyer" : "user-seller";
-        const otherUserName = isSeller ? "Владимир (Покупатель)" : "Александр (Продавец)";
+        const otherUserName = isSeller ? "Володимир (Покупець)" : "Олександр (Продавець)";
 
         convs.push({
           listing,
@@ -85,7 +86,7 @@ export default function MessagesPage() {
 
     const activeConv = conversations[activeConvIdx];
     
-    // Отправляем
+    // Відправляємо
     const res = apiService.sendMessage(
       activeConv.listing.id,
       user.id,
@@ -93,16 +94,18 @@ export default function MessagesPage() {
       typedMessage
     );
 
-    // Модераторские предупреждения
+    // Модераторські попередження
     if (res.warning) {
+      soundService.playWarning();
       setLocalWarning(res.warning);
     } else {
+      soundService.playClick();
       setLocalWarning(null);
     }
 
     setTypedMessage("");
     
-    // Перезагружаем сообщения
+    // Перезавантажуємо повідомлення
     loadConversations();
   };
 
@@ -118,20 +121,20 @@ export default function MessagesPage() {
         
         {/* Заголовок */}
         <div className="mb-6">
-          <h1 className="text-2xl font-extrabold text-white font-display">Сообщения сделок</h1>
-          <p className="text-xs text-slate-400 mt-1">Все переписки защищены встроенным фильтром мошенничества</p>
+          <h1 className="text-2xl font-extrabold text-white font-display">Повідомлення угод</h1>
+          <p className="text-xs text-slate-400 mt-1">Усі листування захищені вбудованим фільтром шахрайства</p>
         </div>
 
-        {/* Сетка чатов */}
+        {/* Сітка чатів */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow items-stretch min-h-[500px]">
           
-          {/* Левая панель: Списки диалогов */}
+          {/* Ліва панель: Списки діалогів */}
           <div className="glass-panel rounded-3xl border border-white/5 p-4 flex flex-col space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2">Ваши диалоги</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2">Ваші діалоги</h3>
             
             <div className="space-y-2 overflow-y-auto flex-grow max-h-[450px] pr-1">
               {conversations.length === 0 ? (
-                <p className="text-xs text-slate-500 py-6 text-center">Активных чатов нет.</p>
+                <p className="text-xs text-slate-500 py-6 text-center">Немає активних чатів.</p>
               ) : (
                 conversations.map((conv, idx) => {
                   const isActive = idx === activeConvIdx;
@@ -139,9 +142,11 @@ export default function MessagesPage() {
                     <button
                       key={conv.listing.id}
                       onClick={() => {
+                        soundService.playClick();
                         setActiveConvIdx(idx);
                         setLocalWarning(null);
                       }}
+                      onMouseEnter={() => soundService.playHover()}
                       className={`w-full text-left p-3.5 rounded-2xl border transition-all flex items-start gap-3 ${
                         isActive
                           ? "border-emerald-500 bg-emerald-500/5 text-white"
@@ -169,11 +174,11 @@ export default function MessagesPage() {
             </div>
           </div>
 
-          {/* Правая панель: Поток сообщений активного чата */}
+          {/* Права панель: Потік повідомлень активного чату */}
           <div className="md:col-span-2 glass-panel rounded-3xl border border-white/5 flex flex-col overflow-hidden">
             {activeConv ? (
               <>
-                {/* Шапка чата */}
+                {/* Шапка чату */}
                 <div className="border-b border-white/5 p-4 bg-slate-950/30 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-xl bg-slate-950 overflow-hidden border border-white/10">
@@ -181,32 +186,37 @@ export default function MessagesPage() {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-white">{activeConv.otherUserName}</h4>
-                      <Link href={`/lot/${activeConv.listing.id}`} className="text-[10px] text-emerald-400 hover:underline">
+                      <Link 
+                        href={`/lot/${activeConv.listing.id}`}
+                        onMouseEnter={() => soundService.playHover()}
+                        onClick={() => soundService.playClick()}
+                        className="text-[10px] text-emerald-400 hover:underline"
+                      >
                         По лоту: {activeConv.listing.title}
                       </Link>
                     </div>
                   </div>
                   
                   <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[9px] font-semibold text-emerald-400 border border-emerald-500/25">
-                    Сделка застрахована
+                    Угоду застраховано
                   </span>
                 </div>
 
-                {/* Баннер безопасности */}
+                {/* Баннер безпеки */}
                 <div className="bg-amber-500/5 border-b border-amber-500/10 p-3.5 text-[10px] text-amber-300/90 leading-relaxed flex items-start gap-2.5">
                   <ShieldAlert className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
                   <span>
-                    <strong>Внимание:</strong> Никогда не соглашайтесь на проведение расчетов вне площадки. Не отправляйте предоплату на карты напрямую. Всегда используйте безопасную сделку KRAM.UA, чтобы обезопасить свои средства.
+                    <strong>Увага:</strong> Ніколи не погоджуйтеся на проведення розрахунків поза майданчиком. Не відправляйте передоплату на картки напряму. Завжди використовуйте безпечну угоду KRAM.UA, щоб убезпечити свої кошти.
                   </span>
                 </div>
 
-                {/* Поток сообщений */}
+                {/* Потік повідомлень */}
                 <div className="flex-grow p-4 overflow-y-auto space-y-4 max-h-[350px] min-h-[300px]">
                   
-                  {/* Первое информационное сообщение */}
+                  {/* Перше інформаційне повідомлення */}
                   <div className="text-center py-2">
                     <span className="inline-block bg-white/5 rounded-lg px-2.5 py-1 text-[9px] text-slate-500 border border-white/5">
-                      Начало безопасного диалога по сделке
+                      Початок безпечного діалогу по угоді
                     </span>
                   </div>
 
@@ -233,7 +243,7 @@ export default function MessagesPage() {
                     );
                   })}
                   
-                  {/* Робот-модератор (предупреждение при попытке мошенничества) */}
+                  {/* Робот-модератор (попередження при спробі шахрайства) */}
                   {localWarning && (
                     <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-4 text-xs text-amber-400 leading-normal flex items-start gap-2.5 animate-fadeIn">
                       <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
@@ -244,18 +254,20 @@ export default function MessagesPage() {
                   <div ref={messagesEndRef} />
                 </div>
 
-                {/* Форма ввода сообщения */}
+                {/* Форма введення повідомлення */}
                 <form onSubmit={handleSendMessage} className="p-4 border-t border-white/5 bg-slate-950/30 flex gap-2">
                   <input
                     type="text"
-                    placeholder="Введите ваше сообщение... (номера телефонов скрываются системой)"
+                    placeholder="Введіть ваше повідомлення... (номери телефонів приховуються системою)"
                     className="flex-grow glass-input rounded-xl text-xs px-3.5 py-3"
                     value={typedMessage}
+                    onMouseEnter={() => soundService.playHover()}
                     onChange={(e) => setTypedMessage(e.target.value)}
                     required
                   />
                   <button
                     type="submit"
+                    onMouseEnter={() => soundService.playHover()}
                     className="rounded-xl bg-emerald-500 hover:bg-emerald-400 p-3 text-white transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)] shrink-0"
                   >
                     <Send className="h-4 w-4" />
@@ -265,7 +277,7 @@ export default function MessagesPage() {
             ) : (
               <div className="flex-grow flex flex-col items-center justify-center p-12 text-center">
                 <MessageSquare className="h-10 w-10 text-slate-600 mb-3" />
-                <p className="text-xs text-slate-500">Выберите диалог из списка слева, чтобы начать общение.</p>
+                <p className="text-xs text-slate-500">Оберіть діалог зі списку ліворуч, щоб почати спілкування.</p>
               </div>
             )}
           </div>

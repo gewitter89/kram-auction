@@ -23,6 +23,7 @@ import {
   Sparkles
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { soundService } from "@/lib/sound-service";
 
 export default function SellPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function SellPage() {
   const [categories, setCategories] = useState<MockCategory[]>([]);
   const [step, setStep] = useState(1);
 
-  // Состояния полей формы
+  // Стани полів форми
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -45,7 +46,7 @@ export default function SellPage() {
 
   const [deliveryOptions, setDeliveryOptions] = useState<string[]>(["NOVA_POSHTA"]);
 
-  // Проверка авторизации
+  // Перевірка авторизації
   useEffect(() => {
     if (!user) {
       router.push("/");
@@ -57,18 +58,22 @@ export default function SellPage() {
     if (imageInput.trim() !== "") {
       setImages([...images, imageInput.trim()]);
       setImageInput("");
+      soundService.playClick();
     }
   };
 
   const handleQuickAddImage = (url: string) => {
     setImages([...images, url]);
+    soundService.playClick();
   };
 
   const handleRemoveImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
+    soundService.playClick();
   };
 
   const toggleDelivery = (opt: string) => {
+    soundService.playClick();
     if (deliveryOptions.includes(opt)) {
       if (deliveryOptions.length > 1) {
         setDeliveryOptions(deliveryOptions.filter(d => d !== opt));
@@ -81,32 +86,39 @@ export default function SellPage() {
   const handleNextStep = () => {
     if (step === 1) {
       if (!title || !description || !categoryId || images.length === 0) {
-        alert("Пожалуйста, заполните название, описание, категорию и добавьте хотя бы 1 изображение!");
+        soundService.playWarning();
+        alert("Будь ласка, заповніть назву, опис, категорію та додайте щонайменше 1 зображення!");
         return;
       }
     }
     if (step === 2) {
       if (dealType === "AUCTION" && (!startPrice || !bidStep)) {
-        alert("Заполните стартовую цену и шаг ставки!");
+        soundService.playWarning();
+        alert("Заповніть стартову ціну та крок ставки!");
         return;
       }
       if (dealType === "BUY_NOW" && !buyNowPrice) {
-        alert("Заполните цену выкупа (Блиц)!");
+        soundService.playWarning();
+        alert("Заповніть ціну викупу (Бліц)!");
         return;
       }
       if (dealType === "HYBRID" && (!startPrice || !buyNowPrice || !bidStep)) {
-        alert("Пожалуйста, укажите стартовую цену, цену выкупа и шаг ставки!");
+        soundService.playWarning();
+        alert("Будь ласка, вкажіть стартову ціну, ціну викупу та крок ставки!");
         return;
       }
       if (dealType === "HYBRID" && parseFloat(buyNowPrice) <= parseFloat(startPrice)) {
-        alert("Цена мгновенного выкупа (Блиц) должна быть выше стартовой цены аукциона!");
+        soundService.playWarning();
+        alert("Ціна миттєвого викупу (Бліц) повинна бути вищою за стартову ціну аукціону!");
         return;
       }
     }
+    soundService.playClick();
     setStep(step + 1);
   };
 
   const handlePrevStep = () => {
+    soundService.playClick();
     setStep(step - 1);
   };
 
@@ -114,7 +126,7 @@ export default function SellPage() {
     e.preventDefault();
     if (!user) return;
 
-    // Формируем дату завершения
+    // Формуємо дату завершення
     const endDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * parseInt(durationDays)).toISOString();
 
     const newListing = apiService.createListing({
@@ -131,32 +143,35 @@ export default function SellPage() {
       deliveryOptions
     });
 
-    // Запускаем праздничное конфетти
+    // Запускаємо святкове конфетті
     confetti({
       particleCount: 150,
       spread: 80,
       origin: { y: 0.6 }
     });
 
-    // Оповещаем пользователя
+    // Звук перемоги/успіху
+    soundService.playSuccess();
+
+    // Сповіщаємо користувача
     apiService.addNotification(
       user.id,
-      `Вы успешно создали объявление "${title}"! Статус: Активно.`,
+      `Ви успішно створили оголошення "${title}"! Статус: Активно.`,
       "INFO"
     );
 
-    alert("🎉 Поздравляем! Ваш лот успешно опубликован на KRAM.UA!");
+    alert("🎉 Вітаємо! Ваш лот успішно опубліковано на KRAM.UA!");
     router.push("/");
   };
 
-  // Предопределенные заглушки красивых товаров на выбор
+  // Красиві демо-товари на вибір
   const imagePresets = [
-    { name: "Швейцарские часы", url: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600" },
+    { name: "Швейцарський годинник", url: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=600" },
     { name: "iPhone 15 Pro", url: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=600" },
     { name: "Ноутбук Apple Macbook", url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600" },
-    { name: "Золотые монеты", url: "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=600" },
-    { name: "Элитное авто", url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600" },
-    { name: "Картина маслом", url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=600" }
+    { name: "Золоті монети", url: "https://images.unsplash.com/photo-1610375461246-83df859d849d?w=600" },
+    { name: "Елітне авто", url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600" },
+    { name: "Картина олією", url: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=600" }
   ];
 
   return (
@@ -167,23 +182,26 @@ export default function SellPage() {
         
         {/* Заголовок */}
         <div className="text-center mb-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/25 mb-4">
-            <Sparkles className="h-3.5 w-3.5" />
-            Бесплатное размещение лота
+          <span 
+            onMouseEnter={() => soundService.playHover()}
+            className="cursor-default inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/25 mb-4"
+          >
+            <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+            Безкоштовне розміщення лота
           </span>
-          <h1 className="text-3xl font-extrabold text-white font-display">Разместить лот на KRAM</h1>
+          <h1 className="text-3xl font-extrabold text-white font-display">Розмістити лот на KRAM</h1>
           <p className="text-xs text-slate-400 mt-2">
-            Создайте лот за 3 простых шага с адаптивными параметрами продажи
+            Створіть лот за 3 простих кроки з адаптивними параметрами продажу
           </p>
         </div>
 
-        {/* Шкала шагов (Progress Indicator) */}
+        {/* Шкала кроків (Progress Indicator) */}
         <div className="mb-10 relative">
           <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/5 -translate-y-1/2 z-0" />
           <div className="relative z-10 flex justify-between">
             {[
-              { num: 1, label: "Описание" },
-              { num: 2, label: "Формат и Цена" },
+              { num: 1, label: "Опис" },
+              { num: 2, label: "Формат та Ціна" },
               { num: 3, label: "Доставка" }
             ].map((s) => (
               <div key={s.num} className="flex flex-col items-center">
@@ -204,39 +222,44 @@ export default function SellPage() {
           </div>
         </div>
 
-        {/* Тело формы */}
+        {/* Тіло форми */}
         <form onSubmit={handleSubmit} className="glass-panel p-8 rounded-3xl border border-white/5 space-y-8 shadow-xl">
 
-          {/* ШАГ 1: Описание, Категория, Картинки */}
+          {/* КРОК 1: Опис, Категорія, Картинки */}
           {step === 1 && (
             <div className="space-y-6 animate-fadeIn">
               <div>
-                <h3 className="text-base font-bold text-white font-display">Шаг 1: Основная информация лота</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Опишите ваш товар детально, чтобы привлечь больше потенциальных покупателей.</p>
+                <h3 className="text-base font-bold text-white font-display">Крок 1: Основна інформація лота</h3>
+                <p className="text-[11px] text-slate-500 mt-1">Опишіть ваш товар детально, щоб залучити більше потенційних покупців.</p>
               </div>
 
-              {/* Название */}
+              {/* Назва */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Название лота</label>
+                <label className="text-xs font-semibold text-slate-400">Назва лота</label>
                 <input
                   type="text"
-                  placeholder="Например: Apple Watch Ultra 2 Titanium"
+                  placeholder="Наприклад: Apple Watch Ultra 2 Titanium"
                   className="w-full glass-input rounded-xl text-xs p-3.5"
                   value={title}
+                  onMouseEnter={() => soundService.playHover()}
                   onChange={(e) => setTitle(e.target.value)}
                   required
                 />
               </div>
 
-              {/* Категория */}
+              {/* Категорія */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Категория каталога</label>
+                <label className="text-xs font-semibold text-slate-400">Категорія каталогу</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {categories.map((cat) => (
                     <button
                       type="button"
                       key={cat.id}
-                      onClick={() => setCategoryId(cat.id)}
+                      onMouseEnter={() => soundService.playHover()}
+                      onClick={() => {
+                        soundService.playClick();
+                        setCategoryId(cat.id);
+                      }}
                       className={`text-xs p-3 rounded-xl border text-center transition-all ${
                         categoryId === cat.id
                           ? "border-emerald-500 bg-emerald-500/5 text-emerald-400 font-semibold"
@@ -249,14 +272,15 @@ export default function SellPage() {
                 </div>
               </div>
 
-              {/* Описание */}
+              {/* Опис */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Описание состояния и характеристик</label>
+                <label className="text-xs font-semibold text-slate-400">Опис стану та характеристик</label>
                 <textarea
                   rows={5}
-                  placeholder="Опишите состояние товара, дефекты (если есть), комплектацию и условия отправки..."
+                  placeholder="Опишіть стан товару, дефекти (якщо є), комплектацію та умови відправки..."
                   className="w-full glass-input rounded-xl text-xs p-3.5 leading-relaxed"
                   value={description}
+                  onMouseEnter={() => soundService.playHover()}
                   onChange={(e) => setDescription(e.target.value)}
                   required
                 />
@@ -264,9 +288,9 @@ export default function SellPage() {
 
               {/* Картинки */}
               <div className="space-y-4">
-                <label className="text-xs font-semibold text-slate-400">Фотографии товара</label>
+                <label className="text-xs font-semibold text-slate-400">Фотографії товару</label>
                 
-                {/* Список загруженных */}
+                {/* Список завантажених */}
                 {images.length > 0 && (
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                     {images.map((img, idx) => (
@@ -277,39 +301,42 @@ export default function SellPage() {
                           onClick={() => handleRemoveImage(idx)}
                           className="absolute inset-0 bg-rose-600/90 text-white text-[10px] font-bold opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                         >
-                          Удалить
+                          Видалити
                         </button>
                       </div>
                     ))}
                   </div>
                 )}
 
-                {/* Добавить URL */}
+                {/* Додати URL */}
                 <div className="flex gap-2">
                   <input
                     type="url"
-                    placeholder="Вставьте ссылку на изображение товара..."
+                    placeholder="Вставте посилання на зображення товару..."
                     className="flex-grow glass-input rounded-xl text-xs px-3.5 py-3"
                     value={imageInput}
+                    onMouseEnter={() => soundService.playHover()}
                     onChange={(e) => setImageInput(e.target.value)}
                   />
                   <button
                     type="button"
                     onClick={handleAddImageUrl}
+                    onMouseEnter={() => soundService.playHover()}
                     className="rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 px-4 text-xs font-semibold text-white transition-all shrink-0"
                   >
-                    Добавить
+                    Додати
                   </button>
                 </div>
 
-                {/* Быстрые пресеты для тестирования */}
+                {/* Швидкі пресети */}
                 <div className="space-y-2">
-                  <span className="text-[10px] text-slate-500 block">Быстрые демо-картинки (выберите одну для теста):</span>
+                  <span className="text-[10px] text-slate-500 block">Швидкі демо-зображення (оберіть одне для тесту):</span>
                   <div className="flex flex-wrap gap-1.5">
                     {imagePresets.map((preset, pIdx) => (
                       <button
                         type="button"
                         key={pIdx}
+                        onMouseEnter={() => soundService.playHover()}
                         onClick={() => handleQuickAddImage(preset.url)}
                         className="text-[9px] bg-white/5 border border-white/10 hover:border-emerald-500/30 hover:text-emerald-400 rounded-lg px-2.5 py-1 text-slate-400 transition-colors"
                       >
@@ -322,27 +349,31 @@ export default function SellPage() {
             </div>
           )}
 
-          {/* ШАГ 2: Формат сделки, Цена */}
+          {/* КРОК 2: Формат угоди, Ціна */}
           {step === 2 && (
             <div className="space-y-6 animate-fadeIn">
               <div>
-                <h3 className="text-base font-bold text-white font-display">Шаг 2: Формат сделки и ценообразование</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Выберите как именно вы хотите продать этот товар.</p>
+                <h3 className="text-base font-bold text-white font-display">Крок 2: Формат угоди та ціноутворення</h3>
+                <p className="text-[11px] text-slate-500 mt-1">Оберіть, як саме ви бажаєте продати цей товар.</p>
               </div>
 
-              {/* Выбор формата продажи */}
+              {/* Вибір формату продажу */}
               <div className="space-y-3">
-                <label className="text-xs font-semibold text-slate-400">Формат продажи</label>
+                <label className="text-xs font-semibold text-slate-400">Формат продажу</label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
-                    { id: "HYBRID", title: "💎 Гибридный лот", desc: "Аукцион с возможностью мгновенного выкупа (Блиц)" },
-                    { id: "AUCTION", title: "🔨 Чистый аукцион", desc: "Побеждает максимальная ставка на момент окончания" },
-                    { id: "BUY_NOW", title: "⚡ Фиксированная цена", desc: "Быстрая продажа без торгов и таймеров ставок" }
+                    { id: "HYBRID", title: "💎 Гібридний лот", desc: "Аукціон з можливістю миттєвого викупу (Бліц)" },
+                    { id: "AUCTION", title: "🔨 Чистий аукціон", desc: "Перемагає максимальна ставка на момент закінчення торгів" },
+                    { id: "BUY_NOW", title: "⚡ Фіксована ціна", desc: "Швидкий продаж без торгів та таймерів ставок" }
                   ].map((format) => (
                     <button
                       type="button"
                       key={format.id}
-                      onClick={() => setDealType(format.id as any)}
+                      onMouseEnter={() => soundService.playHover()}
+                      onClick={() => {
+                        soundService.playClick();
+                        setDealType(format.id as any);
+                      }}
                       className={`text-left p-4 rounded-xl border flex flex-col justify-between transition-all ${
                         dealType === format.id
                           ? "border-emerald-500 bg-emerald-500/5 text-white"
@@ -356,13 +387,13 @@ export default function SellPage() {
                 </div>
               </div>
 
-              {/* Ценовые поля */}
+              {/* Цінові поля */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
-                {/* Стартовая цена аукциона */}
+                {/* Стартова ціна аукціону */}
                 {dealType !== "BUY_NOW" && (
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-400">Стартовая цена (UAH)</label>
+                    <label className="text-xs font-semibold text-slate-400">Стартова ціна (UAH)</label>
                     <div className="relative rounded-xl border border-white/10 bg-slate-950 p-3.5 flex items-center">
                       <DollarSign className="h-4 w-4 text-slate-500 shrink-0 mr-1" />
                       <input
@@ -370,6 +401,7 @@ export default function SellPage() {
                         placeholder="25000"
                         className="bg-transparent border-0 text-xs text-white placeholder-slate-500 focus:ring-0 focus:outline-none w-full"
                         value={startPrice}
+                        onMouseEnter={() => soundService.playHover()}
                         onChange={(e) => setStartPrice(e.target.value)}
                         required
                       />
@@ -377,11 +409,11 @@ export default function SellPage() {
                   </div>
                 )}
 
-                {/* Цена выкупа */}
+                {/* Ціна викупу */}
                 {dealType !== "AUCTION" && (
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-slate-400">
-                      {dealType === "HYBRID" ? "Блиц-цена мгновенного выкупа (UAH)" : "Цена продажи (UAH)"}
+                      {dealType === "HYBRID" ? "Бліц-ціна миттєвого викупу (UAH)" : "Ціна продажу (UAH)"}
                     </label>
                     <div className="relative rounded-xl border border-white/10 bg-slate-950 p-3.5 flex items-center">
                       <DollarSign className="h-4 w-4 text-slate-500 shrink-0 mr-1" />
@@ -390,6 +422,7 @@ export default function SellPage() {
                         placeholder="35000"
                         className="bg-transparent border-0 text-xs text-white placeholder-slate-500 focus:ring-0 focus:outline-none w-full"
                         value={buyNowPrice}
+                        onMouseEnter={() => soundService.playHover()}
                         onChange={(e) => setBuyNowPrice(e.target.value)}
                         required
                       />
@@ -397,14 +430,18 @@ export default function SellPage() {
                   </div>
                 )}
 
-                {/* Минимальный шаг ставки */}
+                {/* Мінімальний крок ставки */}
                 {dealType !== "BUY_NOW" && (
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-400">Шаг ставки аукциона (UAH)</label>
+                    <label className="text-xs font-semibold text-slate-400">Крок ставки аукціону (UAH)</label>
                     <select
                       value={bidStep}
-                      onChange={(e) => setBidStep(e.target.value)}
-                      className="w-full glass-input rounded-xl text-xs p-3.5 bg-slate-950 text-white"
+                      onMouseEnter={() => soundService.playHover()}
+                      onChange={(e) => {
+                        soundService.playClick();
+                        setBidStep(e.target.value);
+                      }}
+                      className="w-full glass-input rounded-xl text-xs p-3.5 bg-slate-950 text-white font-semibold"
                     >
                       <option value="100">100 UAH</option>
                       <option value="250">250 UAH</option>
@@ -415,19 +452,23 @@ export default function SellPage() {
                   </div>
                 )}
 
-                {/* Продолжительность торгов */}
+                {/* Тривалість торгів */}
                 {dealType !== "BUY_NOW" && (
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-400">Продолжительность аукциона</label>
+                    <label className="text-xs font-semibold text-slate-400">Тривалість аукціону</label>
                     <select
                       value={durationDays}
-                      onChange={(e) => setDurationDays(e.target.value)}
-                      className="w-full glass-input rounded-xl text-xs p-3.5 bg-slate-950 text-white"
+                      onMouseEnter={() => soundService.playHover()}
+                      onChange={(e) => {
+                        soundService.playClick();
+                        setDurationDays(e.target.value);
+                      }}
+                      className="w-full glass-input rounded-xl text-xs p-3.5 bg-slate-950 text-white font-semibold"
                     >
-                      <option value="1">1 День (Быстрые торги)</option>
-                      <option value="3">3 Дня (Рекомендуется)</option>
-                      <option value="5">5 Дней</option>
-                      <option value="7">7 Дней</option>
+                      <option value="1">1 День (Швидкі торги)</option>
+                      <option value="3">3 Дні (Рекомендується)</option>
+                      <option value="5">5 Днів</option>
+                      <option value="7">7 Днів</option>
                     </select>
                   </div>
                 )}
@@ -438,36 +479,37 @@ export default function SellPage() {
                 <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/[0.02] p-4 text-[11px] text-slate-400 flex items-start gap-2.5 leading-relaxed">
                   <Info className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
                   <span>
-                    <strong>Преимущество гибрида:</strong> Лот участвует в торгах как классический аукцион. Но если покупатель будет готов заплатить блиц-цену, торги автоматически завершатся, и лот будет мгновенно продан ему.
+                    <strong>Перевага гібрида:</strong> Лот бере участь у торгах як класичний аукціон. Але якщо покупець готовий сплатити бліц-ціну, торги автоматично завершаться, і лот буде миттєво проданий.
                   </span>
                 </div>
               )}
             </div>
           )}
 
-          {/* ШАГ 3: Способы доставки и оплаты */}
+          {/* КРОК 3: Способи доставки та оплати */}
           {step === 3 && (
             <div className="space-y-6 animate-fadeIn">
               <div>
-                <h3 className="text-base font-bold text-white font-display">Шаг 3: Доставка и подтверждение</h3>
-                <p className="text-[11px] text-slate-500 mt-1">Определите способы отправки и завершите публикацию объявления.</p>
+                <h3 className="text-base font-bold text-white font-display">Крок 3: Доставка та підтвердження</h3>
+                <p className="text-[11px] text-slate-500 mt-1">Визначте способи відправки та завершіть публікацію оголошення.</p>
               </div>
 
-              {/* Способы доставки */}
+              {/* Способи доставки */}
               <div className="space-y-3">
-                <label className="text-xs font-semibold text-slate-400">Доступные способы отправки</label>
+                <label className="text-xs font-semibold text-slate-400">Доступні способи відправки</label>
                 <div className="grid grid-cols-1 gap-2">
                   {[
-                    { id: "NOVA_POSHTA", name: "📦 Новая Почта (Автоматическая генерация ТТН)", desc: "Покупатель выбирает отделение в корзине, ТТН генерируется автоматически. Вы получаете готовый бланк отправки." },
-                    { id: "UKR_POSHTA", name: "📬 Укрпочта Экспресс", desc: "Отправка в любое отделение Укрпочты по Украине." },
-                    { id: "MEEST", name: "⚡ Meest ПОШТА (Доставка по коду)", desc: "Доставка почтоматами или отделениями Meest." },
-                    { id: "COURIER", name: "📍 Курьерская доставка / Самовывоз в Киеве", desc: "Личная встреча с покупателем." }
+                    { id: "NOVA_POSHTA", name: "📦 Нова Пошта (Автоматична генерація ТТН)", desc: "Покупець обирає відділення при викупі, ТТН генерується автоматично. Ви отримуєте готовий бланк відправки." },
+                    { id: "UKR_POSHTA", name: "📬 Укрпошта Експрес", desc: "Відправка в будь-яке відділення Укрпошти по Україні." },
+                    { id: "MEEST", name: "⚡ Meest ПОШТА (Доставка за кодом)", desc: "Доставка поштоматами або відділеннями Meest." },
+                    { id: "COURIER", name: "📍 Кур'єрська доставка / Самовивіз у Києві", desc: "Особиста зустріч з покупцем." }
                   ].map((delivery) => {
                     const isChecked = deliveryOptions.includes(delivery.id);
                     return (
                       <button
                         type="button"
                         key={delivery.id}
+                        onMouseEnter={() => soundService.playHover()}
                         onClick={() => toggleDelivery(delivery.id)}
                         className={`text-left p-4 rounded-xl border flex items-start gap-3 transition-all ${
                           isChecked
@@ -490,18 +532,19 @@ export default function SellPage() {
                 </div>
               </div>
 
-              {/* Безопасность и регламент */}
+              {/* Безпека та регламент */}
               <div className="rounded-xl border border-white/10 bg-slate-950 p-4 text-[11px] text-slate-400 leading-relaxed">
-                🛡️ Размещая объявление, вы соглашаетесь с тем, что KRAM.UA осуществляет холдирование средств покупателя на время сделки для предотвращения мошенничества. Все торги завершаются автоматически по таймеру. Комиссия площадки составляет 1.5% от суммы сделки в случае успешной продажи.
+                🛡️ Розміщуючи оголошення, ви погоджуєтеся з тим, що KRAM.UA здійснює холдування коштів покупця на час угоди для запобігання шахрайству. Всі торги завершуються автоматично за таймером. Комісія майданчика становить 1.5% від суми угоди в разі успішного продажу.
               </div>
             </div>
           )}
 
-          {/* Навигационные кнопки */}
+          {/* Навігаційні кнопки */}
           <div className="flex justify-between border-t border-white/5 pt-6 mt-6">
             {step > 1 ? (
               <button
                 type="button"
+                onMouseEnter={() => soundService.playHover()}
                 onClick={handlePrevStep}
                 className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-slate-800 hover:bg-slate-700 px-4 py-3 text-xs font-semibold text-slate-300 transition-all"
               >
@@ -515,18 +558,20 @@ export default function SellPage() {
             {step < 3 ? (
               <button
                 type="button"
+                onMouseEnter={() => soundService.playHover()}
                 onClick={handleNextStep}
                 className="flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-3 text-xs font-semibold text-white transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
               >
-                Продолжить
+                Продовжити
                 <ChevronRight className="h-4 w-4" />
               </button>
             ) : (
               <button
                 type="submit"
+                onMouseEnter={() => soundService.playHover()}
                 className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 px-6 py-3 text-xs font-bold text-white transition-all border border-emerald-400/20 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
               >
-                Опубликовать лот на KRAM
+                Опублікувати лот на KRAM
               </button>
             )}
           </div>
