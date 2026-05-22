@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -19,13 +19,13 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "@types/react": "^19",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "prisma": "^5.22.0",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/react-dom": "^19"
   },
   "devDependencies": {
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
-    "prisma": "^5.22.0"
+    "eslint-config-next": "16.2.6"
   }
 }
