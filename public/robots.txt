@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /cabinet.html
+Disallow: /create-lot.html
+Disallow: /uploads/
+
+Sitemap: https://your-domain.com/sitemap.xml

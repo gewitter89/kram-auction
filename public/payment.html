@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата — МійАукціон</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .payment-page { max-width: 600px; margin: 40px auto; padding: 0 20px; }
+        .payment-card { background: var(--white); border-radius: 12px; padding: 32px; box-shadow: var(--shadow); }
+        .payment-card h1 { font-size: 1.4rem; margin-bottom: 8px; }
+        .payment-card__subtitle { color: var(--text-light); margin-bottom: 24px; }
+        .payment-lot { display: flex; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 24px; }
+        .payment-lot img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; }
+        .payment-lot__info h3 { font-size: 0.95rem; margin-bottom: 4px; }
+        .payment-lot__price { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+        .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        .payment-method { display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .payment-method:hover { border-color: var(--primary); }
+        .payment-method.active { border-color: var(--primary); background: #e8f0fe; }
+        .payment-method__icon { font-size: 2rem; }
+        .payment-method__info h4 { font-size: 0.95rem; margin-bottom: 2px; }
+        .payment-method__info span { font-size: 0.82rem; color: var(--text-light); }
+        .payment-total { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; }
+        .payment-total__label { font-size: 1rem; color: var(--text-light); }
+        .payment-total__amount { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .payment-btn { width: 100%; padding: 16px; background: var(--success); color: var(--white); border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.3s; }
+        .payment-btn:hover { background: #218838; }
+        .payment-secure { text-align: center; margin-top: 16px; font-size: 0.82rem; color: var(--text-light); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">МійАукціон</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="payment-page">
+        <div class="payment-card">
+            <h1>💳 Оплата замовлення</h1>
+            <p class="payment-card__subtitle">Оберіть спосіб оплати</p>
+
+            <div class="payment-lot">
+                <img src="https://placehold.co/80x60/e8f0fe/1a73e8?text=Lot" alt="" id="paymentLotImage">
+                <div class="payment-lot__info">
+                    <h3 id="paymentLotTitle">Назва лота</h3>
+                    <div class="payment-lot__price" id="paymentAmount">0 грн.</div>
+                </div>
+            </div>
+
+            <div class="payment-methods">
+                <div class="payment-method active" data-method="liqpay" onclick="selectMethod(this)">
+                    <div class="payment-method__icon">💳</div>
+                    <div class="payment-method__info">
+                        <h4>LiqPay (Visa/Mastercard)</h4>
+                        <span>Миттєва оплата карткою</span>
+                    </div>
+                </div>
+                <div class="payment-method" data-method="monobank" onclick="selectMethod(this)">
+                    <div class="payment-method__icon">🏦</div>
+                    <div class="payment-method__info">
+                        <h4>Monobank</h4>
+                        <span>Переказ через додаток</span>
+                    </div>
+                </div>
+                <div class="payment-method" data-method="card" onclick="selectMethod(this)">
+                    <div class="payment-method__icon">💰</div>
+                    <div class="payment-method__info">
+                        <h4>На картку продавця</h4>
+                        <span>Ручний переказ + підтвердження</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-total">
+                <span class="payment-total__label">До сплати:</span>
+                <span class="payment-total__amount" id="paymentTotal">0 грн.</span>
+            </div>
+
+            <button class="payment-btn" id="payBtn" onclick="processPayment()">
+                Оплатити
+            </button>
+
+            <p class="payment-secure">🔒 Безпечна оплата. Дані захищені SSL шифруванням.</p>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        let selectedMethod = 'liqpay';
+        let purchaseId = new URLSearchParams(window.location.search).get('id');
+
+        function selectMethod(el) {
+            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+            el.classList.add('active');
+            selectedMethod = el.dataset.method;
+        }
+
+        async function processPayment() {
+            if (!api.isLoggedIn()) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            const btn = document.getElementById('payBtn');
+            btn.disabled = true;
+            btn.textContent = 'Обробка...';
+
+            try {
+                if (selectedMethod === 'liqpay') {
+                    const result = await api.request('/payment/create', {
+                        method: 'POST',
+                        body: JSON.stringify({ purchaseId })
+                    });
+                    // Redirect to LiqPay checkout
+                    window.location.href = result.checkoutUrl;
+                } else if (selectedMethod === 'monobank') {
+                    const result = await api.request('/payment/monobank', {
+                        method: 'POST',
+                        body: JSON.stringify({ purchaseId })
+                    });
+                    alert(result.instructions.join('\n'));
+                    btn.disabled = false;
+                    btn.textContent = 'Оплатити';
+                } else {
+                    // Manual card payment
+                    await api.request(`/purchases/${purchaseId}/pay`, { method: 'PUT' });
+                    alert('Оплату підтверджено! Продавець отримає сповіщення.');
+                    window.location.href = '/cabinet.html';
+                }
+            } catch (err) {
+                alert('Помилка: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = 'Оплатити';
+            }
+        }
+
+        // Load purchase info
+        async function loadPurchaseInfo() {
+            if (!purchaseId) {
+                document.querySelector('.payment-card').innerHTML = '<p>Покупку не знайдено. <a href="/cabinet.html">Повернутись в кабінет</a></p>';
+                return;
+            }
+            try {
+                const purchases = await api.request('/purchases');
+                const purchase = purchases.find(p => p.id == purchaseId);
+                if (purchase) {
+                    document.getElementById('paymentLotTitle').textContent = purchase.lot_title || 'Лот #' + purchase.lot_id;
+                    document.getElementById('paymentAmount').textContent = purchase.amount + ' грн.';
+                    document.getElementById('paymentTotal').textContent = purchase.amount + ' грн.';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPurchaseInfo);
+    </script>
+</body>
+</html>

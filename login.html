@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід — МійАукціон</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">МійАукціон</span>
+                </a>
+            </div>
+            <div class="header__right">
+                <a href="register.html" class="header__link">Реєстрація</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-page">
+        <div class="auth-card">
+            <h1 class="auth-card__title">Вхід в акаунт</h1>
+            <p class="auth-card__subtitle">Увійдіть, щоб робити ставки та продавати</p>
+
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email або логін</label>
+                    <input type="text" id="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" placeholder="Введіть пароль" required>
+                    <a href="#" class="form-link">Забули пароль?</a>
+                </div>
+                <div class="form-group form-group--checkbox">
+                    <label><input type="checkbox" checked> Запам'ятати мене</label>
+                </div>
+                <button type="submit" class="auth-btn">Увійти</button>
+            </form>
+
+            <div class="auth-divider">
+                <span>або</span>
+            </div>
+
+            <div class="auth-social">
+                <button class="social-btn social-btn--google">
+                    <span>G</span> Увійти через Google
+                </button>
+                <button class="social-btn social-btn--facebook">
+                    <span>f</span> Увійти через Facebook
+                </button>
+            </div>
+
+            <p class="auth-card__footer">
+                Немає акаунту? <a href="register.html">Зареєструватися</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Вхід виконано! (демо)');
+            window.location.href = 'cabinet.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профіль продавця — МійАукціон</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/seller.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">МійАукціон</span>
+                </a>
+            </div>
+            <div class="header__search">
+                <input type="text" placeholder="Пошук лотів..." class="search-input">
+                <button class="search-btn" aria-label="Шукати">🔍</button>
+            </div>
+            <div class="header__right">
+                <a href="#" class="header__icon" title="Обране">❤️</a>
+                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
+                <a href="#" class="header__icon" title="Кошик">🛒</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="seller-page">
+            <!-- Seller Profile Header -->
+            <div class="seller-profile">
+                <div class="seller-profile__avatar">👤</div>
+                <div class="seller-profile__info">
+                    <h1 class="seller-profile__name">SERGEYRV</h1>
+                    <div class="seller-profile__rating">
+                        <span class="stars">★★★★☆</span>
+                        <span class="rating-text">4.2 / 5</span>
+                        <span class="rating-count">(1924 відгуки)</span>
+                    </div>
+                    <div class="seller-profile__meta">
+                        <span>📍 Київ</span>
+                        <span>📅 На сайті з 2019</span>
+                        <span>📦 Продано: 1 856 лотів</span>
+                    </div>
+                    <p class="seller-profile__bio">Продаю техніку б/в з Європи. Гарантія 14 днів. Швидка відправка Новою Поштою.</p>
+                </div>
+                <div class="seller-profile__stats">
+                    <div class="seller-stat">
+                        <span class="seller-stat__value">98%</span>
+                        <span class="seller-stat__label">Позитивних</span>
+                    </div>
+                    <div class="seller-stat">
+                        <span class="seller-stat__value">24 год</span>
+                        <span class="seller-stat__label">Відповідь</span>
+                    </div>
+                    <div class="seller-stat">
+                        <span class="seller-stat__value">47</span>
+                        <span class="seller-stat__label">Активних лотів</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seller Tabs -->
+            <div class="seller-tabs">
+                <button class="seller-tab active" data-tab="lots">Лоти продавця (47)</button>
+                <button class="seller-tab" data-tab="reviews">Відгуки (1924)</button>
+            </div>
+
+            <!-- Lots -->
+            <div class="seller-content" id="seller-lots">
+                <div class="lots-grid">
+                    <div class="lot-card">
+                        <div class="lot-card__image">
+                            <img src="https://placehold.co/400x300/e8f0fe/1a73e8?text=Dell+E7470" alt="">
+                            <span class="lot-card__badge">Аукціон</span>
+                        </div>
+                        <div class="lot-card__body">
+                            <span class="lot-card__category">Ноутбуки</span>
+                            <h3 class="lot-card__title">Ноутбук Dell Latitude E7470 i5/8Gb/256SSD</h3>
+                            <div class="lot-card__price">1 159 грн.</div>
+                            <div class="lot-card__footer">
+                                <div class="lot-card__timer">⏱ 10 год.</div>
+                                <div class="lot-card__bids">7 ставок</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lot-card">
+                        <div class="lot-card__image">
+                            <img src="https://placehold.co/400x300/e8f0fe/1a73e8?text=Dell+5520" alt="">
+                            <span class="lot-card__badge">Аукціон</span>
+                        </div>
+                        <div class="lot-card__body">
+                            <span class="lot-card__category">Ноутбуки</span>
+                            <h3 class="lot-card__title">Dell Precision 5520 i7 / Nvidia Quadro M1200</h3>
+                            <div class="lot-card__price">2 005 грн.</div>
+                            <div class="lot-card__footer">
+                                <div class="lot-card__timer">⏱ 10 год.</div>
+                                <div class="lot-card__bids">5 ставок</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lot-card">
+                        <div class="lot-card__image">
+                            <img src="https://placehold.co/400x300/e8f0fe/1a73e8?text=HP+840" alt="">
+                            <span class="lot-card__badge">Аукціон</span>
+                        </div>
+                        <div class="lot-card__body">
+                            <span class="lot-card__category">Ноутбуки</span>
+                            <h3 class="lot-card__title">HP EliteBook 840 G3 i5-6gen 8gb DDR4</h3>
+                            <div class="lot-card__price">1 171 грн.</div>
+                            <div class="lot-card__footer">
+                                <div class="lot-card__timer">⏱ 5 дн.</div>
+                                <div class="lot-card__bids">3 ставки</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lot-card">
+                        <div class="lot-card__image">
+                            <img src="https://placehold.co/400x300/e8f0fe/1a73e8?text=Lenovo+T560" alt="">
+                            <span class="lot-card__badge">Від 1 грн</span>
+                        </div>
+                        <div class="lot-card__body">
+                            <span class="lot-card__category">Ноутбуки</span>
+                            <h3 class="lot-card__title">Lenovo ThinkPad T560 i5-6300U/8Gb/120Gb SSD</h3>
+                            <div class="lot-card__price">1 966 грн.</div>
+                            <div class="lot-card__footer">
+                                <div class="lot-card__timer">⏱ 8 дн.</div>
+                                <div class="lot-card__bids">9 ставок</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="seller-content" id="seller-reviews" style="display:none;">
+                <div class="reviews-summary">
+                    <div class="reviews-summary__score">
+                        <span class="big-score">4.2</span>
+                        <span class="stars">★★★★☆</span>
+                        <span>1924 відгуки</span>
+                    </div>
+                    <div class="reviews-summary__bars">
+                        <div class="bar-row"><span>5 ★</span><div class="bar"><div class="bar__fill" style="width:65%"></div></div><span>65%</span></div>
+                        <div class="bar-row"><span>4 ★</span><div class="bar"><div class="bar__fill" style="width:20%"></div></div><span>20%</span></div>
+                        <div class="bar-row"><span>3 ★</span><div class="bar"><div class="bar__fill" style="width:8%"></div></div><span>8%</span></div>
+                        <div class="bar-row"><span>2 ★</span><div class="bar"><div class="bar__fill" style="width:4%"></div></div><span>4%</span></div>
+                        <div class="bar-row"><span>1 ★</span><div class="bar"><div class="bar__fill" style="width:3%"></div></div><span>3%</span></div>
+                    </div>
+                </div>
+                <div class="reviews-list">
+                    <div class="review-item">
+                        <div class="review-item__header">
+                            <strong>happy_buyer</strong>
+                            <span class="review-item__stars">★★★★★</span>
+                            <span class="review-item__date">12.05.2026</span>
+                        </div>
+                        <p>Ноутбук у відмінному стані, все працює. Відправив в день оплати. Рекомендую продавця!</p>
+                        <span class="review-item__lot">Лот: Dell Latitude E5570</span>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-item__header">
+                            <strong>tech_lover</strong>
+                            <span class="review-item__stars">★★★★★</span>
+                            <span class="review-item__date">10.05.2026</span>
+                        </div>
+                        <p>Все чудово! Швидка доставка, товар відповідає опису.</p>
+                        <span class="review-item__lot">Лот: HP EliteBook 840 G5</span>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-item__header">
+                            <strong>user_789</strong>
+                            <span class="review-item__stars">★★★☆☆</span>
+                            <span class="review-item__date">08.05.2026</span>
+                        </div>
+                        <p>Товар нормальний, але батарея тримає менше ніж заявлено. В цілому ок за таку ціну.</p>
+                        <span class="review-item__lot">Лот: Lenovo ThinkPad T480</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__container">
+            <div class="footer__links">
+                <a href="#">Про нас</a>
+                <a href="#">Угода користувача</a>
+                <a href="#">Контакти</a>
+                <a href="#">Допомога</a>
+            </div>
+            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Tabs
+        document.querySelectorAll('.seller-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.seller-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('seller-lots').style.display = tab.dataset.tab === 'lots' ? 'block' : 'none';
+                document.getElementById('seller-reviews').style.display = tab.dataset.tab === 'reviews' ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

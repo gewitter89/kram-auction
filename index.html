@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МійАукціон — Аукціони від 1 грн</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <button class="header__menu-btn" id="menuToggle" aria-label="Меню">
+                    <span></span><span></span><span></span>
+                </button>
+                <a href="index.html" class="header__logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">МійАукціон</span>
+                </a>
+            </div>
+            <div class="header__search">
+                <input type="text" placeholder="Пошук лотів..." class="search-input" id="searchInput">
+                <button class="search-btn" aria-label="Шукати">🔍</button>
+            </div>
+            <div class="header__right">
+                <a href="#" class="header__icon" title="Обране">❤️</a>
+                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
+                <a href="login.html" class="header__icon" title="Увійти">🔑</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Banner/Slider -->
+    <section class="banner">
+        <div class="banner__container">
+            <div class="banner__slide active" id="slide1">
+                <div class="banner__content">
+                    <h2>Аукціони від 1 грн!</h2>
+                    <p>Тисячі лотів щодня. Знайди свою вигоду.</p>
+                    <a href="#" class="banner__btn">Переглянути лоти</a>
+                </div>
+                <div class="banner__image">🔨</div>
+            </div>
+            <div class="banner__slide" id="slide2">
+                <div class="banner__content">
+                    <h2>Продавай легко!</h2>
+                    <p>Створи лот за 2 хвилини та отримай покупців.</p>
+                    <a href="create-lot.html" class="banner__btn">Створити лот</a>
+                </div>
+                <div class="banner__image">📦</div>
+            </div>
+            <div class="banner__slide" id="slide3">
+                <div class="banner__content">
+                    <h2>Безпечні угоди</h2>
+                    <p>Рейтинг продавців та захист покупців.</p>
+                    <a href="#" class="banner__btn">Дізнатися більше</a>
+                </div>
+                <div class="banner__image">🛡️</div>
+            </div>
+            <div class="banner__dots">
+                <span class="dot active" onclick="goToSlide(0)"></span>
+                <span class="dot" onclick="goToSlide(1)"></span>
+                <span class="dot" onclick="goToSlide(2)"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Top Lots -->
+    <section class="top-lots">
+        <div class="top-lots__container">
+            <h2 class="top-lots__title">🔥 Топ-лоти</h2>
+            <div class="top-lots__grid" id="topLotsGrid">
+                <!-- Filled by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="main__container">
+            <!-- Sidebar Filters -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar__section">
+                    <h3 class="sidebar__title">Категорії</h3>
+                    <ul class="sidebar__categories">
+                        <li><a href="#" class="category-link active" data-category="all">Всі категорії</a></li>
+                        <li><a href="#" class="category-link" data-category="electronics">Електроніка, Техніка</a></li>
+                        <li><a href="#" class="category-link" data-category="fashion">Одяг, мода, краса</a></li>
+                        <li><a href="#" class="category-link" data-category="auto">Автозапчастини, Тюнінг</a></li>
+                        <li><a href="#" class="category-link" data-category="sport">Спорт, Туризм</a></li>
+                        <li><a href="#" class="category-link" data-category="kids">Дитячі товари</a></li>
+                        <li><a href="#" class="category-link" data-category="home">Будинок, дозвілля</a></li>
+                        <li><a href="#" class="category-link" data-category="tools">Інструменти</a></li>
+                    </ul>
+                </div>
+
+                <div class="sidebar__section">
+                    <h3 class="sidebar__title">Параметри</h3>
+                    <div class="filter-group">
+                        <label class="filter-label">Тип пропозиції:</label>
+                        <div class="filter-checkboxes">
+                            <label><input type="checkbox" checked> Купити зараз</label>
+                            <label><input type="checkbox" checked> Аукціон</label>
+                            <label><input type="checkbox" checked> Від 1 грн</label>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Стан:</label>
+                        <div class="filter-checkboxes">
+                            <label><input type="checkbox"> Нове</label>
+                            <label><input type="checkbox"> Б/В</label>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Ціна (грн):</label>
+                        <div class="filter-price">
+                            <input type="number" placeholder="від" class="price-input" id="priceFrom">
+                            <span>–</span>
+                            <input type="number" placeholder="до" class="price-input" id="priceTo">
+                        </div>
+                    </div>
+                    <button class="filter-btn" id="filterBtn">Знайти</button>
+                </div>
+            </aside>
+
+            <!-- Lots Grid -->
+            <section class="content">
+                <div class="content__header">
+                    <h1 class="content__title">Аукціони від 1 грн.</h1>
+                    <div class="content__sort">
+                        <label>Сортування:</label>
+                        <select id="sortSelect">
+                            <option value="ending">Завершуються скоро</option>
+                            <option value="price-asc">Ціна: від низької</option>
+                            <option value="price-desc">Ціна: від високої</option>
+                            <option value="new">Нові</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="lots-grid" id="lotsGrid">
+                    <!-- Lots will be rendered by JS -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="pagination__btn active">1</button>
+                    <button class="pagination__btn">2</button>
+                    <button class="pagination__btn">3</button>
+                    <button class="pagination__btn">4</button>
+                    <span class="pagination__dots">...</span>
+                    <button class="pagination__btn">149</button>
+                    <button class="pagination__btn pagination__next">→</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer__container">
+            <div class="footer__links">
+                <a href="#">Про нас</a>
+                <a href="#">Угода користувача</a>
+                <a href="#">Контакти</a>
+                <a href="#">Допомога</a>
+            </div>
+            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

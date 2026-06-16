@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація — МійАукціон</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">МійАукціон</span>
+                </a>
+            </div>
+            <div class="header__right">
+                <a href="login.html" class="header__link">Увійти</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-page">
+        <div class="auth-card auth-card--wide">
+            <h1 class="auth-card__title">Реєстрація</h1>
+            <p class="auth-card__subtitle">Створіть акаунт для покупок та продажу</p>
+
+            <form class="auth-form" id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">Ім'я</label>
+                        <input type="text" id="firstName" placeholder="Ваше ім'я" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Прізвище</label>
+                        <input type="text" id="lastName" placeholder="Ваше прізвище" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regUsername">Логін (нікнейм)</label>
+                    <input type="text" id="regUsername" placeholder="Ваш унікальний логін" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" id="phone" placeholder="+380 XX XXX XX XX" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regPassword">Пароль</label>
+                        <input type="password" id="regPassword" placeholder="Мін. 8 символів" required minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPasswordConfirm">Підтвердження</label>
+                        <input type="password" id="regPasswordConfirm" placeholder="Повторіть пароль" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="city">Місто</label>
+                    <select id="city">
+                        <option value="">Оберіть місто</option>
+                        <option>Київ</option>
+                        <option>Харків</option>
+                        <option>Одеса</option>
+                        <option>Дніпро</option>
+                        <option>Львів</option>
+                        <option>Запоріжжя</option>
+                        <option>Вінниця</option>
+                        <option>Полтава</option>
+                        <option>Інше</option>
+                    </select>
+                </div>
+                <div class="form-group form-group--checkbox">
+                    <label><input type="checkbox" required> Я приймаю <a href="#">Угоду користувача</a></label>
+                </div>
+                <div class="form-group form-group--checkbox">
+                    <label><input type="checkbox"> Отримувати сповіщення про нові лоти</label>
+                </div>
+                <button type="submit" class="auth-btn">Зареєструватися</button>
+            </form>
+
+            <p class="auth-card__footer">
+                Вже є акаунт? <a href="login.html">Увійти</a>
+            </p>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regPasswordConfirm').value;
+            if (pass !== confirm) {
+                alert('Паролі не співпадають!');
+                return;
+            }
+            alert('Реєстрація успішна! (демо)');
+            window.location.href = 'cabinet.html';
+        });
+    </script>
+</body>
+</html>
