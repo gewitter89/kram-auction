@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /register.html
+Disallow: /login.html
+
+Allow: /
+Allow: /index.html
+Allow: /lot.html
+Allow: /create-lot.html
+Allow: /cabinet.html
+Allow: /seller.html
+
+Sitemap: https://yourdomain.com/sitemap.xml
