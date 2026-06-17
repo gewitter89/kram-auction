@@ -243,4 +243,17 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 // Init
-document.addEventListener('DOMContentLoaded', loadLot);
+document.addEventListener('DOMContentLoaded', () => {
+    loadLot();
+    // Socket.IO real-time
+    const socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
+    socket.on('connect', () => {
+        if (lotId) socket.emit('join-lot', lotId);
+    });
+    socket.on('bid_update', (data) => {
+        if (String(data.id) === String(lotId)) {
+            lot = data;
+            renderLot();
+        }
+    });
+});

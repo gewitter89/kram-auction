@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server: SocketIOServer } = require('socket.io');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
@@ -20,8 +22,18 @@ const purchasesRoutes = require('./routes/purchases');
 const paymentRoutes = require('./routes/payment');
 const notificationsRoutes = require('./routes/notifications');
 const reviewsRoutes = require('./routes/reviews');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server, {
+    cors: { origin: '*', methods: ['GET', 'POST'] }
+});
+
+// Make io accessible in routes
+app.set('io', io);
+app.set('db', db);
+
 const PORT = process.env.PORT || 3000;
 
 // Security middleware
@@ -70,6 +82,19 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
     maxAge: '7d'
 }));
 
+// Socket.IO — real-time bid updates
+io.on('connection', (socket) => {
+    socket.on('join-lot', (lotId) => {
+        socket.join(`lot:${lotId}`);
+    });
+    socket.on('leave-lot', (lotId) => {
+        socket.leave(`lot:${lotId}`);
+    });
+    socket.on('join-cabinet', (userId) => {
+        if (userId) socket.join(`user:${userId}`);
+    });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/lots', lotsRoutes);
@@ -81,6 +106,7 @@ app.use('/api/purchases', purchasesRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/reviews', reviewsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // API: Get categories
 app.get('/api/categories', (req, res) => {
@@ -126,7 +152,6 @@ schedule.scheduleJob('*/30 * * * * *', () => {
             const winner = getWinner.get(lot.id);
 
             if (winner) {
-                // Check reserve price
                 if (lot.reserve_price && winner.amount < lot.reserve_price) {
                     closeLot.run('reserve_not_met', lot.id);
                     createNotification.run(winner.user_id, 'reserve_not_met',
@@ -142,6 +167,14 @@ schedule.scheduleJob('*/30 * * * * *', () => {
                         `Вітаємо! Ви виграли "${lot.title}" за ${winner.amount} грн.`, lot.id);
                     createNotification.run(lot.seller_id, 'sold', 'Ваш лот продано!',
                         `"${lot.title}" продано за ${winner.amount} грн.`, lot.id);
+                    // Socket + Email
+                    io.to(`lot:${lot.id}`).emit('bid_update', { status: 'completed', id: lot.id, title: lot.title });
+                    io.to(`user:${winner.user_id}`).emit('notification', { type: 'won', title: 'Ви виграли аукціон!', lotId: lot.id });
+                    io.to(`user:${lot.seller_id}`).emit('notification', { type: 'sold', title: 'Ваш лот продано!', lotId: lot.id });
+                    const winnerUser = db.prepare('SELECT email FROM users WHERE id = ?').get(winner.user_id);
+                    const sellerUser = db.prepare('SELECT email FROM users WHERE id = ?').get(lot.seller_id);
+                    if (winnerUser?.email) sendEmail(winnerUser.email, 'auctionWon', { user: winnerUser, params: [lot.title, winner.amount, lot.id] });
+                    if (sellerUser?.email) sendEmail(sellerUser.email, 'lotSold', { user: sellerUser, params: [lot.title, winner.amount] });
                 }
             } else {
                 closeLot.run('expired', lot.id);
@@ -176,6 +209,7 @@ schedule.scheduleJob('*/5 * * * *', () => {
 
     for (const item of endingSoon) {
         createNotification.run(item.user_id, `"${item.title}" завершується менш ніж за годину!`, item.id);
+        io.to(`user:${item.user_id}`).emit('notification', { type: 'ending_soon', title: 'Лот завершується!', lotId: item.id });
     }
 });
 
@@ -198,7 +232,7 @@ app.use((req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`\n🚀 МійАукціон сервер запущено!`);
     console.log(`📍 http://localhost:${PORT}`);
     console.log(`📦 База даних: auction.db`);

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін панель — МійАукціон</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin { max-width:1200px;margin:0 auto;padding:24px 16px }
+        .admin h1 { font-size:24px;margin-bottom:8px }
+        .admin-stats { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin:20px 0 }
+        .stat-card { background:#f8f9fa;border-radius:8px;padding:16px;text-align:center }
+        .stat-card__value { font-size:28px;font-weight:700;color:#1a73e8;display:block }
+        .stat-card__label { font-size:13px;color:#666;margin-top:4px;display:block }
+        .admin-tabs { display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid #e0e0e0;padding-bottom:0 }
+        .admin-tab { padding:10px 20px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:500;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px }
+        .admin-tab.active { color:#1a73e8;border-bottom-color:#1a73e8 }
+        .admin-section { display:none }
+        .admin-section.active { display:block }
+        .admin-table { width:100%;border-collapse:collapse;font-size:13px }
+        .admin-table th { background:#f0f4ff;padding:10px 12px;text-align:left;font-weight:600;border-bottom:2px solid #e0e0e0;white-space:nowrap }
+        .admin-table td { padding:10px 12px;border-bottom:1px solid #eee;vertical-align:middle }
+        .admin-table tr:hover { background:#f8f9ff }
+        .badge-admin { background:#fff3cd;color:#856404;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600 }
+        .badge-user { background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:4px;font-size:11px }
+        .badge-blocked { background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:4px;font-size:11px }
+        .btn-sm { padding:4px 12px;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500 }
+        .btn-danger { background:#fce4ec;color:#c62828 }
+        .btn-danger:hover { background:#f8bbd0 }
+        .btn-warning { background:#fff3cd;color:#856404 }
+        .btn-warning:hover { background:#ffe082 }
+        .btn-primary-sm { background:#e3f2fd;color:#1565c0 }
+        .btn-primary-sm:hover { background:#bbdefb }
+        .search-bar { display:flex;gap:8px;margin-bottom:16px }
+        .search-bar input { flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px }
+        .search-bar button { padding:8px 16px;background:#1a73e8;color:white;border:none;border-radius:6px;cursor:pointer }
+        .pagination { display:flex;gap:4px;margin-top:16px;justify-content:center }
+        .pagination button { padding:6px 12px;border:1px solid #ddd;background:white;border-radius:4px;cursor:pointer }
+        .pagination button.active { background:#1a73e8;color:white;border-color:#1a73e8 }
+        .alert { padding:12px 16px;border-radius:6px;margin-bottom:16px;display:none }
+        .alert-success { background:#e8f5e9;color:#2e7d32;display:block }
+        .alert-error { background:#fce4ec;color:#c62828;display:block }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">Адмін панель</span>
+                </a>
+            </div>
+            <div class="header__right">
+                <a href="cabinet.html" class="header__link">Кабінет</a>
+                <a href="index.html" class="header__link">На сайт</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="admin" id="app">
+            <h1>⚙️ Адмін панель</h1>
+            <div id="stats" class="admin-stats"></div>
+
+            <div class="admin-tabs">
+                <button class="admin-tab active" data-section="users">Користувачі</button>
+                <button class="admin-tab" data-section="lots">Лоти</button>
+                <button class="admin-tab" data-section="purchases">Покупки</button>
+            </div>
+
+            <div id="alert" class="alert"></div>
+
+            <div id="section-users" class="admin-section active">
+                <div class="search-bar">
+                    <input type="text" id="userSearch" placeholder="Пошук за логіном або email...">
+                    <button onclick="loadUsers()">🔍</button>
+                </div>
+                <table class="admin-table">
+                    <thead><tr>
+                        <th>ID</th><th>Логін</th><th>Email</th><th>Ім'я</th><th>Місто</th>
+                        <th>Рейтинг</th><th>Роль</th><th>Статус</th><th>Дата</th><th>Дії</th>
+                    </tr></thead>
+                    <tbody id="usersTable"></tbody>
+                </table>
+                <div id="usersPagination" class="pagination"></div>
+            </div>
+
+            <div id="section-lots" class="admin-section">
+                <div class="search-bar">
+                    <input type="text" id="lotSearch" placeholder="Пошук за назвою лота...">
+                    <button onclick="loadLots()">🔍</button>
+                </div>
+                <select id="lotStatusFilter" onchange="loadLots()" style="padding:8px;border:1px solid #ddd;border-radius:6px;margin-bottom:12px">
+                    <option value="active">Активні</option>
+                    <option value="completed">Завершені</option>
+                    <option value="sold">Продані</option>
+                    <option value="expired">Прострочені</option>
+                </select>
+                <table class="admin-table">
+                    <thead><tr><th>ID</th><th>Назва</th><th>Продавець</th><th>Ціна</th><th>Ставки</th><th>Статус</th><th>Дата</th><th>Дії</th></tr></thead>
+                    <tbody id="lotsTable"></tbody>
+                </table>
+                <div id="lotsPagination" class="pagination"></div>
+            </div>
+
+            <div id="section-purchases" class="admin-section">
+                <p style="color:#666;padding:20px">Управління покупками в розробці. Використовуйте розділ "Лоти" для модерації.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        const API = new (class { constructor() { this.token = localStorage.getItem('authToken'); } 
+            getHeaders() { return { 'Content-Type':'application/json', ...(this.token?{'Authorization':'Bearer '+this.token}:{}) }; }
+            async get(url) { const r=await fetch(url,{headers:this.getHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.error);return d; }
+            async put(url) { const r=await fetch(url,{method:'PUT',headers:this.getHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.error);return d; }
+            async del(url) { const r=await fetch(url,{method:'DELETE',headers:this.getHeaders()});const d=await r.json();if(!r.ok)throw new Error(d.error);return d; }
+        })();
+
+        function alert(msg, type='success') {
+            const el = document.getElementById('alert');
+            el.textContent = msg;
+            el.className = 'alert alert-' + type;
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        async function loadStats() {
+            try {
+                const s = await API.get('/api/admin/stats');
+                document.getElementById('stats').innerHTML = `
+                    <div class="stat-card"><span class="stat-card__value">${s.totalUsers}</span><span class="stat-card__label">Користувачів</span></div>
+                    <div class="stat-card"><span class="stat-card__value">${s.activeLots}</span><span class="stat-card__label">Активних лотів</span></div>
+                    <div class="stat-card"><span class="stat-card__value">${s.totalBids}</span><span class="stat-card__label">Ставок</span></div>
+                    <div class="stat-card"><span class="stat-card__value">${s.totalPurchases}</span><span class="stat-card__label">Очікує оплати</span></div>
+                    <div class="stat-card"><span class="stat-card__value">${s.completedPurchases}</span><span class="stat-card__label">Завершених</span></div>
+                    <div class="stat-card"><span class="stat-card__value">${Number(s.revenue).toLocaleString('uk-UA')} ₴</span><span class="stat-card__label">Оборот</span></div>
+                    <div class="stat-card"><span class="stat-card__value">${s.newUsersToday}</span><span class="stat-card__label">Нових сьогодні</span></div>
+                `;
+            } catch(e) { alert('Помилка завантаження статистики', 'error'); }
+        }
+
+        async function loadUsers(page=1) {
+            const search = document.getElementById('userSearch').value;
+            try {
+                const d = await API.get('/api/admin/users?page='+page+'&limit=50'+(search?'&search='+encodeURIComponent(search):''));
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = d.users.map(u => `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td><strong>${esc(u.username)}</strong></td>
+                        <td>${esc(u.email||'')}</td>
+                        <td>${esc(u.first_name||'')} ${esc(u.last_name||'')}</td>
+                        <td>${esc(u.city||'')}</td>
+                        <td>${u.rating||0} ★ (${u.reviews_count||0})</td>
+                        <td>${u.is_admin?'<span class="badge-admin">Адмін</span>':'<span class="badge-user">Користувач</span>'}</td>
+                        <td>${u.is_active?'<span style="color:#2e7d32">Активний</span>':'<span class="badge-blocked">Заблокований</span>'}</td>
+                        <td style="font-size:11px;color:#999">${u.created_at?new Date(u.created_at).toLocaleDateString('uk-UA'):''}</td>
+                        <td style="white-space:nowrap">
+                            <button class="btn-sm ${u.is_active?'btn-danger':'btn-primary-sm'}" onclick="toggleBan(${u.id})">${u.is_active?'🔒 Блок':'🔓 Розбл'}</button>
+                            <button class="btn-sm ${u.is_admin?'btn-warning':'btn-primary-sm'}" onclick="toggleAdmin(${u.id})">${u.is_admin?'👤 Розжал':'⭐ Зробити'}</button>
+                        </td>
+                    </tr>
+                `).join('');
+                renderPagination('usersPagination', d.pagination, loadUsers);
+            } catch(e) { alert(e.message, 'error'); }
+        }
+
+        async function toggleBan(id) {
+            try { const r = await API.put('/api/admin/users/'+id+'/toggle-ban'); alert(r.message); loadUsers(); }
+            catch(e) { alert(e.message, 'error'); }
+        }
+
+        async function toggleAdmin(id) {
+            try { const r = await API.put('/api/admin/users/'+id+'/toggle-admin'); alert(r.message); loadUsers(); }
+            catch(e) { alert(e.message, 'error'); }
+        }
+
+        async function loadLots(page=1) {
+            const search = document.getElementById('lotSearch').value;
+            const status = document.getElementById('lotStatusFilter').value;
+            try {
+                const d = await API.get('/api/admin/lots?page='+page+'&limit=50&status='+status+(search?'&search='+encodeURIComponent(search):''));
+                const tbody = document.getElementById('lotsTable');
+                tbody.innerHTML = d.lots.map(l => `
+                    <tr>
+                        <td>${l.id}</td>
+                        <td><a href="lot.html?id=${l.id}" target="_blank">${esc(l.title||'').slice(0,50)}</a></td>
+                        <td>${esc(l.seller_name||'')}</td>
+                        <td>${Number(l.current_price||l.start_price||0).toLocaleString('uk-UA')} ₴</td>
+                        <td>${l.bids_count||0}</td>
+                        <td>${l.status}</td>
+                        <td style="font-size:11px;color:#999">${l.created_at?new Date(l.created_at).toLocaleDateString('uk-UA'):''}</td>
+                        <td><button class="btn-sm btn-danger" onclick="deleteLot(${l.id})">🗑️</button></td>
+                    </tr>
+                `).join('');
+                renderPagination('lotsPagination', d.pagination, loadLots);
+            } catch(e) { alert(e.message, 'error'); }
+        }
+
+        async function deleteLot(id) {
+            if (!confirm('Видалити лот #'+id+'?')) return;
+            try { const r = await API.del('/api/admin/lots/'+id); alert(r.message); loadLots(); }
+            catch(e) { alert(e.message, 'error'); }
+        }
+
+        function renderPagination(id, p, cb) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (p.pages <= 1) { el.innerHTML = ''; return; }
+            let html = '';
+            for (let i = 1; i <= p.pages; i++) {
+                if (i > 10 && i < p.pages) { if (i === 11) html += '<span>...</span>'; continue; }
+                html += `<button class="${i===p.page?'active':''}" onclick="${cb.name}(${i})">${i}</button>`;
+            }
+            el.innerHTML = html;
+        }
+
+        // Tabs
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('section-'+tab.dataset.section).classList.add('active');
+            });
+        });
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!localStorage.getItem('authToken')) { window.location.href = 'login.html'; return; }
+            // Check admin
+            try {
+                const me = await API.get('/api/admin/stats');
+            } catch(e) {
+                alert('Доступ заборонено. Потрібні права адміністратора.', 'error');
+                setTimeout(() => window.location.href = 'index.html', 2000);
+                return;
+            }
+            await loadStats();
+            await loadUsers();
+            await loadLots();
+        });
+    </script>
+</body>
+</html>

@@ -1,8 +1,39 @@
 const express = require('express');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
+const { sendEmail } = require('../services/email');
 
 const router = express.Router();
+
+// Helper: emit bid update to lot room
+function emitBidUpdate(io, lotId) {
+    const lot = db.prepare(`
+        SELECT lots.*, categories.name as category_name,
+               users.username as seller_name, users.rating as seller_rating,
+               (SELECT filename FROM lot_images WHERE lot_id = lots.id AND is_main = 1 LIMIT 1) as main_image
+        FROM lots
+        LEFT JOIN categories ON lots.category_id = categories.id
+        LEFT JOIN users ON lots.seller_id = users.id
+        WHERE lots.id = ?
+    `).get(lotId);
+    if (lot) {
+        const bids = db.prepare(`
+            SELECT bids.amount, bids.created_at,
+                   SUBSTR(users.username, 1, 3) || '***' as bidder
+            FROM bids LEFT JOIN users ON bids.user_id = users.id
+            WHERE bids.lot_id = ? ORDER BY bids.amount DESC LIMIT 20
+        `).all(lotId);
+        io.to(`lot:${lotId}`).emit('bid_update', { ...lot, bids });
+    }
+}
+
+// Helper: send email for notification
+function notifyUser(userId, templateName, data) {
+    const user = db.prepare('SELECT email, username FROM users WHERE id = ?').get(userId);
+    if (user?.email) {
+        sendEmail(user.email, templateName, { user, params: data });
+    }
+}
 
 // POST /api/bids - Place a bid
 router.post('/', authenticateToken, (req, res) => {
@@ -70,6 +101,15 @@ router.post('/', authenticateToken, (req, res) => {
 
     // Process auto-bids from other users
     processAutoBids(lotId, req.user.id, Number(amount));
+
+    // Emit real-time update
+    const io = req.app.get('io');
+    emitBidUpdate(io, lotId);
+
+    // Send email to outbid user
+    if (previousBid) {
+        notifyUser(previousBid.user_id, 'bidOutbid', [lot.title, amount, lotId]);
+    }
 
     res.status(201).json({
         message: 'Ставку прийнято!',
@@ -170,6 +210,12 @@ router.post('/buy-now', authenticateToken, (req, res) => {
         INSERT INTO notifications (user_id, type, title, message, lot_id)
         VALUES (?, 'sold', 'Ваш лот куплено!', ?, ?)
     `).run(lot.seller_id, `"${lot.title}" куплено за ${lot.buy_now_price} грн.`, lotId);
+
+    // Socket + Email
+    const io = req.app.get('io');
+    emitBidUpdate(io, lotId);
+    notifyUser(req.user.id, 'auctionWon', [lot.title, lot.buy_now_price, lotId]);
+    notifyUser(lot.seller_id, 'lotSold', [lot.title, lot.buy_now_price]);
 
     res.json({ message: 'Покупка оформлена!', amount: lot.buy_now_price });
 });
