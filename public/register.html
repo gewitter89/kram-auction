@@ -5,65 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Реєстрація — МійАукціон</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/auth.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header">
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <div class="header__logo-icon">💎</div>
+                    <div>
+                        <div class="header__logo-text">МійАукціон<span class="accent">.UA</span></div>
+                        <div class="header__logo-sub">Premium Marketplace</div>
+                    </div>
                 </a>
             </div>
             <div class="header__right">
-                <a href="login.html" class="header__link">Увійти</a>
+                <a href="login.html" class="btn btn--ghost btn--sm">Увійти</a>
             </div>
         </div>
     </header>
 
     <main class="auth-page">
-        <div class="auth-card auth-card--wide">
-            <h1 class="auth-card__title">Реєстрація</h1>
-            <p class="auth-card__subtitle">Створіть акаунт для покупок та продажу</p>
+        <div class="auth-page__glow"></div>
+        <div class="auth-card" style="max-width:520px;">
+            <div class="auth-card__logo">
+                <div class="header__logo-icon" style="margin:0 auto;width:56px;height:56px;font-size:28px;">💎</div>
+                <h1 class="auth-card__title">Реєстрація</h1>
+                <p class="auth-card__subtitle">Створіть акаунт для покупок та продажу</p>
+            </div>
 
-            <form class="auth-form" id="registerForm">
+            <form id="registerForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="firstName">Ім'я</label>
-                        <input type="text" id="firstName" placeholder="Ваше ім'я" required>
+                        <label class="form-label" for="firstName">Ім'я</label>
+                        <input type="text" id="firstName" class="form-input" placeholder="Ваше ім'я" required>
                     </div>
                     <div class="form-group">
-                        <label for="lastName">Прізвище</label>
-                        <input type="text" id="lastName" placeholder="Ваше прізвище" required>
+                        <label class="form-label" for="lastName">Прізвище</label>
+                        <input type="text" id="lastName" class="form-input" placeholder="Ваше прізвище" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="regUsername">Логін (нікнейм)</label>
-                    <input type="text" id="regUsername" placeholder="Ваш унікальний логін" required>
+                    <label class="form-label" for="regUsername">Логін (нікнейм)</label>
+                    <input type="text" id="regUsername" class="form-input" placeholder="Ваш унікальний логін" required>
                 </div>
                 <div class="form-group">
-                    <label for="regEmail">Email</label>
-                    <input type="email" id="regEmail" placeholder="your@email.com" required>
+                    <label class="form-label" for="regEmail">Email</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="your@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="phone">Телефон</label>
-                    <input type="tel" id="phone" placeholder="+380 XX XXX XX XX" required>
+                    <label class="form-label" for="phone">Телефон</label>
+                    <input type="tel" id="phone" class="form-input" placeholder="+380 XX XXX XX XX" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="regPassword">Пароль</label>
-                        <input type="password" id="regPassword" placeholder="Мін. 8 символів" required minlength="8">
+                        <label class="form-label" for="regPassword">Пароль</label>
+                        <input type="password" id="regPassword" class="form-input" placeholder="Мін. 8 символів" required minlength="8">
                     </div>
                     <div class="form-group">
-                        <label for="regPasswordConfirm">Підтвердження</label>
-                        <input type="password" id="regPasswordConfirm" placeholder="Повторіть пароль" required>
+                        <label class="form-label" for="regPasswordConfirm">Підтвердження</label>
+                        <input type="password" id="regPasswordConfirm" class="form-input" placeholder="Повторіть пароль" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="city">Місто</label>
-                    <select id="city">
+                    <label class="form-label" for="city">Місто</label>
+                    <select id="city" class="form-input" style="cursor:pointer;">
                         <option value="">Оберіть місто</option>
                         <option>Київ</option>
                         <option>Харків</option>
@@ -76,17 +82,16 @@
                         <option>Інше</option>
                     </select>
                 </div>
-                <div class="form-group form-group--checkbox">
-                    <label><input type="checkbox" required> Я приймаю <a href="#">Угоду користувача</a></label>
+                <div class="form-group">
+                    <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
+                        <input type="checkbox" required style="accent-color:var(--accent);width:16px;height:16px;"> Я приймаю <a href="#" class="form-link">Угоду користувача</a>
+                    </label>
                 </div>
-                <div class="form-group form-group--checkbox">
-                    <label><input type="checkbox"> Отримувати сповіщення про нові лоти</label>
-                </div>
-                <button type="submit" class="auth-btn">Зареєструватися</button>
+                <button type="submit" class="btn btn--primary w-full" style="padding:16px;font-size:1rem;">Зареєструватися</button>
             </form>
 
             <p class="auth-card__footer">
-                Вже є акаунт? <a href="login.html">Увійти</a>
+                Вже є акаунт? <a href="login.html" class="form-link">Увійти</a>
             </p>
         </div>
     </main>
@@ -98,7 +103,7 @@
             const pass = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regPasswordConfirm').value;
             if (pass !== confirm) { alert('Паролі не співпадають!'); return; }
-            const btn = e.target.querySelector('.auth-btn');
+            const btn = e.target.querySelector('button[type="submit"]');
             btn.disabled = true; btn.textContent = 'Реєстрація...';
             document.querySelectorAll('.auth-error').forEach(el => el.remove());
             try {
@@ -115,9 +120,9 @@
             } catch (err) {
                 const div = document.createElement('div');
                 div.className = 'auth-error';
-                div.style.cssText = 'color:var(--danger,#dc3545);text-align:center;margin-top:12px;font-size:14px';
+                div.style.cssText = 'color:var(--danger);text-align:center;margin-top:12px;font-size:0.88rem;padding:12px;background:rgba(239,68,68,0.1);border-radius:10px;border:1px solid rgba(239,68,68,0.2);';
                 div.textContent = err.message;
-                document.querySelector('.auth-form').after(div);
+                document.querySelector('form').after(div);
             } finally {
                 btn.disabled = false; btn.textContent = 'Зареєструватися';
             }

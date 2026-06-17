@@ -1,0 +1,3 @@
+{
+  "/auction/[id]/page": "app/auction/[id]/page.js"
+}

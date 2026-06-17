@@ -3,121 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>МійАукціон — Аукціони від 1 грн | Купуй та продавай вигідно</title>
-    <meta name="description" content="Онлайн аукціон в Україні. Тисячі лотів від 1 грн: електроніка, ноутбуки, інструменти, техніка. Безпечні угоди, рейтинг продавців.">
-    <meta name="keywords" content="аукціон, купити, продати, ноутбук, техніка, б/в, Україна, від 1 грн">
-    <meta name="author" content="МійАукціон">
+    <title>МійАукціон — Преміальний Маркетплейс Аукціонів</title>
+    <meta name="description" content="Преміальний маркетплейс аукціонів. Купуйте чесно, продавайте з вигодою.">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://your-domain.com/">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="МійАукціон — Аукціони від 1 грн">
-    <meta property="og:description" content="Онлайн аукціон в Україні. Тисячі лотів щодня.">
+    <link rel="canonical" href="/">
+    <meta property="og:title" content="МійАукціон — Преміальний Маркетплейс">
+    <meta property="og:description" content="Безкоштовний маркетплейс для аукціонів і прямих домовленостей">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://your-domain.com/">
-    <meta property="og:image" content="https://your-domain.com/icons/og-image.png">
     <meta property="og:locale" content="uk_UA">
-    
-    <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1a73e8">
+    <meta name="theme-color" content="#030712">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="МійАукціон">
-    
-    <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Schema.org -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "МійАукціон",
-        "url": "https://your-domain.com",
-        "description": "Онлайн аукціон в Україні",
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://your-domain.com/index.html?search={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
+        "url": "/",
+        "description": "Преміальний маркетплейс аукціонів"
     }
     </script>
 </head>
 <body>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu__overlay" id="menuOverlay"></div>
+
+    <!-- Mobile Menu -->
+    <aside class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu__header">
+            <a href="index.html" class="header__logo">
+                <div class="header__logo-icon">💎</div>
+                <div>
+                    <div class="header__logo-text">МійАукціон<span class="accent">.UA</span></div>
+                    <div class="header__logo-sub">Premium Marketplace</div>
+                </div>
+            </a>
+            <button class="mobile-menu__close" id="menuClose">✕</button>
+        </div>
+        <nav class="mobile-menu__nav">
+            <a href="index.html" class="active">🏠 Головна</a>
+            <a href="#lots-catalog">📦 Каталог</a>
+            <a href="cabinet.html">👤 Кабінет</a>
+            <a href="create-lot.html">➕ Створити лот</a>
+            <a href="login.html">🔑 Увійти</a>
+        </nav>
+    </aside>
+
     <!-- Header -->
     <header class="header">
+        <div class="header__top-bar">
+            <span>🤝 Безкоштовна beta</span> •
+            <span class="accent">Тільки реальні оголошення</span>
+        </div>
         <div class="header__container">
             <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <div class="header__logo-icon">💎</div>
+                    <div>
+                        <div class="header__logo-text">МійАукціон<span class="accent">.UA</span></div>
+                        <div class="header__logo-sub">Premium Marketplace</div>
+                    </div>
+                </a>
+                <nav class="header__nav">
+                    <a href="index.html" class="active">Головна</a>
+                    <a href="#lots-catalog">Каталог</a>
+                    <a href="create-lot.html">Продати</a>
+                </nav>
+            </div>
+            <div class="header__search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" placeholder="Пошук лотів..." class="search-input" id="searchInput">
+                <button class="search-btn">Знайти</button>
+            </div>
+            <div class="header__right">
+                <a href="cabinet.html" class="header__icon" title="Кабінет">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </a>
+                <a href="login.html" class="header__icon" title="Увійти">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" x2="3" y1="12" y2="12"/></svg>
+                </a>
                 <button class="header__menu-btn" id="menuToggle" aria-label="Меню">
                     <span></span><span></span><span></span>
                 </button>
-                <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
-                </a>
-            </div>
-            <div class="header__search">
-                <input type="text" placeholder="Пошук лотів..." class="search-input" id="searchInput">
-                <button class="search-btn" aria-label="Шукати">🔍</button>
-            </div>
-            <div class="header__right">
-                <a href="#" class="header__icon" title="Обране">❤️</a>
-                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
-                <a href="login.html" class="header__icon" title="Увійти">🔑</a>
             </div>
         </div>
     </header>
 
-    <!-- Banner/Slider -->
-    <section class="banner">
-        <div class="banner__container">
-            <div class="banner__slide active" id="slide1">
-                <div class="banner__content">
-                    <h2>Аукціони від 1 грн!</h2>
-                    <p>Тисячі лотів щодня. Знайди свою вигоду.</p>
-                    <a href="#" class="banner__btn">Переглянути лоти</a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero__glow hero__glow--green"></div>
+        <div class="hero__glow hero__glow--violet"></div>
+        <div class="hero__content">
+            <span class="hero__badge">📈 Преміальний маркетплейс аукціонів нового покоління</span>
+            <h1 class="hero__title">Купуйте чесно.<br>Продавайте з <span class="gradient">вигодою</span>.</h1>
+            <p class="hero__subtitle">МійАукціон об'єднує оголошення, ставки, чат і умови доставки в одному місці — для спокійної прямої домовленості між покупцем і продавцем.</p>
+            <div class="hero__actions">
+                <a href="#lots-catalog" class="btn btn--primary">Дослідити лоти</a>
+                <a href="create-lot.html" class="btn btn--secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Додати свій лот
+                </a>
+            </div>
+            <div class="hero__stats">
+                <div>
+                    <p class="hero__stat-value" id="statLots">0</p>
+                    <p class="hero__stat-label">Реальних лотів зараз</p>
                 </div>
-                <div class="banner__image">🔨</div>
-            </div>
-            <div class="banner__slide" id="slide2">
-                <div class="banner__content">
-                    <h2>Продавай легко!</h2>
-                    <p>Створи лот за 2 хвилини та отримай покупців.</p>
-                    <a href="create-lot.html" class="banner__btn">Створити лот</a>
+                <div>
+                    <p class="hero__stat-value accent" id="statCategories">7</p>
+                    <p class="hero__stat-label">Категорій каталогу</p>
                 </div>
-                <div class="banner__image">📦</div>
-            </div>
-            <div class="banner__slide" id="slide3">
-                <div class="banner__content">
-                    <h2>Безпечні угоди</h2>
-                    <p>Рейтинг продавців та захист покупців.</p>
-                    <a href="#" class="banner__btn">Дізнатися більше</a>
+                <div>
+                    <p class="hero__stat-value violet">0 UAH</p>
+                    <p class="hero__stat-label">Плата платформи у beta</p>
                 </div>
-                <div class="banner__image">🛡️</div>
-            </div>
-            <div class="banner__dots">
-                <span class="dot active" onclick="goToSlide(0)"></span>
-                <span class="dot" onclick="goToSlide(1)"></span>
-                <span class="dot" onclick="goToSlide(2)"></span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Top Lots -->
-    <section class="top-lots">
-        <div class="top-lots__container">
-            <h2 class="top-lots__title">🔥 Топ-лоти</h2>
-            <div class="top-lots__grid" id="topLotsGrid">
-                <!-- Filled by JS -->
+                <div>
+                    <p class="hero__stat-value amber">LIVE</p>
+                    <p class="hero__stat-label">SQLite база даних</p>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Main Content -->
-    <main class="main">
+    <main class="main" id="lots-catalog">
         <div class="main__container">
             <!-- Sidebar Filters -->
             <aside class="sidebar" id="sidebar">
@@ -180,19 +194,17 @@
                 </div>
 
                 <div class="lots-grid" id="lotsGrid">
-                    <!-- Lots will be rendered by JS -->
+                    <!-- Lots rendered by JS -->
+                </div>
+
+                <div id="emptyState" class="empty-state hidden">
+                    <div class="empty-state__icon">🔍</div>
+                    <p class="empty-state__text">Нічого не знайдено за вашим запитом. Спробуйте змінити фільтри пошуку.</p>
+                    <button class="btn btn--primary" onclick="resetFilters()">Скинути фільтри</button>
                 </div>
 
                 <!-- Pagination -->
-                <div class="pagination" id="pagination">
-                    <button class="pagination__btn active">1</button>
-                    <button class="pagination__btn">2</button>
-                    <button class="pagination__btn">3</button>
-                    <button class="pagination__btn">4</button>
-                    <span class="pagination__dots">...</span>
-                    <button class="pagination__btn">149</button>
-                    <button class="pagination__btn pagination__next">→</button>
-                </div>
+                <div class="pagination" id="pagination"></div>
             </section>
         </div>
     </main>
@@ -200,19 +212,87 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer__container">
-            <div class="footer__links">
-                <a href="#">Про нас</a>
-                <a href="#">Угода користувача</a>
-                <a href="#">Контакти</a>
-                <a href="#">Допомога</a>
+            <div class="footer__grid">
+                <div>
+                    <div class="footer__brand">
+                        <div class="footer__brand-icon">💎</div>
+                        <span class="footer__brand-text">МійАукціон<span class="accent">.UA</span></span>
+                    </div>
+                    <p class="footer__desc">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">🛡️ Безпека</h4>
+                    <div class="footer__links">
+                        <a href="#">Правила безпечної домовленості</a>
+                        <a href="#">Чат-модерація контактів</a>
+                        <a href="#">Перевірені продавці</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">📦 Логістика</h4>
+                    <div class="footer__links">
+                        <a href="#">Нова Пошта</a>
+                        <a href="#">Укрпошта Експрес</a>
+                        <a href="#">Пункти самовивозу</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="footer__col-title">📜 Правила</h4>
+                    <div class="footer__links">
+                        <a href="#">Угода користувача</a>
+                        <a href="#">Правила проведення торгів</a>
+                        <a href="#">Служба підтримки</a>
+                    </div>
+                </div>
             </div>
-            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+            <div class="footer__bottom">
+                <p>© 2026 МійАукціон. Всі права захищені.</p>
+                <div style="display:flex;gap:16px;">
+                    <span>UA</span>
+                    <span>EN</span>
+                </div>
+            </div>
         </div>
     </footer>
 
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
     <script>
+        // Mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuClose = document.getElementById('menuClose');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                menuOverlay.classList.add('active');
+            });
+        }
+        if (menuClose) {
+            menuClose.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+            });
+        }
+        if (menuOverlay) {
+            menuOverlay.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+            });
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.querySelectorAll('.filter-checkboxes input').forEach(cb => cb.checked = false);
+            document.getElementById('priceFrom').value = '';
+            document.getElementById('priceTo').value = '';
+            document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active'));
+            document.querySelector('[data-category="all"]').classList.add('active');
+            if (typeof loadLots === 'function') loadLots();
+        }
+
         // Register Service Worker (PWA)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
