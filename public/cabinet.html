@@ -268,27 +268,27 @@
                     <form class="settings-form">
                         <div class="form-group">
                             <label>Ім'я</label>
-                            <input type="text" value="Іван">
+                            <input type="text" id="cfirstName" placeholder="Ім'я">
                         </div>
                         <div class="form-group">
                             <label>Прізвище</label>
-                            <input type="text" value="Петренко">
+                            <input type="text" id="clastName" placeholder="Прізвище">
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" value="ivan@example.com">
+                            <input type="email" id="cemail" placeholder="email@example.com" readonly disabled>
                         </div>
                         <div class="form-group">
                             <label>Телефон</label>
-                            <input type="tel" value="+380991234567">
+                            <input type="tel" id="cphone" placeholder="+380 XX XXX XX XX">
                         </div>
                         <div class="form-group">
                             <label>Місто</label>
-                            <input type="text" value="Київ">
+                            <input type="text" id="ccity" placeholder="Місто">
                         </div>
                         <div class="form-group">
                             <label>Про себе</label>
-                            <textarea rows="3">Продаю техніку б/в у гарному стані.</textarea>
+                            <textarea id="cbio" rows="3" placeholder="Трохи про себе"></textarea>
                         </div>
                         <h3>Сповіщення</h3>
                         <div class="form-group form-group--checkbox">
@@ -319,6 +319,7 @@
         </div>
     </footer>
 
+    <script src="js/api.js"></script>
     <script src="js/cabinet.js"></script>
 </body>
 </html>

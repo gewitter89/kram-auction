@@ -63,11 +63,28 @@
         </div>
     </main>
 
+    <script src="js/api.js"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Вхід виконано! (демо)');
-            window.location.href = 'cabinet.html';
+            const btn = e.target.querySelector('.auth-btn');
+            btn.disabled = true; btn.textContent = 'Вхід...';
+            document.querySelectorAll('.auth-error').forEach(el => el.remove());
+            try {
+                await api.login(
+                    document.getElementById('email').value.trim(),
+                    document.getElementById('password').value
+                );
+                window.location.href = 'cabinet.html';
+            } catch (err) {
+                const div = document.createElement('div');
+                div.className = 'auth-error';
+                div.style.cssText = 'color:var(--danger,#dc3545);text-align:center;margin-top:12px;font-size:14px';
+                div.textContent = err.message;
+                document.querySelector('.auth-form').after(div);
+            } finally {
+                btn.disabled = false; btn.textContent = 'Увійти';
+            }
         });
     </script>
 </body>
