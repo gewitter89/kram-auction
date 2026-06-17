@@ -1,7 +1,11 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const db = new Database(path.join(__dirname, 'auction.db'));
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const dbPath = path.join(DATA_DIR, 'auction.db');
+const db = new Database(dbPath);
+
+console.log(`[DB] SQLite at ${dbPath}`);
 
 // Enable WAL mode for better performance
 db.pragma('journal_mode = WAL');
