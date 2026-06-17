@@ -1,3 +1,0 @@
-module.exports=[96670,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(48174);a.n(d("[project]/kram-auction/node_modules/next/dist/client/components/builtin/global-error.js <module evaluation>"))},50603,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(48174);a.n(d("[project]/kram-auction/node_modules/next/dist/client/components/builtin/global-error.js"))},13733,a=>{"use strict";a.i(96670);var b=a.i(50603);a.n(b)},55575,a=>{a.n(a.i(13733))}];
-
-//# sourceMappingURL=0~mf_next_dist_client_components_builtin_global-error_12wnvve.js.map
