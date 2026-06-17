@@ -25,7 +25,8 @@ db.exec(`
         reviews_count INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_verified INTEGER DEFAULT 0,
-        is_active INTEGER DEFAULT 1
+        is_active INTEGER DEFAULT 1,
+        is_admin INTEGER DEFAULT 0
     );
 
     -- Categories table
