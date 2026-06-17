@@ -86,7 +86,46 @@ npm start
     └── ecosystem.config.js # PM2 конфіг
 ```
 
-## 🌐 Деплой на VPS
+## 🌐 Деплой (безкоштовно)
+
+### Fly.io (рекомендовано — безкоштовно + постійний диск)
+
+```bash
+# 1. Встановити flyctl
+curl -L https://fly.io/install.sh | sh
+
+# 2. Увійти в акаунт
+fly auth login
+
+# 3. Запустити (з кореневої папки проєкту)
+fly launch
+
+# 4. Створити постійний диск для SQLite
+fly volumes create auction_data --region waw --size 1
+
+# 5. Встановити змінну DATA_DIR
+fly secrets set DATA_DIR=/data
+
+# 6. Задеплоїти
+fly deploy
+
+# 7. Створити admin на сервері
+fly ssh console -C "node scripts/seed-admin.js"
+```
+
+### Render (безкоштовний тариф — без постійного диска)
+
+1. Запушити на GitHub
+2. Зайти на https://render.com → "New Web Service"
+3. Підключити репозиторій `kram-auction`
+4. Налаштувати:
+   - Build Command: `npm install`
+   - Start Command: `node server.js`
+5. Створити
+
+> ⚠️ Безкоштовний тариф без диска — БД скидається при кожному деплої.
+
+### VPS (платний — від $5/міс)
 
 1. Купити VPS (DigitalOcean, Hetzner, від $5/міс)
 2. Купити домен
