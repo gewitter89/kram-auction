@@ -1,24 +1,25 @@
-/* Seller Page */
+/* Seller Page — Dark Theme */
 .seller-page {
     max-width: 1100px;
     margin: 0 auto;
 }
 
 .seller-profile {
-    background: var(--white);
-    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 30px;
-    box-shadow: var(--shadow);
     display: flex;
     gap: 24px;
     align-items: flex-start;
     margin-bottom: 20px;
+    backdrop-filter: blur(10px);
 }
 
 .seller-profile__avatar {
     width: 80px;
     height: 80px;
-    background: var(--border);
+    background: var(--accent-glow);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -34,6 +35,7 @@
 .seller-profile__name {
     font-size: 1.5rem;
     margin-bottom: 8px;
+    color: var(--text-primary);
 }
 
 .seller-profile__rating {
@@ -44,16 +46,17 @@
 }
 
 .seller-profile__rating .stars {
-    color: #f5a623;
+    color: var(--warning);
     font-size: 1.2rem;
 }
 
 .seller-profile__rating .rating-text {
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .seller-profile__rating .rating-count {
-    color: var(--text-light);
+    color: var(--text-muted);
     font-size: 0.85rem;
 }
 
@@ -62,13 +65,13 @@
     gap: 16px;
     flex-wrap: wrap;
     font-size: 0.88rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     margin-bottom: 10px;
 }
 
 .seller-profile__bio {
     font-size: 0.9rem;
-    color: var(--text-light);
+    color: var(--text-secondary);
     line-height: 1.5;
 }
 
@@ -80,21 +83,23 @@
 
 .seller-stat {
     text-align: center;
-    padding: 12px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    padding: 14px 18px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
 }
 
 .seller-stat__value {
     display: block;
     font-size: 1.3rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--accent);
+    font-family: var(--font-mono);
 }
 
 .seller-stat__label {
     font-size: 0.75rem;
-    color: var(--text-light);
+    color: var(--text-muted);
 }
 
 /* Seller Tabs */
@@ -102,10 +107,10 @@
     display: flex;
     gap: 4px;
     margin-bottom: 20px;
-    background: var(--white);
-    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 4px;
-    box-shadow: var(--shadow);
 }
 
 .seller-tab {
@@ -113,22 +118,22 @@
     padding: 12px;
     background: none;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    color: var(--text-light);
+    transition: all var(--transition);
+    color: var(--text-muted);
 }
 
 .seller-tab:hover {
-    background: #f8f9fa;
+    background: var(--accent-glow);
+    color: var(--accent);
 }
 
 .seller-tab.active {
-    background: var(--primary);
-    color: var(--white);
+    background: var(--accent);
+    color: white;
 }
 
 /* Reviews Summary */
@@ -136,11 +141,12 @@
     display: flex;
     gap: 30px;
     align-items: center;
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 24px;
-    box-shadow: var(--shadow);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 28px;
     margin-bottom: 20px;
+    backdrop-filter: blur(10px);
 }
 
 .reviews-summary__score {
@@ -152,13 +158,14 @@
     display: block;
     font-size: 3rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--text-primary);
     line-height: 1;
     margin-bottom: 4px;
+    font-family: var(--font-mono);
 }
 
 .reviews-summary__score .stars {
-    color: #f5a623;
+    color: var(--warning);
     font-size: 1.2rem;
     display: block;
     margin-bottom: 4px;
@@ -166,7 +173,7 @@
 
 .reviews-summary__score span:last-child {
     font-size: 0.82rem;
-    color: var(--text-light);
+    color: var(--text-muted);
 }
 
 .reviews-summary__bars {
@@ -180,19 +187,20 @@
     gap: 8px;
     margin-bottom: 6px;
     font-size: 0.82rem;
+    color: var(--text-secondary);
 }
 
 .bar {
     flex: 1;
     height: 8px;
-    background: var(--border);
+    background: var(--bg-secondary);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .bar__fill {
     height: 100%;
-    background: #f5a623;
+    background: var(--warning);
     border-radius: 4px;
 }
 
@@ -204,10 +212,11 @@
 }
 
 .seller-page .review-item {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 16px;
-    box-shadow: var(--shadow);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    backdrop-filter: blur(10px);
 }
 
 .review-item__header {
@@ -217,25 +226,29 @@
     margin-bottom: 8px;
 }
 
+.review-item__header strong {
+    color: var(--text-primary);
+}
+
 .review-item__stars {
-    color: #f5a623;
+    color: var(--warning);
 }
 
 .review-item__date {
     font-size: 0.78rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     margin-left: auto;
 }
 
 .review-item p {
     font-size: 0.9rem;
-    color: var(--text);
+    color: var(--text-secondary);
     margin-bottom: 6px;
 }
 
 .review-item__lot {
     font-size: 0.8rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     font-style: italic;
 }
 

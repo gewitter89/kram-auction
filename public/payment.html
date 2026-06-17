@@ -6,13 +6,13 @@
     <title>Оплата — МійАукціон</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        .payment-page { max-width: 600px; margin: 40px auto; padding: 0 20px; }
-        .payment-card { background: var(--white); border-radius: 12px; padding: 32px; box-shadow: var(--shadow); }
-        .payment-card h1 { font-size: 1.4rem; margin-bottom: 8px; }
-        .payment-card__subtitle { color: var(--text-light); margin-bottom: 24px; }
-        .payment-lot { display: flex; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 24px; }
+        .payment-page { max-width: 600px; margin: 40px auto; padding: 0 20px; position: relative; z-index: 1; }
+        .payment-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px; backdrop-filter: blur(10px); }
+        .payment-card h1 { font-size: 1.4rem; margin-bottom: 8px; color: var(--text-primary); }
+        .payment-card__subtitle { color: var(--text-muted); margin-bottom: 24px; }
+        .payment-lot { display: flex; gap: 16px; padding: 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); margin-bottom: 24px; }
         .payment-lot img { width: 80px; height: 60px; object-fit: cover; border-radius: 6px; }
         .payment-lot__info h3 { font-size: 0.95rem; margin-bottom: 4px; }
         .payment-lot__price { font-size: 1.3rem; font-weight: 700; color: var(--accent); }

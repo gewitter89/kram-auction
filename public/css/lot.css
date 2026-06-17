@@ -1,17 +1,17 @@
-/* Lot Page Styles */
+/* Lot Page — Dark Theme */
 .lot-page {
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .breadcrumbs {
-    padding: 12px 0;
+    padding: 14px 0;
     font-size: 0.85rem;
-    color: var(--text-light);
+    color: var(--text-muted);
 }
 
 .breadcrumbs a {
-    color: var(--primary);
+    color: var(--accent);
 }
 
 .breadcrumbs a:hover {
@@ -27,19 +27,20 @@
 
 /* Gallery */
 .lot-gallery {
-    background: var(--white);
-    border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     padding: 16px;
-    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
 }
 
 .lot-gallery__main {
     width: 100%;
     height: 400px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     margin-bottom: 12px;
-    background: #f8f8f8;
+    background: var(--bg-secondary);
 }
 
 .lot-gallery__main img {
@@ -57,15 +58,17 @@
     width: 80px;
     height: 60px;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    border: 2px solid transparent;
-    transition: border-color 0.2s;
+    border: 2px solid var(--border-color);
+    transition: all var(--transition);
+    opacity: 0.6;
 }
 
 .thumb:hover,
 .thumb.active {
-    border-color: var(--primary);
+    border-color: var(--accent);
+    opacity: 1;
 }
 
 /* Lot Info */
@@ -79,6 +82,7 @@
     font-size: 1.3rem;
     font-weight: 600;
     line-height: 1.4;
+    color: var(--text-primary);
 }
 
 .lot-info__status {
@@ -87,34 +91,38 @@
 }
 
 .lot-badge {
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .lot-badge--auction {
-    background: #fff3e0;
-    color: var(--accent);
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .lot-badge--from1 {
-    background: #e8f5e9;
+    background: rgba(16, 185, 129, 0.15);
     color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .lot-info__price-block {
-    background: #f8f9fa;
-    padding: 16px;
-    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: var(--radius-lg);
     border-left: 4px solid var(--accent);
 }
 
 .lot-info__current-price .label {
     display: block;
     font-size: 0.85rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     margin-bottom: 4px;
 }
 
@@ -122,24 +130,26 @@
     font-size: 2rem;
     font-weight: 700;
     color: var(--accent);
+    font-family: var(--font-mono);
 }
 
 .lot-info__bids-count {
     margin-top: 8px;
     font-size: 0.9rem;
-    color: var(--text-light);
+    color: var(--text-secondary);
 }
 
 .lot-info__timer-block {
-    background: #fef3f3;
-    padding: 12px 16px;
-    border-radius: 8px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
 }
 
 .lot-timer {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-size: 0.95rem;
 }
 
@@ -150,6 +160,7 @@
 .lot-timer__time {
     font-weight: 600;
     color: var(--danger);
+    font-family: var(--font-mono);
 }
 
 /* Bid Form */
@@ -161,7 +172,7 @@
 
 .bid-form label {
     font-size: 0.85rem;
-    color: var(--text-light);
+    color: var(--text-secondary);
     display: block;
     margin-bottom: 6px;
 }
@@ -174,15 +185,18 @@
 .bid-input {
     flex: 1;
     padding: 12px 16px;
-    border: 2px solid var(--border);
-    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-glass);
+    color: var(--text-primary);
     font-size: 1rem;
-    font-family: inherit;
     outline: none;
+    transition: all var(--transition);
 }
 
 .bid-input:focus {
-    border-color: var(--primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .bid-input--small {
@@ -195,19 +209,20 @@
 .bid-btn {
     padding: 12px 24px;
     background: var(--accent);
-    color: var(--white);
+    color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
-    font-family: inherit;
+    transition: all var(--transition);
     white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 
 .bid-btn:hover {
-    background: #e55d00;
+    background: var(--accent-hover);
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
 }
 
 .bid-form__auto {
@@ -216,40 +231,43 @@
     gap: 8px;
     font-size: 0.85rem;
     margin-top: 8px;
+    color: var(--text-muted);
 }
 
 .buy-now-btn {
     width: 100%;
     padding: 14px;
     background: var(--success);
-    color: var(--white);
+    color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
-    font-family: inherit;
+    transition: all var(--transition);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
 }
 
 .buy-now-btn:hover {
-    background: #218838;
+    background: #059669;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
 }
 
 /* Seller Card */
 .seller-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px;
-    background: #f8f9fa;
-    border-radius: 8px;
+    gap: 14px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
 }
 
 .seller-card__avatar {
-    width: 48px;
-    height: 48px;
-    background: var(--border);
+    width: 50px;
+    height: 50px;
+    background: var(--accent-glow);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -259,7 +277,7 @@
 
 .seller-card__name {
     font-weight: 600;
-    color: var(--primary);
+    color: var(--accent);
     font-size: 1rem;
 }
 
@@ -275,17 +293,17 @@
 }
 
 .seller-card__rating .stars {
-    color: #f5a623;
+    color: var(--warning);
 }
 
 .seller-card__rating .count {
     font-size: 0.8rem;
-    color: var(--text-light);
+    color: var(--text-muted);
 }
 
 .seller-card__location {
     font-size: 0.82rem;
-    color: var(--text-light);
+    color: var(--text-muted);
     margin-top: 2px;
 }
 
@@ -297,35 +315,38 @@
 }
 
 .action-btn {
-    padding: 8px 14px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 9px 16px;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
+    transition: all var(--transition);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    color: var(--text-secondary);
+    backdrop-filter: blur(8px);
 }
 
 .action-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-glow);
 }
 
 /* Tabs */
 .lot-tabs {
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    backdrop-filter: blur(10px);
 }
 
 .lot-tabs__nav {
     display: flex;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     overflow-x: auto;
 }
 
@@ -336,25 +357,24 @@
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    color: var(--text-light);
+    color: var(--text-muted);
     border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.2s;
-    font-family: inherit;
+    margin-bottom: -1px;
+    transition: all var(--transition);
     white-space: nowrap;
 }
 
 .tab-btn:hover {
-    color: var(--primary);
+    color: var(--accent);
 }
 
 .tab-btn.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
+    color: var(--accent);
+    border-bottom-color: var(--accent);
 }
 
 .lot-tabs__content {
-    padding: 24px;
+    padding: 28px;
 }
 
 .tab-panel {
@@ -366,26 +386,28 @@
 }
 
 .tab-panel h3 {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     font-size: 1.1rem;
+    color: var(--text-primary);
 }
 
 /* Specs Table */
 .lot-specs table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
 .lot-specs td {
-    padding: 8px 12px;
-    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .lot-specs td:first-child {
     font-weight: 500;
-    color: var(--text-light);
+    color: var(--text-muted);
     width: 200px;
 }
 
@@ -397,21 +419,24 @@
 
 .bids-table th,
 .bids-table td {
-    padding: 10px 14px;
+    padding: 12px 14px;
     text-align: left;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 .bids-table th {
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 /* Delivery */
 .delivery-info h4 {
-    margin: 16px 0 8px;
+    margin: 18px 0 10px;
     font-size: 0.95rem;
+    color: var(--text-primary);
 }
 
 .delivery-info ul {
@@ -420,8 +445,9 @@
 }
 
 .delivery-info li {
-    padding: 6px 0;
+    padding: 7px 0;
     font-size: 0.9rem;
+    color: var(--text-secondary);
 }
 
 /* Questions */
@@ -430,35 +456,39 @@
 }
 
 .question-item {
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .question-item__q {
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     font-size: 0.9rem;
+    color: var(--text-primary);
 }
 
 .question-item__a {
     font-size: 0.9rem;
-    color: var(--text-light);
-    padding-left: 16px;
+    color: var(--text-secondary);
+    padding-left: 18px;
 }
 
 .question-form textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-family: inherit;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-glass);
+    color: var(--text-primary);
     font-size: 0.9rem;
     resize: vertical;
     outline: none;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    transition: all var(--transition);
 }
 
 .question-form textarea:focus {
-    border-color: var(--primary);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 /* Responsive */
