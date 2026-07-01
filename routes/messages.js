@@ -4,10 +4,9 @@ const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// GET /api/messages - Get conversations list
-router.get('/', authenticateToken, (req, res) => {
-    const conversations = db.prepare(`
-        SELECT 
+router.get('/', authenticateToken, async (req, res) => {
+    const conversations = await db.prepare(`
+        SELECT
             m.*,
             CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END as other_user_id,
             u.username as other_username,
@@ -15,7 +14,7 @@ router.get('/', authenticateToken, (req, res) => {
         FROM messages m
         LEFT JOIN users u ON u.id = CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END
         WHERE m.id IN (
-            SELECT MAX(id) FROM messages 
+            SELECT MAX(id) FROM messages
             WHERE sender_id = ? OR receiver_id = ?
             GROUP BY CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END
         )
@@ -25,9 +24,8 @@ router.get('/', authenticateToken, (req, res) => {
     res.json(conversations);
 });
 
-// GET /api/messages/:userId - Get messages with specific user
-router.get('/:userId', authenticateToken, (req, res) => {
-    const messages = db.prepare(`
+router.get('/:userId', authenticateToken, async (req, res) => {
+    const messages = await db.prepare(`
         SELECT messages.*, users.username as sender_name
         FROM messages
         LEFT JOIN users ON messages.sender_id = users.id
@@ -35,17 +33,15 @@ router.get('/:userId', authenticateToken, (req, res) => {
         ORDER BY created_at ASC
     `).all(req.user.id, req.params.userId, req.params.userId, req.user.id);
 
-    // Mark as read
-    db.prepare(`
-        UPDATE messages SET is_read = 1 
+    await db.prepare(`
+        UPDATE messages SET is_read = 1
         WHERE receiver_id = ? AND sender_id = ? AND is_read = 0
     `).run(req.user.id, req.params.userId);
 
     res.json(messages);
 });
 
-// POST /api/messages - Send message
-router.post('/', authenticateToken, (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     const { receiverId, text, lotId } = req.body;
 
     if (!receiverId || !text) {
@@ -55,18 +51,17 @@ router.post('/', authenticateToken, (req, res) => {
         return res.status(400).json({ error: 'Не можна надіслати повідомлення собі' });
     }
 
-    const receiver = db.prepare('SELECT id FROM users WHERE id = ?').get(receiverId);
+    const receiver = await db.prepare('SELECT id FROM users WHERE id = ?').get(receiverId);
     if (!receiver) {
         return res.status(404).json({ error: 'Отримувача не знайдено' });
     }
 
-    const result = db.prepare(`
+    const result = await db.prepare(`
         INSERT INTO messages (sender_id, receiver_id, lot_id, text)
         VALUES (?, ?, ?, ?)
     `).run(req.user.id, Number(receiverId), lotId ? Number(lotId) : null, text);
 
-    // Create notification
-    db.prepare(`
+    await db.prepare(`
         INSERT INTO notifications (user_id, type, title, message)
         VALUES (?, 'message', 'Нове повідомлення', ?)
     `).run(Number(receiverId), `Нове повідомлення від ${req.user.username}`);
@@ -74,12 +69,11 @@ router.post('/', authenticateToken, (req, res) => {
     res.status(201).json({ message: 'Повідомлення надіслано', id: result.lastInsertRowid });
 });
 
-// GET /api/messages/unread/count - Unread count
-router.get('/unread/count', authenticateToken, (req, res) => {
-    const count = db.prepare(`
+router.get('/unread/count', authenticateToken, async (req, res) => {
+    const count = await db.prepare(`
         SELECT COUNT(*) as count FROM messages WHERE receiver_id = ? AND is_read = 0
-    `).get(req.user.id).count;
-    res.json({ count });
+    `).get(req.user.id);
+    res.json({ count: count ? count.count : 0 });
 });
 
 module.exports = router;

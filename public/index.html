@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>МійАукціон — Аукціони від 1 грн | Купуй та продавай вигідно</title>
+    <title>KRAM.UA — Аукціони від 1 грн | Купуй та продавай вигідно</title>
     <meta name="description" content="Онлайн аукціон в Україні. Тисячі лотів від 1 грн: електроніка, ноутбуки, інструменти, техніка. Безпечні угоди, рейтинг продавців.">
     <meta name="keywords" content="аукціон, купити, продати, ноутбук, техніка, б/в, Україна, від 1 грн">
-    <meta name="author" content="МійАукціон">
+    <meta name="author" content="KRAM.UA">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://your-domain.com/">
+    <link rel="canonical" href="https://kram.ua/">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="МійАукціон — Аукціони від 1 грн">
+    <meta property="og:title" content="KRAM.UA — Аукціони від 1 грн">
     <meta property="og:description" content="Онлайн аукціон в Україні. Тисячі лотів щодня.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://your-domain.com/">
-    <meta property="og:image" content="https://your-domain.com/icons/og-image.png">
+    <meta property="og:url" content="https://kram.ua/">
+    <meta property="og:image" content="https://kram.ua/icons/og-image.svg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:locale" content="uk_UA">
     
     <!-- PWA -->
@@ -23,7 +26,7 @@
     <meta name="theme-color" content="#1a73e8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="МійАукціон">
+    <meta name="apple-mobile-web-app-title" content="KRAM.UA">
     
     <!-- Styles -->
     <link rel="stylesheet" href="css/style.css">
@@ -33,16 +36,17 @@
     <!-- Schema.org -->
     <script type="application/ld+json">
     {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "МійАукціон",
-        "url": "https://your-domain.com",
-        "description": "Онлайн аукціон в Україні",
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": "https://your-domain.com/index.html?search={search_term_string}",
-            "query-input": "required name=search_term_string"
-        }
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "KRAM.UA",
+      "alternateName": "KRAM.UA",
+      "url": "https://kram.ua",
+      "description": "Перший в Україні преміальний торговий майданчик. Аукціони від 1 грн.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://kram.ua/index.html?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
 </head>
@@ -55,18 +59,22 @@
                     <span></span><span></span><span></span>
                 </button>
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
             </div>
             <div class="header__search">
-                <input type="text" placeholder="Пошук лотів..." class="search-input" id="searchInput">
+                <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Пошук лотів..." class="search-input" id="searchInput">
                 <button class="search-btn" aria-label="Шукати">🔍</button>
             </div>
-            <div class="header__right">
-                <a href="#" class="header__icon" title="Обране">❤️</a>
-                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
-                <a href="login.html" class="header__icon" title="Увійти">🔑</a>
+            <div class="header__right" id="headerRight">
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" data-i18n-title="theme_dark" title="Змінити тему">☀️</button>
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <a href="cart.html" class="header__icon" data-i18n-title="cart" title="Кошик" style="position:relative;"><img src="icons/cart.svg" alt="Кошик" width="22" height="22"><span id="cartCount" class="notification-dot" style="display:none"></span></a>
+                <a href="cabinet.html#favorites" class="header__icon" data-i18n-title="favorites" title="Обране"><img src="icons/heart.svg" alt="Обране" width="22" height="22"></a>
+                <a href="notifications.html" class="header__icon" data-i18n-title="notifications" title="Сповіщення" style="position:relative;"><img src="icons/bell.svg" alt="Сповіщення" width="22" height="22"><span id="notifCount" class="notification-dot" style="display:none"></span></a>
+                <a href="cabinet.html" class="header__icon" data-i18n-title="cabinet" title="Кабінет"><img src="icons/user.svg" alt="Кабінет" width="22" height="22"></a>
+                <a href="login.html" class="header__icon" data-i18n-title="login" title="Увійти">🔑</a>
             </div>
         </div>
     </header>
@@ -76,25 +84,25 @@
         <div class="banner__container">
             <div class="banner__slide active" id="slide1">
                 <div class="banner__content">
-                    <h2>Аукціони від 1 грн!</h2>
-                    <p>Тисячі лотів щодня. Знайди свою вигоду.</p>
-                    <a href="#" class="banner__btn">Переглянути лоти</a>
+                    <h2 data-i18n="banner_auctions_1uah">Аукціони від 1 грн!</h2>
+                    <p data-i18n="banner_auctions_desc">Тисячі лотів щодня. Знайди свою вигоду.</p>
+                    <a href="#lotsGrid" class="banner__btn" data-i18n="banner_view_lots">Переглянути лоти</a>
                 </div>
                 <div class="banner__image">🔨</div>
             </div>
             <div class="banner__slide" id="slide2">
                 <div class="banner__content">
-                    <h2>Продавай легко!</h2>
-                    <p>Створи лот за 2 хвилини та отримай покупців.</p>
-                    <a href="create-lot.html" class="banner__btn">Створити лот</a>
+                    <h2 data-i18n="banner_sell_easy">Продавай легко!</h2>
+                    <p data-i18n="banner_sell_desc">Створи лот за 2 хвилини та отримай покупців.</p>
+                    <a href="create-lot.html" class="banner__btn" data-i18n="banner_create_lot">Створити лот</a>
                 </div>
                 <div class="banner__image">📦</div>
             </div>
             <div class="banner__slide" id="slide3">
                 <div class="banner__content">
-                    <h2>Безпечні угоди</h2>
-                    <p>Рейтинг продавців та захист покупців.</p>
-                    <a href="#" class="banner__btn">Дізнатися більше</a>
+                    <h2 data-i18n="banner_safe_deals">Безпечні угоди</h2>
+                    <p data-i18n="banner_safe_desc">Рейтинг продавців та захист покупців.</p>
+                    <a href="bezpeka.html" class="banner__btn" data-i18n="banner_learn_more">Дізнатися більше</a>
                 </div>
                 <div class="banner__image">🛡️</div>
             </div>
@@ -109,7 +117,7 @@
     <!-- Top Lots -->
     <section class="top-lots">
         <div class="top-lots__container">
-            <h2 class="top-lots__title">🔥 Топ-лоти</h2>
+            <h2 class="top-lots__title" data-i18n="top_lots">🔥 Топ-лоти</h2>
             <div class="top-lots__grid" id="topLotsGrid">
                 <!-- Filled by JS -->
             </div>
@@ -122,59 +130,59 @@
             <!-- Sidebar Filters -->
             <aside class="sidebar" id="sidebar">
                 <div class="sidebar__section">
-                    <h3 class="sidebar__title">Категорії</h3>
+                    <h3 class="sidebar__title" data-i18n="categories">Категорії</h3>
                     <ul class="sidebar__categories">
-                        <li><a href="#" class="category-link active" data-category="all">Всі категорії</a></li>
-                        <li><a href="#" class="category-link" data-category="electronics">Електроніка, Техніка</a></li>
-                        <li><a href="#" class="category-link" data-category="fashion">Одяг, мода, краса</a></li>
-                        <li><a href="#" class="category-link" data-category="auto">Автозапчастини, Тюнінг</a></li>
-                        <li><a href="#" class="category-link" data-category="sport">Спорт, Туризм</a></li>
-                        <li><a href="#" class="category-link" data-category="kids">Дитячі товари</a></li>
-                        <li><a href="#" class="category-link" data-category="home">Будинок, дозвілля</a></li>
-                        <li><a href="#" class="category-link" data-category="tools">Інструменти</a></li>
+                        <li><a href="category.html?id=all" class="category-link active" data-category="all" data-i18n="all_categories">Всі категорії</a></li>
+                        <li><a href="category.html?id=electronics" class="category-link" data-category="electronics" data-i18n="cat_electronics">Електроніка, Техніка</a></li>
+                        <li><a href="category.html?id=fashion" class="category-link" data-category="fashion" data-i18n="cat_fashion">Одяг, мода, краса</a></li>
+                        <li><a href="category.html?id=auto" class="category-link" data-category="auto" data-i18n="cat_auto">Автозапчастини, Тюнінг</a></li>
+                        <li><a href="category.html?id=sport" class="category-link" data-category="sport" data-i18n="cat_sport">Спорт, Туризм</a></li>
+                        <li><a href="category.html?id=kids" class="category-link" data-category="kids" data-i18n="cat_kids">Дитячі товари</a></li>
+                        <li><a href="category.html?id=home" class="category-link" data-category="home" data-i18n="cat_home">Будинок, дозвілля</a></li>
+                        <li><a href="category.html?id=tools" class="category-link" data-category="tools" data-i18n="cat_tools">Інструменти</a></li>
                     </ul>
                 </div>
 
                 <div class="sidebar__section">
-                    <h3 class="sidebar__title">Параметри</h3>
+                    <h3 class="sidebar__title" data-i18n="parameters">Параметри</h3>
                     <div class="filter-group">
-                        <label class="filter-label">Тип пропозиції:</label>
+                        <label class="filter-label" data-i18n="offer_type">Тип пропозиції:</label>
                         <div class="filter-checkboxes">
-                            <label><input type="checkbox" checked> Купити зараз</label>
-                            <label><input type="checkbox" checked> Аукціон</label>
-                            <label><input type="checkbox" checked> Від 1 грн</label>
+                            <label><input type="checkbox" checked> <span data-i18n="buy_now_filter">Купити зараз</span></label>
+                            <label><input type="checkbox" checked> <span data-i18n="auction_filter">Аукціон</span></label>
+                            <label><input type="checkbox" checked> <span data-i18n="from_1_uah">Від 1 грн</span></label>
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label class="filter-label">Стан:</label>
+                        <label class="filter-label" data-i18n="condition">Стан:</label>
                         <div class="filter-checkboxes">
-                            <label><input type="checkbox"> Нове</label>
-                            <label><input type="checkbox"> Б/В</label>
+                            <label><input type="checkbox"> <span data-i18n="condition_new">Нове</span></label>
+                            <label><input type="checkbox"> <span data-i18n="condition_used">Б/В</span></label>
                         </div>
                     </div>
                     <div class="filter-group">
-                        <label class="filter-label">Ціна (грн):</label>
+                        <label class="filter-label" data-i18n="price_uah">Ціна (грн):</label>
                         <div class="filter-price">
-                            <input type="number" placeholder="від" class="price-input" id="priceFrom">
+                            <input type="number" data-i18n-placeholder="price_from" placeholder="від" class="price-input" id="priceFrom">
                             <span>–</span>
-                            <input type="number" placeholder="до" class="price-input" id="priceTo">
+                            <input type="number" data-i18n-placeholder="price_to" placeholder="до" class="price-input" id="priceTo">
                         </div>
                     </div>
-                    <button class="filter-btn" id="filterBtn">Знайти</button>
+                    <button class="filter-btn" id="filterBtn" data-i18n="search_btn">Знайти</button>
                 </div>
             </aside>
 
             <!-- Lots Grid -->
             <section class="content">
                 <div class="content__header">
-                    <h1 class="content__title">Аукціони від 1 грн.</h1>
+                    <h1 class="content__title" data-i18n="main_title">Аукціони від 1 грн.</h1>
                     <div class="content__sort">
-                        <label>Сортування:</label>
+                        <label data-i18n="sort">Сортування:</label>
                         <select id="sortSelect">
-                            <option value="ending">Завершуються скоро</option>
-                            <option value="price-asc">Ціна: від низької</option>
-                            <option value="price-desc">Ціна: від високої</option>
-                            <option value="new">Нові</option>
+                            <option value="ending" data-i18n="sort_ending">Завершуються скоро</option>
+                            <option value="price-asc" data-i18n="sort_price_asc">Ціна: від низької</option>
+                            <option value="price-desc" data-i18n="sort_price_desc">Ціна: від високої</option>
+                            <option value="new" data-i18n="sort_new">Нові</option>
                         </select>
                     </div>
                 </div>
@@ -197,27 +205,80 @@
         </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Recently Viewed -->
+    <section class="top-lots" id="recentlyViewed" style="display:none">
+        <div class="top-lots__container">
+            <h2 class="top-lots__title" data-i18n="recently_viewed">👁️ Нещодавно переглянуті</h2>
+            <div class="top-lots__grid"></div>
+        </div>
+    </section>
+
     <footer class="footer">
-        <div class="footer__container">
-            <div class="footer__links">
-                <a href="#">Про нас</a>
-                <a href="#">Угода користувача</a>
-                <a href="#">Контакти</a>
-                <a href="#">Допомога</a>
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
             </div>
-            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
         </div>
     </footer>
 
     <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/reveal.js"></script>
+    <script src="js/lazy-load.js"></script>
+    <script src="js/shortcuts.js"></script>
+    <script src="js/recently-viewed.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/header.js"></script>
     <script src="js/app.js"></script>
     <script>
         // Register Service Worker (PWA)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('SW registered'))
-                .catch(err => console.log('SW error:', err));
+                .then(reg => console.debug('SW registered'))
+                .catch(err => console.debug('SW error:', err));
         }
     </script>
 </body>

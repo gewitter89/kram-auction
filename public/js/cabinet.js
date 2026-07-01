@@ -1,5 +1,10 @@
 function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 
+const canonicalUrl = window.location.href;
+let canonicalEl = document.querySelector('link[rel="canonical"]');
+if (!canonicalEl) { canonicalEl = document.createElement('link'); canonicalEl.rel = 'canonical'; document.head.appendChild(canonicalEl); }
+canonicalEl.href = canonicalUrl;
+
 // Check auth
 if (!api.isLoggedIn()) { window.location.href = 'login.html'; }
 
@@ -23,7 +28,7 @@ function renderLotRow(lot, extra = '') {
     return `
         <div class="lot-row" data-id="${lot.id}">
             <a href="lot.html?id=${lot.id}" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;width:100%">
-            <img src="${esc(getImageUrl(lot))}" alt="" class="lot-row__img">
+            <img data-src="${esc(getImageUrl(lot))}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" class="lot-row__img" loading="lazy">
             <div class="lot-row__info">
                 <h4>${esc(lot.title || '')}</h4>
                 <span class="lot-row__category">${esc(lot.category_name || '')}</span>
@@ -72,8 +77,10 @@ async function loadMyLots(status = 'active') {
     if (!list) return;
     try {
         const lots = await api.getMyLots(status);
+        const demo = section.querySelector('.cabinet-demo');
         if (!lots || lots.length === 0) {
             list.innerHTML = '<p style="padding:20px;color:#666">Немає лотів</p>';
+            if (demo) demo.style.display = '';
             return;
         }
         list.innerHTML = lots.map(l => renderLotRow(l, `
@@ -85,8 +92,11 @@ async function loadMyLots(status = 'active') {
                 <a href="lot.html?id=${l.id}" class="btn-small">✏️</a>
             </div>
         `)).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
         list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        const demo = section.querySelector('.cabinet-demo');
+        if (demo) demo.style.display = '';
     }
 }
 
@@ -97,8 +107,10 @@ async function loadMyBids() {
     if (!list) return;
     try {
         const bids = await api.getMyBids();
+        const demo = section.querySelector('.cabinet-demo');
         if (!bids || bids.length === 0) {
             list.innerHTML = '<p style="padding:20px;color:#666">У вас немає ставок</p>';
+            if (demo) demo.style.display = '';
             return;
         }
         list.innerHTML = bids.map(b => {
@@ -106,8 +118,11 @@ async function loadMyBids() {
             const statusText = b.is_winning ? '✅ Ви лідируєте' : '❌ Вас перебили';
             return renderLotRow(b, `<span class="lot-row__status ${statusClass}">${statusText}</span>`);
         }).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
         list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        const demo = section.querySelector('.cabinet-demo');
+        if (demo) demo.style.display = '';
     }
 }
 
@@ -118,8 +133,10 @@ async function loadPurchases() {
     if (!list) return;
     try {
         const purchases = await api.getPurchases();
+        const demo = section.querySelector('.cabinet-demo');
         if (!purchases || purchases.length === 0) {
             list.innerHTML = '<p style="padding:20px;color:#666">Немає покупок</p>';
+            if (demo) demo.style.display = '';
             return;
         }
         list.innerHTML = purchases.map(p => {
@@ -127,33 +144,52 @@ async function loadPurchases() {
             const statusClass = 'lot-row__status--' + (p.status === 'received' ? 'done' : p.status === 'pending' ? 'losing' : 'winning');
             return renderLotRow(p, `
                 <span class="lot-row__status ${statusClass}">${statusMap[p.status] || p.status}</span>
-                ${p.status === 'shipped' ? `<button class="btn-small" onclick="confirmReceive(${p.id})">✅ Отримано</button>` : ''}
+                <button class="btn-small" onclick="event.stopPropagation();downloadInvoice(${p.id})" title="Завантажити рахунок" style="margin-left:8px">📄 Рахунок</button>
+                ${p.status === 'shipped' ? `<button class="btn-small" onclick="event.stopPropagation();confirmReceive(${p.id})">✅ Отримано</button>` : ''}
             `);
         }).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
         list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        const demo = section.querySelector('.cabinet-demo');
+        if (demo) demo.style.display = '';
     }
 }
 
+async function downloadInvoice(purchaseId) {
+    try {
+        const resp = await fetch('/api/invoice/' + purchaseId, { headers: api.getHeaders(false) });
+        if (!resp.ok) throw new Error('Помилка завантаження');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'invoice-' + purchaseId + '.pdf';
+        a.click();
+        URL.revokeObjectURL(url);
+    } catch(err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
+}
+
 async function confirmReceive(purchaseId) {
-    try { await api.markReceived(purchaseId); alert('Підтверджено!'); loadPurchases(); }
-    catch (err) { alert(err.message); }
+    try { await api.markReceived(purchaseId); showToast({ type: 'success', title: 'Підтверджено!', message: 'Отримання підтверджено.' }); loadPurchases(); }
+    catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
 }
 
 async function loadSales() {
     const section = document.getElementById('section-sales');
     if (!section) return;
-    const list = section.querySelector('.lots-list');
-    if (!list) return;
+    const tbody = document.getElementById('salesTableBody');
+    if (!tbody) return;
+    const demo = section.querySelector('.cabinet-demo');
     try {
         const sales = await api.getSales();
         if (!sales || sales.length === 0) {
-            list.innerHTML = '<p style="padding:20px;color:#666">Немає продажів</p>';
+            tbody.innerHTML = '<tr><td colspan="6" style="padding:20px;color:#666;text-align:center">Немає продажів</td></tr>';
             const stats = section.querySelector('.sales-stats');
             if (stats) stats.style.display = 'none';
+            if (demo) demo.style.display = '';
             return;
         }
-        // Calculate stats
         const totalSold = sales.filter(s => s.status === 'received' || s.status === 'paid').length;
         const totalAmount = sales.reduce((sum, s) => sum + Number(s.amount || 0), 0);
         const statsDiv = section.querySelector('.sales-stats');
@@ -165,27 +201,34 @@ async function loadSales() {
                 <div class="stat-card"><span class="stat-card__value">${(totalSold > 0 ? 4.5 : 0).toFixed(1)} ★</span><span class="stat-card__label">Рейтинг</span></div>
             `;
         }
-        if (list) {
-            const statusMap = { pending: '⏳ Очікує оплати', paid: '💳 Оплачено', shipped: '📦 Відправлено', received: '✅ Отримано' };
-            list.innerHTML = sales.map(s => {
-                const statusClass = s.status === 'received' ? 'done' : s.status === 'pending' ? 'losing' : 'winning';
-                return renderLotRow(s, `
-                    <span class="lot-row__status lot-row__status--${statusClass}">${statusMap[s.status] || s.status}</span>
+        const statusMap = { pending: '⏳ Очікує оплати', paid: '💳 Оплачено', shipped: '📦 Відправлено', received: '✅ Отримано' };
+        const statusBg = { pending: 'var(--warning)', paid: 'var(--info)', shipped: 'var(--accent)', received: 'var(--success)' };
+        tbody.innerHTML = sales.map(s => `
+            <tr>
+                <td><a href="lot.html?id=${s.lot_id || s.id}" style="color:var(--accent);text-decoration:none">${esc(s.title || 'Лот #' + (s.lot_id || s.id))}</a></td>
+                <td>${esc(s.buyer_name || s.buyer_username || '—')}</td>
+                <td style="font-family:var(--font-mono);font-weight:600;color:var(--accent)">${Number(s.amount || 0).toLocaleString('uk-UA')} грн</td>
+                <td><span class="badge" style="background:${statusBg[s.status] || 'var(--text-muted)'}">${statusMap[s.status] || s.status}</span></td>
+                <td style="font-size:0.85rem;color:var(--text-muted)">${s.created_at ? new Date(s.created_at).toLocaleDateString('uk-UA') : '—'}</td>
+                <td>
                     <div class="lot-row__actions">
-                        ${s.status === 'pending' ? `<button class="btn-small" onclick="markShipped(${s.id})">📦 Відправити</button>` : ''}
+                        ${s.status === 'paid' ? `<button class="btn-small" onclick="markShipped(${s.id})">📦 Відправити</button>` : ''}
+                        ${s.status === 'shipped' ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(s.tracking_number || '')}</span>` : ''}
                     </div>
-                `);
-            }).join('');
-        }
+                </td>
+            </tr>
+        `).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
-        if (list) list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:20px;color:var(--danger);text-align:center">Помилка завантаження</td></tr>';
+        if (demo) demo.style.display = '';
     }
 }
 
 async function markShipped(purchaseId) {
     const tn = prompt('Введіть номер ТТН (або залиште порожнім):');
-    try { await api.markShipped(purchaseId, tn || ''); alert('Відправлено!'); loadSales(); }
-    catch (err) { alert(err.message); }
+    try { await api.markShipped(purchaseId, tn || ''); showToast({ type: 'success', title: 'Відправлено!', message: 'Товар відправлено покупцю.' }); loadSales(); }
+    catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
 }
 
 async function loadFavorites() {
@@ -195,8 +238,10 @@ async function loadFavorites() {
     if (!list) return;
     try {
         const favs = await api.getFavorites();
+        const demo = section.querySelector('.cabinet-demo');
         if (!favs || favs.length === 0) {
             list.innerHTML = '<p style="padding:20px;color:#666">Немає обраних лотів</p>';
+            if (demo) demo.style.display = '';
             return;
         }
         list.innerHTML = favs.map(f => renderLotRow(f, `
@@ -204,14 +249,17 @@ async function loadFavorites() {
                 <button class="btn-small btn-small--danger" onclick="removeFav(${f.id})">🗑️</button>
             </div>
         `)).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
         list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        const demo = section.querySelector('.cabinet-demo');
+        if (demo) demo.style.display = '';
     }
 }
 
 async function removeFav(lotId) {
     try { await api.removeFavorite(lotId); loadFavorites(); }
-    catch (err) { alert(err.message); }
+    catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
 }
 
 async function loadMessages() {
@@ -221,8 +269,10 @@ async function loadMessages() {
     if (!list) return;
     try {
         const convs = await api.getConversations();
+        const demo = section.querySelector('.cabinet-demo');
         if (!convs || convs.length === 0) {
             list.innerHTML = '<p style="padding:20px;color:#666">Немає повідомлень</p>';
+            if (demo) demo.style.display = '';
             return;
         }
         list.innerHTML = convs.map(c => `
@@ -237,8 +287,11 @@ async function loadMessages() {
                 </div>
             </div>
         `).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
         list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        const demo = section.querySelector('.cabinet-demo');
+        if (demo) demo.style.display = '';
     }
 }
 
@@ -250,8 +303,10 @@ async function loadReviews() {
     try {
         const user = await api.getProfile();
         const reviews = await api.request('/reviews/seller/' + user.id);
+        const demo = section.querySelector('.cabinet-demo');
         if (!reviews || reviews.length === 0) {
             list.innerHTML = '<p style="padding:20px;color:#666">Немає відгуків</p>';
+            if (demo) demo.style.display = '';
             return;
         }
         list.innerHTML = reviews.map(r => {
@@ -267,8 +322,11 @@ async function loadReviews() {
                 </div>
             `;
         }).join('');
+        if (demo) demo.style.display = '';
     } catch (err) {
         list.innerHTML = '<p style="padding:20px;color:var(--danger)">Помилка завантаження</p>';
+        const demo = section.querySelector('.cabinet-demo');
+        if (demo) demo.style.display = '';
     }
 }
 
@@ -285,15 +343,26 @@ document.querySelector('.settings-form')?.addEventListener('submit', async (e) =
             city: document.getElementById('ccity')?.value || '',
             bio: document.getElementById('cbio')?.value || ''
         });
-        alert('Налаштування збережено!');
+        showToast({ type: 'success', title: 'Налаштування збережено!', message: '' });
     } catch (err) {
-        alert('Помилка: ' + err.message);
+        showToast({ type: 'error', title: 'Помилка', message: err.message });
     } finally {
         btn.disabled = false; btn.textContent = 'Зберегти зміни';
     }
 });
 
 // Cabinet navigation
+const loadMap = {
+    'my-lots': () => loadMyLots(),
+    'my-bids': loadMyBids,
+    'purchases': loadPurchases,
+    'sales': loadSales,
+    'favorites': loadFavorites,
+    'messages': loadMessages,
+    'reviews': loadReviews,
+    'settings': () => { const d = document.getElementById('section-settings')?.querySelector('.cabinet-demo'); if (d) d.style.display = ''; }
+};
+
 document.querySelectorAll('.cabinet__menu-item[data-section]').forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
@@ -301,7 +370,10 @@ document.querySelectorAll('.cabinet__menu-item[data-section]').forEach(item => {
         item.classList.add('active');
         document.querySelectorAll('.cabinet-section').forEach(s => s.classList.remove('active'));
         const section = document.getElementById('section-' + item.dataset.section);
-        if (section) section.classList.add('active');
+        if (section) {
+            section.classList.add('active');
+            if (loadMap[item.dataset.section]) loadMap[item.dataset.section]();
+        }
     });
 });
 
@@ -326,4 +398,7 @@ document.querySelector('.cabinet__menu-item:last-child')?.addEventListener('clic
 document.addEventListener('DOMContentLoaded', async () => {
     await loadProfile();
     await loadMyLots();
+    const loading = document.getElementById('cabinetLoading');
+    if (loading) loading.style.display = 'none';
+    document.getElementById('section-my-lots')?.classList.add('active');
 });

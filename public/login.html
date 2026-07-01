@@ -2,73 +2,87 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вхід — МійАукціон</title>
+    <title>Вхід — KRAM.UA</title>
+    <meta name="description" content="Увійдіть у свій акаунт KRAM.UA — український онлайн-аукціон">
+    <meta name="robots" content="noindex">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Вхід — KRAM.UA">
+    <meta property="og:description" content="Увійдіть у свій акаунт KRAM.UA — український онлайн-аукціон">
+    <meta property="og:image" content="icons/og-image.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <header class="header">
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
             </div>
-            <div class="header__right">
-                <a href="register.html" class="header__link">Реєстрація</a>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="register.html" class="header__link" data-i18n="register">Реєстрація</a>
             </div>
         </div>
     </header>
 
     <main class="auth-page">
         <div class="auth-card">
-            <h1 class="auth-card__title">Вхід в акаунт</h1>
-            <p class="auth-card__subtitle">Увійдіть, щоб робити ставки та продавати</p>
+            <h1 class="auth-card__title" data-i18n="login_to_account">Вхід в акаунт</h1>
+            <p class="auth-card__subtitle" data-i18n="login_subtitle">Увійдіть, щоб робити ставки та продавати</p>
 
             <form class="auth-form" id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email або логін</label>
+                    <label for="email" data-i18n="email_or_login">Email або логін</label>
                     <input type="text" id="email" placeholder="your@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Пароль</label>
-                    <input type="password" id="password" placeholder="Введіть пароль" required>
-                    <a href="#" class="form-link">Забули пароль?</a>
+                    <label for="password" data-i18n="password">Пароль</label>
+                    <input type="password" id="password" data-i18n-placeholder="password_placeholder" placeholder="Введіть пароль" required>
+                    <a href="forgot-password.html" class="form-link" data-i18n="forgot_password">Забули пароль?</a>
                 </div>
                 <div class="form-group form-group--checkbox">
-                    <label><input type="checkbox" checked> Запам'ятати мене</label>
+                    <label><input type="checkbox" checked> <span data-i18n="remember_me">Запам'ятати мене</span></label>
                 </div>
-                <button type="submit" class="auth-btn">Увійти</button>
+                <button type="submit" class="auth-btn" id="submitBtn" data-i18n="login">Увійти</button>
             </form>
 
             <div class="auth-divider">
-                <span>або</span>
+                <span data-i18n="or_login_with">або</span>
             </div>
 
             <div class="auth-social">
                 <button class="social-btn social-btn--google">
-                    <span>G</span> Увійти через Google
+                    <span>G</span> <span data-i18n="login_via_google">Увійти через Google</span>
                 </button>
                 <button class="social-btn social-btn--facebook">
-                    <span>f</span> Увійти через Facebook
+                    <span>f</span> <span data-i18n="login_via_facebook">Увійти через Facebook</span>
                 </button>
             </div>
 
             <p class="auth-card__footer">
-                Немає акаунту? <a href="register.html">Зареєструватися</a>
+                <span data-i18n="no_account">Немає акаунту?</span> <a href="register.html" data-i18n="sign_up">Зареєструватися</a>
             </p>
         </div>
     </main>
 
     <script src="js/api.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('.auth-btn');
-            btn.disabled = true; btn.textContent = 'Вхід...';
+            btn.disabled = true; btn.textContent = i18n ? i18n.t('logging_in', 'Вхід...') : 'Вхід...';
             document.querySelectorAll('.auth-error').forEach(el => el.remove());
             try {
                 await api.login(
@@ -83,9 +97,58 @@
                 div.textContent = err.message;
                 document.querySelector('.auth-form').after(div);
             } finally {
-                btn.disabled = false; btn.textContent = 'Увійти';
+                btn.disabled = false; btn.textContent = i18n ? i18n.t('login', 'Увійти') : 'Увійти';
             }
         });
     </script>
+
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
 </body>
 </html>

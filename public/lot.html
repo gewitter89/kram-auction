@@ -3,10 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Лот — МійАукціон</title>
+    <title>Лот — KRAM.UA</title>
+    <meta name="description" content="Перегляд лоту на KRAM.UA — український онлайн-аукціон">
+    <link rel="canonical" href="">
+    <meta property="og:type" content="product">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Лот — KRAM.UA">
+    <meta property="og:description" content="Деталі лоту на KRAM.UA">
+    <meta property="og:image" content="icons/og-image.svg">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Лот — KRAM.UA">
+    <meta name="twitter:description" content="Деталі лоту на KRAM.UA">
+    <meta name="twitter:image" content="icons/og-image.svg">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/lot.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -17,18 +31,20 @@
                     <span></span><span></span><span></span>
                 </button>
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
             </div>
             <div class="header__search">
-                <input type="text" placeholder="Пошук лотів..." class="search-input">
+                <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Пошук лотів..." class="search-input">
                 <button class="search-btn" aria-label="Шукати">🔍</button>
             </div>
-            <div class="header__right">
-                <a href="#" class="header__icon" title="Обране">❤️</a>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="cabinet.html#favorites" class="header__icon" title="Обране">❤️</a>
                 <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
-                <a href="#" class="header__icon" title="Кошик">🛒</a>
+                <a href="cart.html" class="header__icon" title="Кошик">🛒</a>
             </div>
         </div>
     </header>
@@ -38,9 +54,7 @@
             <!-- Breadcrumbs -->
             <nav class="breadcrumbs">
                 <a href="index.html">Головна</a> →
-                <a href="#">Електроніка</a> →
-                <a href="#">Ноутбуки</a> →
-                <span>Dell Latitude E7470</span>
+                <span class="breadcrumb-category">—</span>
             </nav>
 
             <div class="lot-page__content">
@@ -62,24 +76,24 @@
                     <h1 class="lot-info__title">Ноутбук 14.0 HD Dell Latitude E7470 CPU Intel Core i5 6300U 2.4GHz, RAM DDR4 8Gb, SSD m.2 256Gb</h1>
 
                     <div class="lot-info__status">
-                        <span class="lot-badge lot-badge--auction">АУКЦІОН</span>
-                        <span class="lot-badge lot-badge--from1">Від 1 грн</span>
+                        <span class="lot-badge lot-badge--auction" data-i18n="bid">АУКЦІОН</span>
+                        <span class="lot-badge lot-badge--from1" data-i18n="from_1_uah">Від 1 грн</span>
                     </div>
 
                     <div class="lot-info__price-block">
                         <div class="lot-info__current-price">
-                            <span class="label">Поточна ціна:</span>
+                            <span class="label" data-i18n="lot_current_price">Поточна ціна:</span>
                             <span class="price">1 159 грн.</span>
                         </div>
                         <div class="lot-info__bids-count">
-                            Ставок: <strong>7</strong>
+                            <span data-i18n="bids">Ставок</span>: <strong>7</strong>
                         </div>
                     </div>
 
                     <div class="lot-info__timer-block">
                         <div class="lot-timer">
                             <span class="lot-timer__icon">⏱</span>
-                            <span class="lot-timer__label">Завершується через:</span>
+                            <span class="lot-timer__label" data-i18n="lot_end_time_label">Завершується через:</span>
                             <span class="lot-timer__time" id="lotTimer">10 год. 45 хв.</span>
                         </div>
                     </div>
@@ -87,17 +101,17 @@
                     <!-- Bid Form -->
                     <div class="lot-info__bid-form">
                         <div class="bid-form">
-                            <label>Ваша ставка (мін. 1 169 грн.):</label>
+                            <label data-i18n="lot_your_bid">Ваша ставка (мін. 1 169 грн.):</label>
                             <div class="bid-form__row">
                                 <input type="number" value="1169" min="1169" class="bid-input" id="bidInput">
-                                <button class="bid-btn" id="bidBtn">Зробити ставку</button>
+                                <button class="bid-btn" id="bidBtn" data-i18n="lot_place_bid">Зробити ставку</button>
                             </div>
                             <div class="bid-form__auto">
-                                <label><input type="checkbox"> Автоставка до:</label>
-                                <input type="number" placeholder="макс. сума" class="bid-input bid-input--small">
+                                <label><input type="checkbox"> <span data-i18n="lot_autobid">Автоставка до:</span></label>
+                                <input type="number" placeholder="макс. сума" data-i18n-placeholder="lot_autobid_ph" class="bid-input bid-input--small">
                             </div>
                         </div>
-                        <button class="buy-now-btn">Купити зараз за 1 500 грн.</button>
+                        <button class="buy-now-btn" data-i18n="lot_buy_now_for">Купити зараз за 1 500 грн.</button>
                     </div>
 
                     <!-- Seller Info -->
@@ -117,9 +131,17 @@
 
                     <!-- Actions -->
                     <div class="lot-info__actions">
-                        <button class="action-btn"><span>❤️</span> В обране</button>
-                        <button class="action-btn"><span>📢</span> Поділитися</button>
-                        <button class="action-btn"><span>⚠️</span> Поскаржитися</button>
+                        <button class="action-btn" data-i18n="lot_favorite" aria-label="Додати в обране">❤️ В обране</button>
+                        <button class="action-btn" data-i18n="lot_share" aria-label="Поділитися">📢 Поділитися</button>
+                        <button class="action-btn" data-i18n="lot_report" aria-label="Поскаржитися">⚠️ Поскаржитися</button>
+                    </div>
+
+                    <div class="lot-share" style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                        <span data-i18n="lot_share_via" style="font-size:0.82rem;color:var(--text-muted)">Поділитися:</span>
+                        <button class="action-btn" onclick="shareLot('telegram')" title="Telegram" aria-label="Поділитися в Telegram">📤</button>
+                        <button class="action-btn" onclick="shareLot('facebook')" title="Facebook" aria-label="Поділитися в Facebook">📘</button>
+                        <button class="action-btn" onclick="shareLot('twitter')" title="Twitter" aria-label="Поділитися в Twitter">🐦</button>
+                        <button class="action-btn" onclick="shareLot('copy')" title="Копіювати" aria-label="Копіювати посилання">📋</button>
                     </div>
                 </div>
             </div>
@@ -127,34 +149,39 @@
             <!-- Description & Bids Tabs -->
             <div class="lot-tabs">
                 <div class="lot-tabs__nav">
-                    <button class="tab-btn active" data-tab="description">Опис</button>
-                    <button class="tab-btn" data-tab="bids">Історія ставок</button>
-                    <button class="tab-btn" data-tab="delivery">Доставка та оплата</button>
-                    <button class="tab-btn" data-tab="questions">Питання (3)</button>
+                    <button class="tab-btn active" data-tab="description" data-i18n="lot_tab_description">Опис</button>
+                    <button class="tab-btn" data-tab="bids" data-i18n="lot_tab_bids">Історія ставок</button>
+                    <button class="tab-btn" data-tab="delivery" data-i18n="lot_tab_delivery">Доставка та оплата</button>
+                    <button class="tab-btn" data-tab="questions" data-i18n="lot_tab_questions">Питання (3)</button>
                 </div>
 
                 <div class="lot-tabs__content">
                     <div class="tab-panel active" id="tab-description">
-                        <h3>Опис лота</h3>
+                        <h3 data-i18n="lot_description_title">Опис лота</h3>
                         <div class="lot-specs">
                             <table>
-                                <tr><td>Бренд:</td><td>Dell</td></tr>
-                                <tr><td>Модель:</td><td>Latitude E7470</td></tr>
-                                <tr><td>Процесор:</td><td>Intel Core i5-6300U 2.4GHz</td></tr>
-                                <tr><td>Оперативна пам'ять:</td><td>DDR4 8Gb</td></tr>
-                                <tr><td>Накопичувач:</td><td>SSD m.2 256Gb</td></tr>
-                                <tr><td>Екран:</td><td>14.0" HD</td></tr>
-                                <tr><td>Стан:</td><td>Б/В, робочий</td></tr>
+                                <tr><td data-i18n="lot_spec_brand">Бренд:</td><td>Dell</td></tr>
+                                <tr><td data-i18n="lot_spec_model">Модель:</td><td>Latitude E7470</td></tr>
+                                <tr><td data-i18n="lot_spec_cpu">Процесор:</td><td>Intel Core i5-6300U 2.4GHz</td></tr>
+                                <tr><td data-i18n="lot_spec_ram">Оперативна пам'ять:</td><td>DDR4 8Gb</td></tr>
+                                <tr><td data-i18n="lot_spec_storage">Накопичувач:</td><td>SSD m.2 256Gb</td></tr>
+                                <tr><td data-i18n="lot_spec_screen">Екран:</td><td>14.0" HD</td></tr>
+                                <tr><td data-i18n="lot_spec_condition">Стан:</td><td data-i18n="lot_spec_values">Б/В, робочий</td></tr>
                             </table>
                         </div>
-                        <p>Ноутбук у гарному стані. Працює стабільно. Батарея тримає ~3 години. Є незначні потертості на корпусі. Комплект: ноутбук + зарядний пристрій.</p>
+                        <p data-i18n="lot_dell_lat">Ноутбук у гарному стані. Працює стабільно. Батарея тримає ~3 години. Є незначні потертості на корпусі. Комплект: ноутбук + зарядний пристрій.</p>
                     </div>
 
                     <div class="tab-panel" id="tab-bids">
-                        <h3>Історія ставок</h3>
+                        <canvas id="bidChart" style="width:100%;height:80px;margin-bottom:16px"></canvas>
+                        <h3 data-i18n="lot_bids_history">Історія ставок</h3>
                         <table class="bids-table">
                             <thead>
-                                <tr><th>Учасник</th><th>Ставка</th><th>Час</th></tr>
+                                <tr>
+                                    <th data-i18n="lot_bids_participant">Учасник</th>
+                                    <th data-i18n="lot_bids_price">Ставка</th>
+                                    <th data-i18n="lot_bids_time">Час</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <tr><td>user***23</td><td>1 159 грн.</td><td>14:32</td></tr>
@@ -169,46 +196,46 @@
                     </div>
 
                     <div class="tab-panel" id="tab-delivery">
-                        <h3>Доставка та оплата</h3>
+                        <h3 data-i18n="lot_delivery_title">Доставка та оплата</h3>
                         <div class="delivery-info">
-                            <h4>Способи доставки:</h4>
+                            <h4 data-i18n="lot_delivery_methods">Способи доставки:</h4>
                             <ul>
-                                <li>📦 Нова Пошта — 70-120 грн.</li>
-                                <li>📦 Укрпошта — 40-60 грн.</li>
-                                <li>🚗 Самовивіз — Київ, м. Лівобережна</li>
+                                <li data-i18n="lot_delivery_1">📦 Нова Пошта — 70-120 грн.</li>
+                                <li data-i18n="lot_delivery_2">📦 Укрпошта — 40-60 грн.</li>
+                                <li data-i18n="lot_delivery_3">🚗 Самовивіз — Київ, м. Лівобережна</li>
                             </ul>
-                            <h4>Способи оплати:</h4>
+                            <h4 data-i18n="lot_payment_methods">Способи оплати:</h4>
                             <ul>
-                                <li>💳 На картку ПриватБанк</li>
-                                <li>💳 На картку Моно</li>
-                                <li>💰 Накладений платіж (+20 грн.)</li>
+                                <li data-i18n="lot_payment_1">💳 На картку ПриватБанк</li>
+                                <li data-i18n="lot_payment_2">💳 На картку Моно</li>
+                                <li data-i18n="lot_payment_3">💰 Накладений платіж (+20 грн.)</li>
                             </ul>
                         </div>
                     </div>
 
                     <div class="tab-panel" id="tab-questions">
-                        <h3>Питання продавцю</h3>
+                        <h3 data-i18n="lot_questions_title">Питання продавцю</h3>
                         <div class="questions-list">
                             <div class="question-item">
                                 <div class="question-item__q">
-                                    <strong>buyer***77:</strong> Чи є гарантія?
+                                    <strong>buyer***77:</strong> <span data-i18n="lot_q1">Чи є гарантія?</span>
                                 </div>
                                 <div class="question-item__a">
-                                    <strong>SERGEYRV:</strong> Так, 14 днів на повернення.
+                                    <strong>SERGEYRV:</strong> <span data-i18n="lot_a1">Так, 14 днів на повернення.</span>
                                 </div>
                             </div>
                             <div class="question-item">
                                 <div class="question-item__q">
-                                    <strong>tech***01:</strong> Батарея оригінальна?
+                                    <strong>tech***01:</strong> <span data-i18n="lot_q2">Батарея оригінальна?</span>
                                 </div>
                                 <div class="question-item__a">
-                                    <strong>SERGEYRV:</strong> Так, оригінал, знос ~15%.
+                                    <strong>SERGEYRV:</strong> <span data-i18n="lot_a2">Так, оригінал, знос ~15%.</span>
                                 </div>
                             </div>
                         </div>
                         <div class="question-form">
-                            <textarea placeholder="Задайте питання продавцю..." rows="3"></textarea>
-                            <button class="bid-btn">Надіслати</button>
+                            <textarea data-i18n-placeholder="lot_question_ph" placeholder="Задайте питання продавцю..." rows="3"></textarea>
+                            <button class="bid-btn" data-i18n="lot_send_question">Надіслати</button>
                         </div>
                     </div>
                 </div>
@@ -216,21 +243,58 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
-        <div class="footer__container">
-            <div class="footer__links">
-                <a href="#">Про нас</a>
-                <a href="#">Угода користувача</a>
-                <a href="#">Контакти</a>
-                <a href="#">Допомога</a>
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand"><span style="font-size:1.3rem">⚡</span><span class="logo-text">KRAM.UA</span></div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
             </div>
-            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
         </div>
     </footer>
 
     <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
     <script src="js/api.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/reveal.js"></script>
+    <script src="js/lazy-load.js"></script>
+    <script src="js/shortcuts.js"></script>
+    <script src="js/recently-viewed.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/header.js"></script>
     <script src="js/lot.js"></script>
 </body>
 </html>

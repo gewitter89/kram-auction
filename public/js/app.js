@@ -1,6 +1,3 @@
-// XSS protection
-function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-
 // State
 let allLots = [];
 let categories = [];
@@ -29,24 +26,23 @@ function isEndingSoon(endTime) {
 }
 
 function renderLotCard(lot) {
-    const stars = Math.round(lot.seller_rating || 0);
+    const badge = lot.sale_type === 'buy-now' ? 'Купити' : 'Аукціон';
+    const cd = formatCountdown(lot.end_time);
     return `
-        <div class="lot-card" data-id="${lot.id}">
-            <a href="lot.html?id=${lot.id}" class="lot-card__link">
+        <div class="lot-card reveal" data-id="${lot.id}">
+            <a href="lot.html?id=${lot.id}">
             <div class="lot-card__image">
-                <img src="${esc(getImageUrl(lot))}" alt="${esc(lot.title)}" loading="lazy">
-                <span class="lot-card__badge">${lot.sale_type === 'buy-now' ? 'Купити' : 'Аукціон'}</span>
+                <img data-src="${esc(getImageUrl(lot))}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="${esc(lot.title)}" loading="lazy">
+                <span class="lot-card__badge">${badge}</span>
                 <button class="lot-card__favorite" data-id="${lot.id}" aria-label="Додати в обране">🤍</button>
             </div>
             <div class="lot-card__body">
                 <span class="lot-card__category">${esc(lot.category_name || '')}</span>
                 <h3 class="lot-card__title">${esc(lot.title)}</h3>
                 <div class="lot-card__bids">Ставок: ${lot.bids_count || 0}</div>
-                <div class="lot-card__price">${Number(lot.current_price || lot.start_price).toLocaleString('uk-UA')} грн.</div>
+                <div class="lot-card__price">${renderPrice(lot.current_price || lot.start_price)}</div>
                 <div class="lot-card__footer">
-                    <div class="lot-card__timer ${isEndingSoon(lot.end_time) ? 'ending-soon' : ''}">
-                        ⏱ ${formatTimeLeft(lot.end_time)}
-                    </div>
+                    <div class="lot-card__timer ${cd.cls}">⏱ ${cd.text}</div>
                     <div class="lot-card__seller">
                         <span>${esc(lot.seller_name || '')}</span>
                     </div>
@@ -61,11 +57,13 @@ function renderLots(lots) {
     const grid = document.getElementById('lotsGrid');
     if (!grid) return;
     if (!lots || lots.length === 0) {
-        grid.innerHTML = '<div class="lots-grid__empty">Нічого не знайдено</div>';
+        grid.innerHTML = renderEmptyState('📭', 'Нічого не знайдено', 'Спробуйте змінити фільтри або пошуковий запит.');
         return;
     }
     grid.innerHTML = lots.map(renderLotCard).join('');
     updateTimers();
+    // Observe new reveal elements
+    grid.querySelectorAll('.reveal').forEach(el => revealObserver?.observe(el));
 }
 
 function updateTimers() {
@@ -78,6 +76,9 @@ function updateTimers() {
 }
 
 async function loadLots(params = {}) {
+    const grid = document.getElementById('lotsGrid');
+    if (grid) grid.innerHTML = renderSkeletons(8);
+
     try {
         const query = {};
         if (currentCategory !== 'all') query.category = currentCategory;
@@ -88,8 +89,8 @@ async function loadLots(params = {}) {
         allLots = data.lots || [];
         renderLots(allLots);
     } catch (err) {
-        const grid = document.getElementById('lotsGrid');
-        if (grid) grid.innerHTML = '<div class="lots-grid__empty">Помилка завантаження: ' + esc(err.message) + '</div>';
+        if (grid) grid.innerHTML = renderEmptyState('⚠️', 'Помилка завантаження', esc(err.message), 'Спробувати знову', '#');
+        showToast({ type: 'error', message: 'Помилка завантаження лотів.' });
     }
 }
 
@@ -99,23 +100,27 @@ async function loadTopLots() {
     try {
         const lots = await api.getTopLots();
         if (!lots || lots.length === 0) { topGrid.parentElement.style.display = 'none'; return; }
-        topGrid.innerHTML = lots.slice(0, 6).map(lot => `
-            <div class="lot-card">
-                <a href="lot.html?id=${lot.id}" class="lot-card__link">
+        topGrid.innerHTML = lots.slice(0, 6).map(lot => {
+            const cd = formatCountdown(lot.end_time);
+            return `
+            <div class="lot-card reveal">
+                <a href="lot.html?id=${lot.id}">
                 <div class="lot-card__image">
-                    <img src="${esc(getImageUrl(lot))}" alt="${esc(lot.title)}" loading="lazy">
+                    <img data-src="${esc(getImageUrl(lot))}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="${esc(lot.title)}" loading="lazy">
                     <span class="lot-card__badge">${lot.sale_type === 'buy-now' ? 'Купити' : 'Аукціон'}</span>
                 </div>
                 <div class="lot-card__body">
                     <h3 class="lot-card__title">${esc(lot.title)}</h3>
-                    <div class="lot-card__price">${Number(lot.current_price || lot.start_price).toLocaleString('uk-UA')} грн.</div>
+                    <div class="lot-card__price">${renderPrice(lot.current_price || lot.start_price)}</div>
                     <div class="lot-card__footer">
-                        <div class="lot-card__timer ${isEndingSoon(lot.end_time) ? 'ending-soon' : ''}">⏱ ${formatTimeLeft(lot.end_time)}</div>
+                        <div class="lot-card__timer ${cd.cls}">⏱ ${cd.text}</div>
                     </div>
                 </div>
                 </a>
             </div>
-        `).join('');
+            `;
+        }).join('');
+        topGrid.querySelectorAll('.reveal').forEach(el => revealObserver?.observe(el));
     } catch (err) {
         topGrid.innerHTML = '<div class="lots-grid__empty">Помилка</div>';
     }

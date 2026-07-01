@@ -5,4 +5,4 @@ Disallow: /cabinet.html
 Disallow: /create-lot.html
 Disallow: /uploads/
 
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://kram.ua/sitemap.xml

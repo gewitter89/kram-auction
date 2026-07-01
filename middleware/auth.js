@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'aUc7$xK9mP2vL5nQ8wR4tY6bF3jH0dS1eG7iO9pA2cX5zV8nM4kJ6';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    console.error('FATAL: JWT_SECRET not set in environment');
+    process.exit(1);
+}
 
 // Middleware to verify JWT token
 function authenticateToken(req, res, next) {

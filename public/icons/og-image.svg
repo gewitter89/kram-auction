@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#030712"/>
+      <stop offset="50%" stop-color="#0a0f1a"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Glow circles -->
+  <circle cx="200" cy="200" r="300" fill="#10b981" opacity="0.04"/>
+  <circle cx="1000" cy="450" r="250" fill="#3b82f6" opacity="0.04"/>
+  <!-- Logo area -->
+  <text x="600" y="240" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="120" fill="url(#acc)">KRAM.UA</text>
+  <text x="600" y="340" text-anchor="middle" font-family="Inter,sans-serif" font-weight="500" font-size="36" fill="#9ca3af">Перший преміальний аукціон в Україні</text>
+  <text x="600" y="420" text-anchor="middle" font-family="Inter,sans-serif" font-weight="600" font-size="28" fill="#10b981">Аукціони від 1 грн · Безпечні угоди · Реальні ставки</text>
+  <!-- Bottom badge -->
+  <rect x="480" y="500" width="240" height="48" rx="24" fill="none" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+  <text x="600" y="532" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="500" font-size="22" fill="#10b981">🚀 Безкоштовна beta</text>
+</svg>

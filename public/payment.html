@@ -2,8 +2,16 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оплата — МійАукціон</title>
+    <title>Оплата — KRAM.UA</title>
+    <meta name="description" content="Безпечна оплата покупок на KRAM.UA — LiqPay, картка">
+    <meta name="robots" content="noindex">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Оплата — KRAM.UA">
+    <meta property="og:description" content="Безпечна оплата покупок на українському аукціоні">
+    <meta property="og:image" content="icons/og-image.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -17,36 +25,43 @@
         .payment-lot__info h3 { font-size: 0.95rem; margin-bottom: 4px; }
         .payment-lot__price { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
         .payment-methods { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-        .payment-method { display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .payment-method:hover { border-color: var(--primary); }
-        .payment-method.active { border-color: var(--primary); background: #e8f0fe; }
+        .payment-method { display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .payment-method:hover { border-color: var(--accent); }
+        .payment-method.active { border-color: var(--accent); background: #e8f0fe; }
         .payment-method__icon { font-size: 2rem; }
         .payment-method__info h4 { font-size: 0.95rem; margin-bottom: 2px; }
-        .payment-method__info span { font-size: 0.82rem; color: var(--text-light); }
+        .payment-method__info span { font-size: 0.82rem; color: var(--text-secondary); }
         .payment-total { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px; }
-        .payment-total__label { font-size: 1rem; color: var(--text-light); }
+        .payment-total__label { font-size: 1rem; color: var(--text-secondary); }
         .payment-total__amount { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-        .payment-btn { width: 100%; padding: 16px; background: var(--success); color: var(--white); border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.3s; }
+        .payment-btn { width: 100%; padding: 16px; background: var(--accent); color: var(--text-primary); border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.3s; }
         .payment-btn:hover { background: #218838; }
-        .payment-secure { text-align: center; margin-top: 16px; font-size: 0.82rem; color: var(--text-light); }
+        .payment-secure { text-align: center; margin-top: 16px; font-size: 0.82rem; color: var(--text-secondary); }
     </style>
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <header class="header">
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="index.html" class="header__link" data-i18n="nav_catalog">Каталог</a>
+                <a href="login.html" class="header__link" data-i18n="nav_login">Увійти</a>
             </div>
         </div>
     </header>
 
     <main class="payment-page">
         <div class="payment-card">
-            <h1>💳 Оплата замовлення</h1>
-            <p class="payment-card__subtitle">Оберіть спосіб оплати</p>
+            <h1 data-i18n="payment_title">💳 Оплата замовлення</h1>
+            <p class="payment-card__subtitle" data-i18n="payment_subtitle">Оберіть спосіб оплати</p>
 
             <div class="payment-lot">
                 <img src="https://placehold.co/80x60/e8f0fe/1a73e8?text=Lot" alt="" id="paymentLotImage">
@@ -60,40 +75,41 @@
                 <div class="payment-method active" data-method="liqpay" onclick="selectMethod(this)">
                     <div class="payment-method__icon">💳</div>
                     <div class="payment-method__info">
-                        <h4>LiqPay (Visa/Mastercard)</h4>
-                        <span>Миттєва оплата карткою</span>
+                        <h4 data-i18n="payment_method_liqpay">LiqPay (Visa/Mastercard)</h4>
+                        <span data-i18n="payment_method_liqpay_desc">Миттєва оплата карткою</span>
                     </div>
                 </div>
                 <div class="payment-method" data-method="monobank" onclick="selectMethod(this)">
                     <div class="payment-method__icon">🏦</div>
                     <div class="payment-method__info">
-                        <h4>Monobank</h4>
-                        <span>Переказ через додаток</span>
+                        <h4 data-i18n="payment_method_mono">Monobank</h4>
+                        <span data-i18n="payment_method_mono_desc">Переказ через додаток</span>
                     </div>
                 </div>
                 <div class="payment-method" data-method="card" onclick="selectMethod(this)">
                     <div class="payment-method__icon">💰</div>
                     <div class="payment-method__info">
-                        <h4>На картку продавця</h4>
-                        <span>Ручний переказ + підтвердження</span>
+                        <h4 data-i18n="payment_method_card">На картку продавця</h4>
+                        <span data-i18n="payment_method_card_desc">Ручний переказ + підтвердження</span>
                     </div>
                 </div>
             </div>
 
             <div class="payment-total">
-                <span class="payment-total__label">До сплати:</span>
+                <span class="payment-total__label" data-i18n="payment_total_label">До сплати:</span>
                 <span class="payment-total__amount" id="paymentTotal">0 грн.</span>
             </div>
 
-            <button class="payment-btn" id="payBtn" onclick="processPayment()">
-                Оплатити
-            </button>
+            <button class="payment-btn" id="payBtn" onclick="processPayment()" data-i18n="payment_btn">Оплатити</button>
 
-            <p class="payment-secure">🔒 Безпечна оплата. Дані захищені SSL шифруванням.</p>
+            <p class="payment-secure" data-i18n="payment_secure">🔒 Безпечна оплата. Дані захищені SSL шифруванням.</p>
         </div>
     </main>
 
     <script src="js/api.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
     <script>
         let selectedMethod = 'liqpay';
         let purchaseId = new URLSearchParams(window.location.search).get('id');
@@ -127,17 +143,17 @@
                         method: 'POST',
                         body: JSON.stringify({ purchaseId })
                     });
-                    alert(result.instructions.join('\n'));
+                    showToast({ type: 'info', title: 'Інструкції Monobank', message: result.instructions.join(' | ') });
                     btn.disabled = false;
                     btn.textContent = 'Оплатити';
                 } else {
                     // Manual card payment
                     await api.request(`/purchases/${purchaseId}/pay`, { method: 'PUT' });
-                    alert('Оплату підтверджено! Продавець отримає сповіщення.');
+                    showToast({ type: 'success', title: 'Оплату підтверджено!', message: 'Продавець отримає сповіщення.' });
                     window.location.href = '/cabinet.html';
                 }
             } catch (err) {
-                alert('Помилка: ' + err.message);
+                showToast({ type: 'error', title: 'Помилка оплати', message: err.message });
                 btn.disabled = false;
                 btn.textContent = 'Оплатити';
             }
@@ -164,5 +180,54 @@
 
         document.addEventListener('DOMContentLoaded', loadPurchaseInfo);
     </script>
+
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security_title">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="footer_security_1">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="footer_security_2">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="footer_security_3">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="footer_security_4">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics_title">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="footer_logistics_1">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="footer_logistics_2">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="footer_logistics_3">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="footer_logistics_4">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules_title">📜 Правила</div>
+                <a href="rules.html" data-i18n="footer_rules_1">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="footer_rules_2">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="footer_rules_3">Про платформу</a>
+                <a href="contacts.html" data-i18n="footer_rules_4">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile_title">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="footer_mobile_subtitle">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="footer_telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="footer_help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="footer_copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="footer_made_in">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
 </body>
 </html>

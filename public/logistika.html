@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Логістика та доставка — KRAM.UA</title>
+    <meta name="description" content="Варіанти доставки на KRAM.UA: Нова Пошта, Укрпошта Експрес, Meest ПОШТА, пункти самовивозу.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kram.ua/logistika.html">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta property="og:title" content="Логістика та доставка — KRAM.UA">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <script src="js/i18n.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="index.html" class="header__link" data-i18n="catalog">Каталог</a>
+                <a href="login.html" class="header__link" data-i18n="login">Увійти</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="info-page">
+        <h1 class="info-page__title" data-i18n="page_logistics_title">📦 Логістика та доставка</h1>
+        <p class="info-page__subtitle" data-i18n="page_logistics_subtitle">KRAM.UA підтримує всі популярні служби доставки в Україні.</p>
+
+        <div class="info-card reveal">
+            <h2 class="info-card__title" data-i18n="logistics_nova_title">🚚 Нова Пошта</h2>
+            <p><strong>Основний партнер логістики.</strong> Нова Пошта — найбільший оператор експрес-доставки в Україні з понад 12 000 відділень.</p>
+            <p><strong>Як це працює:</strong></p>
+            <ol style="list-style:decimal;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Продавець вказує доступність «Нова Пошта» у картці лота</li>
+                <li>Покупець при оформленні замовлення вказує номер відділення або адресу для кур'єрської доставки</li>
+                <li>Продавець пакує товар і відправляє через найближче відділення</li>
+                <li>Трек-номер автоматично передається покупцеві через чат платформи</li>
+                <li>Покупець отримує SMS-сповіщення про прибуття посилки</li>
+            </ol>
+            <p style="margin-top:12px;"><strong>Терміни доставки:</strong> 1–2 дні по Україні. Вартість — згідно з тарифами Нової Пошти (сплачує покупець при отриманні, якщо не домовлено інакше).</p>
+            <p><strong>Відстеження:</strong> <a href="https://novaposhta.ua/tracking" target="_blank" rel="noopener" style="color:var(--accent)">https://novaposhta.ua/tracking</a></p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-1" id="ukrposhta">
+            <h2 class="info-card__title" data-i18n="logistics_ukrposhta_title">📮 Укрпошта Експрес</h2>
+            <p><strong>Державний оператор поштового зв'язку.</strong> Укрпошта Експрес — прискорена доставка по Україні з фіксованими тарифами.</p>
+            <p><strong>Особливості:</strong></p>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Доставка у будь-який населений пункт України, включаючи села</li>
+                <li>Термін доставки: 3–5 робочих днів</li>
+                <li>Можливість відправки великогабаритних вантажів</li>
+                <li>Нижча вартість порівняно з приватними операторами</li>
+            </ul>
+            <p style="margin-top:12px;"><strong>Відстеження:</strong> <a href="https://track.ukrposhta.ua" target="_blank" rel="noopener" style="color:var(--accent)">https://track.ukrposhta.ua</a></p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-2" id="meest">
+            <h2 class="info-card__title" data-i18n="logistics_meest_title">📦 Meest ПОШТА</h2>
+            <p><strong>Міжнародна та внутрішня доставка.</strong> Meest ПОШТА — один із лідерів поштової логістики з розгалуженою мережею відділень.</p>
+            <p><strong>Особливості:</strong></p>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Понад 4 000 відділень по Україні</li>
+                <li>Термін доставки: 2–4 дні</li>
+                <li>Конкурентні тарифи на посилки до 30 кг</li>
+                <li>Зручний мобільний застосунок для відстеження</li>
+            </ul>
+            <p style="margin-top:12px;"><strong>Відстеження:</strong> <a href="https://meest.shopping/tracking" target="_blank" rel="noopener" style="color:var(--accent)">https://meest.shopping/tracking</a></p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-3" id="pickup">
+            <h2 class="info-card__title" data-i18n="logistics_pickup_title">📍 Пункти самовивозу</h2>
+            <p><strong>Найшвидший варіант отримання товару.</strong> Продавець може вказати адресу або локацію для особистої зустрічі.</p>
+            <p><strong>Як це працює:</strong></p>
+            <ol style="list-style:decimal;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Продавець вказує місто та район самовивозу в картці лота</li>
+                <li>Покупець обирає «Самовивіз» при оформленні</li>
+                <li>Сторони домовляються про час і місце зустрічі у вбудованому чаті</li>
+            </ol>
+            <p style="margin-top:12px;"><strong>Рекомендації безпеки при самовивозі:</strong> зустрічайтеся в людних місцях (ТЦ, кафе). Перевіряйте товар на місці перед оплатою. Повідомте близьких про місце зустрічі.</p>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/reveal.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
+</body>
+</html>

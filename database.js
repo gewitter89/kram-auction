@@ -1,19 +1,21 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const DB_TYPE = process.env.DB_TYPE || 'sqlite';
 
-const DATA_DIR = process.env.DATA_DIR || __dirname;
-const dbPath = path.join(DATA_DIR, 'auction.db');
-const db = new Database(dbPath);
+if (DB_TYPE === 'postgres') {
+  module.exports = require('./database-pg');
+} else {
+  const Database = require('better-sqlite3');
+  const path = require('path');
 
-console.log(`[DB] SQLite at ${dbPath}`);
+  const DATA_DIR = process.env.DATA_DIR || __dirname;
+  const dbPath = path.join(DATA_DIR, 'auction.db');
+  const _raw = new Database(dbPath);
 
-// Enable WAL mode for better performance
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+  console.log(`[DB] SQLite at ${dbPath}`);
 
-// Create tables
-db.exec(`
-    -- Users table
+  _raw.pragma('journal_mode = WAL');
+  _raw.pragma('foreign_keys = ON');
+
+  _raw.exec(`
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
@@ -32,8 +34,6 @@ db.exec(`
         is_active INTEGER DEFAULT 1,
         is_admin INTEGER DEFAULT 0
     );
-
-    -- Categories table
     CREATE TABLE IF NOT EXISTS categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -42,8 +42,6 @@ db.exec(`
         icon TEXT,
         FOREIGN KEY (parent_id) REFERENCES categories(id)
     );
-
-    -- Lots table
     CREATE TABLE IF NOT EXISTS lots (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         seller_id INTEGER NOT NULL,
@@ -69,8 +67,6 @@ db.exec(`
         FOREIGN KEY (seller_id) REFERENCES users(id),
         FOREIGN KEY (category_id) REFERENCES categories(id)
     );
-
-    -- Lot images table
     CREATE TABLE IF NOT EXISTS lot_images (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         lot_id INTEGER NOT NULL,
@@ -79,8 +75,6 @@ db.exec(`
         sort_order INTEGER DEFAULT 0,
         FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE CASCADE
     );
-
-    -- Bids table
     CREATE TABLE IF NOT EXISTS bids (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         lot_id INTEGER NOT NULL,
@@ -92,8 +86,6 @@ db.exec(`
         FOREIGN KEY (lot_id) REFERENCES lots(id),
         FOREIGN KEY (user_id) REFERENCES users(id)
     );
-
-    -- Favorites table
     CREATE TABLE IF NOT EXISTS favorites (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -103,8 +95,6 @@ db.exec(`
         FOREIGN KEY (user_id) REFERENCES users(id),
         FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE CASCADE
     );
-
-    -- Messages table
     CREATE TABLE IF NOT EXISTS messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         sender_id INTEGER NOT NULL,
@@ -117,8 +107,6 @@ db.exec(`
         FOREIGN KEY (receiver_id) REFERENCES users(id),
         FOREIGN KEY (lot_id) REFERENCES lots(id)
     );
-
-    -- Reviews table
     CREATE TABLE IF NOT EXISTS reviews (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         reviewer_id INTEGER NOT NULL,
@@ -131,8 +119,6 @@ db.exec(`
         FOREIGN KEY (seller_id) REFERENCES users(id),
         FOREIGN KEY (lot_id) REFERENCES lots(id)
     );
-
-    -- Notifications table
     CREATE TABLE IF NOT EXISTS notifications (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -145,8 +131,6 @@ db.exec(`
         FOREIGN KEY (user_id) REFERENCES users(id),
         FOREIGN KEY (lot_id) REFERENCES lots(id)
     );
-
-    -- Purchases table (completed transactions)
     CREATE TABLE IF NOT EXISTS purchases (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         lot_id INTEGER NOT NULL,
@@ -165,34 +149,93 @@ db.exec(`
         FOREIGN KEY (buyer_id) REFERENCES users(id),
         FOREIGN KEY (seller_id) REFERENCES users(id)
     );
-`);
+  `);
 
-// Seed categories
-const categoriesExist = db.prepare('SELECT COUNT(*) as count FROM categories').get();
-if (categoriesExist.count === 0) {
-    const insertCat = db.prepare('INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)');
+  try { _raw.exec('ALTER TABLE users ADD COLUMN reset_token TEXT'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN reset_token_expires DATETIME'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER DEFAULT 0'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN email_token TEXT'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN telegram_chat_id TEXT'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN google_id TEXT'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN two_factor_secret TEXT'); } catch(e) {}
+  try { _raw.exec('ALTER TABLE users ADD COLUMN two_factor_enabled INTEGER DEFAULT 0'); } catch(e) {}
+
+  try { _raw.exec(`CREATE TABLE IF NOT EXISTS email_queue (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    recipient TEXT NOT NULL,
+    template TEXT NOT NULL,
+    data_json TEXT NOT NULL,
+    retries INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'pending',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`); } catch(e) {}
+
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_lots_status ON lots(status)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_lots_seller ON lots(seller_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_lots_category ON lots(category_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_lots_end_time ON lots(end_time)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_bids_lot ON bids(lot_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_bids_user ON bids(user_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_messages_receiver ON messages(receiver_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_purchases_buyer ON purchases(buyer_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_purchases_seller ON purchases(seller_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_purchases_status ON purchases(status)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_reviews_seller ON reviews(seller_id)'); } catch(e) {}
+  try { _raw.exec('CREATE INDEX IF NOT EXISTS idx_favorites_user ON favorites(user_id)'); } catch(e) {}
+
+  const categoriesExist = _raw.prepare('SELECT COUNT(*) as count FROM categories').get();
+  if (categoriesExist.count === 0) {
+    const insertCat = _raw.prepare('INSERT INTO categories (name, slug, icon) VALUES (?, ?, ?)');
     const categories = [
-        ['Електроніка, Техніка', 'electronics', '💻'],
-        ['Ноутбуки', 'laptops', '💻'],
-        ['Смартфони', 'smartphones', '📱'],
-        ['Комплектуючі для ПК', 'pc-parts', '🖥️'],
-        ['Системні блоки, ПК', 'desktops', '🖥️'],
-        ['Одяг, мода, краса', 'fashion', '👗'],
-        ['Автозапчастини, Тюнінг', 'auto', '🚗'],
-        ['Спорт, Туризм', 'sport', '⚽'],
-        ['Дитячі товари', 'kids', '🧸'],
-        ['Будинок, дозвілля', 'home', '🏠'],
-        ['Інструменти', 'tools', '🔧'],
-        ['Техніка для кухні', 'kitchen', '☕'],
-        ['Розумні годинники', 'smartwatch', '⌚'],
-        ['Камери', 'cameras', '📷'],
+      ['Електроніка, Техніка', 'electronics', '💻'],
+      ['Ноутбуки', 'laptops', '💻'],
+      ['Смартфони', 'smartphones', '📱'],
+      ['Комплектуючі для ПК', 'pc-parts', '🖥️'],
+      ['Системні блоки, ПК', 'desktops', '🖥️'],
+      ['Одяг, мода, краса', 'fashion', '👗'],
+      ['Автозапчастини, Тюнінг', 'auto', '🚗'],
+      ['Спорт, Туризм', 'sport', '⚽'],
+      ['Дитячі товари', 'kids', '🧸'],
+      ['Будинок, дозвілля', 'home', '🏠'],
+      ['Інструменти', 'tools', '🔧'],
+      ['Техніка для кухні', 'kitchen', '☕'],
+      ['Розумні годинники', 'smartwatch', '⌚'],
+      ['Камери', 'cameras', '📷'],
     ];
-    const insertMany = db.transaction((cats) => {
-        for (const cat of cats) {
-            insertCat.run(...cat);
-        }
+    const insertMany = _raw.transaction((cats) => {
+      for (const cat of cats) {
+        insertCat.run(...cat);
+      }
     });
     insertMany(categories);
-}
+  }
 
-module.exports = db;
+  try { _raw.exec(`CREATE VIRTUAL TABLE IF NOT EXISTS lots_fts USING fts5(title, description, content='lots', content_rowid='id')`); } catch(e) {}
+  try { _raw.exec(`CREATE TRIGGER IF NOT EXISTS lots_ai AFTER INSERT ON lots BEGIN INSERT INTO lots_fts(rowid, title, description) VALUES (new.id, new.title, new.description); END;`); } catch(e) {}
+  try { _raw.exec(`CREATE TRIGGER IF NOT EXISTS lots_ad AFTER DELETE ON lots BEGIN INSERT INTO lots_fts(lots_fts, rowid, title, description) VALUES('delete', old.id, old.title, old.description); END;`); } catch(e) {}
+  try { _raw.exec(`CREATE TRIGGER IF NOT EXISTS lots_au AFTER UPDATE ON lots BEGIN INSERT INTO lots_fts(lots_fts, rowid, title, description) VALUES('delete', old.id, old.title, old.description); INSERT INTO lots_fts(rowid, title, description) VALUES (new.id, new.title, new.description); END;`); } catch(e) {}
+
+  // Async-compatible wrapper (returns Promises for unified API with PG)
+  const origPrepare = _raw.prepare.bind(_raw);
+
+  const db = {
+    prepare(sql) {
+      const stmt = origPrepare(sql);
+      return {
+        all: (...args) => Promise.resolve(stmt.all(...args)),
+        get: (...args) => Promise.resolve(stmt.get(...args)),
+        run: (...args) => Promise.resolve(stmt.run(...args)),
+      };
+    },
+    transaction(fn) {
+      return (...args) => fn(...args);
+    },
+    close() {
+      return Promise.resolve(_raw.close());
+    },
+  };
+
+  module.exports = db;
+}

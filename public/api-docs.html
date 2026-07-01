@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Документація — KRAM.UA</title>
+    <meta name="description" content="REST API документація KRAM.UA — аукціони, ставки, користувачі">
+    <meta name="robots" content="noindex, nofollow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="API Документація — KRAM.UA">
+    <meta property="og:description" content="REST API документація українського онлайн-аукціону">
+    <meta property="og:image" content="icons/og-image.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
+    <style>
+        .docs-page { max-width: 960px; margin: 0 auto; padding: 32px 16px; position: relative; z-index: 1; }
+        .docs-page h1 { font-size: var(--text-2xl); margin-bottom: 8px; }
+        .docs-page .subtitle { color: var(--text-muted); margin-bottom: 32px; }
+        .docs-section { margin-bottom: 40px; }
+        .docs-section h2 { font-size: var(--text-xl); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); }
+        .endpoint { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 12px; backdrop-filter: blur(10px); transition: all var(--transition); }
+        .endpoint:hover { border-color: var(--border-glow); }
+        .endpoint-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+        .method { padding: 3px 10px; border-radius: 4px; font-weight: 700; font-size: 12px; font-family: var(--font-mono); text-transform: uppercase; }
+        .method.get { background: rgba(16,185,129,0.15); color: var(--success); }
+        .method.post { background: rgba(59,130,246,0.15); color: var(--info); }
+        .method.put { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .method.delete { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .path { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--text-primary); }
+        .auth-tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .auth-tag.req { background: rgba(239,68,68,0.12); color: var(--danger); }
+        .auth-tag.opt { background: rgba(245,158,11,0.12); color: var(--warning); }
+        .auth-tag.none { background: rgba(16,185,129,0.12); color: var(--success); }
+        .auth-tag.admin { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        .desc { color: var(--text-secondary); font-size: var(--text-sm); margin-bottom: 8px; }
+        pre { background: var(--bg-primary); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 0.76rem; font-family: var(--font-mono); color: var(--text-secondary); line-height: 1.5; border: 1px solid var(--border-color); margin-top: 8px; }
+        .nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+        .nav a { padding: 5px 12px; background: var(--bg-glass); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-size: var(--text-sm); color: var(--text-secondary); transition: all var(--transition); }
+        .nav a:hover { border-color: var(--accent); color: var(--accent); }
+        [data-theme="light"] .header, [data-theme="dark"] .header { background: var(--bg-card); }
+        .method.server { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">API Docs</span>
+                </a>
+            </div>
+            <div class="header__right">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="index.html" class="header__link" data-i18n="nav_home">На сайт</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="docs-page">
+        <h1 data-i18n="api_title">📘 API Документація</h1>
+        <p class="subtitle" data-i18n="api_subtitle">KRAM.UA REST API v1. Аутентифікація через Bearer Token (JWT).</p>
+
+        <nav class="nav">
+            <a href="#auth">Auth</a> <a href="#lots">Lots</a> <a href="#bids">Bids</a>
+            <a href="#users">Users</a> <a href="#messages">Messages</a> <a href="#favorites">Favorites</a>
+            <a href="#purchases">Purchases</a> <a href="#payment">Payment</a>
+            <a href="#notifications">Notifications</a> <a href="#reviews">Reviews</a>
+            <a href="#admin">Admin</a> <a href="#root">System</a>
+        </nav>
+
+        <!-- Auth -->
+        <div class="docs-section" id="auth">
+            <h2>🔐 Auth</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/auth/register</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Реєстрація нового користувача. Надсилає email для верифікації.</div>
+                <pre>Body: { "username": "string", "email": "string", "password": "string", "firstName?": "string", "lastName?": "string", "phone?": "string", "city?": "string" }
+Response 201: { "message": "Перевірте email для підтвердження", "token": "jwt", "user": { "id": 1, "username": "...", "email": "...", "firstName": "...", "lastName": "..." } }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/auth/login</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Вхід за логіном або email. Встановлює csrf_token cookie.</div>
+                <pre>Body: { "login": "string", "password": "string" }
+Response 200: { "message": "Вхід успішний!", "token": "jwt", "user": { "id": 1, "username": "...", "email": "...", "firstName": "...", "lastName": "...", "rating": 4.5, "reviewsCount": 12, "city": "..." } }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/auth/me</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Отримати профіль поточного користувача.</div>
+                <pre>Headers: Authorization: Bearer &lt;token&gt;
+Response 200: { "id": 1, "username": "...", "email": "...", "first_name": "...", "last_name": "...", "phone": "...", "city": "...", "bio": "...", "avatar": "...", "rating": 4.5, "reviews_count": 12, "created_at": "...", "is_verified": 1 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/auth/profile</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Оновити профіль.</div>
+                <pre>Body: { "firstName?": "string", "lastName?": "string", "phone?": "string", "city?": "string", "bio?": "string" }
+Response 200: { "message": "Профіль оновлено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/auth/password</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Змінити пароль.</div>
+                <pre>Body: { "currentPassword": "string", "newPassword": "string" }
+Response 200: { "message": "Пароль змінено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/auth/forgot-password</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Запит на відновлення пароля. 3 спроби на 15 хв.</div>
+                <pre>Body: { "email": "string" }
+Response 200: { "message": "Якщо email зареєстровано, посилання для відновлення надіслано." }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/auth/reset-password</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Скинути пароль за токеном (дійсний 1 год).</div>
+                <pre>Body: { "token": "string", "newPassword": "string" }
+Response 200: { "message": "Пароль успішно змінено. Увійдіть з новим паролем." }</pre>
+            </div>
+        </div>
+
+        <!-- Lots -->
+        <div class="docs-section" id="lots">
+            <h2>📦 Lots</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/lots</span><span class="auth-tag opt">optional auth</span></div>
+                <div class="desc">Список лотів з фільтрами та пагінацією.</div>
+                <pre>Query: ?page=1&limit=30&category=slug&search=text&sort=ending|price-asc|price-desc|new|popular&minPrice=0&maxPrice=99999&condition=new|used&saleType=auction|buynow&sellerId=1
+Response 200: { "lots": [...], "pagination": { "page": 1, "limit": 30, "total": 150, "pages": 5 } }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/lots/top</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Топ-10 лотів за кількістю ставок (завершуються скоро).</div>
+                <pre>Response 200: [ { ...lot, category_name, seller_name, seller_rating, main_image }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/lots/:id</span><span class="auth-tag opt">optional auth</span></div>
+                <div class="desc">Деталі лота з фото, ставками, даними продавця.</div>
+                <pre>Response 200: { ...lot, images: [...], bids: [...], isFavorite: false, category_name, seller_name, seller_rating, seller_reviews, seller_city, seller_since }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/lots</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Створити новий лот. До 10 зображень (multipart).</div>
+                <pre>Body (multipart/form-data): title, description?, categoryId, condition=new|used, saleType=auction|buynow, startPrice, buyNowPrice?, reservePrice?, bidStep?, duration (дні), city?, deliveryMethods?, paymentMethods?, images[] (до 10 файлів)
+Response 201: { "message": "Лот створено!", "lotId": 1 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/lots/:id</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Редагувати лот (тільки без активних ставок).</div>
+                <pre>Body: { "title": "string", "description?": "string", "condition?": "string", "startPrice?": 100, "buyNowPrice?": 500 }
+Response 200: { "message": "Лот оновлено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method delete">DELETE</span><span class="path">/api/lots/:id</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Видалити лот (тільки без активних ставок).</div>
+                <pre>Response 200: { "message": "Лот видалено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/lots/user/my</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Мої лоти (як продавець).</div>
+                <pre>Query: ?status=active|completed|sold|expired
+Response 200: [ { ...lot, main_image }, ... ]</pre>
+            </div>
+        </div>
+
+        <!-- Bids -->
+        <div class="docs-section" id="bids">
+            <h2>💰 Bids</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/bids</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Зробити ставку. Anti-sniping: +2 хв до кінця. Автоставки обробляються автоматично.</div>
+                <pre>Body: { "lotId": 1, "amount": 150, "isAuto?": false, "autoMax?": 500 }
+Response 201: { "message": "Ставку прийнято!", "bidId": 1, "newPrice": 150 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/bids/my</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Мої ставки (переможні / перебиті).</div>
+                <pre>Response 200: [ { ...bid, lot_title, current_price, end_time, lot_status, lot_image, bid_status: "winning"|"outbid" }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/bids/lot/:lotId</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Історія ставок по лоту.</div>
+                <pre>Response 200: [ { "amount": 150, "created_at": "...", "bidder": "use***" }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/bids/buy-now</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Миттєва покупка за фіксованою ціною. Створює purchase.</div>
+                <pre>Body: { "lotId": 1 }
+Response 200: { "message": "Покупка оформлена!", "amount": 500 }</pre>
+            </div>
+        </div>
+
+        <!-- Users -->
+        <div class="docs-section" id="users">
+            <h2>👤 Users</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/users/:username</span><span class="auth-tag opt">optional auth</span></div>
+                <div class="desc">Публічний профіль користувача з відгуками.</div>
+                <pre>Response 200: { "id": 1, "username": "...", "first_name": "...", "city": "...", "bio": "...", "avatar": "...", "rating": 4.5, "reviews_count": 12, "created_at": "...", "activeLots": 3, "totalSold": 25, "reviews": [...], "ratingBreakdown": [...] }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/users/:username/lots</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Лоти користувача.</div>
+                <pre>Query: ?status=active|completed|sold|expired&page=1&limit=20
+Response 200: [ { ...lot, category_name, main_image }, ... ]</pre>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="docs-section" id="messages">
+            <h2>💬 Messages</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/messages</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Список діалогів (останнє повідомлення в кожному).</div>
+                <pre>Response 200: [ { ...message, other_user_id, other_username, other_avatar }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/messages/:userId</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Повідомлення в діалозі з користувачем. Автоматично позначає як прочитані.</div>
+                <pre>Response 200: [ { ...message, sender_name }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/messages</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Надіслати повідомлення.</div>
+                <pre>Body: { "receiverId": 2, "text": "Привіт!", "lotId?": 1 }
+Response 201: { "message": "Повідомлення надіслано", "id": 1 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/messages/unread/count</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Кількість непрочитаних повідомлень.</div>
+                <pre>Response 200: { "count": 3 }</pre>
+            </div>
+        </div>
+
+        <!-- Favorites -->
+        <div class="docs-section" id="favorites">
+            <h2>❤️ Favorites</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/favorites</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Список обраних лотів.</div>
+                <pre>Response 200: [ { ...lot, category_name, seller_name, main_image }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/favorites/:lotId</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Додати лот в обране.</div>
+                <pre>Response 201: { "message": "Додано в обране" }
+Response 409: { "error": "Вже в обраному" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method delete">DELETE</span><span class="path">/api/favorites/:lotId</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Видалити лот з обраного.</div>
+                <pre>Response 200: { "message": "Видалено з обраного" }</pre>
+            </div>
+        </div>
+
+        <!-- Purchases -->
+        <div class="docs-section" id="purchases">
+            <h2>🛒 Purchases</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/purchases</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Мої покупки (як покупець).</div>
+                <pre>Response 200: [ { ...purchase, lot_title, seller_name, lot_image }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/purchases/sales</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Мої продажі (як продавець).</div>
+                <pre>Response 200: [ { ...purchase, lot_title, buyer_name, lot_image }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/purchases/:id/pay</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Позначити покупку як оплачену (покупець).</div>
+                <pre>Response 200: { "message": "Оплату підтверджено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/purchases/:id/ship</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Позначити як відправлено (продавець).</div>
+                <pre>Body: { "trackingNumber?": "ТТН-12345" }
+Response 200: { "message": "Відправку підтверджено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/purchases/:id/receive</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Позначити як отримано (покупець).</div>
+                <pre>Response 200: { "message": "Отримання підтверджено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/purchases/:id/review</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Залишити відгук до покупки.</div>
+                <pre>Body: { "rating": 5, "text?": "Все супер!" }
+Response 201: { "message": "Відгук залишено" }</pre>
+            </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="docs-section" id="payment">
+            <h2>💳 Payment</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/payment/create</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Створити платіж через LiqPay. Повертає data+signature для checkout.</div>
+                <pre>Body: { "purchaseId": 1 }
+Response 200: { "data": "base64...", "signature": "base64...", "checkoutUrl": "https://www.liqpay.ua/api/3/checkout?data=...&signature=..." }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/payment/callback</span><span class="auth-tag server">server</span></div>
+                <div class="desc">LiqPay callback (server-to-server). Обробляє оплату автоматично.</div>
+                <pre>Body: { "data": "base64...", "signature": "base64..." }
+Response 200: "OK"</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/payment/status/:purchaseId</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Перевірити статус оплати.</div>
+                <pre>Response 200: { "id": 1, "status": "paid", "amount": 500, "paid_at": "..." }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/payment/monobank</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Створити платіж через Monobank (довідкова інформація).</div>
+                <pre>Body: { "purchaseId": 1 }
+Response 200: { "message": "...", "amount": 500, "currency": "UAH", "instructions": [...] }</pre>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="docs-section" id="notifications">
+            <h2>🔔 Notifications</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/notifications</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Список сповіщень користувача.</div>
+                <pre>Query: ?page=1&limit=20
+Response 200: { "notifications": [...], "unreadCount": 5 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/notifications/unread</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Кількість непрочитаних сповіщень.</div>
+                <pre>Response 200: { "count": 5 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/notifications/read-all</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Позначити всі сповіщення як прочитані.</div>
+                <pre>Response 200: { "message": "Всі прочитано" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/notifications/:id/read</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Позначити одне сповіщення як прочитане.</div>
+                <pre>Response 200: { "message": "Прочитано" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method delete">DELETE</span><span class="path">/api/notifications/:id</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Видалити сповіщення.</div>
+                <pre>Response 200: { "message": "Видалено" }</pre>
+            </div>
+        </div>
+
+        <!-- Reviews -->
+        <div class="docs-section" id="reviews">
+            <h2>⭐ Reviews</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/reviews/seller/:sellerId</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Відгуки про продавця зі статистикою.</div>
+                <pre>Query: ?page=1&limit=20
+Response 200: { "reviews": [...], "stats": { "total": 25, "average": 4.5, "five": 15, "four": 7, "three": 2, "two": 1, "one": 0 } }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method post">POST</span><span class="path">/api/reviews</span><span class="auth-tag req">auth</span></div>
+                <div class="desc">Залишити відгук після отримання товару. Оновлює рейтинг продавця.</div>
+                <pre>Body: { "purchaseId": 1, "rating": 5, "text?": "Все супер!" }
+Response 201: { "message": "Відгук залишено!" }</pre>
+            </div>
+        </div>
+
+        <!-- Admin -->
+        <div class="docs-section" id="admin">
+            <h2>⚙️ Admin</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/admin/users</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Список користувачів (адмін).</div>
+                <pre>Query: ?page=1&limit=50&search=username|email
+Response 200: { "users": [...], "pagination": { "page": 1, "limit": 50, "total": 200, "pages": 4 } }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/admin/users/:id/toggle-ban</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Заблокувати / розблокувати користувача.</div>
+                <pre>Response 200: { "message": "Користувача заблоковано" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/admin/users/:id/toggle-admin</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Надати / забрати права адміністратора.</div>
+                <pre>Response 200: { "message": "Права адміна надано" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/admin/lots</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Список лотів з фільтром за статусом (модерація).</div>
+                <pre>Query: ?page=1&limit=50&status=active|completed|sold|expired&search=title
+Response 200: { "lots": [...], "pagination": {...} }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method delete">DELETE</span><span class="path">/api/admin/lots/:id</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Примусове видалення лота з усіма пов'язаними даними.</div>
+                <pre>Response 200: { "message": "Лот \"...\" видалено" }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/admin/stats</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Статистика для дашборду.</div>
+                <pre>Response 200: { "totalUsers": 200, "totalLots": 500, "activeLots": 120, "totalBids": 3500, "totalPurchases": 45, "completedPurchases": 30, "newUsersToday": 8, "revenue": 125000 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/admin/purchases</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Список усіх покупок з фільтрами.</div>
+                <pre>Query: ?page=1&limit=20&status=pending|paid|shipped|received&search=text
+Response 200: { "purchases": [...], "total": 100, "pages": 5, "page": 1 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method put">PUT</span><span class="path">/api/admin/purchases/:id/status</span><span class="auth-tag admin">admin</span></div>
+                <div class="desc">Змінити статус покупки адміністратором.</div>
+                <pre>Body: { "status": "paid"|"shipped"|"received"|"pending" }
+Response 200: { "message": "Статус оновлено" }</pre>
+            </div>
+        </div>
+
+        <!-- System -->
+        <div class="docs-section" id="root">
+            <h2>🖥 System</h2>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/categories</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Список категорій.</div>
+                <pre>Response 200: [ { "id": 1, "name": "Електроніка", "slug": "electronics", ... }, ... ]</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/api/stats</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Публічна статистика сайту.</div>
+                <pre>Response 200: { "totalLots": 120, "totalUsers": 200, "totalBids": 3500, "totalSold": 50 }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/health</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Health check сервера.</div>
+                <pre>Response 200: { "status": "ok", "uptime": 12345.67, "timestamp": "2026-06-22T..." }</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/sw.js</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Service Worker (PWA).</div>
+                <pre>Response 200: JavaScript file</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/manifest.json</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">PWA Manifest.</div>
+                <pre>Response 200: JSON manifest</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/robots.txt</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Robots.txt.</div>
+                <pre>Response 200: text/plain</pre>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-head"><span class="method get">GET</span><span class="path">/sitemap.xml</span><span class="auth-tag none">no auth</span></div>
+                <div class="desc">Sitemap XML.</div>
+                <pre>Response 200: application/xml</pre>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer__bottom">
+            <span><span data-i18n="footer_api">© 2026 KRAM.UA — API v1.0</span></span>
+            <span>Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/theme.js"></script>
+</body>
+</html>

@@ -11,4 +11,4 @@ Allow: /create-lot.html
 Allow: /cabinet.html
 Allow: /seller.html
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://kram.ua/sitemap.xml

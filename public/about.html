@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Про нас — KRAM.UA</title>
+    <meta name="description" content="KRAM.UA — українська платформа для онлайн аукціонів. Продавай та купуй вигідно.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kram.ua/about.html">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta property="og:title" content="Про нас — KRAM.UA">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <script src="js/i18n.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="index.html" class="header__link" data-i18n="catalog">Каталог</a>
+                <a href="login.html" class="header__link" data-i18n="login">Увійти</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="info-page">
+        <h1 class="info-page__title" data-i18n="page_about_title">Про нас</h1>
+        <p class="info-page__subtitle" data-i18n="page_about_subtitle">KRAM.UA — українська платформа для онлайн-аукціонів, де кожен може продати непотрібні речі або знайти вигідну покупку.</p>
+
+        <div class="info-card reveal">
+            <h2 class="info-card__title" data-i18n="about_mission_title">🔨 Наша місія</h2>
+            <p data-i18n="about_mission_text">Створити прозорий, безпечний і зручний майданчик для торгів в Україні. Ми віримо, що кожна річ заслуговує на другий шанс, а кожен покупець — на чесну ціну.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-1">
+            <h2 class="info-card__title" data-i18n="about_why_title">⚡ Чому ми?</h2>
+            <p data-i18n="about_why_1"><strong>Справжні аукціони від 1 грн.</strong> Жодних накруток — реальні люди, реальні ставки.</p>
+            <p data-i18n="about_why_2"><strong>Анти-снайпінг.</strong> Ставка в останню хвилину продовжує аукціон на 2 хвилини. Чесна гра для всіх.</p>
+            <p data-i18n="about_why_3"><strong>Рейтинг продавців.</strong> Кожен продавець має публічний рейтинг та відгуки — ви завжди знаєте, з ким маєте справу.</p>
+            <p data-i18n="about_why_4"><strong>Вбудований чат.</strong> Спілкуйтеся з продавцем або покупцем прямо на платформі.</p>
+            <p data-i18n="about_why_5"><strong>Жодної комісії.</strong> Платформа на етапі бета-тестування — усі угоди безкоштовні.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-2">
+            <h2 class="info-card__title" data-i18n="about_security_title">🛡️ Безпека</h2>
+            <p data-i18n="about_security_text">Ми використовуємо сучасні протоколи шифрування (JWT, helmet, rate-limiting) для захисту ваших даних. Паролі зберігаються у хешованому вигляді. Платіжні операції проходять через перевірені сервіси LiqPay.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-3">
+            <h2 class="info-card__title" data-i18n="about_roadmap_title">🚀 Розвиток</h2>
+            <p data-i18n="about_roadmap_text">Ми активно працюємо над новими функціями: мобільний застосунок, розширена аналітика для продавців, інтеграція з поштовими сервісами для автоматичного трекінгу доставки, програма верифікації продавців.</p>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/reveal.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+</html>

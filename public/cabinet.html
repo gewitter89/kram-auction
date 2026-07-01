@@ -3,28 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кабінет — МійАукціон</title>
+    <title>Кабінет — KRAM.UA</title>
+    <meta name="description" content="Особистий кабінет KRAM.UA — мої лоти, ставки, покупки">
+    <link rel="canonical" href="">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Кабінет — KRAM.UA">
+    <meta property="og:description" content="Керування лотами, ставками та покупками">
+    <meta property="og:image" content="icons/og-image.svg">
+    <meta property="og:url" content="">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/cabinet.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <header class="header">
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
             </div>
             <div class="header__search">
-                <input type="text" placeholder="Пошук лотів..." class="search-input">
+                <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Пошук лотів..." class="search-input">
                 <button class="search-btn" aria-label="Шукати">🔍</button>
             </div>
-            <div class="header__right">
-                <a href="#" class="header__icon" title="Обране">❤️</a>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="cabinet.html#favorites" class="header__icon" title="Обране">❤️</a>
                 <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
-                <a href="#" class="header__icon" title="Кошик">🛒</a>
+                <a href="cart.html" class="header__icon" title="Кошик">🛒</a>
             </div>
         </div>
     </header>
@@ -41,14 +53,14 @@
                     </div>
                 </div>
                 <nav class="cabinet__menu">
-                    <a href="#" class="cabinet__menu-item active" data-section="my-lots">📦 Мої лоти</a>
-                    <a href="#" class="cabinet__menu-item" data-section="my-bids">🔨 Мої ставки</a>
-                    <a href="#" class="cabinet__menu-item" data-section="purchases">🛒 Покупки</a>
-                    <a href="#" class="cabinet__menu-item" data-section="sales">💰 Продажі</a>
-                    <a href="#" class="cabinet__menu-item" data-section="favorites">❤️ Обране</a>
-                    <a href="#" class="cabinet__menu-item" data-section="messages">💬 Повідомлення <span class="badge">3</span></a>
-                    <a href="#" class="cabinet__menu-item" data-section="reviews">⭐ Відгуки</a>
-                    <a href="#" class="cabinet__menu-item" data-section="settings">⚙️ Налаштування</a>
+                    <a href="#my-lots" class="cabinet__menu-item active" data-section="my-lots">📦 Мої лоти</a>
+                    <a href="#my-bids" class="cabinet__menu-item" data-section="my-bids">🔨 Мої ставки</a>
+                    <a href="#purchases" class="cabinet__menu-item" data-section="purchases">🛒 Покупки</a>
+                    <a href="#sales" class="cabinet__menu-item" data-section="sales">💰 Продажі</a>
+                    <a href="#favorites" class="cabinet__menu-item" data-section="favorites">❤️ Обране</a>
+                    <a href="#messages" class="cabinet__menu-item" data-section="messages">💬 Повідомлення <span class="badge">3</span></a>
+                    <a href="#reviews" class="cabinet__menu-item" data-section="reviews">⭐ Відгуки</a>
+                    <a href="#settings" class="cabinet__menu-item" data-section="settings">⚙️ Налаштування</a>
                     <a href="create-lot.html" class="cabinet__menu-item cabinet__menu-item--accent">➕ Створити лот</a>
                     <a href="index.html" class="cabinet__menu-item">🚪 Вийти</a>
                 </nav>
@@ -56,8 +68,11 @@
 
             <!-- Content Area -->
             <div class="cabinet__content">
+                <div id="cabinetLoading" class="cabinet-section active" style="text-align:center;padding:40px;">
+                    <p style="color:var(--text-muted);font-size:1.1rem;">⏳ Завантаження...</p>
+                </div>
                 <!-- My Lots Section -->
-                <section class="cabinet-section active" id="section-my-lots">
+                <section class="cabinet-section" id="section-my-lots">
                     <div class="cabinet-section__header">
                         <h2>Мої лоти</h2>
                         <a href="create-lot.html" class="btn-primary">+ Створити лот</a>
@@ -67,6 +82,7 @@
                         <button class="cabinet-tab">Завершені (12)</button>
                         <button class="cabinet-tab">Чернетки (1)</button>
                     </div>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="lots-list">
                         <div class="lot-row">
                             <img src="https://placehold.co/80x60/e8f0fe/1a73e8?text=Lot1" alt="" class="lot-row__img">
@@ -120,11 +136,13 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </section>
 
                 <!-- My Bids Section -->
                 <section class="cabinet-section" id="section-my-bids">
                     <h2>Мої ставки</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="lots-list">
                         <div class="lot-row">
                             <img src="https://placehold.co/80x60/e8f0fe/1a73e8?text=Bid1" alt="" class="lot-row__img">
@@ -145,11 +163,13 @@
                             <div class="lot-row__time">⏱ 1 год.</div>
                         </div>
                     </div>
+                    </div>
                 </section>
 
                 <!-- Purchases Section -->
                 <section class="cabinet-section" id="section-purchases">
                     <h2>Мої покупки</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="lots-list">
                         <div class="lot-row">
                             <img src="https://placehold.co/80x60/e8f4e8/28a745?text=Buy1" alt="" class="lot-row__img">
@@ -163,11 +183,13 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </section>
 
                 <!-- Sales Section -->
                 <section class="cabinet-section" id="section-sales">
                     <h2>Мої продажі</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="sales-stats">
                         <div class="stat-card">
                             <span class="stat-card__value">12</span>
@@ -182,11 +204,26 @@
                             <span class="stat-card__label">Рейтинг</span>
                         </div>
                     </div>
+                    <table class="bids-table">
+                        <thead>
+                            <tr>
+                                <th>Лот</th>
+                                <th>Покупець</th>
+                                <th>Сума</th>
+                                <th>Статус</th>
+                                <th>Дата продажу</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody"></tbody>
+                    </table>
+                    </div>
                 </section>
 
                 <!-- Favorites Section -->
                 <section class="cabinet-section" id="section-favorites">
                     <h2>Обране</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="lots-list">
                         <div class="lot-row">
                             <img src="https://placehold.co/80x60/f3e5f5/9c27b0?text=Fav1" alt="" class="lot-row__img">
@@ -200,11 +237,13 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </section>
 
                 <!-- Messages Section -->
                 <section class="cabinet-section" id="section-messages">
                     <h2>Повідомлення</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="messages-list">
                         <div class="message-item message-item--unread">
                             <div class="message-item__avatar">👤</div>
@@ -237,11 +276,13 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </section>
 
                 <!-- Reviews Section -->
                 <section class="cabinet-section" id="section-reviews">
                     <h2>Відгуки</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <div class="reviews-list">
                         <div class="review-item">
                             <div class="review-item__header">
@@ -260,11 +301,13 @@
                             <p>Гарний продавець, але доставка трохи затягнулась.</p>
                         </div>
                     </div>
+                    </div>
                 </section>
 
                 <!-- Settings Section -->
                 <section class="cabinet-section" id="section-settings">
                     <h2>Налаштування</h2>
+                    <div class="cabinet-demo" style="display:none">
                     <form class="settings-form">
                         <div class="form-group">
                             <label>Ім'я</label>
@@ -302,24 +345,57 @@
                         </div>
                         <button type="submit" class="btn-primary">Зберегти зміни</button>
                     </form>
+                    </div>
                 </section>
             </div>
         </div>
     </main>
 
     <footer class="footer">
-        <div class="footer__container">
-            <div class="footer__links">
-                <a href="#">Про нас</a>
-                <a href="#">Угода користувача</a>
-                <a href="#">Контакти</a>
-                <a href="#">Допомога</a>
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand"><span style="font-size:1.3rem">⚡</span><span class="logo-text">KRAM.UA</span></div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
             </div>
-            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
         </div>
     </footer>
 
     <script src="js/api.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
     <script src="js/cabinet.js"></script>
 </body>
 </html>

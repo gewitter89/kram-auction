@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-        <loc>https://your-domain.com/</loc>
-        <changefreq>hourly</changefreq>
-        <priority>1.0</priority>
-    </url>
-    <url>
-        <loc>https://your-domain.com/login.html</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-    </url>
-    <url>
-        <loc>https://your-domain.com/register.html</loc>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-    </url>
+  <url><loc>https://kram.ua/</loc><priority>1.0</priority><changefreq>hourly</changefreq></url>
+  <url><loc>https://kram.ua/faq.html</loc><priority>0.7</priority></url>
+  <url><loc>https://kram.ua/about.html</loc><priority>0.7</priority></url>
+  <url><loc>https://kram.ua/rules.html</loc><priority>0.6</priority></url>
+  <url><loc>https://kram.ua/contacts.html</loc><priority>0.5</priority></url>
+  <url><loc>https://kram.ua/bezpeka.html</loc><priority>0.6</priority></url>
+  <url><loc>https://kram.ua/logistika.html</loc><priority>0.5</priority></url>
+  <url><loc>https://kram.ua/torgy-pravyla.html</loc><priority>0.6</priority></url>
 </urlset>

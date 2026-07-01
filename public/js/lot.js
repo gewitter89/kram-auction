@@ -1,4 +1,5 @@
 function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+const tt = (key, fb) => window.i18n ? window.i18n.t(key, fb) : fb;
 
 const lotId = new URLSearchParams(window.location.search).get('id');
 let lot = null;
@@ -12,6 +13,7 @@ async function loadLot() {
     try {
         lot = await api.getLot(lotId);
         renderLot();
+        if (typeof recentlyViewed !== 'undefined') recentlyViewed.save(lot);
     } catch (err) {
         document.querySelector('.lot-page').innerHTML = '<p style="padding:40px;text-align:center">Помилка: ' + esc(err.message) + '</p>';
     }
@@ -44,7 +46,7 @@ function renderLot() {
     // Title
     const titleEl = document.querySelector('.lot-info__title');
     if (titleEl) titleEl.textContent = lot.title;
-    document.title = lot.title + ' — МійАукціон';
+    document.title = lot.title + ' — KRAM.UA';
     // Meta tags for SEO
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
@@ -59,23 +61,63 @@ function renderLot() {
         ogTitle.setAttribute('property', 'og:title');
         document.head.appendChild(ogTitle);
     }
-    ogTitle.content = lot.title + ' — МійАукціон';
+    ogTitle.content = lot.title + ' — KRAM.UA';
+
+    const pageUrl = window.location.href.split('?')[0] + '?id=' + lot.id;
+    const imageUrl = lot.main_image ? window.location.origin + '/uploads/' + lot.main_image
+                                     : (lot.images?.[0]?.filename ? window.location.origin + '/uploads/' + lot.images[0].filename : '');
+    const desc = lot.description?.slice(0, 200) || lot.title;
+
+    function setMeta(attr, val, content) {
+        let el = document.querySelector(`meta[${attr}="${val}"]`);
+        if (!el) { el = document.createElement('meta'); el.setAttribute(attr, val); document.head.appendChild(el); }
+        el.content = content;
+    }
+    setMeta('property', 'og:url', pageUrl);
+    setMeta('property', 'og:image', imageUrl || '/icons/og-image.svg');
+    setMeta('property', 'og:description', desc);
+    setMeta('name', 'twitter:title', lot.title + ' — KRAM.UA');
+    setMeta('name', 'twitter:description', desc);
+    setMeta('name', 'twitter:image', imageUrl || '/icons/og-image.svg');
+
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+    canonical.href = pageUrl;
+
+    // Schema.org Product
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": lot.title,
+        "description": lot.description?.substring(0, 200),
+        "image": lot.main_image ? '/uploads/' + lot.main_image : '',
+        "offers": {
+            "@type": "Offer",
+            "price": lot.current_price || lot.start_price,
+            "priceCurrency": "UAH",
+            "availability": "https://schema.org/InStock",
+            "url": window.location.href
+        }
+    };
+    let script = document.getElementById('product-schema');
+    if (!script) { script = document.createElement('script'); script.type = 'application/ld+json'; script.id = 'product-schema'; document.head.appendChild(script); }
+    script.textContent = JSON.stringify(schema);
     // Badges
     const statusEl = document.querySelector('.lot-info__status');
     if (statusEl) {
         statusEl.innerHTML = `
-            <span class="lot-badge lot-badge--auction">${lot.sale_type === 'buy-now' ? 'КУПИТИ' : 'АУКЦІОН'}</span>
-            ${lot.sale_type !== 'buy-now' ? '<span class="lot-badge lot-badge--from1">Від 1 грн</span>' : ''}
+            <span class="lot-badge lot-badge--auction">${lot.sale_type === 'buy-now' ? tt('buy_now', 'КУПИТИ') : tt('bid', 'АУКЦІОН')}</span>
+            ${lot.sale_type !== 'buy-now' ? '<span class="lot-badge lot-badge--from1">' + tt('from_1_uah', 'Від 1 грн') + '</span>' : ''}
         `;
     }
     const priceBlock = document.querySelector('.lot-info__price-block');
     if (priceBlock) {
         priceBlock.innerHTML = `
             <div class="lot-info__current-price">
-                <span class="label">${lot.sale_type === 'buy-now' ? 'Ціна:' : 'Поточна ціна:'}</span>
-                <span class="price">${Number(lot.current_price || lot.start_price).toLocaleString('uk-UA')} грн.</span>
+                <span class="label">${lot.sale_type === 'buy-now' ? tt('price', 'Ціна:') : tt('lot_current_price', 'Поточна ціна:')}</span>
+                <span class="price">${Number(lot.current_price || lot.start_price).toLocaleString(tt('current_locale', 'uk-UA') === 'uk' ? 'uk-UA' : 'en-US')} ${tt('uah', 'грн.')}.</span>
             </div>
-            <div class="lot-info__bids-count">Ставок: <strong>${lot.bids_count || 0}</strong></div>
+            <div class="lot-info__bids-count">${tt('bids', 'Ставок')}: <strong>${lot.bids_count || 0}</strong></div>
         `;
     }
     // Timer
@@ -88,36 +130,36 @@ function renderLot() {
         const minBid = (lot.current_price || lot.start_price || 0) + (lot.bid_step || 10);
         if (lot.sale_type === 'buy-now') {
             bidForm.innerHTML = `
-                <button class="buy-now-btn" id="buyNowBtn">Купити зараз за ${Number(lot.current_price || lot.start_price).toLocaleString('uk-UA')} грн.</button>
+                <button class="buy-now-btn" id="buyNowBtn">${tt('lot_buy_now', 'Купити зараз')} ${Number(lot.current_price || lot.start_price).toLocaleString('uk-UA')} ${tt('uah', 'грн.')}.</button>
             `;
             document.getElementById('buyNowBtn')?.addEventListener('click', async () => {
                 if (!api.isLoggedIn()) { window.location.href = 'login.html'; return; }
                 try {
                     await api.buyNow(lot.id);
-                    alert('Купівля оформлена!');
+                    showToast({ type: 'info', title: 'Купівля оформлена!', message: '' });
                     loadLot();
-                } catch (err) { alert(err.message); }
+                } catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
             });
         } else {
             bidForm.innerHTML = `
                 <div class="bid-form">
-                    <label>Ваша ставка (мін. ${minBid.toLocaleString('uk-UA')} грн.):</label>
+                    <label>${tt('lot_your_bid', 'Ваша ставка')} (мін. ${minBid.toLocaleString('uk-UA')} ${tt('uah', 'грн.')}):</label>
                     <div class="bid-form__row">
                         <input type="number" value="${minBid}" min="${minBid}" class="bid-input" id="bidInput">
-                        <button class="bid-btn" id="bidBtn">Зробити ставку</button>
+                        <button class="bid-btn" id="bidBtn">${tt('lot_place_bid', 'Зробити ставку')}</button>
                     </div>
                     <div class="bid-form__auto">
-                        <label><input type="checkbox" id="autoBidCheck"> Автоставка до:</label>
-                        <input type="number" placeholder="макс. сума" class="bid-input bid-input--small" id="autoMaxInput" disabled>
+                        <label><input type="checkbox" id="autoBidCheck"> ${tt('lot_autobid', 'Автоставка до:')}</label>
+                        <input type="number" placeholder="${tt('lot_autobid_ph', 'макс. сума')}" class="bid-input bid-input--small" id="autoMaxInput" disabled>
                     </div>
                 </div>
-                ${lot.buy_now_price ? `<button class="buy-now-btn" id="buyNowBtn">Купити зараз за ${Number(lot.buy_now_price).toLocaleString('uk-UA')} грн.</button>` : ''}
+                ${lot.buy_now_price ? `<button class="buy-now-btn" id="buyNowBtn">${tt('lot_buy_now', 'Купити зараз')} ${Number(lot.buy_now_price).toLocaleString('uk-UA')} ${tt('uah', 'грн.')}.</button>` : ''}
             `;
             document.getElementById('bidBtn')?.addEventListener('click', placeBid);
             document.getElementById('buyNowBtn')?.addEventListener('click', async () => {
                 if (!api.isLoggedIn()) { window.location.href = 'login.html'; return; }
-                try { await api.buyNow(lot.id); alert('Купівля оформлена!'); loadLot(); }
-                catch (err) { alert(err.message); }
+                try { await api.buyNow(lot.id); showToast({ type: 'info', title: 'Купівля оформлена!', message: '' }); loadLot(); }
+                catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
             });
             document.getElementById('autoBidCheck')?.addEventListener('change', function() {
                 document.getElementById('autoMaxInput').disabled = !this.checked;
@@ -152,7 +194,7 @@ function renderLot() {
                 if (lot.isFavorite) { await api.removeFavorite(lot.id); lot.isFavorite = false; }
                 else { await api.addFavorite(lot.id); lot.isFavorite = true; }
                 favBtn.innerHTML = `<span>${lot.isFavorite ? '❤️' : '🤍'}</span> ${lot.isFavorite ? 'В обраному' : 'В обране'}`;
-            } catch (err) { alert(err.message); }
+            } catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
         };
     }
     // Description tab
@@ -174,6 +216,7 @@ function renderLot() {
     const bidPanel = document.getElementById('tab-bids');
     if (bidPanel && lot.bids) {
         bidPanel.innerHTML = `
+            <canvas id="bidChart" style="width:100%;height:80px;margin-bottom:16px"></canvas>
             <h3>Історія ставок</h3>
             <table class="bids-table">
                 <thead><tr><th>Учасник</th><th>Ставка</th><th>Час</th></tr></thead>
@@ -183,6 +226,7 @@ function renderLot() {
                 </tbody>
             </table>
         `;
+        renderBidChart(lot.bids);
     }
     // Delivery tab
     const deliveryPanel = document.getElementById('tab-delivery');
@@ -212,21 +256,73 @@ async function placeBid() {
     if (!api.isLoggedIn()) { window.location.href = 'login.html'; return; }
     const input = document.getElementById('bidInput');
     const amount = parseInt(input?.value);
-    if (!amount || amount < parseInt(input?.min)) { alert('Некоректна ставка'); return; }
+    if (!amount || amount < parseInt(input?.min)) { showToast({ type: 'warning', title: 'Некоректна ставка', message: 'Введіть коректну суму.' }); return; }
     try {
         const isAuto = document.getElementById('autoBidCheck')?.checked || false;
         const autoMax = isAuto ? parseInt(document.getElementById('autoMaxInput')?.value) : null;
         await api.placeBid(lot.id, amount, isAuto, autoMax);
-        alert('Ставку прийнято!');
+        showToast({ type: 'info', title: 'Ставку зроблено!', message: 'Ваша ставка прийнята.' });
         loadLot();
-    } catch (err) { alert(err.message); }
+    } catch (err) { showToast({ type: 'error', title: 'Помилка', message: err.message }); }
+}
+
+window.shareLot = function(platform) {
+  const url = encodeURIComponent(window.location.href);
+  const title = encodeURIComponent(document.querySelector('.lot-info__title')?.textContent || '');
+  const urls = {
+    telegram: `https://t.me/share/url?url=${url}&text=${title}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+    twitter: `https://twitter.com/intent/tweet?url=${url}&text=${title}`,
+    copy: null
+  };
+  if (platform === 'copy') {
+    navigator.clipboard.writeText(window.location.href);
+    showToast({ type: 'success', message: 'Посилання скопійовано!' });
+    return;
+  }
+  window.open(urls[platform], '_blank', 'width=600,height=400');
+};
+
+function renderBidChart(bids) {
+  const canvas = document.getElementById('bidChart');
+  if (!canvas || bids.length < 2) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.parentElement.clientWidth;
+  const H = canvas.height = 80;
+  const prices = bids.map(b => b.amount);
+  const min = Math.min(...prices) * 0.95;
+  const max = Math.max(...prices) * 1.05;
+  const range = max - min || 1;
+  
+  ctx.clearRect(0, 0, W, H);
+  
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, 'rgba(16,185,129,0.3)');
+  grad.addColorStop(1, 'rgba(16,185,129,0.02)');
+  
+  ctx.beginPath();
+  prices.forEach((p, i) => {
+    const x = (i / (prices.length - 1)) * W;
+    const y = H - ((p - min) / range) * H;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
 }
 
 function changeImage(thumb) {
     const mainImg = document.getElementById('mainImage');
     if (!mainImg) return;
     // Use the uploaded image path if available
-    mainImg.src = thumb.src.replace('/uploads/', '/uploads/');
+        mainImg.src = thumb.src;
     document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
     thumb.classList.add('active');
 }
@@ -254,6 +350,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (String(data.id) === String(lotId)) {
             lot = data;
             renderLot();
+            // Animate price change
+            const priceEl = document.querySelector('.lot-info__current-price .price');
+            if (priceEl) {
+                priceEl.classList.remove('bid-popped');
+                void priceEl.offsetWidth;
+                priceEl.classList.add('bid-popped');
+            }
+        }
+    });
+    socket.on('outbid', (data) => {
+        showToast({ type: 'warning', title: 'Вас перебили!', message: 'Вашу ставку перебито. Зробіть нову ставку.', duration: 6000 });
+    });
+    socket.on('auction_won', (data) => {
+        if (String(data.lotId) === String(lotId)) {
+            if (typeof confetti !== 'undefined') {
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#3b82f6', '#f59e0b', '#fff'] });
+                setTimeout(() => confetti({ particleCount: 80, spread: 100, origin: { y: 0.7, x: 0.3 } }), 300);
+                setTimeout(() => confetti({ particleCount: 80, spread: 100, origin: { y: 0.7, x: 0.7 } }), 600);
+            }
+            showToast({ type: 'success', title: '🎉 Ви виграли!', message: 'Вітаємо! Ви перемогли в аукціоні.', duration: 8000 });
         }
     });
 });

@@ -1,0 +1,57 @@
+name: kram-ua
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kram
+      POSTGRES_USER: kram
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kram}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kram -d kram"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_TYPE=postgres
+      - DATABASE_URL=postgresql://kram:${DB_PASSWORD:-kram}@db:5432/kram
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+      - LIQPAY_PUBLIC_KEY=${LIQPAY_PUBLIC_KEY}
+      - LIQPAY_PRIVATE_KEY=${LIQPAY_PRIVATE_KEY}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - TELEGRAM_USERNAME=${TELEGRAM_USERNAME}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - DOMAIN=${DOMAIN:-kram.ua}
+      - SITE_URL=${SITE_URL:-https://kram.ua}
+      - BASE_URL=${BASE_URL:-https://kram.ua}
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health',r=>{process.exit(r.statusCode===200?0:1)})"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:

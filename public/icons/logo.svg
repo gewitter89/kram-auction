@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 32" fill="none">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="50%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="dot" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <!-- K -->
+  <path d="M3 6h4.5l5.5 8.5L18.5 6H23l-9 13L3 26V6z" fill="url(#lg)"/>
+  <!-- R -->
+  <path d="M16 6h6.5c3.5 0 5.5 2 5.5 4.8s-1.8 4.5-4.5 4.5h-3V26h-4.5V6zm4.5 3.8v3h2c1 0 1.5-.5 1.5-1.5s-.5-1.5-1.5-1.5h-2z" fill="url(#lg)"/>
+  <!-- A -->
+  <path d="M32 26V6l5.5 12h.1L43 6v20h-4v-12h-.1L33.5 26h-1.5z" fill="url(#lg)"/>
+  <!-- M -->
+  <path d="M41 26V6h5l4 13h.1L54 6h5v20h-4V13h-.1L51 26h-1.5z" fill="url(#lg)"/>
+  <!-- DOT UA -->
+  <text x="94" y="22" font-family="Inter,sans-serif" font-weight="700" font-size="9" fill="url(#lg)" letter-spacing="1">.UA</text>
+  <!-- Dot -->
+  <circle cx="9" cy="26" r="2.5" fill="url(#dot)"/>
+</svg>

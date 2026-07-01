@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакти — KRAM.UA</title>
+    <meta name="description" content="Зв'яжіться з нами. Підтримка KRAM.UA: email, Telegram, соцмережі.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kram.ua/contacts.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Контакти — KRAM.UA">
+    <meta property="og:description" content="Зв'яжіться з нами. Підтримка KRAM.UA: email, Telegram, соцмережі.">
+    <meta property="og:image" content="icons/og-image.svg">
+    <meta property="og:url" content="https://kram.ua/contacts.html">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <script src="js/i18n.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__search">
+                <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Пошук лотів..." class="search-input">
+                <button class="search-btn" aria-label="Шукати">🔍</button>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="cabinet.html#favorites" class="header__icon" title="Обране">❤️</a>
+                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
+                <a href="cart.html" class="header__icon" title="Кошик">🛒</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="info-page">
+        <h1 class="info-page__title" data-i18n="page_contacts_title">Контакти</h1>
+        <p class="info-page__subtitle" data-i18n="page_contacts_subtitle">Ми на зв'язку. Пишіть — відповімо протягом 24 годин.</p>
+
+        <div class="info-card reveal">
+            <h2 class="info-card__title" data-i18n="contacts_email_title">📧 Email</h2>
+            <p data-i18n="contacts_email_support">Підтримка: <a href="mailto:support@kram.ua" style="color:var(--accent)">support@kram.ua</a></p>
+            <p data-i18n="contacts_email_partners">Для партнерів: <a href="mailto:partners@kram.ua" style="color:var(--accent)">partners@kram.ua</a></p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-1">
+            <h2 class="info-card__title" data-i18n="contacts_telegram_title">💬 Telegram</h2>
+            <p data-i18n="contacts_telegram_support">Напишіть нам у Telegram: <a href="https://t.me/kramua_support" target="_blank" rel="noopener" style="color:var(--accent)">@kramua_support</a></p>
+            <p data-i18n="contacts_telegram_news">Канал з новинами: <a href="https://t.me/kramua_news" target="_blank" rel="noopener" style="color:var(--accent)">@kramua_news</a></p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-2">
+            <h2 class="info-card__title" data-i18n="contacts_schedule_title">🕐 Графік роботи</h2>
+            <p data-i18n="contacts_schedule_support">Підтримка працює щодня з 9:00 до 21:00.</p>
+            <p data-i18n="contacts_schedule_auctions">Аукціони працюють цілодобово без вихідних.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-3">
+            <h2 class="info-card__title" data-i18n="contacts_feedback_title">📝 Форма зворотного зв'язку</h2>
+            <p data-i18n="contacts_feedback_text">Є пропозиції, знайшли помилку або хочете повідомити про порушення? Напишіть нам — ми розглянемо кожне звернення.</p>
+            <form onsubmit="event.preventDefault(); showToast({type:'success',title:'Відправлено',message:'Дякуємо! Ми зв&apos;яжемося з вами.'}); this.reset();" style="margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+                <input type="text" placeholder="Ваше ім'я" class="bid-input" required>
+                <input type="email" placeholder="Email" class="bid-input" required>
+                <textarea placeholder="Повідомлення" class="bid-input" rows="4" required style="resize:vertical;font-family:inherit;"></textarea>
+                <button type="submit" class="btn-primary">Відправити</button>
+            </form>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/reveal.js"></script>
+</body>
+</html>

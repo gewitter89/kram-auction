@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кошик — KRAM.UA</title>
+    <meta name="description" content="Кошик покупок KRAM.UA.">
+    <meta name="robots" content="noindex, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Кошик — KRAM.UA">
+    <meta property="og:description" content="Ваш кошик покупок на українському онлайн-аукціоні">
+    <meta property="og:image" content="icons/og-image.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
+                <a href="login.html" class="header__link" data-i18n="login">Увійти</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <h1 class="content__title" style="margin-bottom:24px">🛒 <span data-i18n="cart">Кошик</span></h1>
+
+        <div id="cartContent">
+            <!-- Filled by JS -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand"><span style="font-size:1.3rem">⚡</span><span class="logo-text">KRAM.UA</span></div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    function loadCart() {
+        const container = document.getElementById('cartContent');
+        let cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem('kramua_cart') || '[]');
+        } catch(e) { cart = []; }
+
+        if (!cart.length) {
+            container.innerHTML = renderEmptyState('🛒', 'Кошик порожній', 'Додавайте товари з каталогу — вони зберігаються тут.', 'Переглянути лоти', 'index.html');
+            return;
+        }
+
+        let total = 0;
+        const itemsHtml = cart.map((item, idx) => {
+            total += item.price || 0;
+            return `
+                <div class="cart-item reveal">
+                    <div class="cart-item__image">
+                        <img src="${esc(item.image || 'https://placehold.co/100x100/111827/10b981')}" alt="${esc(item.title)}" loading="lazy">
+                    </div>
+                    <div class="cart-item__info">
+                        <div class="cart-item__title">${esc(item.title)}</div>
+                        <div class="cart-item__price">${renderPrice(item.price)}</div>
+                        ${item.end_time ? `<div style="font-size:0.78rem;color:var(--text-muted)">Завершення: ${new Date(item.end_time).toLocaleString('uk-UA')}</div>` : ''}
+                    </div>
+                    <button class="cart-item__remove" onclick="removeItem(${idx})">✕ Видалити</button>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = itemsHtml + `
+            <div class="cart-summary reveal reveal--delay-3" style="margin-top:24px">
+                <div class="cart-summary__row"><span>Товарів:</span><span>${cart.length} шт.</span></div>
+                <div class="cart-summary__total"><span>Разом:</span><span class="value">${renderPrice(total)}</span></div>
+                <a href="index.html" class="btn-primary" style="margin-top:20px;width:100%;justify-content:center;">Перейти до покупок</a>
+            </div>
+        `;
+
+        document.querySelectorAll('.reveal').forEach(el => revealObserver?.observe(el));
+    }
+
+    function removeItem(idx) {
+        let cart = JSON.parse(localStorage.getItem('kramua_cart') || '[]');
+        cart.splice(idx, 1);
+        localStorage.setItem('kramua_cart', JSON.stringify(cart));
+        showToast({ type: 'info', message: 'Товар видалено з кошика.' });
+        loadCart();
+    }
+
+    // Add to cart helper (exposed globally)
+    window.addToCart = function(lot) {
+        let cart = JSON.parse(localStorage.getItem('kramua_cart') || '[]');
+        const exists = cart.find(item => item.id === lot.id);
+        if (exists) {
+            showToast({ type: 'warning', title: 'Вже в кошику', message: lot.title });
+            return;
+        }
+        cart.push({
+            id: lot.id,
+            title: lot.title,
+            price: lot.current_price || lot.start_price || 0,
+            image: lot.main_image ? '/uploads/' + lot.main_image : '',
+            end_time: lot.end_time
+        });
+        localStorage.setItem('kramua_cart', JSON.stringify(cart));
+        showToast({ type: 'success', title: 'Додано в кошик', message: lot.title });
+    };
+
+    loadCart();
+    </script>
+</body>
+</html>

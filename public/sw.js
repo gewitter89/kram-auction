@@ -1,4 +1,4 @@
-// Service Worker for МійАукціон PWA
+// Service Worker for KRAM.UA PWA
 const CACHE_NAME = 'auction-v1';
 const STATIC_ASSETS = [
     '/',
@@ -86,13 +86,13 @@ self.addEventListener('push', (event) => {
     const data = event.data ? event.data.json() : {};
     const options = {
         body: data.message || 'Нове сповіщення',
-        icon: '/icons/icon-192.png',
-        badge: '/icons/icon-72.png',
+        icon: '/icons/icon-192.svg',
+        badge: '/icons/icon-72.svg',
         vibrate: [200, 100, 200],
         data: { url: data.url || '/' }
     };
     event.waitUntil(
-        self.registration.showNotification(data.title || 'МійАукціон', options)
+        self.registration.showNotification(data.title || 'KRAM.UA', options)
     );
 });
 

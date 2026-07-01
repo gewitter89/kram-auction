@@ -2,104 +2,117 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація — МійАукціон</title>
+    <title>Реєстрація — KRAM.UA</title>
+    <meta name="description" content="Створіть акаунт на KRAM.UA — перший український онлайн-аукціон">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Реєстрація — KRAM.UA">
+    <meta property="og:description" content="Створіть акаунт на KRAM.UA — перший український онлайн-аукціон">
+    <meta property="og:image" content="icons/og-image.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/auth.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <header class="header">
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
             </div>
-            <div class="header__right">
-                <a href="login.html" class="header__link">Увійти</a>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="login.html" class="header__link" data-i18n="login">Увійти</a>
             </div>
         </div>
     </header>
 
     <main class="auth-page">
         <div class="auth-card auth-card--wide">
-            <h1 class="auth-card__title">Реєстрація</h1>
-            <p class="auth-card__subtitle">Створіть акаунт для покупок та продажу</p>
+            <h1 class="auth-card__title" data-i18n="register">Реєстрація</h1>
+            <p class="auth-card__subtitle" data-i18n="register_subtitle">Створіть акаунт для покупок та продажу</p>
 
             <form class="auth-form" id="registerForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="firstName">Ім'я</label>
-                        <input type="text" id="firstName" placeholder="Ваше ім'я" required>
+                        <label for="firstName" data-i18n="first_name">Ім'я</label>
+                        <input type="text" id="firstName" data-i18n-placeholder="first_name_ph" placeholder="Ваше ім'я" required>
                     </div>
                     <div class="form-group">
-                        <label for="lastName">Прізвище</label>
-                        <input type="text" id="lastName" placeholder="Ваше прізвище" required>
+                        <label for="lastName" data-i18n="last_name">Прізвище</label>
+                        <input type="text" id="lastName" data-i18n-placeholder="last_name_ph" placeholder="Ваше прізвище" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="regUsername">Логін (нікнейм)</label>
-                    <input type="text" id="regUsername" placeholder="Ваш унікальний логін" required>
+                    <label for="regUsername" data-i18n="username">Логін (нікнейм)</label>
+                    <input type="text" id="regUsername" data-i18n-placeholder="username_ph" placeholder="Ваш унікальний логін" required>
                 </div>
                 <div class="form-group">
-                    <label for="regEmail">Email</label>
+                    <label for="regEmail" data-i18n="email">Email</label>
                     <input type="email" id="regEmail" placeholder="your@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="phone">Телефон</label>
+                    <label for="phone" data-i18n="phone">Телефон</label>
                     <input type="tel" id="phone" placeholder="+380 XX XXX XX XX" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="regPassword">Пароль</label>
-                        <input type="password" id="regPassword" placeholder="Мін. 8 символів" required minlength="8">
+                        <label for="regPassword" data-i18n="password">Пароль</label>
+                        <input type="password" id="regPassword" data-i18n-placeholder="password_min_8" placeholder="Мін. 8 символів" required minlength="8">
                     </div>
                     <div class="form-group">
-                        <label for="regPasswordConfirm">Підтвердження</label>
-                        <input type="password" id="regPasswordConfirm" placeholder="Повторіть пароль" required>
+                        <label for="regPasswordConfirm" data-i18n="confirm_password">Підтвердження</label>
+                        <input type="password" id="regPasswordConfirm" data-i18n-placeholder="confirm_password_ph" placeholder="Повторіть пароль" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="city">Місто</label>
+                    <label for="city" data-i18n="city">Місто</label>
                     <select id="city">
-                        <option value="">Оберіть місто</option>
-                        <option>Київ</option>
-                        <option>Харків</option>
-                        <option>Одеса</option>
-                        <option>Дніпро</option>
-                        <option>Львів</option>
-                        <option>Запоріжжя</option>
-                        <option>Вінниця</option>
-                        <option>Полтава</option>
-                        <option>Інше</option>
+                        <option value="" data-i18n="select_city">Оберіть місто</option>
+                        <option data-i18n="city_kyiv">Київ</option>
+                        <option data-i18n="city_kharkiv">Харків</option>
+                        <option data-i18n="city_odesa">Одеса</option>
+                        <option data-i18n="city_dnipro">Дніпро</option>
+                        <option data-i18n="city_lviv">Львів</option>
+                        <option data-i18n="city_zaporizhzhia">Запоріжжя</option>
+                        <option data-i18n="city_vinnytsia">Вінниця</option>
+                        <option data-i18n="city_poltava">Полтава</option>
+                        <option data-i18n="city_other">Інше</option>
                     </select>
                 </div>
                 <div class="form-group form-group--checkbox">
-                    <label><input type="checkbox" required> Я приймаю <a href="#">Угоду користувача</a></label>
+                    <label><input type="checkbox" required> <span data-i18n="accept_terms">Я приймаю</span> <a href="rules.html" data-i18n="terms_link">Угоду користувача</a></label>
                 </div>
                 <div class="form-group form-group--checkbox">
-                    <label><input type="checkbox"> Отримувати сповіщення про нові лоти</label>
+                    <label><input type="checkbox"> <span data-i18n="get_notifications">Отримувати сповіщення про нові лоти</span></label>
                 </div>
-                <button type="submit" class="auth-btn">Зареєструватися</button>
+                <button type="submit" class="auth-btn" id="submitBtn" data-i18n="register_btn">Зареєструватися</button>
             </form>
 
             <p class="auth-card__footer">
-                Вже є акаунт? <a href="login.html">Увійти</a>
+                <span data-i18n="already_have_account">Вже є акаунт?</span> <a href="login.html" data-i18n="login">Увійти</a>
             </p>
         </div>
     </main>
 
     <script src="js/api.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
     <script>
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const pass = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regPasswordConfirm').value;
-            if (pass !== confirm) { alert('Паролі не співпадають!'); return; }
+            if (pass !== confirm) { showToast({ type: 'error', title: i18n ? i18n.t('error','Помилка') : 'Помилка', message: i18n ? i18n.t('passwords_mismatch','Паролі не співпадають!') : 'Паролі не співпадають!' }); return; }
             const btn = e.target.querySelector('.auth-btn');
-            btn.disabled = true; btn.textContent = 'Реєстрація...';
+            btn.disabled = true; btn.textContent = i18n ? i18n.t('registering', 'Реєстрація...') : 'Реєстрація...';
             document.querySelectorAll('.auth-error').forEach(el => el.remove());
             try {
                 await api.register({
@@ -119,9 +132,58 @@
                 div.textContent = err.message;
                 document.querySelector('.auth-form').after(div);
             } finally {
-                btn.disabled = false; btn.textContent = 'Зареєструватися';
+                btn.disabled = false; btn.textContent = i18n ? i18n.t('register_btn', 'Зареєструватися') : 'Зареєструватися';
             }
         });
     </script>
+
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
 </body>
 </html>

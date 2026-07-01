@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Безпека угод — KRAM.UA</title>
+    <meta name="description" content="Правила безпечної угоди на KRAM.UA. Захист покупців, чат-модерація, перевірені продавці.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kram.ua/bezpeka.html">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta property="og:title" content="Безпека угод — KRAM.UA">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <script src="js/i18n.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="index.html" class="header__link" data-i18n="catalog">Каталог</a>
+                <a href="login.html" class="header__link" data-i18n="login">Увійти</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="info-page">
+        <h1 class="info-page__title" data-i18n="page_security_title">🛡️ Безпека угод</h1>
+        <p class="info-page__subtitle" data-i18n="page_security_subtitle">KRAM.UA забезпечує чесні та безпечні торги. Ознайомтеся з правилами.</p>
+
+        <div class="info-card reveal" id="chat">
+            <h2 class="info-card__title" data-i18n="security_chat_title">Чат-модерація контактів</h2>
+            <p data-i18n="security_chat_1">Вбудований чат KRAM.UA автоматично приховує номери телефонів, email-адреси та посилання на зовнішні месенджери до моменту підтвердження угоди.</p>
+            <p data-i18n="security_chat_2"><strong>Чому це важливо:</strong> шахраї часто намагаються вивести спілкування за межі платформи, щоб уникнути контролю. Усі переговори, умови доставки та оплати мають відбуватися виключно у вбудованому чаті.</p>
+            <p data-i18n="security_chat_3"><strong>Коли контакти відкриваються:</strong> після того, як покупець підтвердив намір купити (зробив ставку або натиснув «Купити зараз»), система автоматично відкриває обмін контактами — ви зможете обмінятися телефонами для уточнення логістики.</p>
+            <p data-i18n="security_chat_4">Не надсилайте передоплату на картку поза платформою. KRAM.UA не обробляє платежі — усі фінансові операції відбуваються безпосередньо між покупцем і продавцем після підтвердження угоди в чаті.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-1" id="verified">
+            <h2 class="info-card__title" data-i18n="security_verified_title">Перевірені продавці</h2>
+            <p data-i18n="security_verified_1">Кожен продавець на KRAM.UA має публічний профіль із рейтингом та історією відгуків.</p>
+            <p data-i18n="security_verified_2"><strong>Значок «Перевірений» ✓</strong> отримують продавці, які:</p>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Пройшли верифікацію через BankID або Дія.Підпис</li>
+                <li>Мають щонайменше 10 успішно завершених угод</li>
+                <li>Рейтинг вище 4.8</li>
+                <li>Активно продають на платформі понад 30 днів</li>
+            </ul>
+            <p style="margin-top:12px;"><strong>Рейтинг продавця</strong> формується на основі відгуків покупців: швидкість відправки, відповідність опису, комунікація. Ви завжди бачите історію відгуків перед тим, як зробити ставку.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-2" id="nopayments">
+            <h2 class="info-card__title" data-i18n="security_nopay_title">Без платежів через KRAM</h2>
+            <p data-i18n="security_nopay_1">KRAM.UA <strong>не приймає і не обробляє платежі</strong> між користувачами. Усі фінансові операції відбуваються безпосередньо між покупцем та продавцем.</p>
+            <p data-i18n="security_nopay_2"><strong>Безпечна схема оплати:</strong></p>
+            <ol style="list-style:decimal;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Ви виграли аукціон або натиснули «Купити зараз»</li>
+                <li>Обмінялися контактами з продавцем у чаті</li>
+                <li>Продавець повідомив реквізити для оплати</li>
+                <li>Ви здійснили оплату <strong>після отримання</strong> трек-номера відправлення</li>
+            </ol>
+            <p style="margin-top:12px;"><strong>Ніколи не переказуйте гроші</strong> до того, як отримаєте підтвердження відправки (трек-номер). У разі суперечки щодо оплати — звертайтеся до служби підтримки. Ми допоможемо у вирішенні.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-3">
+            <h2 class="info-card__title" data-i18n="security_general_title">Загальні правила безпеки</h2>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Перевіряйте рейтинг продавця перед ставкою</li>
+                <li>Читайте відгуки — це найкращий індикатор надійності</li>
+                <li>Не повідомляйте особисті дані (паспорт, код) стороннім</li>
+                <li>Використовуйте тільки вбудований чат для спілкування</li>
+                <li>Зберігайте скріншоти листування до завершення угоди</li>
+                <li>При підозрі на шахрайство — повідомте підтримку</li>
+            </ul>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/reveal.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
+</body>
+</html>

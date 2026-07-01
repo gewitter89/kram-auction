@@ -1,8 +1,8 @@
 #!/bin/bash
-# МійАукціон - Server Setup Script
+# KRAM.UA - Server Setup Script
 # Run on Ubuntu 22.04+ VPS
 
-echo "🚀 Налаштування сервера МійАукціон..."
+echo "🚀 Налаштування сервера KRAM.UA..."
 
 # Update system
 sudo apt update && sudo apt upgrade -y

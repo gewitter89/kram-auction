@@ -1,0 +1,80 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 20
+      name: "Sustained load"
+    - duration: 30
+      arrivalRate: 50
+      name: "Peak load"
+  plugins:
+    expect: {}
+
+scenarios:
+  - name: "Browse and search"
+    flow:
+      - get:
+          url: "/health"
+      - get:
+          url: "/api/categories"
+      - get:
+          url: "/api/stats"
+      - get:
+          url: "/api/lots?limit=10"
+      - get:
+          url: "/api/lots/top"
+      - think: 1
+
+  - name: "Search lots"
+    flow:
+      - get:
+          url: "/api/lots?search=ноутбук&limit=10"
+      - think: 2
+      - get:
+          url: "/api/lots?search=телефон&sort=price-asc&limit=10"
+      - think: 1
+
+  - name: "Auth flow"
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            username: "loadtest_{{ $randomString() }}"
+            email: "lt_{{ $randomString() }}@test.com"
+            password: "testpassword123"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - get:
+          url: "/api/auth/me"
+          headers:
+            authorization: "Bearer {{ authToken }}"
+      - think: 3
+
+  - name: "Bid on lot"
+    weight: 2
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            username: "bidder_{{ $randomString() }}"
+            email: "bid_{{ $randomString() }}@test.com"
+            password: "testpassword123"
+          capture:
+            - json: "$.token"
+              as: "bidToken"
+      - get:
+          url: "/api/lots?limit=5"
+          capture:
+            - json: "$.lots[0].id"
+              as: "lotId"
+      - post:
+          url: "/api/bids"
+          headers:
+            authorization: "Bearer {{ bidToken }}"
+          json:
+            lotId: "{{ lotId }}"
+            amount: 1000

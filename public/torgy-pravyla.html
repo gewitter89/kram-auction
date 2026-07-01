@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила проведення торгів — KRAM.UA</title>
+    <meta name="description" content="Правила аукціонів на KRAM.UA: як робити ставки, анти-снайпінг, Buy Now, резервна ціна, терміни оплати та доставки.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://kram.ua/torgy-pravyla.html">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <meta property="og:title" content="Правила проведення торгів — KRAM.UA">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+    <script src="js/i18n.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="index.html" class="header__link" data-i18n="catalog">Каталог</a>
+                <a href="login.html" class="header__link" data-i18n="login">Увійти</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="info-page">
+        <h1 class="info-page__title" data-i18n="page_trading_title">📜 Правила проведення торгів</h1>
+        <p class="info-page__subtitle" data-i18n="page_trading_subtitle">Повний регламент аукціонів на KRAM.UA. Чесні правила — чесні угоди.</p>
+
+        <div class="info-card reveal">
+            <h2 class="info-card__title" data-i18n="trading_s1_title">1. Як працюють аукціони</h2>
+            <p><strong>Стартова ціна.</strong> Продавець встановлює початкову ціну лота. Мінімальна стартова ціна — 1 грн. Учасники роблять ставки, поступово підвищуючи ціну.</p>
+            <p><strong>Крок ставки.</strong> Мінімальний крок підвищення ціни визначається автоматично залежно від поточної ціни лота:</p>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>До 500 грн — крок 5 грн</li>
+                <li>500–5 000 грн — крок 25 грн</li>
+                <li>5 000–50 000 грн — крок 100 грн</li>
+                <li>Понад 50 000 грн — крок 250 грн</li>
+            </ul>
+            <p style="margin-top:12px;"><strong>Авто-ставка (Auto-Bid).</strong> Ви можете вказати максимальну суму, яку готові заплатити. Система автоматично перебиватиме ставки конкурентів у межах вашого ліміту. Це дозволяє не стежити за аукціоном постійно.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-1">
+            <h2 class="info-card__title" data-i18n="trading_s2_title">2. Анти-снайпінг (+2 хвилини)</h2>
+            <p><strong>Снайпінг</strong> — тактика, коли учасник робить ставку в останні секунди аукціону, не даючи іншим часу на відповідь. Це нечесно.</p>
+            <p><strong>Правило KRAM.UA:</strong> якщо ставку зроблено в останню хвилину до завершення аукціону, час автоматично продовжується на <strong>2 хвилини</strong>. Це правило застосовується необмежену кількість разів — аукціон завершується лише тоді, коли протягом останньої хвилини не надійшло жодної нової ставки.</p>
+            <p>Анти-снайпінг гарантує, що переможе той, хто готовий заплатити більше, а не той, хто натиснув кнопку в останню мілісекунду.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-2">
+            <h2 class="info-card__title" data-i18n="trading_s3_title">3. Опція «Купити зараз» (Buy Now)</h2>
+            <p>Продавець може встановити фіксовану ціну для миттєвого викупу лота. Якщо покупець натискає «Купити зараз», аукціон негайно завершується, навіть якщо до кінця торгів залишився час.</p>
+            <p>Ціна «Купити зараз» завжди вища за поточну ставку та встановлюється продавцем при створенні лота. Якщо поточна ставка досягає 70% від ціни Buy Now, опція автоматично зникає — лот продається через аукціон.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-3">
+            <h2 class="info-card__title" data-i18n="trading_s4_title">4. Резервна ціна</h2>
+            <p><strong>Резервна ціна</strong> — мінімальна сума, за яку продавець готовий продати лот. Якщо аукціон завершився, але ставки не досягли резервної ціни — угода не відбувається.</p>
+            <p>Наявність резервної ціни позначається спеціальною позначкою 🔒 на картці лота. Конкретна сума резервної ціни <strong>не розголошується</strong> до моменту її досягнення — це захищає інтереси продавця. Щойно резервну ціну досягнуто, позначка змінюється на ✅.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-4">
+            <h2 class="info-card__title" data-i18n="trading_s5_title">5. Завершення аукціону та сповіщення переможця</h2>
+            <p>Після завершення аукціону (з урахуванням анти-снайпінгу) система автоматично визначає переможця — учасника з найвищою ставкою.</p>
+            <p><strong>Переможець отримує:</strong></p>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Push-сповіщення та email про виграш</li>
+                <li>Контакти продавця у вбудованому чаті</li>
+                <li>Посилання на сторінку замовлення в Кабінеті</li>
+            </ul>
+            <p style="margin-top:12px;"><strong>Продавець отримує:</strong> сповіщення про завершення торгів, контакти покупця, нагадування про терміни відправки.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-5">
+            <h2 class="info-card__title" data-i18n="trading_s6_title">6. Терміни оплати (48 годин)</h2>
+            <p>Переможець аукціону зобов'язаний здійснити оплату протягом <strong>48 годин</strong> з моменту завершення торгів.</p>
+            <p>Якщо оплату не здійснено вчасно:</p>
+            <ul style="list-style:disc;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li>Переможця дискваліфіковано — угода скасовується</li>
+                <li>Продавець може запропонувати лот учаснику з другою за величиною ставкою</li>
+                <li>Переможець отримує негативну позначку в рейтингу (впливає на можливість участі в майбутніх аукціонах)</li>
+            </ul>
+        </div>
+
+        <div class="info-card reveal reveal--delay-6">
+            <h2 class="info-card__title" data-i18n="trading_s7_title">7. Терміни відправки (3 дні після оплати)</h2>
+            <p>Продавець зобов'язаний відправити товар протягом <strong>3 календарних днів</strong> після отримання підтвердження оплати від покупця.</p>
+            <p>Продавець має надати трек-номер відправлення через чат платформи. Якщо відправку не здійснено вчасно без поважної причини, покупець має право вимагати повернення коштів, а на продавця накладаються санкції аж до тимчасового блокування акаунта.</p>
+        </div>
+
+        <div class="info-card reveal reveal--delay-7">
+            <h2 class="info-card__title" data-i18n="trading_s8_title">8. Вирішення спорів</h2>
+            <p>У разі виникнення суперечностей між покупцем і продавцем діє наступний порядок:</p>
+            <ol style="list-style:decimal;padding-left:20px;color:var(--text-secondary);line-height:1.8;font-size:0.92rem;">
+                <li><strong>Переговори в чаті.</strong> Спробуйте вирішити питання напряму — більшість ситуацій вирішуються на цьому етапі.</li>
+                <li><strong>Звернення до підтримки.</strong> Якщо домовитися не вдалося — напишіть у службу підтримки через форму на сторінці <a href="contacts.html" style="color:var(--accent)">Контакти</a>. Надайте скріншоти листування та опис ситуації.</li>
+                <li><strong>Розгляд.</strong> Адміністрація KRAM.UA розглядає звернення протягом 24 годин. Рішення приймається на підставі історії чату, статусів оплати/відправки та регламенту платформи.</li>
+            </ol>
+            <p style="margin-top:12px;">Адміністрація KRAM.UA залишає за собою право блокувати акаунти користувачів, які систематично порушують правила платформи.</p>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/reveal.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/header.js"></script>
+</body>
+</html>

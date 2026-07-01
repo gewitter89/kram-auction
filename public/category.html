@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категорія — KRAM.UA</title>
+    <meta name="description" content="Перегляд лотів за категоріями на KRAM.UA.">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Категорія — KRAM.UA">
+    <meta property="og:description" content="Перегляд лотів за категоріями на KRAM.UA">
+    <meta property="og:image" content="icons/og-image.svg">
+    <meta property="og:url" content="">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#030712">
+</head>
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__left">
+                <a href="index.html" class="header__logo">
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
+                </a>
+            </div>
+            <div class="header__search">
+                <input type="text" data-i18n-placeholder="search_placeholder" placeholder="Пошук лотів..." class="search-input" id="searchInput">
+                <button class="search-btn" aria-label="Шукати" onclick="searchLots()">🔍</button>
+            </div>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
+                <a href="login.html" class="header__icon" title="Увійти">🔑</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Category Hero -->
+        <div id="categoryHero" class="category-hero" style="border-radius: var(--radius-lg); margin-bottom: 28px;">
+            <div class="category-hero__text">
+                <h1 id="catTitle" class="category-hero__title">Завантаження...</h1>
+                <p id="catCount" class="category-hero__count"></p>
+            </div>
+        </div>
+
+        <!-- Sort -->
+        <div class="content__header" style="margin-bottom:20px">
+            <h2 class="content__title" id="sectionTitle" data-i18n="lots">Лоти</h2>
+            <div class="content__sort">
+                <span data-i18n="sort">Сортувати:</span>
+                <select id="sortSelect" onchange="applySort()">
+                    <option value="ending" data-i18n="sort_ending">Завершення</option>
+                    <option value="newest" data-i18n="sort_new">Нові</option>
+                    <option value="price_asc" data-i18n="sort_price_asc">Ціна ▲</option>
+                    <option value="price_desc" data-i18n="sort_price_desc">Ціна ▼</option>
+                    <option value="popular" data-i18n="sort_popular">Популярні</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="lots-grid" id="lotsGrid">
+            <!-- Filled by JS -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand"><span style="font-size:1.3rem">⚡</span><span class="logo-text">KRAM.UA</span></div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
+
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/lazy-load.js"></script>
+    <script src="js/header.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const categoryId = params.get('id') || params.get('category');
+    const categoryName = params.get('name') || '';
+
+    let currentPage = 1, totalPages = 1, currentSort = 'ending';
+
+    function searchLots() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (q) window.location.href = 'index.html?search=' + encodeURIComponent(q);
+    }
+
+    async function loadCategories() {
+        try {
+            const cats = await API.get('/api/categories');
+            const cat = cats.find(c => String(c.id) === String(categoryId) || c.name === categoryName);
+            if (cat) {
+                document.getElementById('catTitle').textContent = cat.name;
+                document.getElementById('catCount').textContent = `Категорія · ${cat.lot_count || 0} лотів`;
+                document.title = cat.name + ' — KRAM.UA';
+            }
+        } catch(e) {}
+    }
+
+    async function loadLots() {
+        const grid = document.getElementById('lotsGrid');
+        grid.innerHTML = renderSkeletons(8);
+
+        try {
+            const qs = new URLSearchParams();
+            if (categoryId) qs.set('category', categoryId);
+            qs.set('page', currentPage);
+            qs.set('limit', 20);
+            qs.set('sort', currentSort);
+            qs.set('status', 'active');
+
+            const data = await API.get('/api/lots?' + qs.toString());
+            const lots = data.lots || data || [];
+
+            if (!lots.length) {
+                grid.innerHTML = renderEmptyState('📭', 'Лотів не знайдено', 'У цій категорії поки немає активних лотів.', 'Переглянути всі', 'index.html');
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            grid.innerHTML = lots.map(renderLotCard).join('');
+            totalPages = data.pages || 1;
+            renderPagination();
+            document.querySelectorAll('.reveal').forEach(el => revealObserver?.observe(el));
+        } catch(e) {
+            grid.innerHTML = renderEmptyState('⚠️', 'Помилка', 'Не вдалося завантажити лоти.', 'Спробувати знову', '#');
+            showToast({ type: 'error', message: 'Помилка завантаження лотів.' });
+        }
+
+        document.getElementById('sectionTitle').textContent = `Лоти (стор. ${currentPage})`;
+    }
+
+    function renderPagination() {
+        const pg = document.getElementById('pagination');
+        if (totalPages <= 1) { pg.innerHTML = ''; return; }
+        let html = '';
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<button class="pagination__btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+        }
+        pg.innerHTML = html;
+    }
+
+    function goPage(p) { currentPage = p; loadLots(); window.scrollTo(0, 400); }
+    function applySort() { currentSort = document.getElementById('sortSelect').value; currentPage = 1; loadLots(); }
+
+    function renderLotCard(lot) {
+        const badge = lot.sale_type === 'buy-now' ? 'Купити' : 'Аукціон';
+        const image = lot.main_image ? '/uploads/' + lot.main_image : 'https://placehold.co/400x300/111827/10b981?text=' + encodeURIComponent((lot.title||'').slice(0,16));
+        const cd = formatCountdown(lot.end_time);
+        return `
+            <div class="lot-card reveal" data-id="${lot.id}">
+                <a href="lot.html?id=${lot.id}">
+                <div class="lot-card__image">
+                    <img data-src="${esc(image)}" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="${esc(lot.title)}" loading="lazy">
+                    <span class="lot-card__badge">${badge}</span>
+                </div>
+                <div class="lot-card__body">
+                    <span class="lot-card__category">${esc(lot.category_name || '')}</span>
+                    <h3 class="lot-card__title">${esc(lot.title)}</h3>
+                    <div class="lot-card__bids">Ставок: ${lot.bids_count || 0}</div>
+                    <div class="lot-card__price">${renderPrice(lot.current_price || lot.start_price)}</div>
+                    <div class="lot-card__footer">
+                        <div class="lot-card__timer ${cd.cls}">⏱ ${cd.text}</div>
+                        <div class="lot-card__seller">${esc(lot.seller_name || '')}</div>
+                    </div>
+                </div>
+                </a>
+            </div>
+        `;
+    }
+
+    loadCategories().then(loadLots);
+    </script>
+</body>
+</html>

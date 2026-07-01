@@ -1,4 +1,4 @@
-// API Client for МійАукціон
+// API Client for KRAM.UA
 const API_BASE = '/api';
 
 class AuctionAPI {

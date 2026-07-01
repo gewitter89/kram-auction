@@ -25,7 +25,7 @@ photoInput?.addEventListener('change', () => handleFiles(photoInput.files));
 function handleFiles(files) {
     Array.from(files).forEach(file => {
         if (!file.type.startsWith('image/')) return;
-        if (file.size > 5 * 1024 * 1024) { alert('Фото ' + file.name + ' завелике (макс 5MB)'); return; }
+        if (file.size > 5 * 1024 * 1024) { showToast({ type: 'warning', title: 'Фото завелике', message: file.name + ' перевищує 5MB' }); return; }
         uploadedFiles.push(file);
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -113,10 +113,10 @@ document.getElementById('createLotForm')?.addEventListener('submit', async (e) =
         uploadedFiles.forEach(file => formData.append('images', file));
 
         await api.createLot(formData);
-        alert('Лот успішно опубліковано!');
+        showToast({ type: 'success', title: 'Лот опубліковано!', message: 'Ваш лот успішно опубліковано.' });
         window.location.href = 'cabinet.html';
     } catch (err) {
-        alert('Помилка: ' + err.message);
+        showToast({ type: 'error', title: 'Помилка', message: err.message });
     } finally {
         btn.disabled = false; btn.textContent = '🚀 Опублікувати лот';
     }
@@ -124,7 +124,7 @@ document.getElementById('createLotForm')?.addEventListener('submit', async (e) =
 
 // Save draft
 document.getElementById('saveDraft')?.addEventListener('click', async () => {
-    alert('Функція збереження чернетки в розробці');
+    showToast({ type: 'info', title: 'Чернетки', message: 'Функція в розробці' });
 });
 
 // Init

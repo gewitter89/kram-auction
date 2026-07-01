@@ -2,10 +2,18 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Адмін панель — МійАукціон</title>
+    <title>Адмін панель — KRAM.UA</title>
+    <meta name="robots" content="noindex, nofollow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Адмін панель — KRAM.UA">
+    <meta property="og:image" content="icons/og-image.svg">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="js/i18n.js"></script>
     <style>
         .admin { max-width:1200px;margin:0 auto;padding:24px 16px;position:relative;z-index:1 }
         .admin h1 { font-size:24px;margin-bottom:8px;color:var(--text-primary) }
@@ -54,13 +62,15 @@
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">Адмін панель</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text"><span data-i18n="admin_panel">Адмін панель</span></span>
                 </a>
             </div>
-            <div class="header__right">
-                <a href="cabinet.html" class="header__link">Кабінет</a>
-                <a href="index.html" class="header__link">На сайт</a>
+            <div class="header__right" id="headerRight">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
+                <a href="cabinet.html" class="header__link" data-i18n="nav_cabinet">Кабінет</a>
+                <a href="index.html" class="header__link" data-i18n="nav_home">На сайт</a>
             </div>
         </div>
     </header>
@@ -70,10 +80,15 @@
             <h1>⚙️ Адмін панель</h1>
             <div id="stats" class="admin-stats"></div>
 
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px">
+                <div class="glass-card" style="padding:20px"><canvas id="chartRevenue"></canvas></div>
+                <div class="glass-card" style="padding:20px"><canvas id="chartCategories"></canvas></div>
+            </div>
+
             <div class="admin-tabs">
-                <button class="admin-tab active" data-section="users">Користувачі</button>
-                <button class="admin-tab" data-section="lots">Лоти</button>
-                <button class="admin-tab" data-section="purchases">Покупки</button>
+                <button class="admin-tab active" data-section="users"><span data-i18n="admin_tab_users">Користувачі</span></button>
+                <button class="admin-tab" data-section="lots"><span data-i18n="admin_tab_lots">Лоти</span></button>
+                <button class="admin-tab" data-section="purchases" id="tab-purchases"><span data-i18n="admin_tab_purchases">Покупки</span></button>
             </div>
 
             <div id="alert" class="alert"></div>
@@ -112,11 +127,34 @@
             </div>
 
             <div id="section-purchases" class="admin-section">
-                <p style="color:#666;padding:20px">Управління покупками в розробці. Використовуйте розділ "Лоти" для модерації.</p>
+                <h2 data-i18n="admin_manage_purchases">📦 Керування покупками</h2>
+                <div class="search-bar">
+                    <select id="purchaseStatusFilter" onchange="loadPurchases()" style="padding:8px;border:1px solid #ddd;border-radius:6px">
+                        <option value="">Всі</option>
+                        <option value="pending_payment">Очікує оплати</option>
+                        <option value="paid">Оплачено</option>
+                        <option value="shipped">Відправлено</option>
+                        <option value="received">Отримано</option>
+                    </select>
+                    <input type="text" id="purchaseSearch" placeholder="Пошук за ID, покупцем або продавцем...">
+                    <button onclick="loadPurchases()">🔍</button>
+                </div>
+                <table class="admin-table">
+                    <thead><tr>
+                        <th>ID</th><th>Лот</th><th>Покупець</th><th>Продавець</th><th>Сума</th><th>Спосіб оплати</th><th>Статус</th><th>Дата</th><th>Дії</th>
+                    </tr></thead>
+                    <tbody>
+                        <div id="purchasesTableBody"></div>
+                    </tbody>
+                </table>
+                <div id="purchasesPagination" class="pagination"></div>
             </div>
         </div>
     </main>
 
+    <script src="js/theme.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
     <script>
         function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         const API = new (class { constructor() { this.token = localStorage.getItem('authToken'); } 
@@ -212,6 +250,51 @@
             catch(e) { alert(e.message, 'error'); }
         }
 
+        async function loadPurchases(page=1) {
+            const search = document.getElementById('purchaseSearch').value;
+            const status = document.getElementById('purchaseStatusFilter').value;
+            try {
+                const d = await API.get('/api/admin/purchases?page='+page+'&limit=50'+(status?'&status='+status:'')+(search?'&search='+encodeURIComponent(search):''));
+                const el = document.getElementById('purchasesTableBody');
+                el.innerHTML = d.purchases.map(p => `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td><a href="lot.html?id=${p.lot_id}" target="_blank">${esc(p.lot_title||'#')}</a></td>
+                        <td>${esc(p.buyer_name||'')}</td>
+                        <td>${esc(p.seller_name||'')}</td>
+                        <td>${Number(p.amount||0).toLocaleString('uk-UA')} ₴</td>
+                        <td>${esc(p.payment_method||'—')}</td>
+                        <td>${getPurchaseStatusBadge(p.status)}</td>
+                        <td style="font-size:11px;color:#999">${p.created_at?new Date(p.created_at).toLocaleDateString('uk-UA'):''}</td>
+                        <td>
+                            <button class="btn-sm btn-primary-sm" onclick="updatePurchaseStatus(${p.id})">✏️ Статус</button>
+                        </td>
+                    </tr>
+                `).join('');
+                renderPagination('purchasesPagination', d.pagination, loadPurchases);
+            } catch(e) { alert(e.message, 'error'); }
+        }
+
+        function getPurchaseStatusBadge(status) {
+            const map = {
+                'pending_payment': '<span style="color:#f59e0b">Очікує оплати</span>',
+                'paid': '<span style="color:#3b82f6">Оплачено</span>',
+                'shipped': '<span style="color:#8b5cf6">Відправлено</span>',
+                'received': '<span style="color:#10b981">Отримано</span>',
+                'cancelled': '<span style="color:#ef4444">Скасовано</span>'
+            };
+            return map[status] || '<span style="color:#666">' + esc(status||'') + '</span>';
+        }
+
+        async function updatePurchaseStatus(id) {
+            const statuses = ['pending_payment','paid','shipped','received','cancelled'];
+            const s = prompt('Новий статус (' + statuses.join(', ') + '):');
+            if (!s) return;
+            if (!statuses.includes(s)) { alert('Невірний статус', 'error'); return; }
+            try { const r = await fetch('/api/admin/purchases/'+id+'/status', { method:'PUT', headers:{...API.getHeaders(),'Content-Type':'application/json'}, body:JSON.stringify({status:s}) }); const d=await r.json(); if(!r.ok)throw new Error(d.error); alert(d.message); loadPurchases(); }
+            catch(e) { alert(e.message, 'error'); }
+        }
+
         function renderPagination(id, p, cb) {
             const el = document.getElementById(id);
             if (!el) return;
@@ -224,6 +307,48 @@
             el.innerHTML = html;
         }
 
+        async function loadCharts() {
+            try {
+                const stats = await API.get('/api/admin/stats');
+                new Chart(document.getElementById('chartRevenue'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Активні', 'Завершені', 'Продано'],
+                        datasets: [{
+                            data: [stats.activeLots || 0, stats.completedPurchases || 0, stats.totalPurchases || 0],
+                            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b']
+                        }]
+                    },
+                    options: {
+                        plugins: { title: { display: true, text: 'Лоти', color: '#9ca3af' } }
+                    }
+                });
+
+                new Chart(document.getElementById('chartCategories'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Користувачів', 'Ставок', 'Оборот (тис ₴)'],
+                        datasets: [{
+                            data: [stats.totalUsers || 0, stats.totalBids || 0, Math.round((stats.revenue || 0) / 1000)],
+                            backgroundColor: ['rgba(16,185,129,0.7)', 'rgba(59,130,246,0.7)', 'rgba(245,158,11,0.7)'],
+                            borderColor: ['#10b981', '#3b82f6', '#f59e0b'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: { display: true, text: 'Загалом', color: '#9ca3af' },
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            x: { ticks: { color: '#9ca3af' }, grid: { display: false } }
+                        }
+                    }
+                });
+            } catch (e) {}
+        }
+
         // Tabs
         document.querySelectorAll('.admin-tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -233,6 +358,8 @@
                 document.getElementById('section-'+tab.dataset.section).classList.add('active');
             });
         });
+
+        document.getElementById('tab-purchases')?.addEventListener('click', loadPurchases);
 
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
@@ -246,9 +373,59 @@
                 return;
             }
             await loadStats();
+            loadCharts();
             await loadUsers();
             await loadLots();
         });
     </script>
+
+    <footer class="footer">
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand">
+                    <span style="font-size:1.3rem">⚡</span>
+                    <span class="logo-text">KRAM.UA</span>
+                </div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security_title">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="footer_security_1">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="footer_security_2">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="footer_security_3">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="footer_security_4">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics_title">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="footer_logistics_1">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="footer_logistics_2">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="footer_logistics_3">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="footer_logistics_4">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules_title">📜 Правила</div>
+                <a href="rules.html" data-i18n="footer_rules_1">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="footer_rules_2">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="footer_rules_3">Про платформу</a>
+                <a href="contacts.html" data-i18n="footer_rules_4">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile_title">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="footer_mobile_subtitle">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" style="display:inline-flex;align-items:center;gap:6px" data-i18n="footer_telegram_bot">💬 Telegram бот</a>
+                <a href="faq.html" style="margin-top:4px" data-i18n="footer_help">❓ Допомога</a>
+                <div class="footer__socials" style="margin-top:12px">
+                    <a href="https://t.me/kram_ua" target="_blank" rel="noopener" title="Telegram">✈</a>
+                    <a href="https://instagram.com/kram.ua" target="_blank" rel="noopener" title="Instagram">📷</a>
+                    <a href="https://facebook.com/kram.ua" target="_blank" rel="noopener" title="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="footer_copyright">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="footer_made_in">Зроблено в Україні 🇺🇦</span>
+        </div>
+    </footer>
 </body>
 </html>

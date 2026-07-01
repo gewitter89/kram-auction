@@ -2,22 +2,33 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Створити лот — МійАукціон</title>
+    <title>Створити лот — KRAM.UA</title>
+    <meta name="description" content="Створіть та опублікуйте лот на KRAM.UA — перший український онлайн-аукціон">
+    <meta name="robots" content="noindex">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="KRAM.UA">
+    <meta property="og:title" content="Створити лот — KRAM.UA">
+    <meta property="og:description" content="Створіть та опублікуйте лот на українському аукціоні">
+    <meta property="og:image" content="icons/og-image.svg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/create-lot.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="js/i18n.js"></script>
 </head>
 <body>
     <header class="header">
         <div class="header__container">
             <div class="header__left">
                 <a href="index.html" class="header__logo">
-                    <span class="logo-icon">⚡</span>
-                    <span class="logo-text">МійАукціон</span>
+                    <img src="icons/logo.svg" alt="KRAM.UA" class="logo-icon" width="28" height="28">
+                    <span class="logo-text">KRAM.UA</span>
                 </a>
             </div>
             <div class="header__right">
+                <button id="langToggle" class="header__icon" onclick="i18n&&i18n.toggleLang()" title="English">EN</button>
+                <button id="themeToggle" class="header__icon" onclick="toggleTheme()" title="Змінити тему">☀️</button>
                 <a href="cabinet.html" class="header__icon" title="Кабінет">👤</a>
             </div>
         </div>
@@ -25,63 +36,63 @@
 
     <main class="main">
         <div class="create-lot">
-            <h1>Створити новий лот</h1>
-            <p class="create-lot__subtitle">Заповніть інформацію про ваш товар</p>
+            <h1 data-i18n="create_title">Створити новий лот</h1>
+            <p class="create-lot__subtitle" data-i18n="create_subtitle">Заповніть інформацію про ваш товар</p>
 
             <form class="create-form" id="createLotForm">
                 <!-- Step 1: Basic Info -->
                 <div class="create-form__section">
-                    <h2>📝 Основна інформація</h2>
+                    <h2 data-i18n="create_section_basic">📝 Основна інформація</h2>
                     <div class="form-group">
-                        <label for="lotTitle">Назва лота *</label>
-                        <input type="text" id="lotTitle" placeholder="Наприклад: Ноутбук Dell Latitude E7470 i5/8Gb/256SSD" required maxlength="120">
-                        <span class="form-hint">Максимум 120 символів. Вкажіть бренд, модель, основні характеристики.</span>
+                        <label for="lotTitle" data-i18n="create_lot_title_label">Назва лота *</label>
+                        <input type="text" id="lotTitle" data-i18n-placeholder="create_lot_title_ph" placeholder="Наприклад: Ноутбук Dell Latitude E7470 i5/8Gb/256SSD" required maxlength="120">
+                        <span class="form-hint" data-i18n="create_lot_title_hint">Максимум 120 символів. Вкажіть бренд, модель, основні характеристики.</span>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="lotCategory">Категорія *</label>
+                            <label for="lotCategory" data-i18n="create_category_label">Категорія *</label>
                             <select id="lotCategory" required>
-                                <option value="">Оберіть категорію</option>
-                                <option>Електроніка, Техніка</option>
+                                <option value="" data-i18n="create_category_ph">Оберіть категорію</option>
+                                <option data-i18n="cat_electronics">Електроніка, Техніка</option>
                                 <option>Ноутбуки</option>
                                 <option>Комплектуючі для ПК</option>
                                 <option>Системні блоки, ПК</option>
                                 <option>Смартфони</option>
-                                <option>Одяг, мода, краса</option>
-                                <option>Автозапчастини, Тюнінг</option>
-                                <option>Спорт, Туризм</option>
-                                <option>Дитячі товари</option>
-                                <option>Будинок, дозвілля</option>
-                                <option>Інструменти</option>
+                                <option data-i18n="cat_fashion">Одяг, мода, краса</option>
+                                <option data-i18n="cat_auto">Автозапчастини, Тюнінг</option>
+                                <option data-i18n="cat_sport">Спорт, Туризм</option>
+                                <option data-i18n="cat_kids">Дитячі товари</option>
+                                <option data-i18n="cat_home">Будинок, дозвілля</option>
+                                <option data-i18n="cat_tools">Інструменти</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="lotCondition">Стан *</label>
+                            <label for="lotCondition" data-i18n="create_condition_label">Стан *</label>
                             <select id="lotCondition" required>
-                                <option value="">Оберіть стан</option>
-                                <option>Нове</option>
-                                <option>Б/В — відмінний</option>
-                                <option>Б/В — гарний</option>
-                                <option>Б/В — задовільний</option>
-                                <option>На запчастини / не працює</option>
+                                <option value="" data-i18n="create_condition_ph">Оберіть стан</option>
+                                <option data-i18n="create_condition_new">Нове</option>
+                                <option data-i18n="create_condition_used_excellent">Б/В — відмінний</option>
+                                <option data-i18n="create_condition_used_good">Б/В — гарний</option>
+                                <option data-i18n="create_condition_used_fair">Б/В — задовільний</option>
+                                <option data-i18n="create_condition_parts">На запчастини / не працює</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="lotDescription">Опис *</label>
-                        <textarea id="lotDescription" rows="6" placeholder="Детальний опис товару: стан, комплектація, дефекти..." required></textarea>
+                        <label for="lotDescription" data-i18n="create_description_label">Опис *</label>
+                        <textarea id="lotDescription" rows="6" data-i18n-placeholder="create_description_ph" placeholder="Детальний опис товару: стан, комплектація, дефекти..." required></textarea>
                     </div>
                 </div>
 
                 <!-- Step 2: Photos -->
                 <div class="create-form__section">
-                    <h2>📷 Фотографії</h2>
+                    <h2 data-i18n="create_section_photos">📷 Фотографії</h2>
                     <div class="photo-upload">
                         <div class="photo-upload__area" id="photoUploadArea">
                             <div class="photo-upload__placeholder">
                                 <span class="photo-upload__icon">📷</span>
-                                <p>Перетягніть фото сюди або натисніть для вибору</p>
-                                <span class="photo-upload__hint">До 10 фото, JPG/PNG, макс. 5MB кожне</span>
+                                <p data-i18n="create_photo_drag">Перетягніть фото сюди або натисніть для вибору</p>
+                                <span class="photo-upload__hint" data-i18n="create_photo_hint">До 10 фото, JPG/PNG, макс. 5MB кожне</span>
                             </div>
                             <input type="file" id="photoInput" multiple accept="image/*" hidden>
                         </div>
@@ -91,128 +102,159 @@
 
                 <!-- Step 3: Price & Type -->
                 <div class="create-form__section">
-                    <h2>💰 Ціна та тип продажу</h2>
+                    <h2 data-i18n="create_section_price">💰 Ціна та тип продажу</h2>
                     <div class="form-group">
-                        <label>Тип продажу *</label>
+                        <label data-i18n="create_sale_type_label">Тип продажу *</label>
                         <div class="radio-group">
                             <label class="radio-card">
                                 <input type="radio" name="saleType" value="auction" checked>
                                 <div class="radio-card__content">
-                                    <strong>🔨 Аукціон</strong>
-                                    <span>Покупці роблять ставки</span>
+                                    <strong data-i18n="create_sale_auction">🔨 Аукціон</strong>
+                                    <span data-i18n="create_sale_auction_desc">Покупці роблять ставки</span>
                                 </div>
                             </label>
                             <label class="radio-card">
                                 <input type="radio" name="saleType" value="buy-now">
                                 <div class="radio-card__content">
-                                    <strong>🛒 Купити зараз</strong>
-                                    <span>Фіксована ціна</span>
+                                    <strong data-i18n="create_sale_buy_now">🛒 Купити зараз</strong>
+                                    <span data-i18n="create_sale_buy_now_desc">Фіксована ціна</span>
                                 </div>
                             </label>
                             <label class="radio-card">
                                 <input type="radio" name="saleType" value="both">
                                 <div class="radio-card__content">
-                                    <strong>🔨+🛒 Обидва</strong>
-                                    <span>Аукціон + Купити зараз</span>
+                                    <strong data-i18n="create_sale_both">🔨+🛒 Обидва</strong>
+                                    <span data-i18n="create_sale_both_desc">Аукціон + Купити зараз</span>
                                 </div>
                             </label>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="startPrice">Стартова ціна (грн) *</label>
+                            <label for="startPrice" data-i18n="create_start_price">Стартова ціна (грн) *</label>
                             <input type="number" id="startPrice" placeholder="1" min="1" required>
-                            <span class="form-hint">Мінімум 1 грн.</span>
+                            <span class="form-hint" data-i18n="create_start_price_hint">Мінімум 1 грн.</span>
                         </div>
                         <div class="form-group">
-                            <label for="buyNowPrice">Ціна "Купити зараз" (грн)</label>
-                            <input type="number" id="buyNowPrice" placeholder="Необов'язково">
+                            <label for="buyNowPrice" data-i18n="create_buy_now_price">Ціна "Купити зараз" (грн)</label>
+                            <input type="number" id="buyNowPrice" data-i18n-placeholder="create_buy_now_price_ph" placeholder="Необов'язково">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bidStep">Крок ставки (грн)</label>
+                            <label for="bidStep" data-i18n="create_bid_step">Крок ставки (грн)</label>
                             <input type="number" id="bidStep" value="10" min="1">
                         </div>
                         <div class="form-group">
-                            <label for="reservePrice">Резервна ціна (грн)</label>
-                            <input type="number" id="reservePrice" placeholder="Необов'язково">
-                            <span class="form-hint">Мін. ціна, нижче якої не продасте</span>
+                            <label for="reservePrice" data-i18n="create_reserve_price">Резервна ціна (грн)</label>
+                            <input type="number" id="reservePrice" data-i18n-placeholder="create_buy_now_price_ph" placeholder="Необов'язково">
+                            <span class="form-hint" data-i18n="create_reserve_hint">Мін. ціна, нижче якої не продасте</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Step 4: Duration & Delivery -->
                 <div class="create-form__section">
-                    <h2>📦 Тривалість та доставка</h2>
+                    <h2 data-i18n="create_section_delivery">📦 Тривалість та доставка</h2>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="duration">Тривалість аукціону *</label>
+                            <label for="duration" data-i18n="create_duration_label">Тривалість аукціону *</label>
                             <select id="duration" required>
-                                <option value="1">1 день</option>
-                                <option value="3">3 дні</option>
-                                <option value="5">5 днів</option>
-                                <option value="7" selected>7 днів</option>
-                                <option value="10">10 днів</option>
-                                <option value="14">14 днів</option>
+                                <option value="1" data-i18n="create_duration_1">1 день</option>
+                                <option value="3" data-i18n="create_duration_3">3 дні</option>
+                                <option value="5" data-i18n="create_duration_5">5 днів</option>
+                                <option value="7" selected data-i18n="create_duration_7">7 днів</option>
+                                <option value="10" data-i18n="create_duration_10">10 днів</option>
+                                <option value="14" data-i18n="create_duration_14">14 днів</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="location">Розташування *</label>
+                            <label for="location" data-i18n="create_location_label">Розташування *</label>
                             <select id="location" required>
-                                <option value="">Оберіть місто</option>
-                                <option>Київ</option>
-                                <option>Харків</option>
-                                <option>Одеса</option>
-                                <option>Дніпро</option>
-                                <option>Львів</option>
-                                <option>Запоріжжя</option>
-                                <option>Вінниця</option>
-                                <option>Інше</option>
+                                <option value="" data-i18n="create_location_ph">Оберіть місто</option>
+                                <option data-i18n="city_kyiv">Київ</option>
+                                <option data-i18n="city_kharkiv">Харків</option>
+                                <option data-i18n="city_odesa">Одеса</option>
+                                <option data-i18n="city_dnipro">Дніпро</option>
+                                <option data-i18n="city_lviv">Львів</option>
+                                <option data-i18n="city_zaporizhzhia">Запоріжжя</option>
+                                <option data-i18n="city_vinnytsia">Вінниця</option>
+                                <option data-i18n="city_other">Інше</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Способи доставки *</label>
+                        <label data-i18n="create_delivery_label">Способи доставки *</label>
                         <div class="filter-checkboxes">
-                            <label><input type="checkbox" checked> Нова Пошта</label>
-                            <label><input type="checkbox"> Укрпошта</label>
-                            <label><input type="checkbox"> Самовивіз</label>
-                            <label><input type="checkbox"> Meest</label>
+                            <label><input type="checkbox" checked> <span data-i18n="create_delivery_nova">Нова Пошта</span></label>
+                            <label><input type="checkbox"> <span data-i18n="create_delivery_ukrposhta">Укрпошта</span></label>
+                            <label><input type="checkbox"> <span data-i18n="create_delivery_pickup">Самовивіз</span></label>
+                            <label><input type="checkbox"> <span data-i18n="create_delivery_meest">Meest</span></label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Способи оплати *</label>
+                        <label data-i18n="create_payment_label">Способи оплати *</label>
                         <div class="filter-checkboxes">
-                            <label><input type="checkbox" checked> На картку</label>
-                            <label><input type="checkbox"> Накладений платіж</label>
-                            <label><input type="checkbox"> Готівка (при самовивозі)</label>
+                            <label><input type="checkbox" checked> <span data-i18n="create_payment_card">На картку</span></label>
+                            <label><input type="checkbox"> <span data-i18n="create_payment_cod">Накладений платіж</span></label>
+                            <label><input type="checkbox"> <span data-i18n="create_payment_cash">Готівка (при самовивозі)</span></label>
                         </div>
                     </div>
                 </div>
 
                 <!-- Submit -->
                 <div class="create-form__actions">
-                    <button type="button" class="btn-secondary" id="saveDraft">Зберегти чернетку</button>
-                    <button type="submit" class="btn-primary btn-primary--large">🚀 Опублікувати лот</button>
+                    <button type="button" class="btn-secondary" id="saveDraft" data-i18n="create_save_draft">Зберегти чернетку</button>
+                    <button type="submit" class="btn-primary btn-primary--large" data-i18n="create_publish">🚀 Опублікувати лот</button>
                 </div>
             </form>
         </div>
     </main>
 
     <footer class="footer">
-        <div class="footer__container">
-            <div class="footer__links">
-                <a href="#">Про нас</a>
-                <a href="#">Угода користувача</a>
-                <a href="#">Контакти</a>
-                <a href="#">Допомога</a>
+        <div class="footer__grid">
+            <div>
+                <div class="footer__brand"><span style="font-size:1.3rem">⚡</span><span class="logo-text">KRAM.UA</span></div>
+                <p class="footer__tagline" data-i18n="footer_tagline">Перший в Україні преміальний торговий майданчик, що поєднує швидкість оголошень та азарт відкритих аукціонів.</p>
+                <span class="footer__badge" data-i18n="footer_beta">🚀 Безкоштовна beta</span>
             </div>
-            <p class="footer__copy">© 2026 МійАукціон. Всі права захищені.</p>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_security">🛡️ Безпека</div>
+                <a href="bezpeka.html" data-i18n="secure_deal_rules">Правила безпечної угоди</a>
+                <a href="bezpeka.html#chat" data-i18n="chat_moderation">Чат-модерація контактів</a>
+                <a href="bezpeka.html#verified" data-i18n="verified_sellers">Перевірені продавці</a>
+                <a href="bezpeka.html#nopayments" data-i18n="no_kram_payments">Без платежів через KRAM</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_logistics">📦 Логістика</div>
+                <a href="logistika.html" data-i18n="nova_poshta">Нова Пошта</a>
+                <a href="logistika.html#ukrposhta" data-i18n="ukrposhta_express">Укрпошта Експрес</a>
+                <a href="logistika.html#meest" data-i18n="meest_post">Meest ПОШТА</a>
+                <a href="logistika.html#pickup" data-i18n="pickup_points">Пункти самовивозу</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_rules">📜 Правила</div>
+                <a href="rules.html" data-i18n="user_agreement">Угода користувача</a>
+                <a href="torgy-pravyla.html" data-i18n="trading_rules">Правила проведення торгів</a>
+                <a href="about.html" data-i18n="about_platform">Про платформу</a>
+                <a href="contacts.html" data-i18n="support_24_7">Служба підтримки (24/7)</a>
+            </div>
+            <div class="footer__col">
+                <div class="footer__col-title" data-i18n="footer_mobile">📱 Мобільні сервіси</div>
+                <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:8px" data-i18n="mobile_push">Отримуйте миттєві push-сповіщення про нові ставки</p>
+                <a href="contacts.html#telegram" data-i18n="telegram_bot" style="display:inline-flex;align-items:center;gap:6px">💬 Telegram бот</a>
+                <a href="faq.html" data-i18n="help" style="margin-top:4px">❓ Допомога</a>
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <span data-i18n="copyright_full">© 2026 KRAM.UA — Бета-версія. Всі права захищені.</span>
+            <span data-i18n="made_in_ukraine">Зроблено в Україні 🇺🇦</span>
         </div>
     </footer>
 
     <script src="js/api.js"></script>
+    <script src="js/toast.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/create-lot.js"></script>
 </body>
 </html>
